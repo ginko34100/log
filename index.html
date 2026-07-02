@@ -67,6 +67,11 @@
   .scene .nmL,.scene .nmR{position:absolute;bottom:6px;transform:translateX(-50%);font-family:'Galmuri11';font-size:10px;letter-spacing:1px;text-shadow:1px 1px 0 #1c1410,0 0 4px rgba(0,0,0,.6);z-index:2;}
   .scene .nmL{left:23%;color:#ffb9b3;}
   .scene .nmR{left:75%;color:#a9efe6;}
+  /* 정모 머리 위 총 횟수 */
+  .scene .cntL{position:absolute;left:23%;top:50%;transform:translateX(-50%);
+    font-family:'Galmuri14','Galmuri11',monospace;font-size:12px;letter-spacing:1px;color:#FFD35A;
+    text-shadow:1px 1px 0 #1c1410,0 0 5px rgba(0,0,0,.7);z-index:2;}
+  .scene .cntL.zero{color:#8d86a8;font-size:10px;}
 
   /* ===== 반반 컬럼 ===== */
   .split{display:flex;gap:12px;align-items:flex-start;}
@@ -207,6 +212,7 @@
       <span class="tag">MOMO GYM</span>
       <span class="cap" id="gymcap">NEON NIGHT</span>
       <span class="nmL">정모</span><span class="nmR">유지</span>
+      <span class="cntL" id="jm-scene-total">0회</span>
     </div>
   </div>
 
@@ -404,6 +410,10 @@ function renderJM(){
     pb.innerHTML=`<div class="p1"><span class="ph">DAY ${programDay(k)} · ${plan.deload?'디로드(회복주간)':'성장기'}</span></div>`+
       `<div class="p2">${plan.block}블록 ${plan.mesoWeek}주차 · 권장 ${plan.total}회 / ${plan.sets.length}세트${plan.adapted?(plan.factor>1?' ↑전일반영':' ↓전일반영'):''}${plan.amrap?' (마지막 최대반복)':''} · 세트휴식 ${plan.restSec}초</div>`;}
   renderJMBody(plan);
+  // 씬 정모 머리 위: 전체 기간 누적 총 횟수
+  const sc=document.getElementById('jm-scene-total');
+  if(sc){const tot=Object.values(data.days).reduce((a,dd)=>a+((dd.jm&&dd.jm.sets)||[]).reduce((s,x)=>s+(x.reps||0),0),0);
+    sc.textContent=tot.toLocaleString()+'회';sc.classList.toggle('zero',tot===0);}
 }
 function renderJMBody(plan){
   const k=keyOf(viewDate),d=day(k),body=document.getElementById('jm-body');
