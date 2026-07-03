@@ -361,8 +361,9 @@ const JMQ={prices:{},at:null,timer:null};
 async function fetchQuote(code){
   const api=`https://m.stock.naver.com/api/stock/${code}/basic?_=${Date.now()}`;
   const proxies=[
-    'https://api.allorigins.win/raw?url='+encodeURIComponent(api),
-    'https://corsproxy.io/?url='+encodeURIComponent(api)
+    `/api/quote?code=${code}&_=${Date.now()}`,               // Vercel 서버리스 (메인)
+    'https://api.allorigins.win/raw?url='+encodeURIComponent(api),  // 폴백
+    'https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(api)
   ];
   for(const u of proxies){
     try{
@@ -380,7 +381,9 @@ async function pollQuotes(){
   const rs=await Promise.all(JM_STOCKS.map(st=>fetchQuote(st.code)));
   let got=false;
   rs.forEach((q,i)=>{if(q){JMQ.prices[JM_STOCKS[i].code]=q;got=true;}});
-  if(got){JMQ.at=new Date();renderStockPopup();}
+  JMQ.fails=got?0:(JMQ.fails||0)+1;
+  if(got)JMQ.at=new Date();
+  renderStockPopup();
 }
 const won=n=>Math.round(n).toLocaleString('ko-KR');
 const sgn=n=>(n>0?'+':'')+won(n);
@@ -393,7 +396,7 @@ function renderStockPopup(){
   JM_STOCKS.forEach(st=>{
     const q=JMQ.prices[st.code];
     const cost=st.avg*st.qty; totC+=cost;
-    if(!q){html+=`<div class="strow"><span class="nm">${st.name}<span class="sub">${st.qty}주 · 평단 ${won(st.avg)}원</span></span><span class="pv fl">불러오는 중…</span></div>`;return;}
+    if(!q){const msg=JMQ.fails>=2?'시세 연결 실패 😢':'불러오는 중…';html+=`<div class="strow"><span class="nm">${st.name}<span class="sub">${st.qty}주 · 평단 ${won(st.avg)}원</span></span><span class="pv fl">${msg}</span></div>`;return;}
     const val=q.price*st.qty; totV+=val;
     const pl=val-cost, plPct=(pl/cost*100);
     html+=`<div class="strow">
