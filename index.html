@@ -96,6 +96,16 @@
   .scene .cntL.zero{color:#e8d5ac;font-size:10px;}
 
 
+
+  /* ===== 정모 주식 곳간 ===== */
+  #jmhot{position:absolute;left:2%;top:30%;width:44%;height:68%;z-index:4;cursor:pointer;}
+  .strow{display:flex;justify-content:space-between;align-items:baseline;gap:6px;padding:7px 2px;border-bottom:2px dashed rgba(91,44,14,.25);}
+  .strow .nm{font-size:10px;color:var(--ink);}
+  .strow .pv{text-align:right;white-space:nowrap;}
+  .strow .cur{font-family:'Galmuri14';font-size:13px;}
+  .strow .sub{font-size:8px;color:var(--muted);display:block;margin-top:2px;}
+  .up{color:#c93a2e;} .dn{color:#2e5fc9;} .fl{color:var(--muted);}
+  .sttotal{display:flex;justify-content:space-between;padding:9px 2px 2px;font-family:'Galmuri14';font-size:14px;}
   /* ===== 정원 생물 (꿀벌·나비) ===== */
   .garden{position:fixed;inset:0;pointer-events:none;z-index:30;overflow:hidden;}
   .bug{position:absolute;image-rendering:pixelated;background-repeat:no-repeat;background-size:contain;}
@@ -256,6 +266,7 @@
   <div class="panel scene">
     <div class="cvwrap">
       <canvas id="gym"></canvas>
+      <div id="jmhot" title="정모의 곳간"></div>
       <span class="cap" id="gymcap">SUNNY DAY</span>
       <span class="nmL">정모</span><span class="nmR">유지</span>
       <span class="cntL" id="jm-scene-total">0회</span>
@@ -340,6 +351,81 @@ const KEY='workout_duo_v2', OLDS=['workout_duo_v1','dailyquest_v3'];
    3) 아래 url(프로젝트 URL)과 key(anon public key) 입력  */
 const SUPA={ url:'https://ndhhdpuizotdxoysfpcv.supabase.co', key:'sb_publishable_qRjt0VUZaA1L4DizGSor9w_0YEklW4K', room:'momo-root-duo' };
 const supaOn=()=>SUPA.url&&SUPA.key;
+
+/* ═══ 정모 주식 곳간 (네이버 금융 · 10초 폴링) ═══ */
+const JM_STOCKS=[
+  {code:'0162Z0',name:'RISE 삼전·SK하닉 채권혼합50',qty:205,avg:14910},
+  {code:'442580',name:'PLUS 글로벌HBM반도체',qty:61,avg:128204}
+];
+const JMQ={prices:{},at:null,timer:null};
+async function fetchQuote(code){
+  const api=`https://m.stock.naver.com/api/stock/${code}/basic?_=${Date.now()}`;
+  const proxies=[
+    'https://api.allorigins.win/raw?url='+encodeURIComponent(api),
+    'https://corsproxy.io/?url='+encodeURIComponent(api)
+  ];
+  for(const u of proxies){
+    try{
+      const r=await fetch(u,{signal:AbortSignal.timeout(7000)});
+      if(!r.ok)continue;
+      const d=await r.json();
+      const price=parseFloat(String(d.closePrice||'').replace(/,/g,''));
+      if(!price)continue;
+      return{price,pct:parseFloat(d.fluctuationsRatio||'0'),diff:parseFloat(String(d.compareToPreviousClosePrice||'0').replace(/,/g,''))};
+    }catch(e){}
+  }
+  return null;
+}
+async function pollQuotes(){
+  const rs=await Promise.all(JM_STOCKS.map(st=>fetchQuote(st.code)));
+  let got=false;
+  rs.forEach((q,i)=>{if(q){JMQ.prices[JM_STOCKS[i].code]=q;got=true;}});
+  if(got){JMQ.at=new Date();renderStockPopup();}
+}
+const won=n=>Math.round(n).toLocaleString('ko-KR');
+const sgn=n=>(n>0?'+':'')+won(n);
+const cls=n=>n>0?'up':(n<0?'dn':'fl');
+function renderStockPopup(){
+  const ov=document.getElementById('stockov');
+  if(!ov||ov.style.display==='none')return;
+  const body=document.getElementById('stockbody');
+  let totV=0,totC=0,html='';
+  JM_STOCKS.forEach(st=>{
+    const q=JMQ.prices[st.code];
+    const cost=st.avg*st.qty; totC+=cost;
+    if(!q){html+=`<div class="strow"><span class="nm">${st.name}<span class="sub">${st.qty}주 · 평단 ${won(st.avg)}원</span></span><span class="pv fl">불러오는 중…</span></div>`;return;}
+    const val=q.price*st.qty; totV+=val;
+    const pl=val-cost, plPct=(pl/cost*100);
+    html+=`<div class="strow">
+      <span class="nm">${st.name}<span class="sub">${st.qty}주 · 평단 ${won(st.avg)}원 → 현재 ${won(q.price)}원 <span class="${cls(q.pct)}">(${q.pct>0?'+':''}${q.pct}%)</span></span></span>
+      <span class="pv"><span class="cur ${cls(pl)}">${sgn(pl)}원</span><span class="sub ${cls(pl)}">${pl>0?'+':''}${plPct.toFixed(2)}%</span></span>
+    </div>`;
+  });
+  if(totV>0){
+    const tpl=totV-totC;
+    html+=`<div class="sttotal"><span>총 손익</span><span class="${cls(tpl)}">${sgn(tpl)}원 (${tpl>0?'+':''}${(tpl/totC*100).toFixed(2)}%)</span></div>`;
+  }
+  body.innerHTML=html;
+  document.getElementById('stockat').textContent=JMQ.at?('마지막 갱신 '+JMQ.at.toLocaleTimeString('ko-KR')+' · 10초마다 자동 갱신 · 시세 지연 가능'):'';
+}
+function openStockPopup(){
+  document.getElementById('stockov').style.display='flex';
+  renderStockPopup(); pollQuotes();
+}
+function startPolling(){
+  if(JMQ.timer)return;
+  JMQ.timer=setInterval(()=>{if(!document.hidden)pollQuotes();},10000);
+  pollQuotes();
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  const hot=document.getElementById('jmhot');
+  if(hot)hot.addEventListener('click',openStockPopup);
+  const ov=document.getElementById('stockov');
+  document.getElementById('stockclose').addEventListener('click',()=>ov.style.display='none');
+  document.getElementById('stockrefresh').addEventListener('click',pollQuotes);
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.style.display='none';});
+  startPolling();
+});
 async function supaPull(){
   if(!supaOn())return null;
   try{
@@ -838,6 +924,17 @@ function drawScene(t){g.clearRect(0,0,VW,VH);windowWall(t);neonSign(t);floor();k
   if(reduce){ drawScene(1.3); blit(); } else { requestAnimationFrame(frame); }
 })();
 </script>
+<div class="pkov" id="stockov" style="display:none;">
+  <div class="panel" id="stockpanel" style="max-width:340px;width:100%;">
+    <div style="font-family:'Galmuri14';font-size:15px;text-align:center;padding:4px 0 8px;color:var(--ink);">💰 정모의 곳간</div>
+    <div id="stockbody" style="font-size:11px;"></div>
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <button class="btn" id="stockrefresh" style="flex:1;">새로고침</button>
+      <button class="btn" id="stockclose" style="flex:1;">닫기</button>
+    </div>
+    <div id="stockat" style="text-align:center;font-size:8px;color:var(--muted);margin-top:6px;"></div>
+  </div>
+</div>
 <div class="garden" aria-hidden="true">
   <div class="bug bee b1"></div><div class="bug bee b2"></div><div class="bug bee b3"></div>
   <div class="bug bfly"></div>
