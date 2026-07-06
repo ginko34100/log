@@ -2,31 +2,75 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#12110b">
 <title>정모의 방</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/neodgm-webfont@1.611/neodgm/style.min.css">
 <style>
-  html, body { margin:0; padding:0; background:#12110b; height:100%; overflow:hidden; }
-  #wrap { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; }
-  canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
+  html, body {
+    margin:0; padding:0; background:#12110b;
+    height:100%; overflow:hidden;
+    overscroll-behavior:none;
+    -webkit-tap-highlight-color:transparent;
+    touch-action:none;
+  }
+  canvas {
+    display:block; width:100vw; height:100dvh;
+    image-rendering: pixelated; image-rendering: crisp-edges;
+  }
 </style>
 </head>
 <body>
-<div id="wrap"><canvas id="screen"></canvas></div>
+<canvas id="screen"></canvas>
 <script>
-// ═══════════ 버퍼 ═══════════
-const BW = 240, BH = 427;
+// ═══════════ 버퍼 (화면 비율 적응형) ═══════════
+const BW = 240;                 // 가로 픽셀 해상도 고정
+let BH = 427;                   // 세로는 기기 비율에 맞춰 계산
 const buf = document.createElement('canvas');
-buf.width = BW; buf.height = BH;
 const b = buf.getContext('2d');
 const screen = document.getElementById('screen');
 const sctx = screen.getContext('2d');
+
+// 세이프에어리어(다이나믹 아일랜드/홈바) 측정용 프로브
+const probe = document.createElement('div');
+probe.style.cssText = 'position:fixed;top:0;left:0;width:0;height:0;visibility:hidden;'
+  + 'padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)';
+document.body.appendChild(probe);
+
+// 동적 레이아웃 (fit에서 계산)
+let TITLE_Y = 24;
+let PANEL = { x:10, y:278, w:BW-20, h:140 };
+let OY = 148;
+const OX = BW/2 + 6;
+
 function fit() {
-  const s = Math.max(1, Math.floor(Math.min(innerWidth/BW, innerHeight/BH)));
-  screen.width = BW*s; screen.height = BH*s;
+  const vw = innerWidth, vh = innerHeight;
+  const dpr = Math.min(3, devicePixelRatio || 1);
+  // 버퍼 세로를 화면 비율에 맞춤 (아이폰 ~2.16:1이면 BH≈520)
+  BH = Math.max(420, Math.round(BW * vh / vw));
+  buf.width = BW; buf.height = BH;
+  grain.width = BW; grain.height = BH;
+  screen.width  = Math.round(vw * dpr);
+  screen.height = Math.round(vh * dpr);
   sctx.imageSmoothingEnabled = false;
+
+  // 세이프에어리어를 버퍼 좌표로 환산
+  const S = vw / BW;
+  const cs = getComputedStyle(probe);
+  const safeT = (parseFloat(cs.paddingTop)    || 0) / S;
+  const safeB = (parseFloat(cs.paddingBottom) || 0) / S;
+
+  // 레이아웃: 타이틀(세이프 아래) / 방(가운데) / 곳간(홈바 위)
+  TITLE_Y = Math.round(safeT + 26);
+  PANEL = { x:10, y: Math.round(BH - 140 - safeB - 8), w: BW-20, h: 140 };
+  const roomTop = TITLE_Y + 34;            // 타이틀 존 하단
+  const roomBot = PANEL.y - 6;             // 패널 존 상단
+  // 방 그림 세로 범위 ≈ OY-62(벽 꼭대기) ~ OY+96(앞쪽 바닥) = 158px
+  OY = Math.round(roomTop + 62 + Math.max(0, (roomBot - roomTop - 158) / 2));
 }
-fit(); addEventListener('resize', fit);
+const TW = 16, TH = 8, ROOM = 11;
 
 // ═══════════ 팔레트 ═══════════
 const C = {
@@ -53,11 +97,6 @@ const C = {
 C.floorB = '#8c8258';
 
 // ═══════════ 아이소 헬퍼 ═══════════
-const TW = 16, TH = 8, ROOM = 11;
-const OX = BW/2 + 6, OY = 148;
-// 캔버스 내 레이아웃 존
-const TITLE_Y = 24;                       // 상단 타이틀 기준선
-const PANEL = { x:10, y:278, w:BW-20, h:140 };   // 하단 곳간 패널
 function px(gx, gy, z=0){ return [Math.round((gx-gy)*TW/2+OX), Math.round((gx+gy)*TH/2+OY-z)]; }
 function poly(pts, fill){ b.fillStyle=fill; b.beginPath(); pts.forEach((p,i)=>i?b.lineTo(p[0],p[1]):b.moveTo(p[0],p[1])); b.closePath(); b.fill(); }
 function polyO(pts, col){ b.strokeStyle=col; b.lineWidth=1; b.beginPath(); pts.forEach((p,i)=>i?b.lineTo(p[0],p[1]):b.moveTo(p[0],p[1])); b.closePath(); b.stroke(); }
@@ -171,9 +210,9 @@ setInterval(refresh, REFRESH_MS);
 refresh();
 
 // ═══════════ 곳간 패널 (캔버스 내 렌더) ═══════════
-// 패널 영역을 탭하면 즉시 새로고침
+// 패널 영역을 탭하면 즉시 새로고침 (CSS px → 버퍼 좌표)
 screen.addEventListener('pointerdown', e => {
-  const S = screen.width / BW;
+  const S = innerWidth / BW;
   const bx = e.offsetX / S, by = e.offsetY / S;
   if (bx >= PANEL.x && bx <= PANEL.x + PANEL.w && by >= PANEL.y && by <= PANEL.y + PANEL.h) {
     refresh(); click();
@@ -736,6 +775,10 @@ function drawSteam(){
 const grain=document.createElement('canvas');
 grain.width=BW; grain.height=BH;
 const gctx=grain.getContext('2d');
+// grain 준비 후 첫 레이아웃 계산
+fit();
+addEventListener('resize', fit);
+addEventListener('orientationchange', () => setTimeout(fit, 300));
 function makeGrain(){
   const img=gctx.createImageData(BW,BH);
   for(let i=0;i<img.data.length;i+=4){
@@ -764,15 +807,15 @@ function drawPixelFlower(x, y, col){
   b.fillStyle=C.plantD; b.fillRect(x,y+2,1,2);
 }
 function drawTitleChrome(){
-  drawMoneyBag(48, 12);
+  drawMoneyBag(BW/2 - 66, TITLE_Y - 12);
   // 타이틀 밑줄 (점선 픽셀)
   b.fillStyle='#4a4433';
-  for(let x=40; x<200; x+=4) b.fillRect(x, 42, 2, 1);
+  for(let x=40; x<200; x+=4) b.fillRect(x, TITLE_Y + 18, 2, 1);
   // 모서리 픽셀 꽃 (앱 감성)
-  drawPixelFlower(16, 14, '#c88a9a');
-  drawPixelFlower(224, 14, '#8aa8c8');
-  drawPixelFlower(22, 32, C.plant);
-  drawPixelFlower(218, 32, '#d8b23e');
+  drawPixelFlower(16,  TITLE_Y - 10, '#c88a9a');
+  drawPixelFlower(224, TITLE_Y - 10, '#8aa8c8');
+  drawPixelFlower(22,  TITLE_Y + 8,  C.plant);
+  drawPixelFlower(218, TITLE_Y + 8,  '#d8b23e');
 }
 function drawPanelChrome(t){
   const {x,y,w,h}=PANEL;
@@ -798,11 +841,11 @@ function drawPanelChrome(t){
 }
 // 고해상도 텍스트 패스 (버퍼 좌표 기준 → 스크린 좌표로 스케일)
 function drawUIText(){
-  const S = screen.width / BW;
+  const Sx = screen.width / BW, Sy = screen.height / BH;
   const T = (str, bx, by, size, color, align='left') => {
-    sctx.font = `${Math.round(size*S)}px NeoDunggeunmo, 'Courier New', monospace`;
+    sctx.font = `${Math.round(size*Sx)}px NeoDunggeunmo, 'Courier New', monospace`;
     sctx.fillStyle = color; sctx.textAlign = align; sctx.textBaseline = 'middle';
-    sctx.fillText(str, Math.round(bx*S), Math.round(by*S));
+    sctx.fillText(str, Math.round(bx*Sx), Math.round(by*Sy));
   };
   // ── 상단 타이틀 ──
   T('정모의 방', BW/2+8+1, TITLE_Y-4+1, 13, '#000a', 'center');   // 그림자
