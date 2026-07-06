@@ -210,12 +210,14 @@ setInterval(refresh, REFRESH_MS);
 refresh();
 
 // ═══════════ 곳간 패널 (캔버스 내 렌더) ═══════════
-// 패널 영역을 탭하면 즉시 새로고침 (CSS px → 버퍼 좌표)
+// 패널 탭 = 새로고침 / 그 외 화면 탭 = 강아지 댄스타임
 screen.addEventListener('pointerdown', e => {
   const S = innerWidth / BW;
   const bx = e.offsetX / S, by = e.offsetY / S;
   if (bx >= PANEL.x && bx <= PANEL.x + PANEL.w && by >= PANEL.y && by <= PANEL.y + PANEL.h) {
     refresh(); click();
+  } else {
+    startDance();
   }
 });
 function renderVault(){ /* 캔버스가 매 프레임 HOLDINGS를 직접 읽음 */ }
@@ -257,15 +259,14 @@ function drawWalls(t){
   b.strokeStyle=C.base;
   b.beginPath(); b.moveTo(b3[0],b3[1]); b.lineTo(b1[0],b1[1]); b.lineTo(b2[0],b2[1]); b.stroke();
 
-  drawWindowNW(6.0, 32, 3.4, 26, t);
-  drawPoster(7.6, 36);
-  drawClock(2.6, 46, t);
+  drawWindowNE(5.2, 36, 3.2, 18, t);      // 침대 옆 벽 중간 높이 (z36~54)
+  drawClock(2.3, 42, t);                   // 포스터 자리를 시계로 대치
   drawNotes();
 }
 
-function drawWindowNW(gx, z, w, h, t){
-  const [sx, sy]=px(gx,0,z);
-  b.save(); b.transform(1,0.5,0,1,sx,sy);
+function drawWindowNE(gy, z, w, h, t){
+  const [sx, sy]=px(0,gy,z);
+  b.save(); b.transform(-1,0.5,0,1,sx,sy);
   const pw=w*TW/2;
   b.fillStyle=C.woodD; b.fillRect(-3,-3,pw+6,h+6);        // 바깥 프레임
   b.fillStyle=C.woodT; b.fillRect(-2,-2,pw+4,h+4);
@@ -276,29 +277,25 @@ function drawWindowNW(gx, z, w, h, t){
     b.fillRect(Math.floor(s.x*pw),Math.floor(s.y*h),1,1);
   });
   b.globalAlpha=1;
-  b.fillStyle=C.moon; b.fillRect(pw-9,4,5,5);
-  b.fillStyle=C.night; b.fillRect(pw-8,4,3,3);            // 초승달
+  b.fillStyle=C.moon; b.fillRect(4,4,5,5);
+  b.fillStyle=C.night; b.fillRect(5,4,3,3);               // 초승달
   b.fillStyle=C.woodT; b.fillRect(pw/2,0,1,h); b.fillRect(0,h/2,pw,1);  // 창살
   b.fillStyle=C.woodHi; b.fillRect(-2,h+2,pw+4,2);        // 창턱
   b.restore();
 }
-function drawPoster(gx, z){
-  const [sx,sy]=px(gx,0,z);
-  b.save(); b.transform(1,0.5,0,1,sx,sy);
-  b.fillStyle=C.outline; b.fillRect(-1,-1,16,22);
-  b.fillStyle='#1a2030'; b.fillRect(0,0,14,20);
-  b.fillStyle=C.green;                                     // 우상향 차트 포스터
-  b.fillRect(2,14,2,3); b.fillRect(5,10,2,7); b.fillRect(8,6,2,11); b.fillRect(11,3,2,14);
-  b.restore();
+// 북동벽(gx=0 평면) 부착용 변환: u축 = +gy 방향, v축 = 수직
+function neTransform(gy, z){
+  const [sx, sy] = px(0, gy, z);
+  b.save(); b.transform(-1, 0.5, 0, 1, sx, sy);
 }
 function drawClock(gy, z, t){
-  const [sx,sy]=px(0,gy,z);
-  b.save(); b.transform(-1,0.5,0,1,sx,sy);
+  neTransform(gy, z);
   b.fillStyle=C.outline; b.fillRect(-1,-1,12,12);
   b.fillStyle='#ded5a8'; b.fillRect(0,0,10,10);
   b.fillStyle=C.woodD;
   b.fillRect(4,1,1,1); b.fillRect(4,8,1,1); b.fillRect(1,4,1,1); b.fillRect(8,4,1,1);  // 12·3·6·9 눈금
   b.restore();
+  const [sx,sy]=px(0,gy,z);
   const cx=sx-5, cy=sy+5+2.5;
   b.strokeStyle='#2a2418'; b.lineWidth=1;
   const a1=t*0.5, a2=t*0.05;
@@ -453,12 +450,51 @@ function drawDesk(){
   b.fillStyle='#4a3020'; b.fillRect(mx-2,my,4,1.5);        // 커피 표면
   b.strokeStyle='#a89870';
   b.beginPath(); b.arc(mx+4,my+2,2,-Math.PI/2,Math.PI/2); b.stroke();  // 손잡이
-  // 케이블 (모니터 뒤 → 벽 → 바닥)
+  // 케이블 (모니터 2대 뒤 → 책상 뒤로 → PC 본체)
   b.strokeStyle='#2a251a'; b.lineWidth=1;
-  const c1=px(6.0,1.0,17), c2=px(6.1,0.05,10), c3=px(6.3,0.05,0);
+  const c1=px(5.9,1.15,17), c2=px(7.9,1.15,17), c3=px(5.35,1.9,12);
   b.beginPath(); b.moveTo(c1[0],c1[1]);
-  b.quadraticCurveTo(c2[0],c2[1]-4,c2[0],c2[1]);
-  b.lineTo(c3[0],c3[1]); b.stroke();
+  b.quadraticCurveTo(c1[0]-2, c1[1]+8, c3[0], c3[1]); b.stroke();
+  b.beginPath(); b.moveTo(c2[0],c2[1]);
+  b.quadraticCurveTo(c2[0]-6, c2[1]+10, c3[0]+2, c3[1]+1); b.stroke();
+
+  // ── PC 본체 타워 (책상 아래) ──
+  box(4.78, 1.55, 0.62, 1.05, 0, 12, '#32322a', '#22221c', '#2a2a24', C.outline);
+  const [twx,twy]=px(4.78, 2.60, 10.5);
+  b.save(); b.transform(1,0.5,0,1,twx,twy);
+  b.fillStyle='#1c1c16';
+  for(let i=0;i<4;i++) b.fillRect(1.5, 2+i*2, 6, 1);          // 통풍 그릴
+  b.fillStyle='#3a3a30'; b.fillRect(1.5, 11, 6, 1);           // 슬롯
+  b.fillStyle = Math.floor(Date.now()/700)%2 ? C.green : '#2a4a34';
+  b.fillRect(7, 0.5, 1, 1);                                    // 전원 LED 깜빡
+  b.restore();
+
+  // ── 헤드폰 스탠드 (책상 좌측 끝) ──
+  box(4.72, 1.28, 0.32, 0.32, 17.2, 0.7, C.metalHi, C.metalD, C.metal, C.outline);   // 받침
+  box(4.84, 1.40, 0.1, 0.1, 17.9, 6.2, C.metal, C.metalD, C.metalD);                  // 기둥
+  const [phx,phy]=px(4.89, 1.45, 24.4);
+  b.strokeStyle=C.outline; b.lineWidth=3;
+  b.beginPath(); b.arc(phx, phy+3, 4.5, Math.PI, Math.PI*2); b.stroke();              // 밴드 외곽
+  b.strokeStyle='#3a3a30'; b.lineWidth=1.5;
+  b.beginPath(); b.arc(phx, phy+3, 4.5, Math.PI, Math.PI*2); b.stroke();              // 밴드
+  b.fillStyle=C.outline; b.fillRect(phx-7, phy+2, 4, 6); b.fillRect(phx+3, phy+2, 4, 6);
+  b.fillStyle='#3a3a30'; b.fillRect(phx-6, phy+3, 2, 4); b.fillRect(phx+4, phy+3, 2, 4); // 이어컵
+  b.fillStyle='#55554a'; b.fillRect(phx-6, phy+3, 1, 2); b.fillRect(phx+4, phy+3, 1, 2); // 하이라이트
+
+  // ── 데스크 램프 (책상 우측, 따뜻한 보조광) ──
+  box(8.98, 0.58, 0.36, 0.36, 17.2, 0.8, C.metalHi, C.metalD, C.metal, C.outline);   // 받침
+  const [lbx,lby]=px(9.16, 0.76, 18.2);
+  b.strokeStyle=C.outline; b.lineWidth=2;
+  b.beginPath(); b.moveTo(lbx, lby); b.lineTo(lbx-4, lby-9); b.lineTo(lbx-9, lby-12); b.stroke();  // 관절 암
+  b.strokeStyle=C.metal; b.lineWidth=1;
+  b.beginPath(); b.moveTo(lbx, lby); b.lineTo(lbx-4, lby-9); b.lineTo(lbx-9, lby-12); b.stroke();
+  b.fillStyle=C.outline; b.fillRect(lbx-13, lby-15, 7, 5);                            // 갓
+  b.fillStyle='#4a4a3e'; b.fillRect(lbx-12, lby-14, 5, 3);
+  b.fillStyle='#f0d090'; b.fillRect(lbx-12, lby-11, 5, 1);                            // 전구 빛
+  const lampGl = b.createRadialGradient(lbx-10, lby-8, 1, lbx-10, lby-8, 20);
+  lampGl.addColorStop(0, 'rgba(240,208,144,0.16)');
+  lampGl.addColorStop(1, 'rgba(0,0,0,0)');
+  b.fillStyle=lampGl; b.fillRect(lbx-32, lby-30, 46, 40);                             // 웜 글로우
 }
 
 // ═══════════ 모니터 ═══════════
@@ -471,8 +507,11 @@ function drawMonitor(gx, z, w, h, content, t, tilt){
   const pw=w*TW/2;
   b.fillStyle=C.outline; b.fillRect(-2.5,-2.5,pw+5,h+5);   // 외곽선
   b.fillStyle='#2e2e26'; b.fillRect(-1.5,-1.5,pw+3,h+3);   // 베젤
+  b.fillStyle='#101010'; b.fillRect(pw/2-0.5,-1.2,1,1);    // 웹캠 도트
   b.fillStyle=C.screenBg; b.fillRect(0,0,pw,h);
   content(pw,h,t);
+  // 하단 브랜드 라인
+  b.fillStyle='#4a4a3e'; b.fillRect(pw/2-3, h+0.8, 6, 0.8);
   // 화면 유리 반사 (대각 하이라이트)
   b.globalAlpha=0.05; b.fillStyle='#ffffff';
   b.beginPath(); b.moveTo(pw*0.1,0); b.lineTo(pw*0.35,0); b.lineTo(pw*0.05,h); b.lineTo(0,h); b.lineTo(0,h*0.6); b.closePath(); b.fill();
@@ -644,6 +683,116 @@ function yip(){
   g.gain.exponentialRampToValueAtTime(0.0005,actx.currentTime+0.08);
   o.connect(g); g.connect(actx.destination); o.start(); o.stop(actx.currentTime+0.08);
 }
+
+// ── 댄스타임: 탭하면 잠깐 두 발로 서서 춤추고 원래 놀이로 복귀 ──
+let danceEnd = -1;
+let chaseT = 0;                  // 추격 놀이 전용 시계 (댄스 중엔 멈춰서 복귀가 자연스러움)
+function startDance(){
+  const tNow = (performance.now() - t0) / 1000;
+  if (tNow < danceEnd) return;   // 이미 춤추는 중
+  danceEnd = tNow + 2.8;
+  // 신나는 낑낑 3연타
+  if (actx) [0, 140, 280].forEach(ms => setTimeout(() => {
+    const o=actx.createOscillator(), g=actx.createGain();
+    o.type='square'; o.frequency.setValueAtTime(880+Math.random()*220, actx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(1200, actx.currentTime+0.06);
+    g.gain.setValueAtTime(0.02, actx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0005, actx.currentTime+0.07);
+    o.connect(g); g.connect(actx.destination); o.start(); o.stop(actx.currentTime+0.07);
+  }, ms));
+}
+
+// 이족보행 댄스 포즈
+function drawDanceDog(sx, sy, s, d, t){
+  const F = v=>Math.round(v*s);
+  const pom = d.kind==='pom';
+  const body = C.dog, bodyD = C.dogD, cream = '#e6cd96';
+  const beat = t*9 + d.phase;
+  const bounce = Math.abs(Math.sin(beat)) * 3;
+  const sway = Math.sin(beat) * 1.5;
+  const x = sx + sway, y = sy - bounce;
+
+  // 그림자
+  b.globalAlpha=0.2; b.fillStyle='#000';
+  b.beginPath(); b.ellipse(sx, sy+F(3), F(4.5), F(1.8), 0, 0, Math.PI*2); b.fill();
+  b.globalAlpha=1;
+
+  // 뒷다리 (교차 스텝)
+  const stepL = Math.sin(beat)>0?1:0, stepR = 1-stepL;
+  b.fillStyle=bodyD;
+  b.fillRect(x-F(2.2), y+F(2)-stepL, F(1.6), F(3)+stepL);
+  b.fillRect(x+F(0.6), y+F(2)-stepR, F(1.6), F(3)+stepR);
+
+  // 몸통 (세로로 선 자세)
+  b.fillStyle=C.outline;
+  b.beginPath(); b.ellipse(x, y-F(1.5), F(3.8), F(5), 0, 0, Math.PI*2); b.fill();
+  b.fillStyle=body;
+  b.beginPath(); b.ellipse(x, y-F(1.5), F(3), F(4.2), 0, 0, Math.PI*2); b.fill();
+  b.fillStyle=bodyD;                                          // 배
+  b.beginPath(); b.ellipse(x, y+F(0.5), F(1.8), F(2.2), 0, 0, Math.PI*2); b.fill();
+  if(pom){                                                    // 등의 누런 털 (옆으로 살짝 보임)
+    b.fillStyle=cream;
+    b.beginPath(); b.ellipse(x-F(2.2), y-F(3), F(1.2), F(1.8), 0.4, 0, Math.PI*2); b.fill();
+  }
+
+  // 앞발 만세 흔들기 (좌우 교대로 번쩍)
+  const waveL = Math.sin(beat*1.5)*2, waveR = Math.sin(beat*1.5+Math.PI)*2;
+  b.fillStyle=C.outline;
+  b.fillRect(x-F(5), y-F(6)-waveL, F(2), F(3.4));
+  b.fillRect(x+F(3), y-F(6)-waveR, F(2), F(3.4));
+  b.fillStyle=body;
+  b.fillRect(x-F(4.6), y-F(5.6)-waveL, F(1.2), F(2.6));
+  b.fillRect(x+F(3.4), y-F(5.6)-waveR, F(1.2), F(2.6));
+
+  // 꼬리 (신나서 고속 와그)
+  if(pom){
+    b.fillStyle=C.outline;
+    b.beginPath(); b.arc(x+F(3.6), y-F(2), F(2.2), 0, Math.PI*2); b.fill();
+    b.fillStyle=body;
+    b.beginPath(); b.arc(x+F(3.6), y-F(2), F(1.6), 0, Math.PI*2); b.fill();
+    b.fillStyle=cream;
+    b.beginPath(); b.arc(x+F(3.9), y-F(2.3), F(0.8), 0, Math.PI*2); b.fill();
+  } else {
+    const wag = Math.sin(t*20 + d.phase) * F(2);
+    b.strokeStyle=body; b.lineWidth=F(1.4);
+    b.beginPath(); b.moveTo(x+F(2.6), y+F(0.5));
+    b.quadraticCurveTo(x+F(5), y-F(1), x+F(4.5)+wag, y-F(3));
+    b.stroke();
+  }
+
+  // 머리 (정면, 위에서 까딱까딱)
+  const nod = Math.sin(beat*2)*1;
+  const hx = x, hy = y - F(7) + nod;
+  b.fillStyle=C.outline;
+  b.beginPath(); b.arc(hx, hy, F(3.4), 0, Math.PI*2); b.fill();
+  b.fillStyle=body;
+  b.beginPath(); b.arc(hx, hy, F(2.7), 0, Math.PI*2); b.fill();
+  if(pom){                                                    // 쫑긋 귀
+    b.fillStyle=C.outline;
+    b.fillRect(hx-F(3.2), hy-F(4.2), F(1.8), F(2.2));
+    b.fillRect(hx+F(1.4), hy-F(4.2), F(1.8), F(2.2));
+    b.fillStyle=body;
+    b.fillRect(hx-F(2.8), hy-F(3.8), F(1), F(1.4));
+    b.fillRect(hx+F(1.8), hy-F(3.8), F(1), F(1.4));
+  } else {                                                    // 늘어진 귀 (박자 맞춰 펄럭)
+    const flap = Math.abs(Math.sin(beat))*1;
+    b.fillStyle=C.outline;
+    b.fillRect(hx-F(4), hy-F(1.5)-flap, F(1.8), F(3.2));
+    b.fillRect(hx+F(2.2), hy-F(1.5)-flap, F(1.8), F(3.2));
+    b.fillStyle=body;
+    b.fillRect(hx-F(3.6), hy-F(1.2)-flap, F(1), F(2.4));
+    b.fillRect(hx+F(2.6), hy-F(1.2)-flap, F(1), F(2.4));
+  }
+  // 정면 얼굴: 눈 2 + 코 + (1번 말티즈는 혓바닥)
+  b.fillStyle=C.outline;
+  b.fillRect(hx-F(1.4), hy-F(0.8), F(0.9), F(0.9));
+  b.fillRect(hx+F(0.6), hy-F(0.8), F(0.9), F(0.9));
+  b.fillStyle=C.dogNose; b.fillRect(hx-F(0.4), hy+F(0.6), F(0.9), F(0.9));
+  if(d.tongue){
+    b.fillStyle='#e88a94';
+    b.fillRect(hx-F(0.4), hy+F(1.6), F(1), F(1.8)+Math.round(Math.abs(Math.sin(beat))));
+  }
+}
 function drawOneDog(sx, sy, s, d, t, flip){
   const F = v=>Math.round(v*s);
   const runP = Math.sin(t*10 + d.phase);
@@ -736,19 +885,21 @@ function drawOneDog(sx, sy, s, d, t, flip){
   }
 }
 function drawDogs(t){
-  // 러그 중심을 도는 추격 놀이 (서로 다른 위상)
+  const dancing = t < danceEnd;
+  if (!dancing) chaseT += 1/60;            // 댄스 중엔 추격 시계 정지 → 끝나면 그 자리에서 재개
   const list = dogs.map(d=>{
-    const a = t*1.15 + d.phase;
+    const a = chaseT*1.15 + d.phase;
     const gx = 5.5 + Math.cos(a)*1.25;
     const gy = 6.5 + Math.sin(a)*1.05;
     const [sx,sy] = px(gx,gy,0);
-    // 진행 방향으로 좌우 뒤집기 (화면 x 미분)
     const dxdt = -Math.sin(a)*1.25 - Math.cos(a)*1.05;
     return { d, sx, sy, flip: dxdt<0 };
   });
   list.sort((a,c)=>a.sy-c.sy);               // 깊이 정렬
-  list.forEach(o=> drawOneDog(o.sx, o.sy, o.d.s, o.d, t, o.flip));
-  if(Math.random()<0.004) yip();
+  list.forEach(o=> dancing
+    ? drawDanceDog(o.sx, o.sy, o.d.s, o.d, t)
+    : drawOneDog(o.sx, o.sy, o.d.s, o.d, t, o.flip));
+  if(!dancing && Math.random()<0.004) yip();
 }
 
 // ═══════════ 김/별/그레인 ═══════════
