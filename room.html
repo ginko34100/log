@@ -44,9 +44,9 @@ let TITLE_Y = 24;
 let PANEL = { x:10, y:278, w:BW-20, h:140 };
 let OY = 148;
 const OX = BW/2 + 6;
-// 음소거 토글 + 수동 갱신 플래시
+// 더블탭 음소거 + 수동 갱신 플래시
 let muted = false;
-let SND = { x: BW-32, y: 10, w: 24, h: 24 };
+let lastTapT = -10;
 let refreshFlashUntil = -1;
 
 function fit() {
@@ -69,8 +69,6 @@ function fit() {
   // 레이아웃: 타이틀(세이프 아래) / 방(가운데) / 곳간(홈바 위)
   TITLE_Y = Math.round(safeT + 26);
   PANEL = { x:10, y: Math.round(BH - 140 - safeB - 8), w: BW-20, h: 140 };
-  // 음소거 버튼: 패널 헤더 '정모의 곳간' 텍스트 바로 옆
-  SND = { x: PANEL.x + 86, y: PANEL.y + 5, w: 16, h: 16 };
   const roomTop = TITLE_Y + 34;            // 타이틀 존 하단
   const roomBot = PANEL.y - 6;             // 패널 존 상단
   // 방 그림 세로 범위 ≈ OY-62(벽 꼭대기) ~ OY+96(앞쪽 바닥) = 158px
@@ -134,6 +132,34 @@ const HOLDINGS = [
 const REFRESH_MS = 10000;
 let liveMode = false, lastUpdate = null, prevTotal = null;
 
+// ═══ 장 상태 (KRX 평일 09:00~15:30 KST) ═══
+// 미리보기: ?market=open|closed  ?demo=party|rain
+const URLP = (typeof location !== 'undefined') ? new URLSearchParams(location.search) : new Map();
+const getP = k => URLP.get ? URLP.get(k) : null;
+function kstParts(){
+  const d = new Date(Date.now() + 9*3600e3);
+  return { day: d.getUTCDay(), mins: d.getUTCHours()*60 + d.getUTCMinutes() };
+}
+function isMarketOpen(){
+  const o = getP('market');
+  if (o === 'open') return true;
+  if (o === 'closed') return false;
+  const { day, mins } = kstParts();
+  return day >= 1 && day <= 5 && mins >= 540 && mins < 930;   // 09:00~15:30
+}
+function untilOpenStr(){
+  const { day, mins } = kstParts();
+  let total;
+  if (day >= 1 && day <= 5 && mins < 540) total = 540 - mins;
+  else {
+    let dd = 1;
+    while ([0,6].includes((day + dd) % 7)) dd++;
+    total = (1440 - mins) + (dd - 1) * 1440 + 540;
+  }
+  const h = Math.floor(total/60), m = total % 60;
+  return h > 0 ? `${h}시간 ${m}분` : `${m}분`;
+}
+
 const totalNow = () => HOLDINGS.reduce((a,h)=>a+h.qty*h.price, 0);
 const totalAvg = () => HOLDINGS.reduce((a,h)=>a+h.qty*h.avg, 0);
 const fmt = n => Math.round(n).toLocaleString('ko-KR');
@@ -150,25 +176,38 @@ function pickPrice(j){
   if (Array.isArray(j) && j.length) return pickPrice(j[0]);
   return null;
 }
-async function fetchPrice(code){
+// 왼쪽 모니터 차트 = 코스피 지수 (하락 중이면 하락 그래프가 그대로 보임)
+const KOSPI = { price: 4620, changePct: null };
+let kospiDayOpen = KOSPI.price * (1 + (Math.random() < 0.5 ? 1 : -1) * 0.006);
+let kospiTrend = Math.random() < 0.5 ? 1 : -1;   // 시뮬레이션용 추세
+let seededLive = false;
+
+async function fetchQuote(code){
   if (!PRICE_API) return null;
   try {
     const r = await fetch(PRICE_API(code));
     if (!r.ok) return null;
-    return pickPrice(await r.json());
+    const j = await r.json();
+    const p = pickPrice(j);
+    if (p == null || p <= 0) return null;
+    const cp = (j && j.changePct != null) ? parseFloat(j.changePct) : null;
+    return { price: p, changePct: Number.isFinite(cp) ? cp : null };
   } catch(e){ return null; }
 }
+async function fetchPrice(code){
+  const q = await fetchQuote(code);
+  return q ? q.price : null;
+}
 
-// ═══════════ 차트 데이터 (총 평가액 캔들) ═══════════
-let candles=[], lastClose=totalAvg();
-// 초기 22봉: 평단 총액 → 현재 총액으로 수렴하는 워크
-(function seedCandles(){
-  const target = totalNow(), start = totalAvg();
-  let p = start;
+// ═══════════ 차트 데이터 (코스피 지수 캔들) ═══════════
+let candles=[], lastClose=kospiDayOpen;
+function seedCandles(from, to){
+  candles = [];
+  let p = from;
   for (let i=0;i<22;i++){
     const open = p;
-    const pull = (target - p) * 0.18;
-    const noise = (Math.random()-0.5) * Math.abs(target-start) * 0.25;
+    const pull = (to - p) * 0.18;
+    const noise = (Math.random()-0.5) * Math.max(0.5, Math.abs(to-from)) * 0.25;
     const close = p + pull + noise;
     candles.push({ open, close,
       hi: Math.max(open,close) + Math.random()*Math.abs(pull)*0.5,
@@ -176,7 +215,14 @@ let candles=[], lastClose=totalAvg();
     p = close;
   }
   lastClose = p;
-})();
+}
+seedCandles(kospiDayOpen, KOSPI.price);
+// LIVE 첫 수신 시 실제 당일 등락률로 차트 방향 재구성
+function reseedFromDay(){
+  if (KOSPI.changePct == null) return;
+  const prevClose = KOSPI.price / (1 + KOSPI.changePct/100);
+  seedCandles(prevClose, KOSPI.price);
+}
 function pushCandle(close){
   const open = lastClose;
   candles.push({ open, close,
@@ -189,13 +235,53 @@ function pushCandle(close){
 let mood=0, moodT=0;
 
 // ═══════════ 10초 갱신 루프 ═══════════
+// ═══ 손익 이벤트 (±3% 돌파) ═══
+let prevPct = null, rainTarget = 0, rainLevel = 0;
+const confetti = [];
+function burstConfetti(){
+  const cols = ['#e0705c','#d8b23e','#6fd98a','#8aa8c8','#c88a9a','#e8dfb0'];
+  for (let i = 0; i < 90; i++) {
+    confetti.push({
+      x: 40 + Math.random()*160,
+      y: OY - 75 + Math.random()*30,
+      vx: (Math.random()-0.5)*1.2,
+      vy: -0.5 - Math.random()*1.2,
+      col: cols[Math.floor(Math.random()*cols.length)],
+      life: 1, sway: Math.random()*Math.PI*2,
+    });
+  }
+}
+function firePLEvents(){
+  const pct = (totalNow()/totalAvg() - 1) * 100;
+  if (prevPct != null && prevPct < 3 && pct >= 3) { burstConfetti(); startDance(); }  // +3% 돌파 → 파티
+  rainTarget = pct <= -3 ? 1 : 0;                                                     // -3% 이하 → 창밖 비
+  prevPct = pct;
+}
+
+let didInit = false;
 async function refresh(){
+  // 장 마감 중엔 최초 1회(종가)만 받고 이후 갱신 스킵
+  if (didInit && !isMarketOpen()) { renderVault(); return; }
   let anyLive = false;
+  // ── 코스피 지수 ──
+  const kq = await fetchQuote('KOSPI');
+  if (kq) {
+    KOSPI.price = kq.price; anyLive = true;
+    if (kq.changePct != null) {
+      KOSPI.changePct = kq.changePct;
+      if (!seededLive) { reseedFromDay(); seededLive = true; }
+    }
+  } else {
+    // 시뮬레이션: 추세 지속 랜덤워크 (가끔 추세 반전 → 하락장도 자연스럽게 나옴)
+    if (Math.random() < 0.06) kospiTrend *= -1;
+    KOSPI.price *= 1 + kospiTrend*0.0012 + (Math.random()-0.5)*0.0016;
+    KOSPI.changePct = (KOSPI.price/kospiDayOpen - 1) * 100;
+  }
+  // ── 보유 종목 ──
   await Promise.all(HOLDINGS.map(async h => {
-    const p = await fetchPrice(h.code);
-    if (p != null && p > 0) { h.price = p; anyLive = true; }
+    const q = await fetchQuote(h.code);
+    if (q) { h.price = q.price; anyLive = true; }
     else if (!PRICE_API || !anyLive) {
-      // 시뮬레이션: ±0.15% 랜덤워크
       h.price = Math.max(1, h.price * (1 + (Math.random()-0.5)*0.003));
     }
   }));
@@ -209,23 +295,30 @@ async function refresh(){
     else if (d < -tot*0.0003) { mood = -1; moodT = 0; } // 하락 → 고개 떨굼
   }
   prevTotal = tot;
-  pushCandle(tot);
+  pushCandle(KOSPI.price);                              // 차트 = 코스피
+  firePLEvents();
+  didInit = true;
   renderVault();
 }
 setInterval(refresh, REFRESH_MS);
 refresh();
 
 // ═══════════ 곳간 패널 (캔버스 내 렌더) ═══════════
-// 탭 판정: ①음소거 버튼 ②곳간 패널(즉시 갱신) ③그 외(강아지 댄스)
+// 탭 판정: 더블탭(어디서든)=음소거 토글 / 곳간 패널=즉시 갱신 / 그 외=강아지 댄스
 screen.addEventListener('pointerdown', e => {
   const S = innerWidth / BW;
   const bx = e.offsetX / S, by = e.offsetY / S;
-  if (bx >= SND.x-4 && bx <= SND.x + SND.w+4 && by >= SND.y-4 && by <= SND.y + SND.h+4) {
+  const tNow = (performance.now() - t0) / 1000;
+  if (tNow - lastTapT < 0.35) {              // 더블탭 → 음소거 토글
     muted = !muted;
-    if (!muted) click();                      // 켤 때만 확인음
-  } else if (bx >= PANEL.x && bx <= PANEL.x + PANEL.w && by >= PANEL.y && by <= PANEL.y + PANEL.h) {
+    if (!muted) click();
+    lastTapT = -10;
+    return;
+  }
+  lastTapT = tNow;
+  if (bx >= PANEL.x && bx <= PANEL.x + PANEL.w && by >= PANEL.y && by <= PANEL.y + PANEL.h) {
     refresh();                                // 즉시 갱신
-    refreshFlashUntil = (performance.now() - t0) / 1000 + 0.45;
+    refreshFlashUntil = tNow + 0.45;
     click();
   } else {
     startDance();
@@ -290,6 +383,17 @@ function drawWindowNE(gy, z, w, h, t){
   b.globalAlpha=1;
   b.fillStyle=C.moon; b.fillRect(4,4,5,5);
   b.fillStyle=C.night; b.fillRect(5,4,3,3);               // 초승달
+  // 손익 -3% 이하: 창밖에 비
+  if (rainLevel > 0.02) {
+    b.fillStyle = `rgba(18,26,42,${0.45*rainLevel})`;     // 먹구름 톤
+    b.fillRect(0,0,pw,h);
+    b.strokeStyle = `rgba(150,170,200,${0.55*rainLevel})`; b.lineWidth = 0.6;
+    for (let i = 0; i < 12; i++) {
+      const rx = ((i*7.3 + t*26) % (pw+6)) - 3;
+      const ry = ((i*11.7 + t*60) % (h+8)) - 4;
+      b.beginPath(); b.moveTo(rx, ry); b.lineTo(rx-1.2, ry+3.5); b.stroke();
+    }
+  }
   b.fillStyle=C.woodT; b.fillRect(pw/2,0,1,h); b.fillRect(0,h/2,pw,1);  // 창살
   b.fillStyle=C.woodHi; b.fillRect(-2,h+2,pw+4,2);        // 창턱
   b.restore();
@@ -428,7 +532,7 @@ function drawShelf(){
 }
 
 // ═══════════ 책상 ═══════════
-function drawDesk(){
+function drawDesk(t, open){
   const gx=4.5, gy=0.95, w=4.8, d=1.85;
   // 다리 (뒤 2, 앞 2 — 가는 금속)
   [[gx+0.12,gy+0.12],[gx+w-0.26,gy+0.12],[gx+0.12,gy+d-0.26],[gx+w-0.26,gy+d-0.26]]
@@ -501,11 +605,15 @@ function drawDesk(){
   b.beginPath(); b.moveTo(lbx, lby); b.lineTo(lbx-4, lby-9); b.lineTo(lbx-9, lby-12); b.stroke();
   b.fillStyle=C.outline; b.fillRect(lbx-13, lby-15, 7, 5);                            // 갓
   b.fillStyle='#4a4a3e'; b.fillRect(lbx-12, lby-14, 5, 3);
-  b.fillStyle='#f0d090'; b.fillRect(lbx-12, lby-11, 5, 1);                            // 전구 빛
-  const lampGl = b.createRadialGradient(lbx-10, lby-8, 1, lbx-10, lby-8, 20);
-  lampGl.addColorStop(0, 'rgba(240,208,144,0.16)');
-  lampGl.addColorStop(1, 'rgba(0,0,0,0)');
-  b.fillStyle=lampGl; b.fillRect(lbx-32, lby-30, 46, 40);                             // 웜 글로우
+  if (open) {
+    b.fillStyle='#f0d090'; b.fillRect(lbx-12, lby-11, 5, 1);                          // 전구 빛
+    const lampGl = b.createRadialGradient(lbx-10, lby-8, 1, lbx-10, lby-8, 20);
+    lampGl.addColorStop(0, 'rgba(240,208,144,0.16)');
+    lampGl.addColorStop(1, 'rgba(0,0,0,0)');
+    b.fillStyle=lampGl; b.fillRect(lbx-32, lby-30, 46, 40);                           // 웜 글로우
+  } else {
+    b.fillStyle='#2e2e26'; b.fillRect(lbx-12, lby-11, 5, 1);                          // 소등
+  }
 }
 
 // ═══════════ 모니터 ═══════════
@@ -799,7 +907,13 @@ function drawDanceDog(sx, sy, s, d, t){
   b.fillRect(hx-F(1.4), hy-F(0.8), F(0.9), F(0.9));
   b.fillRect(hx+F(0.6), hy-F(0.8), F(0.9), F(0.9));
   b.fillStyle=C.dogNose; b.fillRect(hx-F(0.4), hy+F(0.6), F(0.9), F(0.9));
-  if(d.tongue){
+  if(muted){
+    // 음소거: 입에 빨간 X
+    const mx = hx, my = hy+F(2);
+    b.strokeStyle='#e0705c'; b.lineWidth=1;
+    b.beginPath(); b.moveTo(mx-2,my-2); b.lineTo(mx+2,my+2); b.stroke();
+    b.beginPath(); b.moveTo(mx+2,my-2); b.lineTo(mx-2,my+2); b.stroke();
+  } else if(d.tongue){
     b.fillStyle='#e88a94';
     b.fillRect(hx-F(0.4), hy+F(1.6), F(1), F(1.8)+Math.round(Math.abs(Math.sin(beat))));
   }
@@ -888,36 +1002,126 @@ function drawOneDog(sx, sy, s, d, t, flip){
   b.fillStyle=body; b.fillRect(hx+dir*F(2), hy, F(1.6), F(1.2));
   b.fillStyle=C.dogNose; b.fillRect(hx+dir*F(3), hy, F(0.9), F(0.9));
   b.fillStyle=C.outline; b.fillRect(hx+dir*F(0.5), hy-F(1.2), F(0.9), F(0.9));
-  // 혓바닥 (말티즈1만)
-  if(d.tongue){
+  // 음소거: 입에 빨간 X
+  if(muted){
+    const mx = hx+dir*F(2.6), my = hy+F(1.2);
+    b.strokeStyle='#e0705c'; b.lineWidth=1;
+    b.beginPath(); b.moveTo(mx-2,my-2); b.lineTo(mx+2,my+2); b.stroke();
+    b.beginPath(); b.moveTo(mx+2,my-2); b.lineTo(mx-2,my+2); b.stroke();
+  }
+  // 혓바닥 (말티즈1만, 음소거 아닐 때)
+  if(d.tongue && !muted){
     const lick = Math.sin(t*6)>0? 0 : 1;
     b.fillStyle='#e88a94';
     b.fillRect(hx+dir*F(2.6), hy+F(1), F(1), F(1.6)+lick);
   }
 }
-function drawDogs(t){
+// ═══════════ 장마감: 취침 모드 ═══════════
+const zzz = [];
+function spawnZ(x, y){ zzz.push({ x, y, life: 1 }); }
+function updateZzz(){
+  for (let i = zzz.length-1; i >= 0; i--) {
+    const z = zzz[i];
+    z.x += 0.12; z.y -= 0.22; z.life -= 0.008;
+    if (z.life <= 0) zzz.splice(i, 1);
+  }
+}
+function drawZzz(){
+  zzz.forEach(z => {
+    b.globalAlpha = Math.min(0.8, z.life);
+    b.fillStyle = '#d8d0a8';
+    const x = Math.round(z.x), y = Math.round(z.y);
+    b.fillRect(x, y, 3, 1); b.fillRect(x+1, y+1, 1, 1); b.fillRect(x, y+2, 3, 1);   // 픽셀 Z
+    b.globalAlpha = 1;
+  });
+}
+function drawSleepingNerd(t){
+  // 이불 위 몸 두덩이 (침대 세로 방향)
+  const m1 = px(1.55, 8.3, 12), m2 = px(1.55, 9.3, 12);
+  b.fillStyle = C.blanketHi;
+  b.beginPath(); b.ellipse(m1[0], m1[1], 9, 4, 0.45, 0, Math.PI*2); b.fill();
+  b.beginPath(); b.ellipse(m2[0], m2[1], 7, 3.4, 0.45, 0, Math.PI*2); b.fill();
+  b.strokeStyle = C.blanketD; b.lineWidth = 1;
+  b.beginPath(); b.ellipse(m1[0], m1[1], 9, 4, 0.45, 0, Math.PI); b.stroke();
+  // 베개 위 머리 (옆모습, 안경 벗음)
+  const [hx, hy] = px(1.55, 7.15, 14);
+  const breathe = Math.sin(t*1.1) * 0.4;
+  b.fillStyle = C.outline; b.fillRect(hx-5, hy-4+breathe, 10, 8);
+  b.fillStyle = C.hair;    b.fillRect(hx-4, hy-3+breathe, 8, 4);
+  b.fillStyle = C.skin;    b.fillRect(hx-4, hy+1+breathe, 8, 3);
+  b.fillStyle = C.outline; b.fillRect(hx+1, hy+2+breathe, 2, 1);      // 감은 눈
+  if (Math.random() < 0.012) spawnZ(hx+6, hy-6);
+  // 안경은 책상 위에 벗어둠
+  const [gx2, gy2] = px(7.6, 1.5, 18.6);
+  b.strokeStyle = '#1f1a10'; b.lineWidth = 1;
+  b.strokeRect(gx2-4, gy2, 3, 2); b.strokeRect(gx2, gy2, 3, 2);
+  b.beginPath(); b.moveTo(gx2-1, gy2+1); b.lineTo(gx2, gy2+1); b.stroke();
+}
+const SLEEP_SPOTS = [[4.9, 6.3], [6.3, 7.2], [5.3, 7.9]];
+function drawSleepDog(sx, sy, s, d, t){
+  const F = v => Math.round(v*s);
+  const pom = d.kind === 'pom';
+  const br = Math.sin(t*1.4 + d.phase) * 0.6;
+  // 웅크린 몸
+  b.fillStyle = C.outline;
+  b.beginPath(); b.ellipse(sx, sy, F(6.4), F(3.8)+br*0.4, 0, 0, Math.PI*2); b.fill();
+  b.fillStyle = C.dog;
+  b.beginPath(); b.ellipse(sx, sy, F(5.4), F(3)+br*0.4, 0, 0, Math.PI*2); b.fill();
+  b.fillStyle = C.dogD;
+  b.beginPath(); b.ellipse(sx-F(1), sy+F(0.8), F(3.4), F(1.6), 0, 0, Math.PI*2); b.fill();
+  if (pom) {
+    b.fillStyle = '#e6cd96';
+    b.beginPath(); b.ellipse(sx-F(0.5), sy-F(2.2), F(2.2), F(1), 0, 0, Math.PI*2); b.fill();
+  }
+  // 꼬리 말고 잠
+  b.strokeStyle = pom ? '#e6cd96' : C.dogD; b.lineWidth = F(1.6);
+  b.beginPath(); b.arc(sx-F(4), sy-F(0.5), F(2.4), Math.PI*0.2, Math.PI*1.3); b.stroke();
+  // 머리 (몸에 기댐)
+  b.fillStyle = C.outline; b.fillRect(sx+F(2.4), sy-F(5), F(6.4), F(5));
+  b.fillStyle = C.dog;     b.fillRect(sx+F(3.2), sy-F(4.2), F(4.8), F(3.4));
+  b.fillStyle = C.dogD;
+  if (pom) { b.fillRect(sx+F(3.4), sy-F(5.6), F(1.6), F(1.8)); b.fillRect(sx+F(6.2), sy-F(5.6), F(1.6), F(1.8)); }
+  else     { b.fillRect(sx+F(2.8), sy-F(3.6), F(1.4), F(2.6)); b.fillRect(sx+F(7), sy-F(3.6), F(1.4), F(2.6)); }
+  b.fillStyle = C.outline; b.fillRect(sx+F(5.4), sy-F(3), F(1.4), F(0.8));   // 감은 눈
+  b.fillStyle = C.dogNose; b.fillRect(sx+F(7.6), sy-F(2), F(0.9), F(0.9));
+  if (muted) {
+    const mx = sx+F(7), my = sy-F(0.6);
+    b.strokeStyle='#e0705c'; b.lineWidth=1;
+    b.beginPath(); b.moveTo(mx-2,my-2); b.lineTo(mx+2,my+2); b.stroke();
+    b.beginPath(); b.moveTo(mx+2,my-2); b.lineTo(mx-2,my+2); b.stroke();
+  }
+  if (Math.random() < 0.006) spawnZ(sx+F(8), sy-F(7));
+}
+function drawDogs(t, open){
   const dancing = t < danceEnd;
-  if (!dancing) chaseT += 1/60;            // 댄스 중엔 추격 시계 정지 → 끝나면 그 자리에서 재개
-  const list = dogs.map(d=>{
-    const a = chaseT*1.15 + d.phase;
-    const gx = 5.5 + Math.cos(a)*1.25;
-    const gy = 6.5 + Math.sin(a)*1.05;
-    const [sx,sy] = px(gx,gy,0);
-    const dxdt = -Math.sin(a)*1.25 - Math.cos(a)*1.05;
-    return { d, sx, sy, flip: dxdt<0 };
+  if (open && !dancing) chaseT += 1/60;
+  const list = dogs.map((d, i)=>{
+    let gx, gy, flip = false;
+    if (open) {
+      const a = chaseT*1.15 + d.phase;
+      gx = 5.5 + Math.cos(a)*1.25;
+      gy = 6.5 + Math.sin(a)*1.05;
+      flip = (-Math.sin(a)*1.25 - Math.cos(a)*1.05) < 0;
+    } else {
+      [gx, gy] = SLEEP_SPOTS[i];
+      flip = i % 2 === 1;
+    }
+    const [sx, sy] = px(gx, gy, 0);
+    return { d, sx, sy, flip };
   });
   list.sort((a,c)=>a.sy-c.sy);               // 깊이 정렬
   list.forEach(o=> dancing
     ? drawDanceDog(o.sx, o.sy, o.d.s, o.d, t)
-    : drawOneDog(o.sx, o.sy, o.d.s, o.d, t, o.flip));
-  if(!dancing && Math.random()<0.004) yip();
+    : (open ? drawOneDog(o.sx, o.sy, o.d.s, o.d, t, o.flip)
+            : drawSleepDog(o.sx, o.sy, o.d.s, o.d, t)));
+  if(open && !dancing && Math.random()<0.004) yip();
 }
 
 // ═══════════ 김/별/그레인 ═══════════
 const steam=[];
 const stars=[]; for(let i=0;i<14;i++) stars.push({x:Math.random(),y:Math.random(),tw:Math.random()*Math.PI*2});
-function updateSteam(){
-  if(Math.random()<0.1){
+function updateSteam(open){
+  if(open && Math.random()<0.1){
     const [sx,sy]=px(8.85,1.65,21);
     steam.push({x:sx,y:sy,life:1,drift:Math.random()*2-1});
   }
@@ -926,6 +1130,24 @@ function updateSteam(){
     s.y-=0.25; s.x+=Math.sin(s.life*8)*0.15+s.drift*0.05; s.life-=0.012;
     if(s.life<=0) steam.splice(i,1);
   }
+}
+function updateConfetti(){
+  for (let i = confetti.length-1; i >= 0; i--) {
+    const p = confetti[i];
+    p.vy += 0.02;                                  // 살짝 뜨다가 낙하
+    p.x += p.vx + Math.sin(p.life*10 + p.sway)*0.3;
+    p.y += p.vy;
+    p.life -= 0.006;
+    if (p.life <= 0 || p.y > OY + 100) confetti.splice(i, 1);
+  }
+}
+function drawConfetti(){
+  confetti.forEach(p => {
+    b.globalAlpha = Math.min(1, p.life*2);
+    b.fillStyle = p.col;
+    b.fillRect(Math.round(p.x), Math.round(p.y), 2, 2);
+  });
+  b.globalAlpha = 1;
 }
 function drawSteam(){
   steam.forEach(s=>{
@@ -990,27 +1212,6 @@ function drawPanelChrome(t){
   b.strokeStyle = flashing ? '#b8ae88' : '#6b6248';
   b.lineWidth=1; b.strokeRect(x+3.5,y+3.5,w-7,h-7);
   drawMoneyBag(x+12, y+7);
-  // ── 음소거 토글 ('정모의 곳간' 옆, 헤더 크기에 맞춘 소형) ──
-  {
-    const s=SND;
-    b.fillStyle='#2c2818'; b.fillRect(s.x, s.y, s.w, s.h);
-    b.strokeStyle = muted ? '#6b4a3a' : '#4a4433';
-    b.lineWidth=1; b.strokeRect(s.x+0.5, s.y+0.5, s.w-1, s.h-1);
-    const cx=s.x+5, cy=s.y+s.h/2;
-    b.fillStyle='#d8d0a8';
-    b.fillRect(cx-2, cy-2, 3, 4);                                   // 스피커 몸통
-    b.beginPath(); b.moveTo(cx+1,cy-2); b.lineTo(cx+3.5,cy-4.5);
-    b.lineTo(cx+3.5,cy+4.5); b.lineTo(cx+1,cy+2); b.closePath(); b.fill();  // 콘
-    if (muted) {
-      b.strokeStyle='#e0705c'; b.lineWidth=1.5;
-      b.beginPath(); b.moveTo(cx+5,cy-3); b.lineTo(cx+9,cy+3); b.stroke();
-      b.beginPath(); b.moveTo(cx+9,cy-3); b.lineTo(cx+5,cy+3); b.stroke();
-    } else {
-      b.strokeStyle='#d8d0a8'; b.lineWidth=1;
-      b.beginPath(); b.arc(cx+3.5, cy, 3, -Math.PI/3, Math.PI/3); b.stroke();
-      b.beginPath(); b.arc(cx+3.5, cy, 5.5, -Math.PI/3, Math.PI/3); b.stroke();
-    }
-  }
   // 점선 구분선 3개
   b.strokeStyle='#4a4433'; b.setLineDash([3,3]);
   [24, 58, 92].forEach(dy=>{
@@ -1056,39 +1257,67 @@ function drawUIText(){
   T('총 손익', x+10, y+106, 9, '#e8dfb0');
   T(`${sign(pl)}${fmt(pl)}원 (${sign(pct)}${pct.toFixed(2)}%)`, x+w-10, y+106, 9, cls(pl), 'right');
   const hh = lastUpdate ? lastUpdate.toLocaleTimeString('ko-KR') : '-';
-  T(`마지막 갱신 ${hh} · 10초 자동 갱신 · 탭=새로고침`, x+w/2, y+122, 5.5, '#6d6752', 'center');
+  const foot = isMarketOpen()
+    ? `마지막 갱신 ${hh} · 10초 자동 갱신 · 탭=새로고침`
+    : `장 마감 · 개장까지 ${untilOpenStr()} · 종가 기준`;
+  T(foot, x+w/2, y+122, 5.5, '#6d6752', 'center');
 }
 
 // ═══════════ 메인 루프 ═══════════
 const t0=performance.now();
+let partyFired = false;
 function frame(){
   const t=(performance.now()-t0)/1000;
+  const open = isMarketOpen();
   if(mood!==0){ moodT+=1/60; if(moodT>2.2){mood=0;moodT=0;} }
-  updateSteam();
+  updateSteam(open);
+  updateConfetti();
+  updateZzz();
+  // 데모 미리보기
+  if (getP('demo')==='party' && !partyFired && t>1.5){ partyFired=true; burstConfetti(); startDance(); }
+  if (getP('demo')==='rain') rainTarget = 1;
+  rainLevel += (rainTarget - rainLevel) * 0.02;
 
   b.fillStyle=C.bg; b.fillRect(0,0,BW,BH);
   drawWalls(t);
   drawFloor();
   drawBed();
   drawShelf();
-  drawDesk();
-  drawMonitor(4.85,42,2.0,15,chartContent,t);
-  drawMonitor(7.1,40,1.5,12,watchContent,t);
-  drawNerdLegs(t);
-  drawChairBase();
-  drawNerd(t);
-  drawChairBack();
-  drawDogs(t);
+  drawDesk(t, open);
+  const offScreen = (pw,h)=>{ b.fillStyle='#0b0e0b'; b.fillRect(0,0,pw,h); };
+  drawMonitor(4.85,42,2.0,15, open?chartContent:offScreen, t);
+  drawMonitor(7.1,40,1.5,12, open?watchContent:offScreen, t);
+  if (open) {
+    drawNerdLegs(t);
+    drawChairBase();
+    drawNerd(t);
+    drawChairBack();
+  } else {
+    drawChairBase();
+    drawChairBack();                          // 빈 의자
+    drawSleepingNerd(t);                      // 침대에서 취침
+  }
+  drawDogs(t, open);
   drawSteam();
+  drawConfetti();
+  drawZzz();
 
-  // 모니터 글로우
-  const flick=0.8+Math.random()*0.2;
-  const [glx,gly]=px(6.4,2.6,26);
-  const gl=b.createRadialGradient(glx,gly,4,glx,gly,55);
-  const gc = (totalNow() >= totalAvg()) ? '159,232,176' : '217,111,95';
-  gl.addColorStop(0,`rgba(${gc},${0.10*flick})`);
-  gl.addColorStop(1,'rgba(0,0,0,0)');
-  b.fillStyle=gl; b.fillRect(0,0,BW,BH);
+  // 모니터 글로우 (장중에만) / 마감엔 창가 달빛만 은은하게
+  if (open) {
+    const flick=0.8+Math.random()*0.2;
+    const [glx,gly]=px(6.4,2.6,26);
+    const gl=b.createRadialGradient(glx,gly,4,glx,gly,55);
+    const gc = (totalNow() >= totalAvg()) ? '159,232,176' : '217,111,95';
+    gl.addColorStop(0,`rgba(${gc},${0.10*flick})`);
+    gl.addColorStop(1,'rgba(0,0,0,0)');
+    b.fillStyle=gl; b.fillRect(0,0,BW,BH);
+  } else {
+    const [mx2,my2]=px(0,6.8,44);
+    const ml=b.createRadialGradient(mx2,my2,4,mx2,my2,50);
+    ml.addColorStop(0,'rgba(200,210,235,0.07)');
+    ml.addColorStop(1,'rgba(0,0,0,0)');
+    b.fillStyle=ml; b.fillRect(0,0,BW,BH);
+  }
 
   if(Math.floor(t*30)%2===0) makeGrain();
   b.drawImage(grain,0,0);
@@ -1096,6 +1325,9 @@ function frame(){
   vg.addColorStop(0,'rgba(0,0,0,0)');
   vg.addColorStop(1,'rgba(8,7,3,0.55)');
   b.fillStyle=vg; b.fillRect(0,0,BW,BH);
+  // 하락 비: 방 전체가 살짝 가라앉는 톤 / 마감: 취침 어둠
+  if (rainLevel > 0.02) { b.fillStyle=`rgba(10,14,24,${0.14*rainLevel})`; b.fillRect(0,0,BW,BH); }
+  if (!open) { b.fillStyle='rgba(6,6,10,0.22)'; b.fillRect(0,0,BW,BH); }
 
   // UI 크롬은 그레인/비네트 위에 (선명하게)
   drawTitleChrome();
