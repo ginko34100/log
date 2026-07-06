@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>정모의 방</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/neodgm-webfont@1.611/neodgm/style.min.css">
+<style>
+  html, body { margin:0; padding:0; background:#12110b; height:100%; overflow:hidden; }
+  #wrap { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; }
+  canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
+</style>
+</head>
+<body>
+<div id="wrap"><canvas id="screen"></canvas></div>
+<script>
+// ═══════════ 버퍼 ═══════════
+const BW = 240, BH = 427;
+const buf = document.createElement('canvas');
+buf.width = BW; buf.height = BH;
+const b = buf.getContext('2d');
+const screen = document.getElementById('screen');
+const sctx = screen.getContext('2d');
+function fit() {
+  const s = Math.max(1, Math.floor(Math.min(innerWidth/BW, innerHeight/BH)));
+  screen.width = BW*s; screen.height = BH*s;
+  sctx.imageSmoothingEnabled = false;
+}
+fit(); addEventListener('resize', fit);
+
+// ═══════════ 팔레트 ═══════════
+const C = {
+  bg:'#14130c',
+  floorA:'#948a63', floorB:'#8c825c'.slice(0,7), floorSeam:'#6f6746',
+  rug:'#5f6b52', rugDim:'#525d47', rugEdge:'#6d7a5e',
+  wallL:'#b7ab72', wallR:'#a2965f', wallEdge:'#d6cb96', wallStip:'#00000018', base:'#c6bb86',
+  wood:'#a08050', woodD:'#7d5f38', woodT:'#bd9e6a', woodHi:'#d0b47e',
+  outline:'#241f12',
+  sheet:'#c2b98a', sheetD:'#a89f70', sheetHi:'#d8d0a2', pillow:'#e4dcb2', pillowD:'#c8c090',
+  blanket:'#7a8468', blanketD:'#67715a', blanketHi:'#8b957a',
+  metal:'#4a4a40', metalD:'#33332b', metalHi:'#5d5d52',
+  screenBg:'#0c1410', glow:'#9fe8b0',
+  green:'#6fd98a', red:'#d96f5f', gridLn:'#1e3326',
+  hair:'#2c2517', hairHi:'#453a26', skin:'#d8b98a', skinD:'#b8996a',
+  hoodie:'#5a6b5a', hoodieD:'#465446', hoodieHi:'#6c7f6c', string:'#d8d0a8',
+  glass:'#e8f4ff',
+  dog:'#e8e2d0', dogD:'#cfc8b2', dogNose:'#3a3229',
+  plant:'#7a9960', plantD:'#5f7a49', plantHi:'#93b078',
+  night:'#0a0d14', moon:'#e8e4d0', star:'#c8c4a8',
+  steam:'#c8c2a0',
+  note1:'#d8c878', note2:'#a8c8a0', note3:'#d0a890',
+};
+C.floorB = '#8c8258';
+
+// ═══════════ 아이소 헬퍼 ═══════════
+const TW = 16, TH = 8, ROOM = 11;
+const OX = BW/2 + 6, OY = 148;
+// 캔버스 내 레이아웃 존
+const TITLE_Y = 24;                       // 상단 타이틀 기준선
+const PANEL = { x:10, y:278, w:BW-20, h:140 };   // 하단 곳간 패널
+function px(gx, gy, z=0){ return [Math.round((gx-gy)*TW/2+OX), Math.round((gx+gy)*TH/2+OY-z)]; }
+function poly(pts, fill){ b.fillStyle=fill; b.beginPath(); pts.forEach((p,i)=>i?b.lineTo(p[0],p[1]):b.moveTo(p[0],p[1])); b.closePath(); b.fill(); }
+function polyO(pts, col){ b.strokeStyle=col; b.lineWidth=1; b.beginPath(); pts.forEach((p,i)=>i?b.lineTo(p[0],p[1]):b.moveTo(p[0],p[1])); b.closePath(); b.stroke(); }
+
+// z0에서 시작하는 3면 박스 + 외곽선
+function box(gx,gy,w,d,z0,h,ct,cl,cr,outline){
+  const A=px(gx,gy,z0+h), B=px(gx+w,gy,z0+h), Cc=px(gx+w,gy+d,z0+h), D=px(gx,gy+d,z0+h);
+  const E=px(gx,gy+d,z0), F=px(gx+w,gy+d,z0), G=px(gx+w,gy,z0);
+  poly([A,B,Cc,D], ct);
+  poly([D,Cc,F,E], cl);
+  poly([B,Cc,F,G], cr);
+  if (outline) polyO([A,B,G,F,E,D], outline);
+}
+
+// 시드 고정 랜덤 (벽 스티플 등 정적 텍스처)
+let seed = 7;
+function rnd(){ seed = (seed*16807)%2147483647; return (seed-1)/2147483646; }
+
+// ═══════════ 포트폴리오 & 시세 ═══════════
+// ★ 시세 연결: 이 프로젝트를 Vercel에 배포하면 같이 배포되는 /api/price 프록시를 통해
+//    네이버 금융 실시간 시세를 받아옴 (api/price.js 파일 참고).
+//    로컬에서 파일로 그냥 열면 fetch가 실패하므로 자동으로 시뮬레이션 모드로 동작.
+const PRICE_API = code => `/api/price?code=${code}`;
+
+const HOLDINGS = [
+  { name:'RISE 삼전·SK하닉 채권혼합50', code:'0162Z0', qty:205, avg:14910,  price:15145 },
+  { name:'PLUS 글로벌HBM반도체',        code:'442580', qty:61,  avg:128204, price:131355 },
+];
+const REFRESH_MS = 10000;
+let liveMode = false, lastUpdate = null, prevTotal = null;
+
+const totalNow = () => HOLDINGS.reduce((a,h)=>a+h.qty*h.price, 0);
+const totalAvg = () => HOLDINGS.reduce((a,h)=>a+h.qty*h.avg, 0);
+const fmt = n => Math.round(n).toLocaleString('ko-KR');
+const sign = n => (n>=0?'+':'');
+
+// 응답 형태를 관대하게 파싱 (네이버 폴링/증권 API 변형 대응)
+function pickPrice(j){
+  if (j == null) return null;
+  if (typeof j === 'number') return j;
+  const direct = j.closePrice ?? j.now ?? j.price ?? j.nv ?? j.tradePrice ?? j.currentPrice;
+  if (direct != null) return parseFloat(String(direct).replace(/,/g,''));
+  if (j.result?.areas?.[0]?.datas?.[0]?.nv != null) return j.result.areas[0].datas[0].nv;
+  if (Array.isArray(j.datas) && j.datas[0]?.nv != null) return j.datas[0].nv;
+  if (Array.isArray(j) && j.length) return pickPrice(j[0]);
+  return null;
+}
+async function fetchPrice(code){
+  if (!PRICE_API) return null;
+  try {
+    const r = await fetch(PRICE_API(code));
+    if (!r.ok) return null;
+    return pickPrice(await r.json());
+  } catch(e){ return null; }
+}
+
+// ═══════════ 차트 데이터 (총 평가액 캔들) ═══════════
+let candles=[], lastClose=totalAvg();
+// 초기 22봉: 평단 총액 → 현재 총액으로 수렴하는 워크
+(function seedCandles(){
+  const target = totalNow(), start = totalAvg();
+  let p = start;
+  for (let i=0;i<22;i++){
+    const open = p;
+    const pull = (target - p) * 0.18;
+    const noise = (Math.random()-0.5) * Math.abs(target-start) * 0.25;
+    const close = p + pull + noise;
+    candles.push({ open, close,
+      hi: Math.max(open,close) + Math.random()*Math.abs(pull)*0.5,
+      lo: Math.min(open,close) - Math.random()*Math.abs(pull)*0.5 });
+    p = close;
+  }
+  lastClose = p;
+})();
+function pushCandle(close){
+  const open = lastClose;
+  candles.push({ open, close,
+    hi: Math.max(open,close) + Math.abs(close-open)*0.3,
+    lo: Math.min(open,close) - Math.abs(close-open)*0.3 });
+  if (candles.length > 22) candles.shift();
+  lastClose = close;
+}
+
+let mood=0, moodT=0;
+
+// ═══════════ 10초 갱신 루프 ═══════════
+async function refresh(){
+  let anyLive = false;
+  await Promise.all(HOLDINGS.map(async h => {
+    const p = await fetchPrice(h.code);
+    if (p != null && p > 0) { h.price = p; anyLive = true; }
+    else if (!PRICE_API || !anyLive) {
+      // 시뮬레이션: ±0.15% 랜덤워크
+      h.price = Math.max(1, h.price * (1 + (Math.random()-0.5)*0.003));
+    }
+  }));
+  liveMode = anyLive;
+  lastUpdate = new Date();
+
+  const tot = totalNow();
+  if (prevTotal != null) {
+    const d = tot - prevTotal;
+    if (d > tot*0.0003) { mood = 1; moodT = 0; }        // 유의미한 상승 → 만세
+    else if (d < -tot*0.0003) { mood = -1; moodT = 0; } // 하락 → 고개 떨굼
+  }
+  prevTotal = tot;
+  pushCandle(tot);
+  renderVault();
+}
+setInterval(refresh, REFRESH_MS);
+refresh();
+
+// ═══════════ 곳간 패널 (캔버스 내 렌더) ═══════════
+// 패널 영역을 탭하면 즉시 새로고침
+screen.addEventListener('pointerdown', e => {
+  const S = screen.width / BW;
+  const bx = e.offsetX / S, by = e.offsetY / S;
+  if (bx >= PANEL.x && bx <= PANEL.x + PANEL.w && by >= PANEL.y && by <= PANEL.y + PANEL.h) {
+    refresh(); click();
+  }
+});
+function renderVault(){ /* 캔버스가 매 프레임 HOLDINGS를 직접 읽음 */ }
+
+let actx=null;
+onpointerdown=()=>{ if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}} };
+function click(){
+  if(!actx) return;
+  const o=actx.createOscillator(), g=actx.createGain();
+  o.type='square'; o.frequency.value=700+Math.random()*500;
+  g.gain.setValueAtTime(0.012,actx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.0005,actx.currentTime+0.02);
+  o.connect(g); g.connect(actx.destination); o.start(); o.stop(actx.currentTime+0.02);
+}
+
+// ═══════════ 벽 & 바닥 ═══════════
+const H_WALL = 60;
+// 벽 스티플(질감) 점 미리 생성
+const stipNW=[], stipNE=[];
+for(let i=0;i<160;i++){ stipNW.push([rnd()*ROOM, rnd()*H_WALL]); stipNE.push([rnd()*ROOM, rnd()*H_WALL]); }
+
+function drawWalls(t){
+  const A=px(0,0,H_WALL), Bn=px(ROOM,0,H_WALL), Cn=px(ROOM,0,0), D=px(0,0,0);
+  poly([A,Bn,Cn,D], C.wallL);
+  const A2=px(0,ROOM,H_WALL), C2=px(0,ROOM,0);
+  poly([A,A2,C2,D], C.wallR);
+  // 스티플 질감
+  b.fillStyle='rgba(0,0,0,0.08)';
+  stipNW.forEach(([u,v])=>{ const [sx,sy]=px(u,0,v); b.fillRect(sx,sy,1,1); });
+  b.fillStyle='rgba(255,255,255,0.05)';
+  stipNE.forEach(([u,v])=>{ const [sx,sy]=px(0,u,v); b.fillRect(sx,sy,1,1); });
+  // 윗모서리 + 코너 음영
+  b.strokeStyle=C.wallEdge; b.lineWidth=1;
+  b.beginPath(); b.moveTo(A2[0],A2[1]); b.lineTo(A[0],A[1]); b.lineTo(Bn[0],Bn[1]); b.stroke();
+  b.strokeStyle='rgba(0,0,0,0.18)';
+  b.beginPath(); b.moveTo(A[0],A[1]); b.lineTo(D[0],D[1]); b.stroke();
+  // 걸레받이 (baseboard)
+  const b1=px(0,0,3), b2=px(ROOM,0,3), b3=px(0,ROOM,3);
+  b.strokeStyle=C.base;
+  b.beginPath(); b.moveTo(b3[0],b3[1]); b.lineTo(b1[0],b1[1]); b.lineTo(b2[0],b2[1]); b.stroke();
+
+  drawWindowNW(6.0, 32, 3.4, 26, t);
+  drawPoster(7.6, 36);
+  drawClock(2.6, 46, t);
+  drawNotes();
+}
+
+function drawWindowNW(gx, z, w, h, t){
+  const [sx, sy]=px(gx,0,z);
+  b.save(); b.transform(1,0.5,0,1,sx,sy);
+  const pw=w*TW/2;
+  b.fillStyle=C.woodD; b.fillRect(-3,-3,pw+6,h+6);        // 바깥 프레임
+  b.fillStyle=C.woodT; b.fillRect(-2,-2,pw+4,h+4);
+  b.fillStyle=C.night; b.fillRect(0,0,pw,h);
+  stars.forEach(s=>{
+    const a=0.4+Math.sin(t*2+s.tw)*0.35;
+    b.globalAlpha=Math.max(0.1,a); b.fillStyle=C.star;
+    b.fillRect(Math.floor(s.x*pw),Math.floor(s.y*h),1,1);
+  });
+  b.globalAlpha=1;
+  b.fillStyle=C.moon; b.fillRect(pw-9,4,5,5);
+  b.fillStyle=C.night; b.fillRect(pw-8,4,3,3);            // 초승달
+  b.fillStyle=C.woodT; b.fillRect(pw/2,0,1,h); b.fillRect(0,h/2,pw,1);  // 창살
+  b.fillStyle=C.woodHi; b.fillRect(-2,h+2,pw+4,2);        // 창턱
+  b.restore();
+}
+function drawPoster(gx, z){
+  const [sx,sy]=px(gx,0,z);
+  b.save(); b.transform(1,0.5,0,1,sx,sy);
+  b.fillStyle=C.outline; b.fillRect(-1,-1,16,22);
+  b.fillStyle='#1a2030'; b.fillRect(0,0,14,20);
+  b.fillStyle=C.green;                                     // 우상향 차트 포스터
+  b.fillRect(2,14,2,3); b.fillRect(5,10,2,7); b.fillRect(8,6,2,11); b.fillRect(11,3,2,14);
+  b.restore();
+}
+function drawClock(gy, z, t){
+  const [sx,sy]=px(0,gy,z);
+  b.save(); b.transform(-1,0.5,0,1,sx,sy);
+  b.fillStyle=C.outline; b.fillRect(-1,-1,12,12);
+  b.fillStyle='#ded5a8'; b.fillRect(0,0,10,10);
+  b.fillStyle=C.woodD;
+  b.fillRect(4,1,1,1); b.fillRect(4,8,1,1); b.fillRect(1,4,1,1); b.fillRect(8,4,1,1);  // 12·3·6·9 눈금
+  b.restore();
+  const cx=sx-5, cy=sy+5+2.5;
+  b.strokeStyle='#2a2418'; b.lineWidth=1;
+  const a1=t*0.5, a2=t*0.05;
+  b.beginPath(); b.moveTo(cx,cy); b.lineTo(cx+Math.cos(a1)*3.5, cy+Math.sin(a1)*3.5); b.stroke();
+  b.beginPath(); b.moveTo(cx,cy); b.lineTo(cx+Math.cos(a2)*2.5, cy+Math.sin(a2)*2.5); b.stroke();
+}
+function drawNotes(){
+  // 책상 위 벽에 포스트잇 3장
+  [[8.7,26,C.note1],[9.15,29,C.note2],[8.9,22,C.note3]].forEach(([gx,z,col])=>{
+    const [sx,sy]=px(gx,0,z);
+    b.save(); b.transform(1,0.5,0,1,sx,sy);
+    b.fillStyle=col; b.fillRect(0,0,4,4);
+    b.fillStyle='rgba(0,0,0,0.25)'; b.fillRect(0,3,4,1);
+    b.restore();
+  });
+}
+
+// ═══════════ 바닥 (마루판) ═══════════
+function drawFloor(){
+  for(let gy=0; gy<ROOM; gy++)
+    for(let gx=0; gx<ROOM; gx++){
+      const [sx,sy]=px(gx,gy);
+      b.beginPath();
+      b.moveTo(sx,sy); b.lineTo(sx+TW/2,sy+TH/2);
+      b.lineTo(sx,sy+TH); b.lineTo(sx-TW/2,sy+TH/2);
+      b.closePath();
+      b.fillStyle = (gy%2? C.floorA : C.floorB);           // 행 단위 = 마루 널
+      b.fill();
+    }
+  // 널 사이 이음선 (+gx 방향)
+  b.strokeStyle=C.floorSeam; b.lineWidth=0.5; b.globalAlpha=0.5;
+  for(let gy=1; gy<ROOM; gy++){
+    const p1=px(0,gy), p2=px(ROOM,gy);
+    b.beginPath(); b.moveTo(p1[0],p1[1]); b.lineTo(p2[0],p2[1]); b.stroke();
+  }
+  b.globalAlpha=1;
+  // 러그 (테두리 패턴)
+  for(let gy=5; gy<=8; gy++)
+    for(let gx=4; gx<=7; gx++){
+      const [sx,sy]=px(gx,gy);
+      b.beginPath();
+      b.moveTo(sx,sy); b.lineTo(sx+TW/2,sy+TH/2);
+      b.lineTo(sx,sy+TH); b.lineTo(sx-TW/2,sy+TH/2);
+      b.closePath();
+      const edge = gy===5||gy===8||gx===4||gx===7;
+      b.fillStyle = edge ? C.rugEdge : ((gx+gy)%2? C.rug : C.rugDim);
+      b.fill();
+    }
+}
+
+// ═══════════ 침대 ═══════════
+function drawBed(){
+  const gx=0.3, gy=6.6, w=2.6, d=3.9;
+  // 다리 4개
+  [[gx+0.1,gy+0.1],[gx+w-0.25,gy+0.1],[gx+0.1,gy+d-0.25],[gx+w-0.25,gy+d-0.25]]
+    .forEach(([lx,ly])=> box(lx,ly,0.16,0.16,0,4,C.woodD,C.outline,C.woodD));
+  // 프레임
+  box(gx,gy,w,d,4,3,C.wood,C.woodD,C.wood,C.outline);
+  // 매트리스 (프레임보다 살짝 안쪽)
+  box(gx+0.08,gy+0.08,w-0.16,d-0.16,7,4,C.sheet,C.sheetD,C.sheet);
+  // 매트리스 윗면 하이라이트 모서리
+  const m1=px(gx+0.08,gy+0.08,11), m2=px(gx+w-0.08,gy+0.08,11);
+  b.strokeStyle=C.sheetHi; b.beginPath(); b.moveTo(m1[0],m1[1]); b.lineTo(m2[0],m2[1]); b.stroke();
+  // 베개 (2톤 + 눌린 자국)
+  box(gx+0.25,gy+0.2,w-0.5,0.85,11,3,C.pillow,C.pillowD,C.pillow,C.outline);
+  const pp=px(gx+w/2,gy+0.6,14);
+  b.fillStyle=C.pillowD; b.fillRect(pp[0]-3,pp[1],6,1);
+  // 이불 (침대 아래쪽 2/3 덮음) + 주름
+  box(gx+0.04,gy+1.35,w-0.08,d-1.45,10.5,2.5,C.blanket,C.blanketD,C.blanket,C.outline);
+  b.strokeStyle=C.blanketD; b.lineWidth=1;
+  for(let i=0;i<3;i++){
+    const q1=px(gx+0.2, gy+1.9+i*0.75, 13), q2=px(gx+w-0.2, gy+1.75+i*0.75, 13);
+    b.beginPath(); b.moveTo(q1[0],q1[1]);
+    b.quadraticCurveTo((q1[0]+q2[0])/2, q1[1]+2, q2[0],q2[1]); b.stroke();
+  }
+  // 이불 접힌 윗단 하이라이트
+  const f1=px(gx+0.04,gy+1.35,13), f2=px(gx+w-0.04,gy+1.35,13);
+  b.strokeStyle=C.blanketHi; b.beginPath(); b.moveTo(f1[0],f1[1]); b.lineTo(f2[0],f2[1]); b.stroke();
+}
+
+// ═══════════ 책장 ═══════════
+function drawShelf(){
+  const gx=1.1, gy=0.3, w=2.3, d=0.85, h=36;
+  box(gx,gy,w,d,0,h,C.woodT,C.wood,C.woodD,C.outline);
+  // 전면(SE) 인셋: 어두운 안쪽 + 선반 2개 + 책
+  const [sx,sy]=px(gx,gy+d,h-2);
+  b.save(); b.transform(1,0.5,0,1,sx,sy);
+  const pw=w*TW/2 - 0; const ph=h-4;
+  b.fillStyle='#4a3c26'; b.fillRect(1.5,0,pw-3,ph);        // 안쪽 그늘
+  const shelfYs=[Math.floor(ph/3), Math.floor(ph*2/3)];
+  b.fillStyle=C.woodT;
+  shelfYs.forEach(y=> b.fillRect(1.5,y,pw-3,2));
+  // 책 (칸마다 높이/색 다양) — 시드 고정으로 매 프레임 동일 배치
+  seed = 4242;
+  const cols=['#a26a4a','#6a7a5a','#b8a86a','#7a5a6a','#5a6a7a','#8a6a3a','#9a8a5a'];
+  const rows=[0,...shelfYs];
+  rows.forEach((ry,r)=>{
+    let bx=3;
+    const bottom = (r<2? shelfYs[r] : ph);
+    while(bx < pw-6){
+      const bw2=2+Math.floor(rnd()*2);
+      const bh2=6+Math.floor(rnd()*4);
+      b.fillStyle=cols[Math.floor(rnd()*cols.length)];
+      b.fillRect(bx, bottom-bh2, bw2, bh2);
+      b.fillStyle='rgba(0,0,0,0.25)';
+      b.fillRect(bx+bw2-1, bottom-bh2, 1, bh2);            // 책등 음영
+      bx += bw2+1;
+      if(rnd()<0.18) bx+=3;                                // 빈 틈
+    }
+  });
+  b.restore();
+  // 책장 위 화분 하나
+  box(gx+0.3, gy+0.2, 0.35, 0.35, h, 3, '#8a6a48','#6f5438','#7d5f40',C.outline);
+  const tp=px(gx+0.47,gy+0.37,h+3);
+  b.strokeStyle=C.plant; b.lineWidth=1;
+  b.beginPath(); b.moveTo(tp[0],tp[1]); b.lineTo(tp[0]-3,tp[1]-5); b.stroke();
+  b.beginPath(); b.moveTo(tp[0],tp[1]); b.lineTo(tp[0]+2,tp[1]-6); b.stroke();
+  b.beginPath(); b.moveTo(tp[0],tp[1]); b.lineTo(tp[0],tp[1]-7); b.stroke();
+}
+
+// ═══════════ 책상 ═══════════
+function drawDesk(){
+  const gx=4.5, gy=0.95, w=4.8, d=1.85;
+  // 다리 (뒤 2, 앞 2 — 가는 금속)
+  [[gx+0.12,gy+0.12],[gx+w-0.26,gy+0.12],[gx+0.12,gy+d-0.26],[gx+w-0.26,gy+d-0.26]]
+    .forEach(([lx,ly])=> box(lx,ly,0.14,0.14,0,15,C.metalHi,C.metalD,C.metal));
+  // 서랍 유닛 (오른쪽 아래)
+  box(gx+w-1.15, gy+0.25, 1.0, 1.3, 0, 14, C.wood, C.woodD, C.wood, C.outline);
+  // 서랍 앞면 2칸 + 손잡이
+  const [dx2,dy2]=px(gx+w-1.15, gy+1.55, 12);
+  b.save(); b.transform(1,0.5,0,1,dx2,dy2);
+  b.fillStyle=C.woodHi; b.fillRect(1,0,6,4); b.fillRect(1,6,6,4);
+  b.fillStyle=C.outline; b.fillRect(3,1.5,2,1); b.fillRect(3,7.5,2,1);
+  b.restore();
+  // 상판 (얇은 슬랩 + 앞면 하이라이트)
+  box(gx,gy,w,d,15,2.2,C.woodT,C.wood,C.woodD,C.outline);
+  const e1=px(gx,gy+d,17.2), e2=px(gx+w,gy+d,17.2);
+  b.strokeStyle=C.woodHi; b.beginPath(); b.moveTo(e1[0],e1[1]); b.lineTo(e2[0],e2[1]); b.stroke();
+
+  // 마우스패드 + 마우스
+  box(gx+3.1, gy+1.05, 0.9, 0.55, 17.2, 0.3, '#3a3a32','#2c2c26','#333329');
+  box(gx+3.4, gy+1.2, 0.28, 0.22, 17.5, 1.2, '#c8c0a0','#a8a080','#b8b090',C.outline);
+  // 키보드 (키캡 줄)
+  box(gx+1.5, gy+1.05, 1.5, 0.5, 17.2, 1.3, '#3a3a30','#2a2a22','#30302a',C.outline);
+  const [kx,ky]=px(gx+1.5, gy+1.05, 18.5);
+  b.fillStyle='#55554a';
+  for(let r=0;r<2;r++) for(let i=0;i<8;i++)
+    b.fillRect(kx+2+i*2.6+r*1.3, ky+r*2+1, 1.6, 1);
+  // 머그컵 (손잡이 + 커피)
+  box(gx+4.15, gy+0.5, 0.38, 0.38, 17.2, 3, '#c8b890','#a89870','#b8a880',C.outline);
+  const [mx,my]=px(gx+4.34,gy+0.69,20.2);
+  b.fillStyle='#4a3020'; b.fillRect(mx-2,my,4,1.5);        // 커피 표면
+  b.strokeStyle='#a89870';
+  b.beginPath(); b.arc(mx+4,my+2,2,-Math.PI/2,Math.PI/2); b.stroke();  // 손잡이
+  // 케이블 (모니터 뒤 → 벽 → 바닥)
+  b.strokeStyle='#2a251a'; b.lineWidth=1;
+  const c1=px(6.0,1.0,17), c2=px(6.1,0.05,10), c3=px(6.3,0.05,0);
+  b.beginPath(); b.moveTo(c1[0],c1[1]);
+  b.quadraticCurveTo(c2[0],c2[1]-4,c2[0],c2[1]);
+  b.lineTo(c3[0],c3[1]); b.stroke();
+}
+
+// ═══════════ 모니터 ═══════════
+function drawMonitor(gx, z, w, h, content, t, tilt){
+  // 받침 발 + 목
+  box(gx+w/2-0.28, 1.2, 0.56, 0.34, 17.2, 0.8, C.metalHi, C.metalD, C.metal, C.outline);
+  box(gx+w/2-0.07, 1.3, 0.14, 0.12, 18, z-20, C.metal, C.metalD, C.metalD);
+  const [sx,sy]=px(gx,1.32,z);
+  b.save(); b.transform(1,0.5,0,1,sx,sy);
+  const pw=w*TW/2;
+  b.fillStyle=C.outline; b.fillRect(-2.5,-2.5,pw+5,h+5);   // 외곽선
+  b.fillStyle='#2e2e26'; b.fillRect(-1.5,-1.5,pw+3,h+3);   // 베젤
+  b.fillStyle=C.screenBg; b.fillRect(0,0,pw,h);
+  content(pw,h,t);
+  // 화면 유리 반사 (대각 하이라이트)
+  b.globalAlpha=0.05; b.fillStyle='#ffffff';
+  b.beginPath(); b.moveTo(pw*0.1,0); b.lineTo(pw*0.35,0); b.lineTo(pw*0.05,h); b.lineTo(0,h); b.lineTo(0,h*0.6); b.closePath(); b.fill();
+  b.globalAlpha=1;
+  // 전원 LED
+  b.fillStyle=Math.floor(t)%2? C.green:'#3a5a44';
+  b.fillRect(pw-2, h+1, 1, 1);
+  b.restore();
+}
+function chartContent(pw,h,t){
+  b.strokeStyle=C.gridLn; b.lineWidth=0.5;
+  for(let i=1;i<4;i++){ b.beginPath(); b.moveTo(0,h*i/4); b.lineTo(pw,h*i/4); b.stroke(); }
+  let mn=Infinity,mx=-Infinity;
+  candles.forEach(c=>{mn=Math.min(mn,c.lo);mx=Math.max(mx,c.hi);});
+  const pad=(mx-mn)*0.15+1; mn-=pad; mx+=pad;
+  const Y=v=>h-(v-mn)/(mx-mn)*h;
+  const cw=pw/23;
+  candles.forEach((c,i)=>{
+    const x=i*cw+1, up=c.close>=c.open;
+    b.fillStyle=up?C.green:C.red;
+    b.fillRect(x+cw*0.35, Y(c.hi), 0.8, Y(c.lo)-Y(c.hi));
+    const bt=Y(Math.max(c.open,c.close));
+    b.fillRect(x, bt, cw*0.7, Math.max(1,Math.abs(Y(c.open)-Y(c.close))));
+  });
+  if(Math.floor(t*2)%2===0){
+    b.strokeStyle='#e8e4c0'; b.lineWidth=0.5; b.setLineDash([1,1]);
+    b.beginPath(); b.moveTo(0,Y(lastClose)); b.lineTo(pw,Y(lastClose)); b.stroke();
+    b.setLineDash([]);
+  }
+}
+// 관심종목 화면 = 실제 보유 2종목의 평단 대비 등락
+function watchContent(pw,h,t){
+  HOLDINGS.forEach((hd,i)=>{
+    const y = 3 + i*(h-6)/2;
+    const pct = hd.price/hd.avg - 1;
+    b.fillStyle='#3a4a3e'; b.fillRect(2,y,pw*0.35,2);
+    b.fillStyle = pct>=0 ? C.green : C.red;
+    b.fillRect(pw*0.45, y, Math.min(pw*0.5, Math.abs(pct)*pw*6), 2);
+    // 등락 방향 화살표 픽셀
+    b.fillRect(pw*0.4, pct>=0? y-1 : y+1, 1, 1);
+  });
+  const tick=(t*8)%(pw+20)-10;
+  b.fillStyle=C.glow; b.globalAlpha=0.6;
+  b.fillRect(pw-tick,h-3,6,1); b.globalAlpha=1;
+}
+
+// ═══════════ 의자 + 캐릭터 ═══════════
+let typeT=0;
+function drawChairBase(){
+  const cgx=6.55, cgy=3.35;
+  const [bx2,by2]=px(cgx+0.1,cgy+0.2,0);
+  // 별모양 다리 4방향 + 바퀴
+  b.strokeStyle=C.metalD; b.lineWidth=1.5;
+  [[-7,2],[7,2],[-4,5],[4,5]].forEach(([ox,oy])=>{
+    b.beginPath(); b.moveTo(bx2,by2-3); b.lineTo(bx2+ox,by2+oy-2); b.stroke();
+    b.fillStyle=C.outline;
+    b.fillRect(bx2+ox-1, by2+oy-1, 2, 2);                  // 바퀴
+  });
+  // 중심 기둥 (가스 리프트)
+  box(cgx+0.02,cgy+0.12,0.16,0.16,2,7,C.metalHi,C.metalD,C.metal);
+  // 좌판 (쿠션 2톤)
+  box(cgx-0.5,cgy-0.28,1.2,1.0,9,2.4,'#565648','#3e3e34','#4a4a3e',C.outline);
+}
+function drawChairBack(){
+  const cgx=6.55, cgy=3.35;
+  // 등받이 (캐릭터보다 카메라 쪽 = 나중에 그림)
+  box(cgx-0.45,cgy+0.62,1.1,0.16,11,13,'#565648','#3e3e34','#4a4a3e',C.outline);
+  // 등받이 쿠션 스티치
+  const [sx,sy]=px(cgx-0.45,cgy+0.78,20);
+  b.strokeStyle='#3e3e34';
+  b.beginPath(); b.moveTo(sx+2,sy+2); b.lineTo(sx+14,sy+8); b.stroke();
+}
+// 다리: 의자보다 먼저 그려서 좌판·기둥이 자연스럽게 가림
+// 몸통과 같은 기준점(px 6.68,3.62,11.5)을 써서 어긋남 방지
+function drawNerdLegs(t){
+  const [sx,sy]=px(6.68,3.62,11.5);
+  const pants='#3a3a44', pantsD='#2c2c34', shoe='#22221c', shoeHi='#4a4a40';
+  const fidget = Math.sin(t*2.1)>0.92 ? 1 : 0;
+  const kneeY = sy+1;                 // 좌판 바로 아래에서 시작
+  const floorY = sy+11;               // 바닥 (z 11.5 → 0)
+  // 종아리 (기둥 양옆, 살짝 벌림)
+  b.fillStyle=C.outline;
+  b.fillRect(sx-8, kneeY, 4, floorY-kneeY);
+  b.fillRect(sx+4, kneeY-fidget, 4, floorY-kneeY+fidget);
+  b.fillStyle=pants;
+  b.fillRect(sx-7, kneeY+1, 2, floorY-kneeY-2);
+  b.fillRect(sx+5, kneeY+1-fidget, 2, floorY-kneeY-2+fidget);
+  b.fillStyle=pantsD;
+  b.fillRect(sx-6, kneeY+1, 1, floorY-kneeY-2);
+  b.fillRect(sx+6, kneeY+1-fidget, 1, floorY-kneeY-2+fidget);
+  // 신발
+  b.fillStyle=C.outline;
+  b.fillRect(sx-9, floorY-1, 6, 3);
+  b.fillRect(sx+4, floorY-1-fidget, 6, 3);
+  b.fillStyle=shoeHi;
+  b.fillRect(sx-8, floorY-1, 4, 1);
+  b.fillRect(sx+5, floorY-1-fidget, 4, 1);
+  b.fillStyle=shoe;
+  b.fillRect(sx-8, floorY, 4, 1);
+  b.fillRect(sx+5, floorY-fidget, 4, 1);
+}
+function drawNerd(t){
+  const [sx,sy]=px(6.68,3.62,11.5);
+  let headDrop=0, armLift=0;
+  if(mood===-1) headDrop=Math.min(4,moodT*8);
+  if(mood===1)  armLift =Math.min(6,moodT*12);
+
+  // ── 몸통 (후드티 뒷모습) — 엉덩이가 좌판(sy)에 닿도록 ──
+  b.fillStyle=C.outline; b.fillRect(sx-6,sy-16,12,17);       // 외곽 (바닥 sy+1)
+  b.fillStyle=C.hoodie;  b.fillRect(sx-5,sy-15,10,15);
+  b.fillStyle=C.hoodieD; b.fillRect(sx-5,sy-4,10,4);         // 허리 아래 그늘
+  b.fillStyle=C.hoodieHi;b.fillRect(sx-5,sy-15,2,12);        // 왼쪽 하이라이트
+  // 좌판 위로 삐져나온 허벅지 (앉음 강조)
+  b.fillStyle=C.outline; b.fillRect(sx-7,sy-2,4,4); b.fillRect(sx+3,sy-2,4,4);
+  b.fillStyle='#3a3a44'; b.fillRect(sx-6,sy-1,3,2); b.fillRect(sx+4,sy-1,3,2);
+  b.fillStyle='#2c2c34'; b.fillRect(sx-6,sy+1,3,1); b.fillRect(sx+4,sy+1,3,1);
+  // 후드 뭉침 (목 뒤 주름 2단)
+  b.fillStyle=C.hoodieD; b.fillRect(sx-4,sy-16,8,2);
+  b.fillStyle=C.hoodieHi;b.fillRect(sx-3,sy-17,6,1);
+  // 등 재봉선
+  b.fillStyle=C.hoodieD; b.fillRect(sx,sy-13,1,7);
+
+  // ── 머리 ──
+  b.fillStyle=C.outline; b.fillRect(sx-5,sy-24+headDrop,10,9);
+  b.fillStyle=C.hair;    b.fillRect(sx-4,sy-23+headDrop,8,8);
+  b.fillStyle=C.hairHi;                                       // 머릿결 하이라이트
+  b.fillRect(sx-3,sy-23+headDrop,1,4); b.fillRect(sx,sy-22+headDrop,1,3); b.fillRect(sx+2,sy-23+headDrop,1,2);
+  b.fillStyle=C.skin; b.fillRect(sx-3,sy-16+headDrop,6,2);    // 목덜미
+  b.fillStyle=C.skinD; b.fillRect(sx-3,sy-15+headDrop,6,1);
+  // 안경다리 (양옆 귀 위로)
+  b.fillStyle='#1f1a10';
+  b.fillRect(sx-5,sy-20+headDrop,1,2); b.fillRect(sx+4,sy-20+headDrop,1,2);
+  // 가끔 옆 보는 순간 렌즈 글린트
+  if(Math.sin(t*0.4)>0.93){
+    b.fillStyle=C.skin; b.fillRect(sx+3,sy-22+headDrop,3,5);
+    b.fillStyle=C.outline; b.fillRect(sx+4,sy-21+headDrop,3,3);
+    b.fillStyle=C.glass; b.fillRect(sx+5,sy-21+headDrop,2,2);
+  }
+
+  // ── 팔 ──
+  typeT+=0.3;
+  if(mood===1){
+    b.fillStyle=C.outline; b.fillRect(sx-10,sy-19-armLift,4,10); b.fillRect(sx+6,sy-19-armLift,4,10);
+    b.fillStyle=C.hoodie;  b.fillRect(sx-9,sy-18-armLift,3,8);   b.fillRect(sx+6,sy-18-armLift,3,8);
+    b.fillStyle=C.skin;    b.fillRect(sx-9,sy-20-armLift,3,2);   b.fillRect(sx+6,sy-20-armLift,3,2);
+  } else {
+    const l=Math.sin(typeT)>0?1:0, r=Math.sin(typeT+1.5)>0?1:0;
+    b.fillStyle=C.outline; b.fillRect(sx-9,sy-10,4,7); b.fillRect(sx+5,sy-10,4,7);
+    b.fillStyle=C.hoodie;  b.fillRect(sx-8,sy-9,3,5);  b.fillRect(sx+5,sy-9,3,5);
+    b.fillStyle=C.hoodieD; b.fillRect(sx-8,sy-5,3,1);  b.fillRect(sx+5,sy-5,3,1);   // 소매 끝
+    b.fillStyle=C.skin;    b.fillRect(sx-8,sy-4-l,3,2); b.fillRect(sx+5,sy-4-r,3,2);
+    if(Math.random()<0.15 && mood!==-1) click();
+  }
+}
+
+// ═══════════ 강아지 3마리 (러그에서 놀기) ═══════════
+// 말티즈1(제일 작음, 혓바닥), 말티즈2(조금 큼), 포메(제일 큼)
+const dogs=[
+  { s:1.0,  phase:0,               kind:'mal', tongue:true,  hopP:0.0 },
+  { s:1.15, phase:Math.PI*0.72,    kind:'mal', tongue:false, hopP:2.1 },
+  { s:1.3,  phase:Math.PI*1.42,    kind:'pom', tongue:false, hopP:4.2 },
+];
+function yip(){
+  if(!actx || Math.random()>0.5) return;
+  const o=actx.createOscillator(), g=actx.createGain();
+  o.type='square'; o.frequency.setValueAtTime(950,actx.currentTime);
+  o.frequency.exponentialRampToValueAtTime(600,actx.currentTime+0.07);
+  g.gain.setValueAtTime(0.02,actx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.0005,actx.currentTime+0.08);
+  o.connect(g); g.connect(actx.destination); o.start(); o.stop(actx.currentTime+0.08);
+}
+function drawOneDog(sx, sy, s, d, t, flip){
+  const F = v=>Math.round(v*s);
+  const runP = Math.sin(t*10 + d.phase);
+  const hop  = Math.max(0, Math.sin(t*3.2 + d.hopP)-0.7) * 8;   // 가끔 폴짝
+  sy -= hop;
+  const dir = flip? -1 : 1;
+  const pom = d.kind==='pom';
+  const body = C.dog;                        // 셋 다 흰 몸
+  const bodyD= C.dogD;
+  const cream = '#e6cd96';                   // 포메 등의 누런 털
+
+  // 그림자
+  b.globalAlpha=0.2; b.fillStyle='#000';
+  b.beginPath(); b.ellipse(sx, sy+F(3)+hop, F(6), F(2), 0, 0, Math.PI*2); b.fill();
+  b.globalAlpha=1;
+
+  // 다리 4개 (달리기 교차)
+  b.fillStyle=bodyD;
+  const l1=runP>0?1:0, l2=runP>0?0:1;
+  b.fillRect(sx-F(4), sy+F(1)-l1, F(1.4), F(3));
+  b.fillRect(sx-F(1.5), sy+F(1)-l2, F(1.4), F(3));
+  b.fillRect(sx+F(1), sy+F(1)-l2, F(1.4), F(3));
+  b.fillRect(sx+F(3), sy+F(1)-l1, F(1.4), F(3));
+
+  // 몸통
+  b.fillStyle=C.outline;
+  b.beginPath(); b.ellipse(sx, sy-F(1), F(5.5), F(3.6), 0, 0, Math.PI*2); b.fill();
+  b.fillStyle=body;
+  b.beginPath(); b.ellipse(sx, sy-F(1), F(4.6), F(2.8), 0, 0, Math.PI*2); b.fill();
+  b.fillStyle=bodyD;
+  b.beginPath(); b.ellipse(sx-dir*F(1), sy+F(0.4), F(3), F(1.4), 0, 0, Math.PI*2); b.fill();
+  // 포메: 등 위에 옅은 누런 털 살짝
+  if(pom){
+    b.fillStyle=cream;
+    b.beginPath(); b.ellipse(sx-dir*F(0.5), sy-F(3), F(2.4), F(1), 0, 0, Math.PI*2); b.fill();
+  }
+
+  // 꼬리
+  if(pom){
+    // 포메: 등 위로 말린 풍성한 꼬리 (흰 털 + 크림빛 안쪽)
+    b.fillStyle=C.outline;
+    b.beginPath(); b.arc(sx-dir*F(4.5), sy-F(3.5), F(2.6), 0, Math.PI*2); b.fill();
+    b.fillStyle=body;
+    b.beginPath(); b.arc(sx-dir*F(4.5), sy-F(3.5), F(2), 0, Math.PI*2); b.fill();
+    b.fillStyle=cream;
+    b.beginPath(); b.arc(sx-dir*F(4.8), sy-F(3.8), F(1), 0, Math.PI*2); b.fill();
+  } else {
+    // 말티즈: 살랑살랑 위로 선 꼬리
+    const wag = Math.sin(t*14 + d.phase) * F(1.5);
+    b.strokeStyle=body; b.lineWidth=F(1.6);
+    b.beginPath(); b.moveTo(sx-dir*F(4.5), sy-F(2));
+    b.quadraticCurveTo(sx-dir*F(6), sy-F(4), sx-dir*F(5.5)+wag, sy-F(6));
+    b.stroke();
+  }
+
+  // 머리 (진행 방향 앞쪽, 살짝 위)
+  const hx = sx + dir*F(4.5), hy = sy - F(3.5) + Math.sin(t*10+d.phase)*0.6;
+  b.fillStyle=C.outline;
+  b.beginPath(); b.arc(hx, hy, F(3.4), 0, Math.PI*2); b.fill();
+  b.fillStyle=body;
+  b.beginPath(); b.arc(hx, hy, F(2.7), 0, Math.PI*2); b.fill();
+  if(pom){
+    // 포메: 갈기 볼륨 + 쫑긋 세운 귀
+    b.fillStyle=body;
+    b.beginPath(); b.arc(hx-dir*F(1.5), hy+F(1), F(2.4), 0, Math.PI*2); b.fill();
+    b.fillStyle=C.outline;
+    b.fillRect(hx-F(3), hy-F(4.5), F(1.6), F(2));
+    b.fillRect(hx+F(1.2), hy-F(4.5), F(1.6), F(2));
+    b.fillStyle=body;
+    b.fillRect(hx-F(2.7), hy-F(4.2), F(1), F(1.4));
+    b.fillRect(hx+F(1.5), hy-F(4.2), F(1), F(1.4));
+  } else {
+    // 말티즈: 늘어진 귀 양옆
+    b.fillStyle=C.outline;
+    b.fillRect(hx-F(3.6), hy-F(1.5), F(1.6), F(3));
+    b.fillRect(hx+F(2), hy-F(1.5), F(1.6), F(3));
+    b.fillStyle=body;
+    b.fillRect(hx-F(3.3), hy-F(1.2), F(1), F(2.4));
+    b.fillRect(hx+F(2.3), hy-F(1.2), F(1), F(2.4));
+  }
+  // 주둥이 + 코 + 눈
+  b.fillStyle=body; b.fillRect(hx+dir*F(2), hy, F(1.6), F(1.2));
+  b.fillStyle=C.dogNose; b.fillRect(hx+dir*F(3), hy, F(0.9), F(0.9));
+  b.fillStyle=C.outline; b.fillRect(hx+dir*F(0.5), hy-F(1.2), F(0.9), F(0.9));
+  // 혓바닥 (말티즈1만)
+  if(d.tongue){
+    const lick = Math.sin(t*6)>0? 0 : 1;
+    b.fillStyle='#e88a94';
+    b.fillRect(hx+dir*F(2.6), hy+F(1), F(1), F(1.6)+lick);
+  }
+}
+function drawDogs(t){
+  // 러그 중심을 도는 추격 놀이 (서로 다른 위상)
+  const list = dogs.map(d=>{
+    const a = t*1.15 + d.phase;
+    const gx = 5.5 + Math.cos(a)*1.25;
+    const gy = 6.5 + Math.sin(a)*1.05;
+    const [sx,sy] = px(gx,gy,0);
+    // 진행 방향으로 좌우 뒤집기 (화면 x 미분)
+    const dxdt = -Math.sin(a)*1.25 - Math.cos(a)*1.05;
+    return { d, sx, sy, flip: dxdt<0 };
+  });
+  list.sort((a,c)=>a.sy-c.sy);               // 깊이 정렬
+  list.forEach(o=> drawOneDog(o.sx, o.sy, o.d.s, o.d, t, o.flip));
+  if(Math.random()<0.004) yip();
+}
+
+// ═══════════ 김/별/그레인 ═══════════
+const steam=[];
+const stars=[]; for(let i=0;i<14;i++) stars.push({x:Math.random(),y:Math.random(),tw:Math.random()*Math.PI*2});
+function updateSteam(){
+  if(Math.random()<0.1){
+    const [sx,sy]=px(8.85,1.65,21);
+    steam.push({x:sx,y:sy,life:1,drift:Math.random()*2-1});
+  }
+  for(let i=steam.length-1;i>=0;i--){
+    const s=steam[i];
+    s.y-=0.25; s.x+=Math.sin(s.life*8)*0.15+s.drift*0.05; s.life-=0.012;
+    if(s.life<=0) steam.splice(i,1);
+  }
+}
+function drawSteam(){
+  steam.forEach(s=>{
+    b.globalAlpha=s.life*0.4; b.fillStyle=C.steam;
+    b.fillRect(Math.round(s.x),Math.round(s.y),1,1);
+  });
+  b.globalAlpha=1;
+}
+const grain=document.createElement('canvas');
+grain.width=BW; grain.height=BH;
+const gctx=grain.getContext('2d');
+function makeGrain(){
+  const img=gctx.createImageData(BW,BH);
+  for(let i=0;i<img.data.length;i+=4){
+    const v=Math.random()*255;
+    img.data[i]=img.data[i+1]=img.data[i+2]=v; img.data[i+3]=12;
+  }
+  gctx.putImageData(img,0,0);
+}
+
+// ═══════════ 캔버스 내 UI: 타이틀 + 곳간 패널 ═══════════
+const UP='#e0705c', DOWN='#6a8ee0';       // 국룰: 빨강=상승, 파랑=하락
+function drawMoneyBag(x, y){
+  // 9x11 돈주머니 스프라이트
+  b.fillStyle=C.outline; b.fillRect(x-1,y+2,11,9); b.fillRect(x+2,y,5,3);
+  b.fillStyle='#d8b23e'; b.fillRect(x,y+3,9,7);
+  b.fillStyle='#b8922e'; b.fillRect(x,y+8,9,2);
+  b.fillStyle='#8a6a20'; b.fillRect(x+3,y+1,3,2);            // 묶은 목
+  b.fillStyle='#f0d060'; b.fillRect(x+1,y+4,2,3);            // 하이라이트
+  b.fillStyle='#8a6a20'; b.fillRect(x+3,y+5,3,3);            // ₩ 자리
+  b.fillStyle='#f0d060'; b.fillRect(x+4,y+6,1,1);
+}
+function drawPixelFlower(x, y, col){
+  b.fillStyle=col;
+  b.fillRect(x-1,y,1,1); b.fillRect(x+1,y,1,1); b.fillRect(x,y-1,1,1); b.fillRect(x,y+1,1,1);
+  b.fillStyle='#e8dfb0'; b.fillRect(x,y,1,1);
+  b.fillStyle=C.plantD; b.fillRect(x,y+2,1,2);
+}
+function drawTitleChrome(){
+  drawMoneyBag(48, 12);
+  // 타이틀 밑줄 (점선 픽셀)
+  b.fillStyle='#4a4433';
+  for(let x=40; x<200; x+=4) b.fillRect(x, 42, 2, 1);
+  // 모서리 픽셀 꽃 (앱 감성)
+  drawPixelFlower(16, 14, '#c88a9a');
+  drawPixelFlower(224, 14, '#8aa8c8');
+  drawPixelFlower(22, 32, C.plant);
+  drawPixelFlower(218, 32, '#d8b23e');
+}
+function drawPanelChrome(t){
+  const {x,y,w,h}=PANEL;
+  // 외곽 2중 픽셀 테두리 + 배경
+  b.fillStyle='#000c'; b.fillRect(x-2,y-2,w+4,h+4);
+  b.fillStyle='#221f14'; b.fillRect(x,y,w,h);
+  b.strokeStyle='#4a4433'; b.lineWidth=2; b.strokeRect(x+1,y+1,w-2,h-2);
+  b.strokeStyle='#6b6248'; b.lineWidth=1; b.strokeRect(x+3.5,y+3.5,w-7,h-7);
+  drawMoneyBag(x+12, y+7);
+  // 점선 구분선 3개
+  b.strokeStyle='#4a4433'; b.setLineDash([3,3]);
+  [24, 58, 92].forEach(dy=>{
+    b.beginPath(); b.moveTo(x+8, y+dy); b.lineTo(x+w-8, y+dy); b.stroke();
+  });
+  b.setLineDash([]);
+  // 갱신 진행 게이지 (10초)
+  const prog = Math.min(1, (Date.now()-(lastUpdate?lastUpdate.getTime():Date.now()))/REFRESH_MS);
+  b.fillStyle='#3a3524'; b.fillRect(x+8, y+h-8, w-16, 2);
+  b.fillStyle='#8a836a'; b.fillRect(x+8, y+h-8, (w-16)*prog, 2);
+  // 모서리 꽃
+  drawPixelFlower(x+6, y+h-14, '#c88a9a');
+  drawPixelFlower(x+w-6, y+14, C.plant);
+}
+// 고해상도 텍스트 패스 (버퍼 좌표 기준 → 스크린 좌표로 스케일)
+function drawUIText(){
+  const S = screen.width / BW;
+  const T = (str, bx, by, size, color, align='left') => {
+    sctx.font = `${Math.round(size*S)}px NeoDunggeunmo, 'Courier New', monospace`;
+    sctx.fillStyle = color; sctx.textAlign = align; sctx.textBaseline = 'middle';
+    sctx.fillText(str, Math.round(bx*S), Math.round(by*S));
+  };
+  // ── 상단 타이틀 ──
+  T('정모의 방', BW/2+8+1, TITLE_Y-4+1, 13, '#000a', 'center');   // 그림자
+  T('정모의 방', BW/2+8, TITLE_Y-4, 13, '#e8dfb0', 'center');
+  T('잠들지 않는 계좌를 지켜보는 방', BW/2, TITLE_Y+12, 7, '#8a836a', 'center');
+  // ── 곳간 패널 ──
+  const {x,y,w,h}=PANEL;
+  const pl = totalNow()-totalAvg();
+  const pct = (totalNow()/totalAvg()-1)*100;
+  const cls = v => v>=0 ? UP : DOWN;
+  T('정모의 곳간', x+26, y+14, 9, '#e8dfb0');
+  T(liveMode?'LIVE':'SIM', x+w-10, y+14, 7, liveMode?UP:'#8a836a', 'right');
+  HOLDINGS.forEach((hd,i)=>{
+    const ry = y+34+i*34;
+    const hpl = (hd.price-hd.avg)*hd.qty;
+    const hpct = (hd.price/hd.avg-1)*100;
+    T(hd.name, x+10, ry, 8, '#e8dfb0');
+    T(`${sign(hpl)}${fmt(hpl)}원`, x+w-10, ry, 8, cls(hpl), 'right');
+    T(`${hd.qty}주·평단 ${fmt(hd.avg)} → ${fmt(hd.price)}원`, x+10, ry+13, 6.5, '#8a836a');
+    T(`${sign(hpct)}${hpct.toFixed(2)}%`, x+w-10, ry+13, 6.5, cls(hpct), 'right');
+  });
+  T('총 손익', x+10, y+106, 9, '#e8dfb0');
+  T(`${sign(pl)}${fmt(pl)}원 (${sign(pct)}${pct.toFixed(2)}%)`, x+w-10, y+106, 9, cls(pl), 'right');
+  const hh = lastUpdate ? lastUpdate.toLocaleTimeString('ko-KR') : '-';
+  T(`마지막 갱신 ${hh} · 10초 자동 갱신 · 탭=새로고침`, x+w/2, y+122, 5.5, '#6d6752', 'center');
+}
+
+// ═══════════ 메인 루프 ═══════════
+const t0=performance.now();
+function frame(){
+  const t=(performance.now()-t0)/1000;
+  if(mood!==0){ moodT+=1/60; if(moodT>2.2){mood=0;moodT=0;} }
+  updateSteam();
+
+  b.fillStyle=C.bg; b.fillRect(0,0,BW,BH);
+  drawWalls(t);
+  drawFloor();
+  drawBed();
+  drawShelf();
+  drawDesk();
+  drawMonitor(4.85,42,2.0,15,chartContent,t);
+  drawMonitor(7.1,40,1.5,12,watchContent,t);
+  drawNerdLegs(t);
+  drawChairBase();
+  drawNerd(t);
+  drawChairBack();
+  drawDogs(t);
+  drawSteam();
+
+  // 모니터 글로우
+  const flick=0.8+Math.random()*0.2;
+  const [glx,gly]=px(6.4,2.6,26);
+  const gl=b.createRadialGradient(glx,gly,4,glx,gly,55);
+  const gc = (totalNow() >= totalAvg()) ? '159,232,176' : '217,111,95';
+  gl.addColorStop(0,`rgba(${gc},${0.10*flick})`);
+  gl.addColorStop(1,'rgba(0,0,0,0)');
+  b.fillStyle=gl; b.fillRect(0,0,BW,BH);
+
+  if(Math.floor(t*30)%2===0) makeGrain();
+  b.drawImage(grain,0,0);
+  const vg=b.createRadialGradient(BW/2,BH/2-60,BH*0.2,BW/2,BH/2-40,BH*0.55);
+  vg.addColorStop(0,'rgba(0,0,0,0)');
+  vg.addColorStop(1,'rgba(8,7,3,0.55)');
+  b.fillStyle=vg; b.fillRect(0,0,BW,BH);
+
+  // UI 크롬은 그레인/비네트 위에 (선명하게)
+  drawTitleChrome();
+  drawPanelChrome(t);
+
+  sctx.drawImage(buf,0,0,screen.width,screen.height);
+  drawUIText();
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
