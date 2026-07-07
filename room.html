@@ -537,6 +537,16 @@ function drawDesk(t, open){
   // 다리 (뒤 2, 앞 2 — 가는 금속)
   [[gx+0.12,gy+0.12],[gx+w-0.26,gy+0.12],[gx+0.12,gy+d-0.26],[gx+w-0.26,gy+d-0.26]]
     .forEach(([lx,ly])=> box(lx,ly,0.14,0.14,0,15,C.metalHi,C.metalD,C.metal));
+  // ── PC 본체 타워 (책상 아래: 의자-서랍장 사이, 서랍장보다 먼저 그려 깊이 정리) ──
+  box(7.42, 1.45, 0.55, 0.85, 0, 11, '#32322a', '#22221c', '#2a2a24', C.outline);
+  const [twx,twy]=px(7.42, 2.30, 9.5);
+  b.save(); b.transform(1,0.5,0,1,twx,twy);
+  b.fillStyle='#1c1c16';
+  for(let i=0;i<4;i++) b.fillRect(1.5, 2+i*2, 6, 1);          // 통풍 그릴
+  b.fillStyle='#3a3a30'; b.fillRect(1.5, 11, 6, 1);           // 슬롯
+  b.fillStyle = Math.floor(Date.now()/700)%2 ? C.green : '#2a4a34';
+  b.fillRect(7, 0.5, 1, 1);                                    // 전원 LED 깜빡
+  b.restore();
   // 서랍 유닛 (오른쪽 아래)
   box(gx+w-1.15, gy+0.25, 1.0, 1.3, 0, 14, C.wood, C.woodD, C.wood, C.outline);
   // 서랍 앞면 2칸 + 손잡이
@@ -567,22 +577,11 @@ function drawDesk(t, open){
   b.beginPath(); b.arc(mx+4,my+2,2,-Math.PI/2,Math.PI/2); b.stroke();  // 손잡이
   // 케이블 (모니터 2대 뒤 → 책상 뒤로 → PC 본체)
   b.strokeStyle='#2a251a'; b.lineWidth=1;
-  const c1=px(5.9,1.15,17), c2=px(7.9,1.15,17), c3=px(5.35,1.9,12);
+  const c1=px(5.9,1.15,17), c2=px(7.9,1.15,17), c3=px(7.7,1.65,11);
   b.beginPath(); b.moveTo(c1[0],c1[1]);
   b.quadraticCurveTo(c1[0]-2, c1[1]+8, c3[0], c3[1]); b.stroke();
   b.beginPath(); b.moveTo(c2[0],c2[1]);
   b.quadraticCurveTo(c2[0]-6, c2[1]+10, c3[0]+2, c3[1]+1); b.stroke();
-
-  // ── PC 본체 타워 (책상 아래) ──
-  box(4.78, 1.55, 0.62, 1.05, 0, 12, '#32322a', '#22221c', '#2a2a24', C.outline);
-  const [twx,twy]=px(4.78, 2.60, 10.5);
-  b.save(); b.transform(1,0.5,0,1,twx,twy);
-  b.fillStyle='#1c1c16';
-  for(let i=0;i<4;i++) b.fillRect(1.5, 2+i*2, 6, 1);          // 통풍 그릴
-  b.fillStyle='#3a3a30'; b.fillRect(1.5, 11, 6, 1);           // 슬롯
-  b.fillStyle = Math.floor(Date.now()/700)%2 ? C.green : '#2a4a34';
-  b.fillRect(7, 0.5, 1, 1);                                    // 전원 LED 깜빡
-  b.restore();
 
   // ── 헤드폰 스탠드 (책상 좌측 끝) ──
   box(4.72, 1.28, 0.32, 0.32, 17.2, 0.7, C.metalHi, C.metalD, C.metal, C.outline);   // 받침
