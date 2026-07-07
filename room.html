@@ -16,8 +16,9 @@
     -webkit-tap-highlight-color:transparent;
     touch-action:none;
   }
+  body { display:flex; align-items:center; justify-content:center; }
   canvas {
-    display:block; width:100vw; height:100dvh;
+    display:block;
     image-rendering: pixelated; image-rendering: crisp-edges;
   }
 </style>
@@ -49,22 +50,36 @@ let muted = false;
 let lastTapT = -10;
 let refreshFlashUntil = -1;
 
+let CSSW = 0, CSSH = 0;    // 캔버스 CSS 크기 (포인터 좌표 변환용)
 function fit() {
   const vw = innerWidth, vh = innerHeight;
   const dpr = Math.min(3, devicePixelRatio || 1);
-  // 버퍼 세로를 화면 비율에 맞춤 (아이폰 ~2.16:1이면 BH≈520)
-  BH = Math.max(420, Math.round(BW * vh / vw));
+  const portrait = vh / vw >= 1.2;
+
+  if (portrait) {
+    // 모바일 세로: 화면 꽉 채움, 버퍼 세로를 기기 비율에 맞춤
+    BH = Math.min(600, Math.max(420, Math.round(BW * vh / vw)));
+    CSSW = vw; CSSH = vh;
+  } else {
+    // 데스크탑/가로: 세로형 캔버스를 화면 중앙에 레터박스
+    BH = 480;
+    CSSH = vh;
+    CSSW = Math.round(vh * BW / BH);
+    if (CSSW > vw) { CSSW = vw; CSSH = Math.round(vw * BH / BW); }  // 초저높이 화면 대비
+  }
   buf.width = BW; buf.height = BH;
   grain.width = BW; grain.height = BH;
-  screen.width  = Math.round(vw * dpr);
-  screen.height = Math.round(vh * dpr);
+  screen.style.width  = CSSW + 'px';
+  screen.style.height = CSSH + 'px';
+  screen.width  = Math.round(CSSW * dpr);
+  screen.height = Math.round(CSSH * dpr);
   sctx.imageSmoothingEnabled = false;
 
-  // 세이프에어리어를 버퍼 좌표로 환산
-  const S = vw / BW;
+  // 세이프에어리어를 버퍼 좌표로 환산 (데스크탑은 0)
+  const S = CSSW / BW;
   const cs = getComputedStyle(probe);
-  const safeT = (parseFloat(cs.paddingTop)    || 0) / S;
-  const safeB = (parseFloat(cs.paddingBottom) || 0) / S;
+  const safeT = portrait ? (parseFloat(cs.paddingTop)    || 0) / S : 0;
+  const safeB = portrait ? (parseFloat(cs.paddingBottom) || 0) / S : 0;
 
   // 레이아웃: 타이틀(세이프 아래) / 방(가운데) / 곳간(홈바 위)
   TITLE_Y = Math.round(safeT + 26);
@@ -306,8 +321,7 @@ refresh();
 // ═══════════ 곳간 패널 (캔버스 내 렌더) ═══════════
 // 탭 판정: 더블탭(어디서든)=음소거 토글 / 곳간 패널=즉시 갱신 / 그 외=강아지 댄스
 screen.addEventListener('pointerdown', e => {
-  const S = innerWidth / BW;
-  const bx = e.offsetX / S, by = e.offsetY / S;
+  const bx = e.offsetX / (CSSW / BW), by = e.offsetY / (CSSH / BH);
   const tNow = (performance.now() - t0) / 1000;
   if (tNow - lastTapT < 0.35) {              // 더블탭 → 음소거 토글
     muted = !muted;
@@ -323,6 +337,13 @@ screen.addEventListener('pointerdown', e => {
   } else {
     startDance();
   }
+});
+// 데스크탑 키보드: M=음소거, R=새로고침, Space/D=댄스
+addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if (k === 'm') { muted = !muted; if(!muted) click(); }
+  else if (k === 'r') { refresh(); refreshFlashUntil = (performance.now()-t0)/1000 + 0.45; click(); }
+  else if (k === ' ' || k === 'd') { e.preventDefault(); startDance(); }
 });
 function renderVault(){ /* 캔버스가 매 프레임 HOLDINGS를 직접 읽음 */ }
 
