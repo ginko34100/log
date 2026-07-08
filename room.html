@@ -45,10 +45,12 @@ let TITLE_Y = 24;
 let PANEL = { x:10, y:278, w:BW-20, h:140 };
 let OY = 148;
 const OX = BW/2 + 6;
-// 더블탭 음소거 + 수동 갱신 플래시
+// 더블탭 음소거 + 수동 갱신 플래시 + 공유카드
 let muted = false;
 let lastTapT = -10;
 let refreshFlashUntil = -1;
+let CAM = { x: 0, y: 0, w: 20, h: 15 };
+let shutterUntil = -1;
 
 let CSSW = 0, CSSH = 0;    // 캔버스 CSS 크기 (포인터 좌표 변환용)
 function fit() {
@@ -84,6 +86,7 @@ function fit() {
   // 레이아웃: 타이틀(세이프 아래) / 방(가운데) / 곳간(홈바 위)
   TITLE_Y = Math.round(safeT + 26);
   PANEL = { x:10, y: Math.round(BH - 140 - safeB - 8), w: BW-20, h: 140 };
+  CAM = { x: PANEL.x + PANEL.w - 52, y: PANEL.y + 5, w: 20, h: 15 };   // 곳간 헤더 카메라 버튼
   const roomTop = TITLE_Y + 34;            // 타이틀 존 하단
   const roomBot = PANEL.y - 6;             // 패널 존 상단
   // 방 그림 세로 범위 ≈ OY-62(벽 꼭대기) ~ OY+96(앞쪽 바닥) = 158px
@@ -319,6 +322,67 @@ setInterval(refresh, REFRESH_MS);
 refresh();
 
 // ═══════════ 곳간 패널 (캔버스 내 렌더) ═══════════
+// ═══ 공유 카드: 현재 화면 캡처 + 워터마크 밴드 → 공유시트/다운로드 ═══
+function shutterSnd(){
+  if(!actx || muted) return;
+  [0, 60].forEach((ms,i)=> setTimeout(()=>{
+    const o=actx.createOscillator(), g=actx.createGain();
+    o.type='square'; o.frequency.value = i? 1400 : 900;
+    g.gain.setValueAtTime(0.03, actx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0005, actx.currentTime+0.03);
+    o.connect(g); g.connect(actx.destination); o.start(); o.stop(actx.currentTime+0.03);
+  }, ms));
+}
+async function shareCard(){
+  try {
+    shutterSnd();
+    const W = screen.width, H = screen.height;
+    const f = W / BW;                                  // 스케일 (워터마크 크기 기준)
+    const bandH = Math.round(26 * f * 0.5) + Math.round(14*f*0.5);
+    const card = document.createElement('canvas');
+    card.width = W; card.height = H + Math.round(22 * f);
+    const c = card.getContext('2d');
+    c.imageSmoothingEnabled = false;
+    c.fillStyle = '#12110b'; c.fillRect(0, 0, card.width, card.height);
+    c.drawImage(screen, 0, 0);                          // 화면 그대로 (방+곳간 수치 포함)
+    // ── 워터마크 밴드 ──
+    const by = H, bh = card.height - H;
+    c.fillStyle = '#1a1810'; c.fillRect(0, by, W, bh);
+    c.fillStyle = '#4a4433'; c.fillRect(0, by, W, Math.max(2, f*0.6));
+    const pl = totalNow() - totalAvg();
+    const pct = (totalNow()/totalAvg() - 1) * 100;
+    const d = new Date();
+    const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+    c.textBaseline = 'middle';
+    c.font = `${Math.round(8.5*f)}px NeoDunggeunmo, monospace`;
+    c.fillStyle = '#e8dfb0'; c.textAlign = 'left';
+    c.fillText('정모의 방', Math.round(10*f), by + bh/2);
+    c.fillStyle = '#8a836a'; c.font = `${Math.round(6*f)}px NeoDunggeunmo, monospace`;
+    c.fillText(dateStr + ' · 투자 현황판', Math.round(58*f), by + bh/2);
+    c.textAlign = 'right';
+    c.fillStyle = pl >= 0 ? '#e0705c' : '#6a8ee0';
+    c.font = `${Math.round(8.5*f)}px NeoDunggeunmo, monospace`;
+    c.fillText(`${sign(pl)}${fmt(pl)}원 (${sign(pct)}${pct.toFixed(2)}%)`, W - Math.round(10*f), by + bh/2);
+    // ── 내보내기 ──
+    card.toBlob(async blob => {
+      if (!blob) return;
+      const fname = `jungmo-room-${dateStr.replace(/\./g,'')}.png`;
+      try {
+        const file = new File([blob], fname, { type: 'image/png' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: '정모의 방' });
+          return;
+        }
+      } catch(e) { /* 공유 취소/미지원 → 다운로드 폴백 */ }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = fname;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 5000);
+    }, 'image/png');
+  } catch(e) { /* 캡처 실패 시 무시 */ }
+}
+
 // 탭 판정: 더블탭(어디서든)=음소거 토글 / 곳간 패널=즉시 갱신 / 그 외=강아지 댄스
 screen.addEventListener('pointerdown', e => {
   const bx = e.offsetX / (CSSW / BW), by = e.offsetY / (CSSH / BH);
@@ -330,7 +394,10 @@ screen.addEventListener('pointerdown', e => {
     return;
   }
   lastTapT = tNow;
-  if (bx >= PANEL.x && bx <= PANEL.x + PANEL.w && by >= PANEL.y && by <= PANEL.y + PANEL.h) {
+  if (bx >= CAM.x-4 && bx <= CAM.x+CAM.w+4 && by >= CAM.y-4 && by <= CAM.y+CAM.h+4) {
+    shutterUntil = tNow + 0.22;               // 셔터 플래시
+    shareCard();
+  } else if (bx >= PANEL.x && bx <= PANEL.x + PANEL.w && by >= PANEL.y && by <= PANEL.y + PANEL.h) {
     refresh();                                // 즉시 갱신
     refreshFlashUntil = tNow + 0.45;
     click();
@@ -338,11 +405,12 @@ screen.addEventListener('pointerdown', e => {
     startDance();
   }
 });
-// 데스크탑 키보드: M=음소거, R=새로고침, Space/D=댄스
+// 데스크탑 키보드: M=음소거, R=새로고침, S=공유카드, Space/D=댄스
 addEventListener('keydown', e => {
   const k = e.key.toLowerCase();
   if (k === 'm') { muted = !muted; if(!muted) click(); }
   else if (k === 'r') { refresh(); refreshFlashUntil = (performance.now()-t0)/1000 + 0.45; click(); }
+  else if (k === 's') { shutterUntil = (performance.now()-t0)/1000 + 0.22; shareCard(); }
   else if (k === ' ' || k === 'd') { e.preventDefault(); startDance(); }
 });
 function renderVault(){ /* 캔버스가 매 프레임 HOLDINGS를 직접 읽음 */ }
@@ -1232,6 +1300,18 @@ function drawPanelChrome(t){
   b.strokeStyle = flashing ? '#b8ae88' : '#6b6248';
   b.lineWidth=1; b.strokeRect(x+3.5,y+3.5,w-7,h-7);
   drawMoneyBag(x+12, y+7);
+  // ── 카메라 버튼 (공유 카드) ──
+  {
+    const c2=CAM;
+    b.fillStyle='#2c2818'; b.fillRect(c2.x, c2.y, c2.w, c2.h);
+    b.strokeStyle='#4a4433'; b.lineWidth=1; b.strokeRect(c2.x+0.5, c2.y+0.5, c2.w-1, c2.h-1);
+    b.fillStyle='#d8d0a8';
+    b.fillRect(c2.x+4, c2.y+4, c2.w-8, c2.h-7);                 // 몸통
+    b.fillRect(c2.x+7, c2.y+2, 5, 2);                            // 뷰파인더 혹
+    b.fillStyle='#2c2818';
+    b.beginPath(); b.arc(c2.x+c2.w/2, c2.y+c2.h/2+0.5, 3, 0, Math.PI*2); b.fill();   // 렌즈
+    b.fillStyle='#e0705c'; b.fillRect(c2.x+c2.w-6, c2.y+4, 1.5, 1.5);                // 셔터등
+  }
   // 점선 구분선 3개
   b.strokeStyle='#4a4433'; b.setLineDash([3,3]);
   [24, 58, 92].forEach(dy=>{
@@ -1355,6 +1435,11 @@ function frame(){
 
   sctx.drawImage(buf,0,0,screen.width,screen.height);
   drawUIText();
+  // 셔터 플래시
+  if (t < shutterUntil) {
+    sctx.fillStyle = `rgba(255,252,235,${(shutterUntil - t) / 0.22 * 0.75})`;
+    sctx.fillRect(0, 0, screen.width, screen.height);
+  }
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
