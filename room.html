@@ -382,7 +382,7 @@ async function shareCard(){
     shutterSnd();
     const SC = 3;                                       // 해상도 스케일
     const CW = 240, ROWH = 26;
-    const CH = 58 + HOLDINGS.length*ROWH + 152;         // 내용 기반 높이
+    const CH = 45 + HOLDINGS.length*ROWH + 152;         // 내용 기반 높이
     const card = document.createElement('canvas');
     card.width = CW*SC; card.height = CH*SC;
     const c = card.getContext('2d');
@@ -418,9 +418,8 @@ async function shareCard(){
     c.restore();
 
     // ── 헤더 ──
-    let y = py0 + 16;
-    T('정 모 의  방', 120, y, 12, INK, 'center'); y += 13;
-    T('─ 투 자 성 적 표 ─', 120, y, 8, INK, 'center'); y += 11;
+    let y = py0 + 17;
+    T('─ 투 자 성 적 표 ─', 120, y, 9, INK, 'center'); y += 12;
     const d = new Date();
     const yo = ['일','월','화','수','목','금','토'][d.getDay()];
     const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
