@@ -21,10 +21,47 @@
     display:block;
     image-rendering: pixelated; image-rendering: crisp-edges;
   }
+  /* ── 영수증 프리뷰 모달 ── */
+  #receiptModal {
+    position:fixed; inset:0; z-index:50;
+    display:none; flex-direction:column; align-items:center; justify-content:center;
+    background:rgba(8,7,4,0.82);
+    font-family:'NeoDunggeunmo','Courier New',monospace;
+  }
+  #receiptModal.show { display:flex; }
+  #receiptImg {
+    max-width:80vw; max-height:64vh;
+    image-rendering:pixelated;
+    transform:rotate(-1.6deg);
+    filter:drop-shadow(0 10px 24px rgba(0,0,0,0.7));
+    animation:drop .28s steps(5);
+  }
+  @keyframes drop {
+    from { transform:translateY(-40px) rotate(-6deg); opacity:0; }
+    to   { transform:translateY(0) rotate(-1.6deg); opacity:1; }
+  }
+  #receiptBtns { display:flex; gap:10px; margin-top:22px; }
+  #receiptBtns button {
+    font-family:inherit; font-size:15px; letter-spacing:1px;
+    background:#221f14; color:#e8dfb0;
+    border:2px solid #6b6248; padding:11px 26px; cursor:pointer;
+    box-shadow:0 3px 0 #000a;
+  }
+  #receiptBtns button:active { transform:translateY(2px); box-shadow:0 1px 0 #000a; }
+  #receiptBtns #btnShareR { background:#3a3524; border-color:#8a836a; }
+  #receiptHint { margin-top:12px; color:#8a836a; font-size:11px; letter-spacing:1px; }
 </style>
 </head>
 <body>
 <canvas id="screen"></canvas>
+<div id="receiptModal">
+  <img id="receiptImg" alt="투자 성적표">
+  <div id="receiptBtns">
+    <button id="btnShareR">공유하기</button>
+    <button id="btnCloseR">닫기</button>
+  </div>
+  <div id="receiptHint">공유하기 → 카카오톡 선택</div>
+</div>
 <script>
 // ═══════════ 버퍼 (화면 비율 적응형) ═══════════
 const BW = 240;                 // 가로 픽셀 해상도 고정
@@ -442,25 +479,43 @@ async function shareCard(){
     T(`No.${String(Math.floor(totalNow())).slice(-6)}`, 120, y, 5, GRAY, 'center'); y += 9;
     T(pl>=0 ? '*** 오늘도 우상향 ***' : '*** 존버는 과학이다 ***', 120, y, 6.5, INK, 'center');
 
-    // ── 내보내기 ──
-    card.toBlob(async blob => {
+    // ── 프리뷰 모달에 표시 (공유는 버튼에서) ──
+    card.toBlob(blob => {
       if (!blob) return;
-      const fname = `jungmo-report-${dateStr.replace(/\./g,'')}.png`;
-      try {
-        const file = new File([blob], fname, { type: 'image/png' });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file], title: '정모의 방 · 투자 성적표' });
-          return;
-        }
-      } catch(e) { /* 공유 취소/미지원 → 다운로드 폴백 */ }
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = fname;
-      document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(()=>URL.revokeObjectURL(url), 5000);
+      receiptBlob = blob;
+      receiptName = `jungmo-report-${dateStr.replace(/\./g,'')}.png`;
+      if (receiptURL) URL.revokeObjectURL(receiptURL);
+      receiptURL = URL.createObjectURL(blob);
+      const img = document.getElementById('receiptImg');
+      img.src = receiptURL;
+      document.getElementById('receiptModal').classList.add('show');
     }, 'image/png');
   } catch(e) { /* 캡처 실패 시 무시 */ }
 }
+// ── 모달 버튼: 공유(카톡) / 닫기 ──
+let receiptBlob = null, receiptName = 'jungmo-report.png', receiptURL = null;
+function closeReceipt(){
+  document.getElementById('receiptModal').classList.remove('show');
+}
+async function doShareReceipt(){
+  if (!receiptBlob) return;
+  try {
+    const file = new File([receiptBlob], receiptName, { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: '정모의 방 · 투자 성적표' });
+      return;                                  // 공유시트에서 카톡 선택
+    }
+  } catch(e) { if (e && e.name === 'AbortError') return; /* 사용자가 시트 닫음 */ }
+  // 공유 미지원(PC 등) → PNG 다운로드 폴백
+  const a = document.createElement('a');
+  a.href = receiptURL; a.download = receiptName;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+document.getElementById('btnShareR').onclick = doShareReceipt;
+document.getElementById('btnCloseR').onclick = closeReceipt;
+document.getElementById('receiptModal').addEventListener('pointerdown', e => {
+  if (e.target === document.getElementById('receiptModal')) closeReceipt();   // 배경 탭 = 닫기
+});
 
 // 탭 판정: 더블탭(어디서든)=음소거 토글 / 곳간 패널=즉시 갱신 / 그 외=강아지 댄스
 screen.addEventListener('pointerdown', e => {
