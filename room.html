@@ -502,7 +502,7 @@ async function doShareReceipt(){
   try {
     const file = new File([receiptBlob], receiptName, { type: 'image/png' });
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({ files: [file], title: '정모의 방 · 투자 성적표' });
+      await navigator.share({ files: [file] });   // 이미지만 전송 (텍스트 없음)
       return;                                  // 공유시트에서 카톡 선택
     }
   } catch(e) { if (e && e.name === 'AbortError') return; /* 사용자가 시트 닫음 */ }
