@@ -322,7 +322,7 @@ setInterval(refresh, REFRESH_MS);
 refresh();
 
 // ═══════════ 곳간 패널 (캔버스 내 렌더) ═══════════
-// ═══ 공유 카드: 현재 화면 캡처 + 워터마크 밴드 → 공유시트/다운로드 ═══
+// ═══ 공유 카드: 투자 성적표 영수증 ═══
 function shutterSnd(){
   if(!actx || muted) return;
   [0, 60].forEach((ms,i)=> setTimeout(()=>{
@@ -333,44 +333,123 @@ function shutterSnd(){
     o.connect(g); g.connect(actx.destination); o.start(); o.stop(actx.currentTime+0.03);
   }, ms));
 }
+function gradeOf(pct){
+  if (pct >= 3)    return ['A+', '오늘 시장을 이겼습니다'];
+  if (pct >= 1.5)  return ['A',  '아주 순항 중'];
+  if (pct >= 0)    return ['B+', '플러스면 됐다'];
+  if (pct >= -1.5) return ['C',  '버티는 중'];
+  return ['F', '오늘은 눈을 감자'];
+}
 async function shareCard(){
   try {
     shutterSnd();
-    const W = screen.width, H = screen.height;
-    const f = W / BW;                                  // 스케일 (워터마크 크기 기준)
-    const bandH = Math.round(26 * f * 0.5) + Math.round(14*f*0.5);
+    const SC = 3;                                       // 해상도 스케일
+    const CW = 240, ROWH = 26;
+    const CH = 58 + HOLDINGS.length*ROWH + 152;         // 내용 기반 높이
     const card = document.createElement('canvas');
-    card.width = W; card.height = H + Math.round(22 * f);
+    card.width = CW*SC; card.height = CH*SC;
     const c = card.getContext('2d');
     c.imageSmoothingEnabled = false;
-    c.fillStyle = '#12110b'; c.fillRect(0, 0, card.width, card.height);
-    c.drawImage(screen, 0, 0);                          // 화면 그대로 (방+곳간 수치 포함)
-    // ── 워터마크 밴드 ──
-    const by = H, bh = card.height - H;
-    c.fillStyle = '#1a1810'; c.fillRect(0, by, W, bh);
-    c.fillStyle = '#4a4433'; c.fillRect(0, by, W, Math.max(2, f*0.6));
-    const pl = totalNow() - totalAvg();
-    const pct = (totalNow()/totalAvg() - 1) * 100;
+    c.scale(SC, SC);
+    const INK='#2a251a', GRAY='#7a7258', UPC='#b8443a', DNC='#3a58b0';
+    const pl = totalNow()-totalAvg();
+    const pct = (totalNow()/totalAvg()-1)*100;
+    const PC = v => v>=0 ? UPC : DNC;
+    const T = (s,x,y,size,col,align='left')=>{
+      c.font=`${size}px NeoDunggeunmo, monospace`;
+      c.fillStyle=col; c.textAlign=align; c.textBaseline='middle';
+      c.fillText(s,x,y);
+    };
+    const dash = (y,gap=3)=>{ c.fillStyle=GRAY; for(let x=28;x<212;x+=gap*2) c.fillRect(x,y,gap,0.8); };
+    const solid = y=>{ c.fillStyle=INK; c.fillRect(28,y,184,1); };
+
+    // ── 배경 + 찢긴 감열지 ──
+    c.fillStyle='#12110b'; c.fillRect(0,0,CW,CH);
+    const px0=20, pw=200, py0=8, py1=CH-8, amp=3, step=8;
+    const paper = (ox,oy)=>{
+      c.beginPath(); c.moveTo(px0+ox, py0+amp+oy);
+      for(let x=px0; x<px0+pw; x+=step){ c.lineTo(x+step/2+ox, py0+oy); c.lineTo(x+step+ox, py0+amp+oy); }
+      c.lineTo(px0+pw+ox, py1-amp+oy);
+      for(let x=px0+pw; x>px0; x-=step){ c.lineTo(x-step/2+ox, py1+oy); c.lineTo(x-step+ox, py1-amp+oy); }
+      c.closePath();
+    };
+    paper(2.5,2.5); c.fillStyle='rgba(0,0,0,0.55)'; c.fill();      // 그림자
+    paper(0,0); c.fillStyle='#f0ead2'; c.fill();                    // 종이
+    c.save(); paper(0,0); c.clip();                                  // 감열지 스캔 줄
+    c.fillStyle='rgba(0,0,0,0.025)';
+    for(let y=py0; y<py1; y+=3) c.fillRect(px0,y,pw,1);
+    c.restore();
+
+    // ── 헤더 ──
+    let y = py0 + 16;
+    T('정 모 의  방', 120, y, 12, INK, 'center'); y += 13;
+    T('─ 투 자 성 적 표 ─', 120, y, 8, INK, 'center'); y += 11;
     const d = new Date();
+    const yo = ['일','월','화','수','목','금','토'][d.getDay()];
     const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
-    c.textBaseline = 'middle';
-    c.font = `${Math.round(8.5*f)}px NeoDunggeunmo, monospace`;
-    c.fillStyle = '#e8dfb0'; c.textAlign = 'left';
-    c.fillText('정모의 방', Math.round(10*f), by + bh/2);
-    c.fillStyle = '#8a836a'; c.font = `${Math.round(6*f)}px NeoDunggeunmo, monospace`;
-    c.fillText(dateStr + ' · 투자 현황판', Math.round(58*f), by + bh/2);
-    c.textAlign = 'right';
-    c.fillStyle = pl >= 0 ? '#e0705c' : '#6a8ee0';
-    c.font = `${Math.round(8.5*f)}px NeoDunggeunmo, monospace`;
-    c.fillText(`${sign(pl)}${fmt(pl)}원 (${sign(pct)}${pct.toFixed(2)}%)`, W - Math.round(10*f), by + bh/2);
+    T(`${dateStr} (${yo}) ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`, 120, y, 6, GRAY, 'center'); y += 8;
+    if (KOSPI.changePct != null)
+      T(`KOSPI ${fmt(KOSPI.price)}  ${sign(KOSPI.changePct)}${KOSPI.changePct.toFixed(2)}%`, 120, y, 5.5, PC(KOSPI.changePct), 'center');
+    y += 7; dash(y); y += 8;
+
+    // ── 종목 내역 ──
+    HOLDINGS.forEach(h => {
+      const hpl = (h.price-h.avg)*h.qty;
+      const hpct = (h.price/h.avg-1)*100;
+      T(h.name, 28, y, 7, INK);
+      T(`${sign(hpl)}${fmt(hpl)}원`, 212, y, 7, PC(hpl), 'right'); y += 9;
+      T(`${h.qty}주 × ${fmt(h.price)}원 · 평단 ${fmt(h.avg)}`, 28, y, 5.5, GRAY);
+      T(`${sign(hpct)}${hpct.toFixed(2)}%`, 212, y, 5.5, PC(hpct), 'right'); y += 9;
+      dash(y, 2); y += 8;
+    });
+
+    // ── 합계 ──
+    solid(y); c.fillRect(28,y+2,184,1); y += 10;
+    T('총 평가액', 28, y, 7, INK);
+    T(`${fmt(totalNow())}원`, 212, y, 7, INK, 'right'); y += 11;
+    T('총 손익', 28, y, 8.5, INK);
+    T(`${sign(pl)}${fmt(pl)}원 (${sign(pct)}${pct.toFixed(2)}%)`, 212, y, 8.5, PC(pl), 'right'); y += 9;
+    solid(y); c.fillRect(28,y+2,184,1); y += 12;
+
+    // ── 오늘의 등급 + 도장 ──
+    const [gr, cm] = gradeOf(pct);
+    T('오늘의 등급', 28, y+4, 7, INK);
+    T(gr, 96, y+4, 15, PC(pl));
+    T(cm, 28, y+15, 5.5, GRAY);
+    // 빨간 도장 (기울여서 쾅)
+    c.save();
+    c.translate(172, y+8); c.rotate(-0.22);
+    c.strokeStyle='rgba(184,68,58,0.85)'; c.lineWidth=1.6;
+    c.beginPath(); c.arc(0,0,14,0,Math.PI*2); c.stroke();
+    c.beginPath(); c.arc(0,0,11.5,0,Math.PI*2); c.stroke();
+    T(pl>=0?'가즈아':'존버', 0, 0.5, 7.5, 'rgba(184,68,58,0.85)', 'center');
+    c.restore();
+    y += 24;
+    T('담당: 너드 1명 · 감독: 강아지 3마리', 120, y, 5.5, GRAY, 'center'); y += 7;
+    dash(y); y += 8;
+
+    // ── 바코드 + 태그라인 ──
+    let seedv = Math.floor(totalNow()) % 9973;
+    c.fillStyle=INK;
+    let bx = 48;
+    while (bx < 190) {
+      seedv = (seedv*16807) % 2147483647;
+      const bw2 = 1 + (seedv % 3);
+      if (seedv % 5 !== 0) c.fillRect(bx, y, bw2, 13);
+      bx += bw2 + 1 + (seedv % 2);
+    }
+    y += 17;
+    T(`No.${String(Math.floor(totalNow())).slice(-6)}`, 120, y, 5, GRAY, 'center'); y += 9;
+    T(pl>=0 ? '*** 오늘도 우상향 ***' : '*** 존버는 과학이다 ***', 120, y, 6.5, INK, 'center');
+
     // ── 내보내기 ──
     card.toBlob(async blob => {
       if (!blob) return;
-      const fname = `jungmo-room-${dateStr.replace(/\./g,'')}.png`;
+      const fname = `jungmo-report-${dateStr.replace(/\./g,'')}.png`;
       try {
         const file = new File([blob], fname, { type: 'image/png' });
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file], title: '정모의 방' });
+          await navigator.share({ files: [file], title: '정모의 방 · 투자 성적표' });
           return;
         }
       } catch(e) { /* 공유 취소/미지원 → 다운로드 폴백 */ }
