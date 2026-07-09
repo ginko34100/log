@@ -313,6 +313,26 @@ function firePLEvents(){
   prevPct = pct;
 }
 
+// ═══ 투자자별 수급 (한투 API — /api/flow) ═══
+// 배포 후 Vercel 환경변수(KIS_APPKEY 등)가 설정돼 있어야 데이터가 들어옴.
+// 없으면 FLOW=null 유지 → 관련 시각화는 자동 숨김.
+let FLOW = null;   // { rows:[{name,net(억)}], asOf }
+async function fetchFlow(){
+  try {
+    const r = await fetch('/api/flow');
+    if (!r.ok) return;
+    const j = await r.json();
+    if (j.ok && Array.isArray(j.rows) && j.rows.length) {
+      // 금액 단위가 원 단위로 크게 오면 억원으로 정규화
+      const mx = Math.max(...j.rows.map(o=>Math.abs(o.net)));
+      const div = mx > 1e7 ? 1e8 : 1;
+      FLOW = { rows: j.rows.map(o=>({ name:o.name, net:o.net/div })), asOf: j.asOf };
+    }
+  } catch(e) {}
+}
+setInterval(() => { if (isMarketOpen()) fetchFlow(); }, 60000);
+fetchFlow();
+
 let didInit = false;
 async function refresh(){
   // 장 마감 중엔 최초 1회(종가)만 받고 이후 갱신 스킵
@@ -426,7 +446,15 @@ async function shareCard(){
     T(`${dateStr} (${yo}) ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`, 120, y, 6, GRAY, 'center'); y += 8;
     if (KOSPI.changePct != null)
       T(`KOSPI ${fmt(KOSPI.price)}  ${sign(KOSPI.changePct)}${KOSPI.changePct.toFixed(2)}%`, 120, y, 5.5, PC(KOSPI.changePct), 'center');
-    y += 7; dash(y); y += 8;
+    y += 7;
+    if (FLOW && FLOW.rows.length) {
+      const seg = FLOW.rows.slice(0,3).map(o=>{
+        const lbl = o.name==='외국인'?'외인':o.name;
+        return `${lbl} ${sign(o.net)}${Math.round(Math.abs(o.net)).toLocaleString('ko-KR')}억`;
+      }).join(' · ');
+      T(seg, 120, y, 5, GRAY, 'center'); y += 7;
+    }
+    dash(y); y += 8;
 
     // ── 종목 내역 ──
     HOLDINGS.forEach(h => {
@@ -882,15 +910,35 @@ function chartContent(pw,h,t){
     b.setLineDash([]);
   }
 }
-// 관심종목 화면 = 실제 보유 2종목의 평단 대비 등락
+// 관심종목 화면 = 실제 보유 2종목의 평단 대비 등락 / 수급 수신 시 투자자 전광판
+const FLOW_COL = { '개인':'#c88a9a', '외국인':'#8ab8d8', '기관':'#d8c25e' };
 function watchContent(pw,h,t){
+  if (FLOW && FLOW.rows.length) {          // ── 수급 전광판 ──
+    const mx = Math.max(1, ...FLOW.rows.map(o=>Math.abs(o.net)));
+    const cx = pw*0.5;
+    b.fillStyle='#2a3a2e'; b.fillRect(cx, 1, 0.6, h-2);          // 중앙선
+    FLOW.rows.slice(0,3).forEach((o,i)=>{
+      const y = 2 + i*(h-4)/3 + 1;
+      b.fillStyle = FLOW_COL[o.name] || '#8aa';
+      b.fillRect(2, y, 3, 2);                                     // 주체 라벨 도트
+      const wlen = Math.min(cx-4, Math.abs(o.net)/mx * (cx-4));
+      b.fillStyle = o.net >= 0 ? C.red : '#5f87d9';               // 국룰: 매수=빨강
+      if (o.net >= 0) b.fillRect(cx+1, y, wlen, 2.4);
+      else            b.fillRect(cx-1-wlen, y, wlen, 2.4);
+      // 깜빡이는 끝점
+      if (Math.floor(t*3)%2===0){
+        b.fillStyle='#e8e4c0';
+        b.fillRect(o.net>=0 ? cx+wlen : cx-wlen-1, y, 1, 2.4);
+      }
+    });
+    return;
+  }
   HOLDINGS.forEach((hd,i)=>{
     const y = 3 + i*(h-6)/2;
     const pct = hd.price/hd.avg - 1;
     b.fillStyle='#3a4a3e'; b.fillRect(2,y,pw*0.35,2);
     b.fillStyle = pct>=0 ? C.green : C.red;
     b.fillRect(pw*0.45, y, Math.min(pw*0.5, Math.abs(pct)*pw*6), 2);
-    // 등락 방향 화살표 픽셀
     b.fillRect(pw*0.4, pct>=0? y-1 : y+1, 1, 1);
   });
   const tick=(t*8)%(pw+20)-10;
@@ -1352,6 +1400,48 @@ function updateSteam(open){
     if(s.life<=0) steam.splice(i,1);
   }
 }
+// ═══ 돈 흐름 파티클: 순매수 → 창/문에서 책상으로 유입, 순매도 → 유출 ═══
+const moneyP = [];
+const FLOW_GATE = { '외국인':[0.5, 6.8], '기관':[10.4, 3.0], '개인':[8.5, 10.4] };  // 유입 지점
+function updateMoney(open){
+  if (open && FLOW) {
+    const mx = Math.max(1, ...FLOW.rows.map(o=>Math.abs(o.net)));
+    FLOW.rows.forEach(o=>{
+      const rate = Math.min(0.14, Math.abs(o.net)/mx * 0.14);     // 규모 ∝ 생성 빈도
+      if (Math.random() < rate) {
+        const gate = FLOW_GATE[o.name] || [0.5, 6.8];
+        const [gx1,gy1] = gate, [gx2,gy2] = [6.9, 2.9];           // 책상 앞
+        const buy = o.net >= 0;
+        moneyP.push({
+          fx: buy? gx1:gx2, fy: buy? gy1:gy2,
+          tx: buy? gx2:gx1, ty: buy? gy2:gy1,
+          p: 0, spd: 0.004 + Math.random()*0.003,
+          col: FLOW_COL[o.name] || '#8aa',
+          wob: Math.random()*Math.PI*2,
+        });
+      }
+    });
+  }
+  for (let i = moneyP.length-1; i >= 0; i--) {
+    const m = moneyP[i];
+    m.p += m.spd;
+    if (m.p >= 1) moneyP.splice(i, 1);
+  }
+}
+function drawMoney(t){
+  moneyP.forEach(m=>{
+    const gx = m.fx + (m.tx-m.fx)*m.p;
+    const gy = m.fy + (m.ty-m.fy)*m.p;
+    const [sx,sy] = px(gx, gy, 2 + Math.sin(t*6+m.wob)*1.2);
+    const a = m.p<0.1 ? m.p*10 : m.p>0.9 ? (1-m.p)*10 : 1;
+    b.globalAlpha = a*0.9;
+    b.fillStyle = '#d8b23e';                                       // 돈다발 몸통
+    b.fillRect(sx-1, sy-1, 3, 2);
+    b.fillStyle = m.col;                                            // 주체 색 띠
+    b.fillRect(sx, sy-1, 1, 2);
+  });
+  b.globalAlpha = 1;
+}
 function updateConfetti(){
   for (let i = confetti.length-1; i >= 0; i--) {
     const p = confetti[i];
@@ -1506,6 +1596,7 @@ function frame(){
   updateSteam(open);
   updateConfetti();
   updateZzz();
+  updateMoney(open);
   // 데모 미리보기
   if (getP('demo')==='party' && !partyFired && t>1.5){ partyFired=true; burstConfetti(); startDance(); }
   if (getP('demo')==='rain') rainTarget = 1;
@@ -1531,6 +1622,7 @@ function frame(){
     drawSleepingNerd(t);                      // 침대에서 취침
   }
   drawDogs(t, open);
+  drawMoney(t);
   drawSteam();
   drawConfetti();
   drawZzz();
