@@ -59,26 +59,23 @@ async function callKis(BASE, APPKEY, APPSECRET, cand) {
   return r.json();
 }
 
-// 개인/외국인/기관 순매수를 어떤 응답 형태에서든 추출
+// 개인/외국인/기관 순매수를 추출 — 실제 응답 필드 확인됨 (2026-07 debug)
+// 금액: {prsn|frgn|orgn}_ntby_tr_pbmn (단위: 백만원) → 억원으로 변환해 반환
 function extractRows(j) {
   const outs = [j.output, j.output1, j.output2].filter(Boolean);
   const arr = outs.flatMap(o => Array.isArray(o) ? o : [o]);
   if (!arr.length) return [];
   const num = v => { const n = parseFloat(String(v).replace(/,/g, '')); return Number.isFinite(n) ? n : null; };
-  // 케이스 A: 컬럼형 — 키 이름에 주체가 들어있음
   const first = arr[0];
-  const findKey = (o, subs) => Object.keys(o).find(k => subs.some(s => k.toLowerCase().includes(s)) && k.toLowerCase().includes('ntby'));
-  const kInd = findKey(first, ['prsn', 'indv']);
-  const kFrg = findKey(first, ['frgn', 'forn']);
-  const kOrg = findKey(first, ['orgn', 'inst']);
-  if (kInd || kFrg || kOrg) {
-    const rows = [];
-    if (kInd && num(first[kInd]) != null) rows.push({ name: '개인',  net: num(first[kInd]) });
-    if (kFrg && num(first[kFrg]) != null) rows.push({ name: '외국인', net: num(first[kFrg]) });
-    if (kOrg && num(first[kOrg]) != null) rows.push({ name: '기관',  net: num(first[kOrg]) });
-    if (rows.length) return rows;
+  // 케이스 A(확정): 금액 필드 직접 매칭, 없으면 수량 폴백
+  const grab = p => num(first[`${p}_ntby_tr_pbmn`]) ?? num(first[`${p}_ntby_qty`]);
+  const A = { 개인: grab('prsn'), 외국인: grab('frgn'), 기관: grab('orgn') };
+  if (Object.values(A).some(v => v != null)) {
+    return Object.entries(A)
+      .filter(([, v]) => v != null)
+      .map(([name, v]) => ({ name, net: Math.round(v / 100 * 10) / 10 }));   // 백만원 → 억원
   }
-  // 케이스 B: 행형 — 투자자 이름 필드가 있음
+  // 케이스 B: 투자자 이름이 행으로 오는 형태 (폴백)
   const rows = [];
   for (const o of arr) {
     const label = String(o.invr_cls_name || o.invst_nm || o.investor || o.mbcr_name || '');
