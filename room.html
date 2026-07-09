@@ -323,10 +323,7 @@ async function fetchFlow(){
     if (!r.ok) return;
     const j = await r.json();
     if (j.ok && Array.isArray(j.rows) && j.rows.length) {
-      // 금액 단위가 원 단위로 크게 오면 억원으로 정규화
-      const mx = Math.max(...j.rows.map(o=>Math.abs(o.net)));
-      const div = mx > 1e7 ? 1e8 : 1;
-      FLOW = { rows: j.rows.map(o=>({ name:o.name, net:o.net/div })), asOf: j.asOf };
+      FLOW = { rows: j.rows, asOf: j.asOf };   // 서버가 억원 단위로 변환해서 반환
     }
   } catch(e) {}
 }
