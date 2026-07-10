@@ -88,6 +88,54 @@ let lastTapT = -10;
 let refreshFlashUntil = -1;
 let CAM = { x: 0, y: 0, w: 20, h: 15 };
 let shutterUntil = -1;
+// ═══ 패널 탭: 곳간 / 체결 ═══
+let panelMode = 'vault';                 // 'vault' | 'tick'
+let TAB_V = {x:0,y:0,w:0,h:0}, TAB_T = {x:0,y:0,w:0,h:0};
+const TICK_STOCK = { code: '000660', name: 'SK하이닉스' };   // 체결 탭 대상 종목
+const TICK = {
+  price:null, pct:null, strength:null, ask:null, bid:null,
+  lastAmt:null, lastVol:null,
+  amtHist:[], volHist:[],                // 최근 60초 (억/s, 주/s)
+  live:false, asOf:null,
+};
+let tickSimP = 245000, tickSimStr = 105;
+async function fetchTick(){
+  let got = false;
+  try {
+    const r = await fetch(`/api/tick?code=${TICK_STOCK.code}`);
+    if (r.ok) {
+      const j = await r.json();
+      if (j.ok && j.price != null) {
+        got = true; TICK.live = true;
+        TICK.price = j.price; TICK.pct = j.changePct;
+        TICK.strength = j.strength;
+        TICK.ask = j.totalAsk; TICK.bid = j.totalBid;
+        if (TICK.lastAmt != null && j.acmlAmt != null)
+          TICK.amtHist.push(Math.max(0, (j.acmlAmt - TICK.lastAmt) / 1e8));   // 억/s
+        if (TICK.lastVol != null && j.acmlVol != null)
+          TICK.volHist.push(Math.max(0, j.acmlVol - TICK.lastVol));
+        TICK.lastAmt = j.acmlAmt; TICK.lastVol = j.acmlVol;
+        TICK.asOf = j.asOf;
+      }
+    }
+  } catch(e) {}
+  if (!got) {
+    // 시뮬레이션 (API 미연결/장외 디자인 확인용)
+    TICK.live = false;
+    tickSimP = Math.max(1000, tickSimP * (1 + (Math.random()-0.5)*0.0016));
+    tickSimStr = Math.max(40, Math.min(220, tickSimStr + (Math.random()-0.5)*8));
+    TICK.price = Math.round(tickSimP); TICK.pct = (tickSimP/245000-1)*100;
+    TICK.strength = tickSimStr;
+    TICK.ask = 800000 + Math.random()*400000;
+    TICK.bid = 800000 + Math.random()*400000;
+    TICK.amtHist.push(2 + Math.random()*5 + (Math.random()<0.08? Math.random()*10:0));
+    TICK.volHist.push(Math.round(500 + Math.random()*3000));
+  }
+  while (TICK.amtHist.length > 60) TICK.amtHist.shift();
+  while (TICK.volHist.length > 60) TICK.volHist.shift();
+}
+// 체결 탭이 열려 있고 장중일 때만 1초 폴링 (장외엔 시뮬로 디자인 확인 가능)
+setInterval(() => { if (panelMode === 'tick') fetchTick(); }, 1000);
 
 let CSSW = 0, CSSH = 0;    // 캔버스 CSS 크기 (포인터 좌표 변환용)
 function fit() {
@@ -124,6 +172,8 @@ function fit() {
   TITLE_Y = Math.round(safeT + 26);
   PANEL = { x:10, y: Math.round(BH - 140 - safeB - 8), w: BW-20, h: 140 };
   CAM = { x: PANEL.x + PANEL.w - 52, y: PANEL.y + 5, w: 20, h: 15 };   // 곳간 헤더 카메라 버튼
+  TAB_V = { x: PANEL.x + 6,  y: PANEL.y + 3, w: 62, h: 19 };
+  TAB_T = { x: PANEL.x + 72, y: PANEL.y + 3, w: 62, h: 19 };
   const roomTop = TITLE_Y + 34;            // 타이틀 존 하단
   const roomBot = PANEL.y - 6;             // 패널 존 상단
   // 방 그림 세로 범위 ≈ OY-62(벽 꼭대기) ~ OY+96(앞쪽 바닥) = 158px
@@ -552,13 +602,19 @@ screen.addEventListener('pointerdown', e => {
     return;
   }
   lastTapT = tNow;
-  if (bx >= CAM.x-4 && bx <= CAM.x+CAM.w+4 && by >= CAM.y-4 && by <= CAM.y+CAM.h+4) {
+  const inRect = (r) => bx >= r.x-3 && bx <= r.x+r.w+3 && by >= r.y-3 && by <= r.y+r.h+3;
+  if (inRect(TAB_V)) { panelMode = 'vault'; click(); return; }
+  if (inRect(TAB_T)) { panelMode = 'tick'; fetchTick(); click(); return; }
+  if (panelMode === 'vault' && inRect(CAM)) {
     shutterUntil = tNow + 0.22;               // 셔터 플래시
     shareCard();
-  } else if (bx >= PANEL.x && bx <= PANEL.x + PANEL.w && by >= PANEL.y && by <= PANEL.y + PANEL.h) {
+  } else if (panelMode === 'vault' && bx >= PANEL.x && bx <= PANEL.x + PANEL.w && by >= PANEL.y && by <= PANEL.y + PANEL.h) {
     refresh();                                // 즉시 갱신
     refreshFlashUntil = tNow + 0.45;
     click();
+  } else if (bx >= PANEL.x && bx <= PANEL.x + PANEL.w && by >= PANEL.y && by <= PANEL.y + PANEL.h) {
+    // 체결 탭에서 패널 탭 = 즉시 1회 폴링
+    fetchTick(); click();
   } else {
     startDance();
   }
@@ -1519,32 +1575,94 @@ function drawPanelChrome(t){
   b.lineWidth=2; b.strokeRect(x+1,y+1,w-2,h-2);
   b.strokeStyle = flashing ? '#b8ae88' : '#6b6248';
   b.lineWidth=1; b.strokeRect(x+3.5,y+3.5,w-7,h-7);
-  drawMoneyBag(x+12, y+7);
-  // ── 카메라 버튼 (공유 카드) ──
-  {
+  // ── 탭 헤더 (활성 탭 밑줄) ──
+  const tabUL = (r, on)=>{ if(on){ b.fillStyle='#e8dfb0'; b.fillRect(r.x+4, r.y+r.h-2, r.w-8, 1.5); } };
+  tabUL(TAB_V, panelMode==='vault'); tabUL(TAB_T, panelMode==='tick');
+  b.strokeStyle='#4a4433';
+  b.beginPath(); b.moveTo(x+8, y+22); b.lineTo(x+w-8, y+22); b.stroke();
+
+  if (panelMode === 'vault') {
+    drawMoneyBag(x+10, y+6);
+    // 카메라 버튼
     const c2=CAM;
     b.fillStyle='#2c2818'; b.fillRect(c2.x, c2.y, c2.w, c2.h);
     b.strokeStyle='#4a4433'; b.lineWidth=1; b.strokeRect(c2.x+0.5, c2.y+0.5, c2.w-1, c2.h-1);
     b.fillStyle='#d8d0a8';
-    b.fillRect(c2.x+4, c2.y+4, c2.w-8, c2.h-7);                 // 몸통
-    b.fillRect(c2.x+7, c2.y+2, 5, 2);                            // 뷰파인더 혹
+    b.fillRect(c2.x+4, c2.y+4, c2.w-8, c2.h-7);
+    b.fillRect(c2.x+7, c2.y+2, 5, 2);
     b.fillStyle='#2c2818';
-    b.beginPath(); b.arc(c2.x+c2.w/2, c2.y+c2.h/2+0.5, 3, 0, Math.PI*2); b.fill();   // 렌즈
-    b.fillStyle='#e0705c'; b.fillRect(c2.x+c2.w-6, c2.y+4, 1.5, 1.5);                // 셔터등
+    b.beginPath(); b.arc(c2.x+c2.w/2, c2.y+c2.h/2+0.5, 3, 0, Math.PI*2); b.fill();
+    b.fillStyle='#e0705c'; b.fillRect(c2.x+c2.w-6, c2.y+4, 1.5, 1.5);
+    // 점선 구분선
+    b.strokeStyle='#4a4433'; b.setLineDash([3,3]);
+    [58, 92].forEach(dy=>{ b.beginPath(); b.moveTo(x+8, y+dy); b.lineTo(x+w-8, y+dy); b.stroke(); });
+    b.setLineDash([]);
+    // 갱신 진행 게이지
+    const prog = Math.min(1, (Date.now()-(lastUpdate?lastUpdate.getTime():Date.now()))/REFRESH_MS);
+    b.fillStyle='#3a3524'; b.fillRect(x+8, y+h-8, w-16, 2);
+    b.fillStyle='#8a836a'; b.fillRect(x+8, y+h-8, (w-16)*prog, 2);
+    drawPixelFlower(x+6, y+h-14, '#c88a9a');
+    drawPixelFlower(x+w-6, y+14, C.plant);
+    return;
   }
-  // 점선 구분선 3개
-  b.strokeStyle='#4a4433'; b.setLineDash([3,3]);
-  [24, 58, 92].forEach(dy=>{
-    b.beginPath(); b.moveTo(x+8, y+dy); b.lineTo(x+w-8, y+dy); b.stroke();
-  });
-  b.setLineDash([]);
-  // 갱신 진행 게이지 (10초)
-  const prog = Math.min(1, (Date.now()-(lastUpdate?lastUpdate.getTime():Date.now()))/REFRESH_MS);
-  b.fillStyle='#3a3524'; b.fillRect(x+8, y+h-8, w-16, 2);
-  b.fillStyle='#8a836a'; b.fillRect(x+8, y+h-8, (w-16)*prog, 2);
-  // 모서리 꽃
-  drawPixelFlower(x+6, y+h-14, '#c88a9a');
-  drawPixelFlower(x+w-6, y+14, C.plant);
+
+  // ══ 체결 탭 ══
+  const L = x+58, R = x+w-10, BARW = R-L;    // 게이지 영역
+  const rowY = i => y + 34 + i*20;
+  // 1) 체결강도: 100 기준 좌우 게이지
+  {
+    const ry = rowY(0), cxm = L + BARW*0.5;
+    b.fillStyle='#3a3524'; b.fillRect(L, ry, BARW, 4);
+    b.fillStyle='#6b6248'; b.fillRect(cxm-0.5, ry-1, 1, 6);          // 100 기준선
+    const s = TICK.strength ?? 100;
+    const dev = Math.max(-1, Math.min(1, (s-100)/100));
+    b.fillStyle = dev>=0 ? UP : DOWN;
+    if (dev>=0) b.fillRect(cxm, ry, BARW*0.5*dev, 4);
+    else        b.fillRect(cxm+BARW*0.5*dev, ry, -BARW*0.5*dev, 4);
+  }
+  // 2) 매수/매도 체결비율 스택바 (체결강도에서 유도)
+  {
+    const ry = rowY(1);
+    const s = TICK.strength ?? 100;
+    const buyR = s/(100+s);
+    b.fillStyle=DOWN; b.fillRect(L, ry, BARW, 4);
+    b.fillStyle=UP;   b.fillRect(L, ry, BARW*buyR, 4);
+    b.fillStyle='#e8dfb0'; b.fillRect(L+BARW*buyR-0.5, ry-1, 1, 6);  // 경계선
+  }
+  // 3) 호가잔량: 중앙 대칭 (좌=매도, 우=매수)
+  {
+    const ry = rowY(2), cxm = L + BARW*0.5;
+    const tot = (TICK.ask||0)+(TICK.bid||0) || 1;
+    b.fillStyle='#3a3524'; b.fillRect(L, ry, BARW, 4);
+    b.fillStyle=DOWN; b.fillRect(cxm-(TICK.ask||0)/tot*BARW*0.96, ry, (TICK.ask||0)/tot*BARW*0.96, 4);
+    b.fillStyle=UP;   b.fillRect(cxm, ry, (TICK.bid||0)/tot*BARW*0.96, 4);
+    b.fillStyle='#6b6248'; b.fillRect(cxm-0.5, ry-1, 1, 6);
+  }
+  // 4) 거래대금 속도 스파크라인 (최근 60초)
+  {
+    const ry = rowY(3)+6, sh = 12;
+    const mx = Math.max(1, ...TICK.amtHist);
+    b.fillStyle='#2a2718'; b.fillRect(L, ry-sh, BARW, sh);
+    TICK.amtHist.forEach((v,i)=>{
+      const bw2 = BARW/60;
+      const bh2 = Math.max(0.5, v/mx*sh);
+      b.fillStyle = i===TICK.amtHist.length-1 ? '#e8dfb0' : '#8fae7e';
+      b.fillRect(L+i*bw2, ry-bh2, Math.max(1,bw2-0.4), bh2);
+    });
+  }
+  // 5) 체결량 틱 막대
+  {
+    const ry = rowY(4)+8, sh = 10;
+    const mx = Math.max(1, ...TICK.volHist);
+    TICK.volHist.forEach((v,i)=>{
+      const bw2 = BARW/60;
+      b.fillStyle = '#b8a86a';
+      b.fillRect(L+i*bw2, ry-Math.max(0.5,v/mx*sh), Math.max(1,bw2-0.4), Math.max(0.5,v/mx*sh));
+    });
+  }
+  // 라이브 도트
+  b.fillStyle = TICK.live ? (Math.floor(t*2)%2? UP : '#5a2a24') : '#6d6752';
+  b.fillRect(x+w-12, y+8, 3, 3);
 }
 // 고해상도 텍스트 패스 (버퍼 좌표 기준 → 스크린 좌표로 스케일)
 function drawUIText(){
@@ -1560,11 +1678,36 @@ function drawUIText(){
   T('투자 현황판', BW/2, TITLE_Y+12, 7, '#8a836a', 'center');
   // ── 곳간 패널 ──
   const {x,y,w,h}=PANEL;
+  // 탭 라벨
+  T('곳간', TAB_V.x+TAB_V.w/2, TAB_V.y+9, 8, panelMode==='vault'?'#e8dfb0':'#6d6752', 'center');
+  T('체결', TAB_T.x+TAB_T.w/2, TAB_T.y+9, 8, panelMode==='tick' ?'#e8dfb0':'#6d6752', 'center');
+
+  if (panelMode === 'tick') {
+    // 헤더: 종목/현재가/등락
+    const pc = (TICK.pct??0) >= 0 ? UP : DOWN;
+    T(TICK_STOCK.name, x+w-64, y+12, 6.5, '#e8dfb0', 'right');
+    if (TICK.price != null)
+      T(`${fmt(TICK.price)} ${sign(TICK.pct??0)}${(TICK.pct??0).toFixed(1)}%`, x+w-16, y+12, 6.5, pc, 'right');
+    const rows = [
+      ['체결강도', TICK.strength!=null ? TICK.strength.toFixed(1) : '-'],
+      ['매수/매도', TICK.strength!=null ? `${Math.round(TICK.strength/(100+TICK.strength)*100)}:${100-Math.round(TICK.strength/(100+TICK.strength)*100)}` : '-'],
+      ['호가잔량', (TICK.ask!=null&&TICK.bid!=null) ? `${Math.round(TICK.bid/1000)}k/${Math.round(TICK.ask/1000)}k` : '-'],
+      ['대금속도', TICK.amtHist.length ? TICK.amtHist[TICK.amtHist.length-1].toFixed(1)+'억/s' : '-'],
+      ['체결틱',   TICK.volHist.length ? fmt(TICK.volHist[TICK.volHist.length-1])+'주' : '-'],
+    ];
+    rows.forEach(([lb, val], i) => {
+      const ry = y + 34 + i*20;
+      T(lb, x+10, ry+2, 6, '#8a836a');
+      T(val, x+w-10, ry-6, 5.5, '#d8d0a8', 'right');
+    });
+    T(`${TICK_STOCK.code} · 1초 갱신 · ${TICK.live?'LIVE':'SIM'} · 패널 탭=즉시`, x+w/2, y+h-14, 5.5, '#6d6752', 'center');
+    return;
+  }
+
   const pl = totalNow()-totalAvg();
   const pct = (totalNow()/totalAvg()-1)*100;
   const cls = v => v>=0 ? UP : DOWN;
-  T('정모의 곳간', x+26, y+14, 9, '#e8dfb0');
-  T(liveMode?'LIVE':'SIM', x+w-10, y+14, 7, liveMode?UP:'#8a836a', 'right');
+  T(liveMode?'LIVE':'SIM', x+w-16, y+12, 7, liveMode?UP:'#8a836a', 'right');
   HOLDINGS.forEach((hd,i)=>{
     const ry = y+34+i*34;
     const hpl = (hd.price-hd.avg)*hd.qty;
