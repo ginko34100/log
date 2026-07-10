@@ -91,21 +91,35 @@ let shutterUntil = -1;
 // ═══ 패널 탭: 곳간 / 체결 ═══
 let panelMode = 'vault';                 // 'vault' | 'tick'
 let TAB_V = {x:0,y:0,w:0,h:0}, TAB_T = {x:0,y:0,w:0,h:0};
-const TICK_STOCK = { code: '000660', name: 'SK하이닉스' };   // 체결 탭 대상 종목
+const TICK_STOCKS = [
+  { code: '000660', name: '하이닉스', base: 245000 },
+  { code: '005930', name: '삼성전자', base: 156000 },
+];
+let tickIdx = 0;
+let CHIP1 = {x:0,y:0,w:0,h:0}, CHIP2 = {x:0,y:0,w:0,h:0};
 const TICK = {
   price:null, pct:null, strength:null, ask:null, bid:null,
   lastAmt:null, lastVol:null,
   amtHist:[], volHist:[],                // 최근 60초 (억/s, 주/s)
   live:false, asOf:null,
 };
-let tickSimP = 245000, tickSimStr = 105;
+function switchTick(i){
+  if (tickIdx === i) return;
+  tickIdx = i;
+  Object.assign(TICK, { price:null, pct:null, strength:null, ask:null, bid:null,
+    lastAmt:null, lastVol:null, amtHist:[], volHist:[], live:false });
+  tickSimP = TICK_STOCKS[i].base; 
+  fetchTick();
+}
+let tickSimP = TICK_STOCKS[0].base, tickSimStr = 105;
 async function fetchTick(){
+  const stock = TICK_STOCKS[tickIdx];
   let got = false;
   try {
-    const r = await fetch(`/api/tick?code=${TICK_STOCK.code}`);
+    const r = await fetch(`/api/tick?code=${stock.code}`);
     if (r.ok) {
       const j = await r.json();
-      if (j.ok && j.price != null) {
+      if (j.ok && j.price != null && j.code === stock.code) {
         got = true; TICK.live = true;
         TICK.price = j.price; TICK.pct = j.changePct;
         TICK.strength = j.strength;
@@ -124,7 +138,7 @@ async function fetchTick(){
     TICK.live = false;
     tickSimP = Math.max(1000, tickSimP * (1 + (Math.random()-0.5)*0.0016));
     tickSimStr = Math.max(40, Math.min(220, tickSimStr + (Math.random()-0.5)*8));
-    TICK.price = Math.round(tickSimP); TICK.pct = (tickSimP/245000-1)*100;
+    TICK.price = Math.round(tickSimP); TICK.pct = (tickSimP/TICK_STOCKS[tickIdx].base-1)*100;
     TICK.strength = tickSimStr;
     TICK.ask = 800000 + Math.random()*400000;
     TICK.bid = 800000 + Math.random()*400000;
@@ -174,6 +188,8 @@ function fit() {
   CAM = { x: PANEL.x + PANEL.w - 52, y: PANEL.y + 5, w: 20, h: 15 };   // 곳간 헤더 카메라 버튼
   TAB_V = { x: PANEL.x + 6,  y: PANEL.y + 3, w: 62, h: 19 };
   TAB_T = { x: PANEL.x + 72, y: PANEL.y + 3, w: 62, h: 19 };
+  CHIP1 = { x: PANEL.x + 8,  y: PANEL.y + 26, w: 48, h: 13 };
+  CHIP2 = { x: PANEL.x + 60, y: PANEL.y + 26, w: 48, h: 13 };
   const roomTop = TITLE_Y + 34;            // 타이틀 존 하단
   const roomBot = PANEL.y - 6;             // 패널 존 상단
   // 방 그림 세로 범위 ≈ OY-62(벽 꼭대기) ~ OY+96(앞쪽 바닥) = 158px
@@ -595,26 +611,31 @@ document.getElementById('receiptModal').addEventListener('pointerdown', e => {
 screen.addEventListener('pointerdown', e => {
   const bx = e.offsetX / (CSSW / BW), by = e.offsetY / (CSSH / BH);
   const tNow = (performance.now() - t0) / 1000;
-  if (tNow - lastTapT < 0.35) {              // 더블탭 → 음소거 토글
+  const inRect = (r) => bx >= r.x-3 && bx <= r.x+r.w+3 && by >= r.y-3 && by <= r.y+r.h+3;
+  // ① 버튼류는 더블탭 판정보다 우선 (연타해도 음소거 오발동 없음)
+  if (inRect(TAB_V)) { panelMode = 'vault'; click(); return; }
+  if (inRect(TAB_T)) { panelMode = 'tick'; fetchTick(); click(); return; }
+  if (panelMode === 'tick' && inRect(CHIP1)) { switchTick(0); click(); return; }
+  if (panelMode === 'tick' && inRect(CHIP2)) { switchTick(1); click(); return; }
+  if (panelMode === 'vault' && inRect(CAM)) {
+    shutterUntil = tNow + 0.22;
+    shareCard();
+    return;
+  }
+  // ② 더블탭 → 음소거 토글
+  if (tNow - lastTapT < 0.35) {
     muted = !muted;
     if (!muted) click();
     lastTapT = -10;
     return;
   }
   lastTapT = tNow;
-  const inRect = (r) => bx >= r.x-3 && bx <= r.x+r.w+3 && by >= r.y-3 && by <= r.y+r.h+3;
-  if (inRect(TAB_V)) { panelMode = 'vault'; click(); return; }
-  if (inRect(TAB_T)) { panelMode = 'tick'; fetchTick(); click(); return; }
-  if (panelMode === 'vault' && inRect(CAM)) {
-    shutterUntil = tNow + 0.22;               // 셔터 플래시
-    shareCard();
-  } else if (panelMode === 'vault' && bx >= PANEL.x && bx <= PANEL.x + PANEL.w && by >= PANEL.y && by <= PANEL.y + PANEL.h) {
+  if (panelMode === 'vault' && bx >= PANEL.x && bx <= PANEL.x + PANEL.w && by >= PANEL.y && by <= PANEL.y + PANEL.h) {
     refresh();                                // 즉시 갱신
     refreshFlashUntil = tNow + 0.45;
     click();
   } else if (bx >= PANEL.x && bx <= PANEL.x + PANEL.w && by >= PANEL.y && by <= PANEL.y + PANEL.h) {
-    // 체결 탭에서 패널 탭 = 즉시 1회 폴링
-    fetchTick(); click();
+    fetchTick(); click();                     // 체결 탭에서 패널 탭 = 즉시 폴링
   } else {
     startDance();
   }
@@ -1607,57 +1628,69 @@ function drawPanelChrome(t){
   }
 
   // ══ 체결 탭 ══
-  const L = x+58, R = x+w-10, BARW = R-L;    // 게이지 영역
-  const rowY = i => y + 34 + i*20;
+  // 레이아웃: 칩 행(y+26) → 게이지 5행(y+46부터 17px 간격) → 푸터
+  // 값 표시는 오른쪽 42px 전용 컬럼 — 바/스파크라인과 절대 안 겹침
+  const L = x+50, R = x+w-48, BARW = R-L;
+  const rowY = i => y + 48 + i*17;
+  // 종목 칩 2개
+  [[CHIP1, TICK_STOCKS[0]], [CHIP2, TICK_STOCKS[1]]].forEach(([r, s], i)=>{
+    const on = tickIdx === i;
+    b.fillStyle = on ? '#3a3524' : '#26221a';
+    b.fillRect(r.x, r.y, r.w, r.h);
+    b.strokeStyle = on ? '#8a836a' : '#4a4433';
+    b.lineWidth = 1; b.strokeRect(r.x+0.5, r.y+0.5, r.w-1, r.h-1);
+  });
   // 1) 체결강도: 100 기준 좌우 게이지
   {
     const ry = rowY(0), cxm = L + BARW*0.5;
-    b.fillStyle='#3a3524'; b.fillRect(L, ry, BARW, 4);
-    b.fillStyle='#6b6248'; b.fillRect(cxm-0.5, ry-1, 1, 6);          // 100 기준선
+    b.fillStyle='#3a3524'; b.fillRect(L, ry-2, BARW, 4);
+    b.fillStyle='#6b6248'; b.fillRect(cxm-0.5, ry-3, 1, 6);
     const s = TICK.strength ?? 100;
     const dev = Math.max(-1, Math.min(1, (s-100)/100));
     b.fillStyle = dev>=0 ? UP : DOWN;
-    if (dev>=0) b.fillRect(cxm, ry, BARW*0.5*dev, 4);
-    else        b.fillRect(cxm+BARW*0.5*dev, ry, -BARW*0.5*dev, 4);
+    if (dev>=0) b.fillRect(cxm, ry-2, BARW*0.5*dev, 4);
+    else        b.fillRect(cxm+BARW*0.5*dev, ry-2, -BARW*0.5*dev, 4);
   }
-  // 2) 매수/매도 체결비율 스택바 (체결강도에서 유도)
+  // 2) 매수/매도 체결비율 스택바
   {
     const ry = rowY(1);
     const s = TICK.strength ?? 100;
     const buyR = s/(100+s);
-    b.fillStyle=DOWN; b.fillRect(L, ry, BARW, 4);
-    b.fillStyle=UP;   b.fillRect(L, ry, BARW*buyR, 4);
-    b.fillStyle='#e8dfb0'; b.fillRect(L+BARW*buyR-0.5, ry-1, 1, 6);  // 경계선
+    b.fillStyle=DOWN; b.fillRect(L, ry-2, BARW, 4);
+    b.fillStyle=UP;   b.fillRect(L, ry-2, BARW*buyR, 4);
+    b.fillStyle='#e8dfb0'; b.fillRect(L+BARW*buyR-0.5, ry-3, 1, 6);
   }
   // 3) 호가잔량: 중앙 대칭 (좌=매도, 우=매수)
   {
     const ry = rowY(2), cxm = L + BARW*0.5;
     const tot = (TICK.ask||0)+(TICK.bid||0) || 1;
-    b.fillStyle='#3a3524'; b.fillRect(L, ry, BARW, 4);
-    b.fillStyle=DOWN; b.fillRect(cxm-(TICK.ask||0)/tot*BARW*0.96, ry, (TICK.ask||0)/tot*BARW*0.96, 4);
-    b.fillStyle=UP;   b.fillRect(cxm, ry, (TICK.bid||0)/tot*BARW*0.96, 4);
-    b.fillStyle='#6b6248'; b.fillRect(cxm-0.5, ry-1, 1, 6);
+    b.fillStyle='#3a3524'; b.fillRect(L, ry-2, BARW, 4);
+    b.fillStyle=DOWN; b.fillRect(cxm-(TICK.ask||0)/tot*BARW*0.96, ry-2, (TICK.ask||0)/tot*BARW*0.96, 4);
+    b.fillStyle=UP;   b.fillRect(cxm, ry-2, (TICK.bid||0)/tot*BARW*0.96, 4);
+    b.fillStyle='#6b6248'; b.fillRect(cxm-0.5, ry-3, 1, 6);
   }
   // 4) 거래대금 속도 스파크라인 (최근 60초)
   {
-    const ry = rowY(3)+6, sh = 12;
+    const ry = rowY(3), sh = 12;
     const mx = Math.max(1, ...TICK.amtHist);
-    b.fillStyle='#2a2718'; b.fillRect(L, ry-sh, BARW, sh);
+    b.fillStyle='#2a2718'; b.fillRect(L, ry-sh+5, BARW, sh);
     TICK.amtHist.forEach((v,i)=>{
       const bw2 = BARW/60;
-      const bh2 = Math.max(0.5, v/mx*sh);
+      const bh2 = Math.max(0.5, v/mx*(sh-1));
       b.fillStyle = i===TICK.amtHist.length-1 ? '#e8dfb0' : '#8fae7e';
-      b.fillRect(L+i*bw2, ry-bh2, Math.max(1,bw2-0.4), bh2);
+      b.fillRect(L+i*bw2, ry+5-bh2, Math.max(1,bw2-0.4), bh2);
     });
   }
   // 5) 체결량 틱 막대
   {
-    const ry = rowY(4)+8, sh = 10;
+    const ry = rowY(4), sh = 12;
     const mx = Math.max(1, ...TICK.volHist);
+    b.fillStyle='#2a2718'; b.fillRect(L, ry-sh+5, BARW, sh);
     TICK.volHist.forEach((v,i)=>{
       const bw2 = BARW/60;
+      const bh2 = Math.max(0.5, v/mx*(sh-1));
       b.fillStyle = '#b8a86a';
-      b.fillRect(L+i*bw2, ry-Math.max(0.5,v/mx*sh), Math.max(1,bw2-0.4), Math.max(0.5,v/mx*sh));
+      b.fillRect(L+i*bw2, ry+5-bh2, Math.max(1,bw2-0.4), bh2);
     });
   }
   // 라이브 도트
@@ -1683,24 +1716,29 @@ function drawUIText(){
   T('체결', TAB_T.x+TAB_T.w/2, TAB_T.y+9, 8, panelMode==='tick' ?'#e8dfb0':'#6d6752', 'center');
 
   if (panelMode === 'tick') {
-    // 헤더: 종목/현재가/등락
+    // 종목 칩 라벨
+    T(TICK_STOCKS[0].name, CHIP1.x+CHIP1.w/2, CHIP1.y+6.5, 6, tickIdx===0?'#e8dfb0':'#6d6752', 'center');
+    T(TICK_STOCKS[1].name, CHIP2.x+CHIP2.w/2, CHIP2.y+6.5, 6, tickIdx===1?'#e8dfb0':'#6d6752', 'center');
+    // 현재가 (칩 행 오른쪽)
     const pc = (TICK.pct??0) >= 0 ? UP : DOWN;
-    T(TICK_STOCK.name, x+w-64, y+12, 6.5, '#e8dfb0', 'right');
     if (TICK.price != null)
-      T(`${fmt(TICK.price)} ${sign(TICK.pct??0)}${(TICK.pct??0).toFixed(1)}%`, x+w-16, y+12, 6.5, pc, 'right');
+      T(`${fmt(TICK.price)} ${sign(TICK.pct??0)}${(TICK.pct??0).toFixed(1)}%`, x+w-10, CHIP1.y+6.5, 6.5, pc, 'right');
+    // 5행: 라벨(좌 x+8) · 게이지(중앙 L~R) · 값(우측 전용 42px 컬럼)
+    const s = TICK.strength;
+    const buyPct = s!=null ? Math.round(s/(100+s)*100) : null;
     const rows = [
-      ['체결강도', TICK.strength!=null ? TICK.strength.toFixed(1) : '-'],
-      ['매수/매도', TICK.strength!=null ? `${Math.round(TICK.strength/(100+TICK.strength)*100)}:${100-Math.round(TICK.strength/(100+TICK.strength)*100)}` : '-'],
+      ['체결강도', s!=null ? s.toFixed(1) : '-'],
+      ['매수비율', buyPct!=null ? `${buyPct}:${100-buyPct}` : '-'],
       ['호가잔량', (TICK.ask!=null&&TICK.bid!=null) ? `${Math.round(TICK.bid/1000)}k/${Math.round(TICK.ask/1000)}k` : '-'],
-      ['대금속도', TICK.amtHist.length ? TICK.amtHist[TICK.amtHist.length-1].toFixed(1)+'억/s' : '-'],
-      ['체결틱',   TICK.volHist.length ? fmt(TICK.volHist[TICK.volHist.length-1])+'주' : '-'],
+      ['대금속도', TICK.amtHist.length ? TICK.amtHist[TICK.amtHist.length-1].toFixed(1)+'억' : '-'],
+      ['체결틱',   TICK.volHist.length ? fmt(TICK.volHist[TICK.volHist.length-1]) : '-'],
     ];
     rows.forEach(([lb, val], i) => {
-      const ry = y + 34 + i*20;
-      T(lb, x+10, ry+2, 6, '#8a836a');
-      T(val, x+w-10, ry-6, 5.5, '#d8d0a8', 'right');
+      const ry = y + 48 + i*17;
+      T(lb, x+8, ry, 5.5, '#8a836a');
+      T(val, x+w-8, ry, 5.5, '#d8d0a8', 'right');
     });
-    T(`${TICK_STOCK.code} · 1초 갱신 · ${TICK.live?'LIVE':'SIM'} · 패널 탭=즉시`, x+w/2, y+h-14, 5.5, '#6d6752', 'center');
+    T(`${TICK_STOCKS[tickIdx].code} · 1초 갱신 · ${TICK.live?'LIVE':'SIM'}`, x+w/2, y+h-8, 5, '#6d6752', 'center');
     return;
   }
 
