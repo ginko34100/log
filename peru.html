@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>유지의 남미 일주 · 2026.10.15 – 10.26</title>
+<meta name="description" content="LA 레이오버부터 마추픽추, 우유니까지 — 12일간의 페루·볼리비아 여행 일정">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#131226;
+  --night2:#1B1A33;
+  --card:#201E3D;
+  --card-soft:#26244a;
+  --line:rgba(244,239,228,.12);
+  --salt:#F4EFE4;
+  --salt-dim:#B8B3AF;
+  --salt-faint:#8B87A3;
+  --cantuta:#E85D8A;
+  --sol:#F0B23F;
+  --lago:#4FC4B0;
+  --cielo:#8A9BE8;
+  --terra:#E8804F;
+  --radius:18px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+body{
+  background:var(--night);
+  color:var(--salt);
+  font-family:'IBM Plex Sans KR',sans-serif;
+  font-weight:400;
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+::selection{background:var(--cantuta);color:var(--night)}
+
+/* ---------- stars ---------- */
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0}
+.stars span{position:absolute;width:2px;height:2px;border-radius:50%;background:var(--salt);opacity:.35;animation:twinkle 4s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.55}}
+
+/* ---------- textile stripe ---------- */
+.stripe{
+  height:6px;width:100%;
+  background:repeating-linear-gradient(90deg,
+    var(--cantuta) 0 28px, var(--sol) 28px 44px,
+    var(--terra) 44px 72px, var(--lago) 72px 88px,
+    var(--cielo) 88px 116px);
+}
+
+/* ---------- layout ---------- */
+.wrap{max-width:760px;margin:0 auto;padding:0 20px;position:relative;z-index:1}
+
+/* ---------- hero ---------- */
+header.hero{padding:64px 0 40px;text-align:center;position:relative}
+.hero .eyebrow{
+  font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.28em;
+  color:var(--sol);text-transform:uppercase;margin-bottom:18px;
+}
+.hero h1{
+  font-family:'Gowun Batang',serif;font-weight:700;
+  font-size:clamp(38px,9vw,64px);line-height:1.25;letter-spacing:-.01em;
+}
+.hero h1 em{font-style:normal;color:var(--cantuta)}
+.hero .sub{color:var(--salt-dim);margin-top:14px;font-size:15px}
+.hero .route{
+  font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.08em;
+  color:var(--salt-faint);margin-top:24px;display:flex;flex-wrap:wrap;justify-content:center;gap:6px 4px;
+}
+.hero .route b{color:var(--salt);font-weight:700}
+.hero .route .arr{color:var(--cantuta)}
+
+/* ---------- altitude chart ---------- */
+.alt-section{margin:44px 0 8px}
+.alt-card{
+  background:linear-gradient(180deg,var(--night2),var(--card));
+  border:1px solid var(--line);border-radius:var(--radius);
+  padding:26px 18px 14px;overflow:hidden;position:relative;
+}
+.alt-card h2{
+  font-family:'Gowun Batang',serif;font-size:19px;font-weight:700;margin:0 6px 4px;
+}
+.alt-card p.cap{font-size:13px;color:var(--salt-dim);margin:0 6px 14px}
+.alt-card p.cap b{color:var(--sol);font-weight:600}
+.alt-svg{width:100%;height:auto;display:block}
+.alt-path{fill:none;stroke:url(#altGrad);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:1200;stroke-dashoffset:1200;animation:draw 2.4s .3s ease forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.alt-fill{fill:url(#altFill);opacity:0;animation:fadein 1.2s 1.6s ease forwards}
+@keyframes fadein{to{opacity:1}}
+.alt-dot{fill:var(--night);stroke:var(--salt);stroke-width:2;opacity:0;animation:fadein .5s ease forwards}
+.alt-label{font-family:'Space Mono',monospace;font-size:10px;fill:var(--salt-dim);opacity:0;animation:fadein .8s 1.8s ease forwards}
+.alt-label.hi{fill:var(--sol)}
+.alt-note{font-size:12px;color:var(--salt-faint);text-align:right;margin:6px 8px 4px;font-family:'Space Mono',monospace}
+
+/* ---------- stats ---------- */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:26px 0 10px}
+.stat{background:var(--night2);border:1px solid var(--line);border-radius:14px;padding:14px 8px;text-align:center}
+.stat .n{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:var(--salt)}
+.stat .l{font-size:11.5px;color:var(--salt-faint);margin-top:2px}
+@media(max-width:480px){.stats{grid-template-columns:repeat(2,1fr)}}
+
+/* ---------- day nav ---------- */
+nav.daynav{
+  position:sticky;top:0;z-index:50;
+  background:rgba(19,18,38,.88);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+  margin:36px -20px 0;padding:10px 0;
+}
+.daynav .rail{display:flex;gap:8px;overflow-x:auto;padding:0 20px;scrollbar-width:none}
+.daynav .rail::-webkit-scrollbar{display:none}
+.chip{
+  flex:0 0 auto;font-family:'Space Mono',monospace;font-size:12px;
+  padding:7px 13px;border-radius:99px;border:1px solid var(--line);
+  color:var(--salt-dim);text-decoration:none;white-space:nowrap;transition:all .2s;
+}
+.chip:hover{border-color:var(--cantuta);color:var(--salt)}
+.chip.active{background:var(--cantuta);border-color:var(--cantuta);color:var(--night);font-weight:700}
+
+/* ---------- day cards ---------- */
+main{padding-bottom:20px}
+.day{margin-top:44px;scroll-margin-top:76px}
+.day-card{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  overflow:hidden;
+}
+.day-card .band{height:5px}
+.day-head{padding:22px 22px 6px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.day-num{
+  font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.2em;
+  color:var(--salt-faint);
+}
+.day-head h3{
+  font-family:'Gowun Batang',serif;font-size:clamp(21px,5.4vw,26px);font-weight:700;flex:1 1 100%;
+  line-height:1.35;
+}
+.day-head h3 .accent{color:inherit}
+.day-meta{display:flex;gap:8px;flex-wrap:wrap;padding:8px 22px 0}
+.tag{
+  font-size:11.5px;font-weight:500;padding:4px 11px;border-radius:99px;
+  border:1px solid var(--line);color:var(--salt-dim);
+}
+.tag.alt{font-family:'Space Mono',monospace}
+.tag.hot{border-color:transparent;color:var(--night);font-weight:700}
+
+/* timeline */
+.tl{padding:20px 22px 8px;position:relative}
+.tl-item{
+  position:relative;padding:0 0 22px 78px;
+}
+.tl-item::before{
+  content:'';position:absolute;left:62px;top:8px;bottom:-2px;width:1px;
+  background:var(--line);
+}
+.tl-item:last-child::before{display:none}
+.tl-item::after{
+  content:'';position:absolute;left:58.5px;top:7px;width:8px;height:8px;border-radius:50%;
+  background:var(--night);border:2px solid var(--dot,var(--salt-dim));
+}
+.tl-time{
+  position:absolute;left:0;top:2px;width:52px;text-align:right;
+  font-family:'Space Mono',monospace;font-size:12px;color:var(--salt-dim);line-height:1.4;
+}
+.tl-item h4{font-size:15.5px;font-weight:600;margin-bottom:2px}
+.tl-item p{font-size:13.5px;color:var(--salt-dim);line-height:1.65}
+.tl-item p b{color:var(--salt);font-weight:600}
+.tl-item .pin{font-size:12.5px;color:var(--salt-faint);margin-top:2px}
+
+/* note boxes */
+.note{
+  margin:6px 22px 22px;padding:15px 17px;border-radius:14px;
+  background:var(--night2);border:1px solid var(--line);
+  font-size:13.5px;color:var(--salt-dim);line-height:1.7;
+}
+.note b{color:var(--salt);font-weight:600}
+.note .nt{
+  display:block;font-size:12px;font-weight:700;letter-spacing:.12em;margin-bottom:6px;
+  font-family:'Space Mono',monospace;
+}
+.note.safety{border-left:3px solid var(--cantuta)}
+.note.safety .nt{color:var(--cantuta)}
+.note.tip{border-left:3px solid var(--sol)}
+.note.tip .nt{color:var(--sol)}
+.note.food{border-left:3px solid var(--lago)}
+.note.food .nt{color:var(--lago)}
+.note ul{list-style:none;margin-top:4px}
+.note ul li{padding-left:16px;position:relative;margin-bottom:5px}
+.note ul li::before{content:'—';position:absolute;left:0;color:var(--salt-faint)}
+
+/* ---------- sections ---------- */
+.section{margin-top:64px;scroll-margin-top:76px}
+.section > h2{
+  font-family:'Gowun Batang',serif;font-size:clamp(24px,6vw,30px);font-weight:700;
+  margin-bottom:6px;
+}
+.section > .lead{color:var(--salt-dim);font-size:14.5px;margin-bottom:22px}
+
+/* safety grid */
+.rules{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:560px){.rules{grid-template-columns:1fr}}
+.rule{
+  background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:16px 17px;font-size:13.5px;color:var(--salt-dim);line-height:1.65;
+}
+.rule b{display:block;color:var(--salt);font-weight:600;font-size:14.5px;margin-bottom:4px}
+.rule .ico{font-size:19px;display:block;margin-bottom:8px}
+
+/* budget table */
+.btable{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--card);border-radius:var(--radius);overflow:hidden;border:1px solid var(--line)}
+.btable th{
+  text-align:left;font-weight:600;font-size:12.5px;color:var(--sol);
+  padding:13px 16px;border-bottom:1px solid var(--line);
+  font-family:'Space Mono',monospace;letter-spacing:.05em;
+}
+.btable td{padding:12px 16px;border-bottom:1px solid var(--line);color:var(--salt-dim)}
+.btable td:last-child,.btable th:last-child{text-align:right;font-family:'Space Mono',monospace}
+.btable tr:last-child td{border-bottom:none;color:var(--salt);font-weight:600}
+.btable td b{color:var(--salt)}
+
+/* checklist */
+.check{display:flex;flex-direction:column;gap:8px}
+.ck{
+  display:flex;align-items:flex-start;gap:12px;background:var(--card);
+  border:1px solid var(--line);border-radius:13px;padding:13px 15px;cursor:pointer;
+  transition:border-color .2s;
+}
+.ck:hover{border-color:var(--salt-faint)}
+.ck input{
+  appearance:none;flex:0 0 auto;width:20px;height:20px;margin-top:2px;border-radius:6px;
+  border:1.5px solid var(--salt-faint);cursor:pointer;position:relative;transition:all .15s;
+}
+.ck input:checked{background:var(--lago);border-color:var(--lago)}
+.ck input:checked::after{
+  content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  color:var(--night);font-size:13px;font-weight:700;
+}
+.ck input:focus-visible{outline:2px solid var(--sol);outline-offset:2px}
+.ck .ct{font-size:14px;font-weight:500}
+.ck.done .ct{color:var(--salt-faint);text-decoration:line-through}
+.ck .cs{font-size:12.5px;color:var(--salt-faint)}
+
+/* footer */
+footer{
+  margin-top:80px;padding:44px 20px 56px;text-align:center;
+  border-top:1px solid var(--line);position:relative;z-index:1;
+}
+footer .msg{font-family:'Gowun Batang',serif;font-size:17px;line-height:1.9;color:var(--salt-dim)}
+footer .msg b{color:var(--cantuta);font-weight:700}
+footer .from{margin-top:14px;font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:.2em;color:var(--salt-faint)}
+
+/* reveal on scroll */
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion: reduce){.reveal{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars" aria-hidden="true"></div>
+<div class="stripe" aria-hidden="true"></div>
+
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Perú · Bolivia · 2026</div>
+  <h1>유지의<br><em>남미 일주</em></h1>
+  <p class="sub">2026년 10월 15일 — 10월 26일 · 혼자 떠나는 12일</p>
+  <div class="route">
+    <b>ICN</b><span class="arr">→</span><b>LAX</b><span class="arr">→</span><b>LIM</b><span class="arr">→</span><b>CUZ</b><span class="arr">→</span>푸노<span class="arr">→</span>라파스<span class="arr">→</span>우유니<span class="arr">→</span><b>LIM</b><span class="arr">→</span><b>ICN</b>
+  </div>
+</header>
+
+<section class="alt-section reveal">
+  <div class="alt-card">
+    <h2>고도로 보는 12일</h2>
+    <p class="cap">이번 여행의 진짜 주인공은 <b>고도</b>. 해수면의 리마에서 5,036m 무지개산까지 — 첫 이틀은 무조건 천천히, 물 많이.</p>
+    <svg class="alt-svg" viewBox="0 0 700 240" role="img" aria-label="여행 12일간 고도 변화 그래프. 리마 0미터에서 시작해 쿠스코 3,399미터, 무지개산 5,036미터까지 올라갔다가 리마로 돌아옵니다.">
+      <defs>
+        <linearGradient id="altGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#F0B23F"/>
+          <stop offset=".35" stop-color="#E8804F"/>
+          <stop offset=".62" stop-color="#E85D8A"/>
+          <stop offset="1" stop-color="#4FC4B0"/>
+        </linearGradient>
+        <linearGradient id="altFill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#E85D8A" stop-opacity=".22"/>
+          <stop offset="1" stop-color="#E85D8A" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <!-- grid -->
+      <line x1="30" y1="196" x2="680" y2="196" stroke="rgba(244,239,228,.14)" stroke-width="1"/>
+      <line x1="30" y1="76" x2="680" y2="76" stroke="rgba(244,239,228,.07)" stroke-dasharray="3 5"/>
+      <text x="34" y="70" class="alt-label">4,000m</text>
+      <line x1="30" y1="136" x2="680" y2="136" stroke="rgba(244,239,228,.07)" stroke-dasharray="3 5"/>
+      <text x="34" y="130" class="alt-label">2,000m</text>
+      <!-- area: days D1..D12 x = 40 + (d-1)*58 ; y = 196 - alt*0.03 -->
+      <path class="alt-fill" d="M40,194.9 L98,94 L156,123.1 L214,94 L272,44.9 L330,112.2 L388,81.2 L446,86.5 L504,86.5 L562,86.3 L620,196 L678,196 L678,196 L40,196 Z"/>
+      <path class="alt-path" d="M40,194.9 L98,94 L156,123.1 L214,94 L272,44.9 L330,112.2 L388,81.2 L446,86.5 L504,86.5 L562,86.3 L620,196 L678,196"/>
+      <!-- dots -->
+      <circle class="alt-dot" style="animation-delay:.4s" cx="40" cy="194.9" r="4"/>
+      <circle class="alt-dot" style="animation-delay:.6s" cx="98" cy="94" r="4"/>
+      <circle class="alt-dot" style="animation-delay:.8s" cx="156" cy="123.1" r="4"/>
+      <circle class="alt-dot" style="animation-delay:1s" cx="214" cy="94" r="4"/>
+      <circle class="alt-dot" style="animation-delay:1.2s" cx="272" cy="44.9" r="4.5" stroke="#F0B23F"/>
+      <circle class="alt-dot" style="animation-delay:1.4s" cx="330" cy="112.2" r="4"/>
+      <circle class="alt-dot" style="animation-delay:1.6s" cx="388" cy="81.2" r="4"/>
+      <circle class="alt-dot" style="animation-delay:1.8s" cx="446" cy="86.5" r="4"/>
+      <circle class="alt-dot" style="animation-delay:2s" cx="504" cy="86.5" r="4"/>
+      <circle class="alt-dot" style="animation-delay:2.2s" cx="562" cy="86.3" r="4"/>
+      <circle class="alt-dot" style="animation-delay:2.4s" cx="620" cy="196" r="4"/>
+      <!-- labels -->
+      <text x="26" y="216" class="alt-label">LA·리마 0m</text>
+      <text x="72" y="86" class="alt-label">쿠스코 3,399m</text>
+      <text x="140" y="145" class="alt-label">마추픽추 2,430m</text>
+      <text x="228" y="34" class="alt-label hi">★ 무지개산 5,036m</text>
+      <text x="300" y="134" class="alt-label">성스러운 계곡</text>
+      <text x="366" y="70" class="alt-label">푸노 3,827m</text>
+      <text x="452" y="72" class="alt-label">라파스 · 우유니 3,650m</text>
+      <text x="596" y="216" class="alt-label">리마 → 귀국</text>
+    </svg>
+    <p class="alt-note">D1 → D12 · elevation profile</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="n">12</div><div class="l">일간의 여정</div></div>
+    <div class="stat"><div class="n">4</div><div class="l">나라 (한·미·페·볼)</div></div>
+    <div class="stat"><div class="n">5,036</div><div class="l">최고 고도 (m)</div></div>
+    <div class="stat"><div class="n">7</div><div class="l">비행 횟수</div></div>
+  </div>
+</section>
+
+<nav class="daynav" aria-label="날짜별 이동">
+  <div class="rail">
+    <a class="chip" href="#d1">D1 · LA</a>
+    <a class="chip" href="#d2">D2 · 리마→쿠스코</a>
+    <a class="chip" href="#d3">D3 · 마추픽추</a>
+    <a class="chip" href="#d4">D4 · 쿠스코</a>
+    <a class="chip" href="#d5">D5 · 무지개산</a>
+    <a class="chip" href="#d6">D6 · 성스러운 계곡</a>
+    <a class="chip" href="#d7">D7 · 푸노</a>
+    <a class="chip" href="#d8">D8 · 라파스</a>
+    <a class="chip" href="#d9">D9 · 야간버스</a>
+    <a class="chip" href="#d10">D10 · 우유니</a>
+    <a class="chip" href="#d11">D11 · 리마</a>
+    <a class="chip" href="#d12">D12 · 귀국</a>
+    <a class="chip" href="#safety">안전</a>
+    <a class="chip" href="#prep">준비물</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ============ D1 ============ -->
+<article class="day reveal" id="d1">
+  <div class="day-card">
+    <div class="band" style="background:var(--sol)"></div>
+    <div class="day-head">
+      <span class="day-num">DAY 01 · 10.15 목</span>
+      <h3>출국, 그리고 LA에서의 반나절</h3>
+    </div>
+    <div class="day-meta">
+      <span class="tag hot" style="background:var(--sol)">🇺🇸 로스앤젤레스</span>
+      <span class="tag alt">레이오버 13h 30m</span>
+      <span class="tag">실제 관광 6~7시간</span>
+    </div>
+    <div class="tl">
+      <div class="tl-item" style="--dot:var(--sol)">
+        <div class="tl-time">12:40</div>
+        <h4>인천공항 출발 ✈️</h4>
+        <p>드디어 출발! 기내에서 물 자주 마시고 푹 자두기.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--sol)">
+        <div class="tl-time">07:50</div>
+        <h4>LAX 도착 (현지 시각)</h4>
+        <p>입국심사 + 짐 찾기 약 1.5~2시간. <b>09:30~10:00쯤 공항 밖으로.</b></p>
+      </div>
+      <div class="tl-item" style="--dot:var(--sol)">
+        <div class="tl-time">10:00</div>
+        <h4>인앤아웃 버거 🍔</h4>
+        <p>추천 메뉴: <b>Double-Double + Animal Style Fries + 딸기쉐이크.</b> 비행기가 머리 위로 지나가는 그 유명한 지점. 낮에도 사람 많아서 혼자여도 안심.</p>
+        <p class="pin">📍 In-N-Out Burger, 9149 S Sepulveda Blvd (공항에서 우버 10분)</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--sol)">
+        <div class="tl-time">11:00</div>
+        <h4>Clutter's Park ✈️</h4>
+        <p>인앤아웃에서 도보 5~10분. 착륙하는 비행기 구경하며 사진 찍고 30분 정도 쉬기.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--sol)">
+        <div class="tl-time">12:00</div>
+        <h4>Manhattan Beach 🌴</h4>
+        <p>우버 15분. 바다, 야자수, 자전거길 — 미국 서부 감성 그 자체. 점심은 <b>피쉬타코</b>, 오후엔 해변 카페에서 커피와 디저트. 여유롭게 2~3시간.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--sol)">
+        <div class="tl-time">17:30</div>
+        <h4>공항 복귀</h4>
+        <p>늦어도 18:00까지 LAX 도착. 밤이 되기 전에 복귀하는 게 포인트.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--sol)">
+        <div class="tl-time">21:20</div>
+        <h4>LATAM 탑승, 리마로 ✈️</h4>
+        <p>남미까지 밤 비행. 최대한 자두기 — 내일 아침 바로 리마 도착.</p>
+      </div>
+    </div>
+    <div class="note tip">
+      <span class="nt">💰 오늘 예산 · 약 15~20만 원</span>
+      우버 왕복 약 $75~105 (10~15만 원) + 식비 $25~35. 공항에서는 <b>공식 Uber 승차장</b> 이용. 기사님 팁은 앱에서 $2~5 정도가 일반적. 시간이 남고 체력이 되면 Manhattan Beach 대신 산타모니카(우버 25~35분)도 옵션 — 다만 이동이 길어 우선순위는 낮게.
+    </div>
+    <div class="note safety">
+      <span class="nt">🛡 레이오버 안전수칙</span>
+      <ul>
+        <li>여권은 가방 말고 <b>몸에</b> 지니기</li>
+        <li>이어폰은 한쪽만 — 주변 소리 항상 듣기</li>
+        <li>낯선 사람이 말을 오래 걸면 정중히 자리 뜨기</li>
+        <li>미국 대중교통 대신 우버만 이용</li>
+      </ul>
+    </div>
+  </div>
+</article>
+
+<!-- ============ D2 ============ -->
+<article class="day reveal" id="d2">
+  <div class="day-card">
+    <div class="band" style="background:var(--lago)"></div>
+    <div class="day-head">
+      <span class="day-num">DAY 02 · 10.16 금</span>
+      <h3>리마 도착 → 곧장 쿠스코로</h3>
+    </div>
+    <div class="day-meta">
+      <span class="tag hot" style="background:var(--lago)">🇵🇪 리마 → 쿠스코</span>
+      <span class="tag alt">0m → 3,399m ⚠️</span>
+      <span class="tag">JetSMART JA7027</span>
+    </div>
+    <div class="tl">
+      <div class="tl-item" style="--dot:var(--lago)">
+        <div class="tl-time">07:25</div>
+        <h4>리마 호르헤 차베스 공항(LIM) 도착 🇵🇪</h4>
+        <p>입국심사 30~90분 + 짐 20~40분. 국제선·국내선이 <b>같은 공항 건물</b>이라 이동 걱정 없음.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--lago)">
+        <div class="tl-time">09:30</div>
+        <h4>입국 완료 → 국내선 이동</h4>
+        <p>도보 5~15분. JetSMART는 <b>온라인 체크인 미리</b> 해두기(카운터 체크인은 수수료 있을 수 있음). 위탁수하물 포함 여부도 예약 내역에서 확인.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--lago)">
+        <div class="tl-time">11:00</div>
+        <h4>공항에서 브런치 & 대기</h4>
+        <p>서두를 필요 없이 여유 있게. 첫 잉카콜라 도전해보기 🥤</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--lago)">
+        <div class="tl-time">14:00</div>
+        <h4>JA7027 쿠스코행 출발 ✈️</h4>
+        <p>비행 약 1시간 25분. 창가라면 안데스 산맥 뷰가 펼쳐짐.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--lago)">
+        <div class="tl-time">15:25</div>
+        <h4>쿠스코 도착 — 여기서부터 3,399m</h4>
+        <p>공항→아르마스 광장은 차로 15~20분. <b>공식 택시 또는 우버</b>로 바로 숙소 이동.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--lago)">
+        <div class="tl-time">16:30</div>
+        <h4>호텔 체크인 & 코카차 한 잔 🍵</h4>
+        <p>오늘은 관광 금지! 물 많이 마시고, 과식·음주 피하고, 광장 근처에서 가볍게 저녁만.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--lago)">
+        <div class="tl-time">21:00</div>
+        <h4>취침 😴</h4>
+        <p>내일 새벽 4시 픽업. 짐은 자기 전에 미리 싸두기.</p>
+      </div>
+    </div>
+    <div class="note tip">
+      <span class="nt">🏨 숙소는 아르마스 광장 도보 5~10분 이내</span>
+      새벽 픽업이 원활하고, 밤에도 관광객이 많아 심리적으로 안심되는 위치. 추천 후보 — 가성비: <b>Pariwana Hostel</b>(여성 전용 도미토리) · 중급: <b>Atoq San Blas</b> · 편안함: <b>Sonesta / Novotel Cusco</b> · 특별한 하루: <b>JW Marriott El Convento</b>(수도원 개조).
+    </div>
+    <div class="note safety">
+      <span class="nt">⛰ 고산 적응 제1일 — 가장 중요한 날</span>
+      고산병은 도착 첫날 가장 많이 온다. 오늘 얼마나 쉬느냐가 내일 마추픽추의 컨디션을 결정. 다이아목스를 처방받았다면 의사 안내에 따라 복용 시작.
+    </div>
+  </div>
+</article>
+
+<!-- ============ D3 ============ -->
+<article class="day reveal" id="d3">
+  <div class="day-card">
+    <div class="band" style="background:var(--terra)"></div>
+    <div class="day-head">
+      <span class="day-num">DAY 03 · 10.17 토</span>
+      <h3>마추픽추 — 여행의 하이라이트 🏔</h3>
+    </div>
+    <div class="day-meta">
+      <span class="tag hot" style="background:var(--terra)">🇵🇪 마추픽추</span>
+      <span class="tag alt">2,430m</span>
+      <span class="tag">투어 예약 완료 ✓</span>
+    </div>
+    <div class="tl">
+      <div class="tl-item" style="--dot:var(--terra)">
+        <div class="tl-time">04:00</div>
+        <h4>호텔 픽업 🚐</h4>
+        <p>전날 준비물: 여권(입장 시 <b>필수</b>), 물, 간식, 선크림, 모자, 우비(10월은 우기 초입), 보조배터리.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--terra)">
+        <div class="tl-time">오전</div>
+        <h4>쿠스코 → 오얀타이탐보 → 기차 🚂</h4>
+        <p>기차 창밖 우루밤바 계곡 풍경이 이미 절경. 아구아스칼리엔테스 도착 후 셔틀버스로 마추픽추 입구까지.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--terra)">
+        <div class="tl-time">낮</div>
+        <h4>마추픽추 입장 ✨</h4>
+        <p>잉카의 잃어버린 도시. 가이드 설명 들으며 여유롭게 — 파수꾼의 집(전망 포인트)에서 그 유명한 전경 사진 꼭 찍기. 라마 만나면 손 대지 말고 눈으로만 🦙</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--terra)">
+        <div class="tl-time">저녁</div>
+        <h4>쿠스코 복귀 & 휴식</h4>
+        <p>왕복이 긴 하루. 돌아와서 따뜻한 저녁 먹고 일찍 쉬기.</p>
+      </div>
+    </div>
+    <div class="note tip">
+      <span class="nt">💡 알아두면 좋은 것</span>
+      마추픽추는 오히려 쿠스코보다 <b>1,000m 낮아서</b> 숨쉬기가 편하다. 입장권 시간대와 여권을 아침에 다시 한번 확인. 큰 배낭은 반입 제한이 있으니 작은 크로스백만.
+    </div>
+  </div>
+</article>
+
+<!-- ============ D4 ============ -->
+<article class="day reveal" id="d4">
+  <div class="day-card">
+    <div class="band" style="background:var(--terra)"></div>
+    <div class="day-head">
+      <span class="day-num">DAY 04 · 10.18 일</span>
+      <h3>쿠스코 — 잉카의 수도를 걷다</h3>
+    </div>
+    <div class="day-meta">
+      <span class="tag hot" style="background:var(--terra)">🇵🇪 쿠스코</span>
+      <span class="tag alt">3,399m</span>
+      <span class="tag">여유로운 하루</span>
+    </div>
+    <div class="tl">
+      <div class="tl-item" style="--dot:var(--terra)">
+        <div class="tl-time">오전</div>
+        <h4>아르마스 광장 & 대성당 ⛪</h4>
+        <p>쿠스코의 심장. 광장 카페 2층에서 커피 마시며 광장 내려다보기.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--terra)">
+        <div class="tl-time">11:00</div>
+        <h4>산페드로 시장 🍊</h4>
+        <p>과일주스 골목 강력 추천 — 즉석에서 갈아주는 생과일주스가 1~2천 원. 기념품도 여기가 시내보다 저렴.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--terra)">
+        <div class="tl-time">오후</div>
+        <h4>코리칸차(태양의 신전) → 산 블라스 골목 🎨</h4>
+        <p>잉카 석벽 위에 세워진 수도원. 이후 언덕의 산 블라스 예술가 골목 — 사진 맛집. 돌길 언덕이니 천천히.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--terra)">
+        <div class="tl-time">저녁</div>
+        <h4>페루 음식 도장깨기 🍽</h4>
+        <p><b>로모 살타도</b>(잉카식 소고기볶음) 또는 알파카 스테이크 도전. 내일 새벽 투어 대비 일찍 취침.</p>
+      </div>
+    </div>
+    <div class="note food">
+      <span class="nt">🍽 페루에서 꼭 먹어야 할 것</span>
+      세비체(리마에서!) · 로모 살타도 · 잉카콜라 · 코카차 · 산페드로 시장 생과일주스 · 알파카 요리(호기심 있다면)
+    </div>
+  </div>
+</article>
+
+<!-- ============ D5 ============ -->
+<article class="day reveal" id="d5">
+  <div class="day-card">
+    <div class="band" style="background:var(--cantuta)"></div>
+    <div class="day-head">
+      <span class="day-num">DAY 05 · 10.19 월</span>
+      <h3>비니쿤카, 무지개산 🌈</h3>
+    </div>
+    <div class="day-meta">
+      <span class="tag hot" style="background:var(--cantuta)">🇵🇪 비니쿤카</span>
+      <span class="tag alt">5,036m — 최고 고도 ⚠️</span>
+      <span class="tag">새벽 출발 투어</span>
+    </div>
+    <div class="tl">
+      <div class="tl-item" style="--dot:var(--cantuta)">
+        <div class="tl-time">04:30</div>
+        <h4>투어 픽업 (보통 04~05시)</h4>
+        <p>차로 약 3시간 이동 후 트레킹 시작. 아침·점심 포함 투어가 대부분.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--cantuta)">
+        <div class="tl-time">오전</div>
+        <h4>무지개산 트레킹 ⛰</h4>
+        <p>왕복 2~3시간. <b>천천히, 아주 천천히</b> 걷는 게 요령. 힘들면 말 타기 옵션(현장 결제) 이용해도 전혀 부끄럽지 않음. 정상에서 보는 줄무늬 산맥은 남미에서 가장 기억에 남을 풍경 중 하나.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--cantuta)">
+        <div class="tl-time">+α</div>
+        <h4>레드 밸리 (선택) 🔴</h4>
+        <p>무지개산 바로 옆, 붉은 계곡 코스가 포함된 투어라면 꼭 — 오히려 여기가 더 예쁘다는 사람도 많음.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--cantuta)">
+        <div class="tl-time">17:00</div>
+        <h4>쿠스코 복귀 & 휴식</h4>
+        <p>오늘 체력 소모가 크니 저녁은 가볍게, 일찍 쉬기.</p>
+      </div>
+    </div>
+    <div class="note safety">
+      <span class="nt">⚠️ 5,000m — 이번 여행 최고 고도</span>
+      두통·메스꺼움이 심하면 <b>무리하지 말고 중간에 멈추기.</b> 코카잎·코카캔디 챙기고, 방한복 필수(정상은 한겨울 날씨). 선크림도 듬뿍 — 고산 자외선은 차원이 다름.
+    </div>
+  </div>
+</article>
+
+<!-- ============ D6 ============ -->
+<article class="day reveal" id="d6">
+  <div class="day-card">
+    <div class="band" style="background:var(--terra)"></div>
+    <div class="day-head">
+      <span class="day-num">DAY 06 · 10.20 화</span>
+      <h3>성스러운 계곡 — 잉카의 속살</h3>
+    </div>
+    <div class="day-meta">
+      <span class="tag hot" style="background:var(--terra)">🇵🇪 Sacred Valley</span>
+      <span class="tag alt">2,800~3,300m</span>
+      <span class="tag">일일 투어</span>
+    </div>
+    <div class="tl">
+      <div class="tl-item" style="--dot:var(--terra)">
+        <div class="tl-time">오전</div>
+        <h4>오얀타이탐보 요새 🏛</h4>
+        <p>살아있는 잉카 마을. 계단식 요새 위에서 내려다보는 계곡 풍경.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--terra)">
+        <div class="tl-time">낮</div>
+        <h4>모라이 원형 계단밭 🌀</h4>
+        <p>잉카의 농업 실험장이었던 신비로운 동심원 유적.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--terra)">
+        <div class="tl-time">오후</div>
+        <h4>마라스 소금광산 🧂</h4>
+        <p>산비탈을 가득 채운 수천 개의 하얀 소금밭 — 사진이 정말 잘 나오는 곳. 핑크솔트 기념품 사기 좋음.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--terra)">
+        <div class="tl-time">저녁</div>
+        <h4>쿠스코 마지막 밤 🌙</h4>
+        <p>아르마스 광장 야경 보며 쿠스코와 작별. 내일은 푸노로.</p>
+      </div>
+    </div>
+    <div class="note tip">
+      <span class="nt">💡 아우산가떼 대신 여기를 고른 이유</span>
+      아우산가떼는 풍경이 무지개산과 다소 겹치고 체력 소모가 매우 큼. 성스러운 계곡은 어제의 고강도 트레킹 후 회복하기 좋은 <b>낮은 고도 + 편한 일정</b>이라 만족도가 더 높은 선택.
+    </div>
+  </div>
+</article>
+
+<!-- ============ D7 ============ -->
+<article class="day reveal" id="d7">
+  <div class="day-card">
+    <div class="band" style="background:var(--cielo)"></div>
+    <div class="day-head">
+      <span class="day-num">DAY 07 · 10.21 수</span>
+      <h3>쿠스코 → 푸노, 티티카카를 향해</h3>
+    </div>
+    <div class="day-meta">
+      <span class="tag hot" style="background:var(--cielo)">🇵🇪 푸노</span>
+      <span class="tag alt">3,827m</span>
+      <span class="tag">관광버스 7~8h</span>
+    </div>
+    <div class="tl">
+      <div class="tl-item" style="--dot:var(--cielo)">
+        <div class="tl-time">아침</div>
+        <h4>쿠스코 → 푸노 관광버스 🚌</h4>
+        <p>일반 버스 대신 <b>관광버스(Inka Express 등)</b> 추천 — 중간에 안다우아일리야스 성당, 락치 유적 등 들르며 가서 지루하지 않고 점심도 포함.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--cielo)">
+        <div class="tl-time">저녁</div>
+        <h4>푸노 도착 & 휴식</h4>
+        <p>티티카카 호숫가 도시. 저녁 먹고 일찍 쉬면서 내일 국경 이동 준비. 여권·볼리비아 입국 서류 미리 확인.</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- ============ D8 ============ -->
+<article class="day reveal" id="d8">
+  <div class="day-card">
+    <div class="band" style="background:var(--cielo)"></div>
+    <div class="day-head">
+      <span class="day-num">DAY 08 · 10.22 목</span>
+      <h3>티티카카 호수 → 국경을 넘어 라파스로</h3>
+    </div>
+    <div class="day-meta">
+      <span class="tag hot" style="background:var(--cielo)">🇵🇪→🇧🇴 국경 이동</span>
+      <span class="tag alt">3,812m</span>
+      <span class="tag">시차 +1h</span>
+    </div>
+    <div class="tl">
+      <div class="tl-item" style="--dot:var(--cielo)">
+        <div class="tl-time">오전</div>
+        <h4>티티카카 호수 — 우로스 갈대섬 🛶</h4>
+        <p>세계에서 가장 높은 곳에 있는 배가 다니는 호수. 갈대로 만든 떠 있는 섬 우로스 방문(반나절 투어).</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--cielo)">
+        <div class="tl-time">오후</div>
+        <h4>푸노 → 라파스 이동 (버스 6~7h) 🇧🇴</h4>
+        <p>코파카바나 경유 국경 통과. 볼리비아는 페루보다 <b>1시간 빠름</b> — 시계 맞추기.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--cielo)">
+        <div class="tl-time">저녁</div>
+        <h4>라파스 도착 & 체크인</h4>
+        <p>세계에서 가장 높은 수도. 분지를 가득 채운 불빛이 도착하는 순간부터 장관.</p>
+      </div>
+    </div>
+    <div class="note safety">
+      <span class="nt">🛂 국경 이동 체크</span>
+      여권 + 볼리비아 입국 요건은 출발 전 최신 정보 확인(황열 증명서 요구 여부 포함). 국경에서는 소지품 항상 몸에 붙이고, 환전은 소액만.
+    </div>
+  </div>
+</article>
+
+<!-- ============ D9 ============ -->
+<article class="day reveal" id="d9">
+  <div class="day-card">
+    <div class="band" style="background:var(--cantuta)"></div>
+    <div class="day-head">
+      <span class="day-num">DAY 09 · 10.23 금</span>
+      <h3>라파스 하늘길, 그리고 밤의 이동</h3>
+    </div>
+    <div class="day-meta">
+      <span class="tag hot" style="background:var(--cantuta)">🇧🇴 라파스</span>
+      <span class="tag alt">3,650m</span>
+      <span class="tag">야간버스 → 우유니</span>
+    </div>
+    <div class="tl">
+      <div class="tl-item" style="--dot:var(--cantuta)">
+        <div class="tl-time">낮</div>
+        <h4>미 텔레페리코 케이블카 🚠</h4>
+        <p>도시 전체를 케이블카로 여행하는 세계 유일의 도시. <b>노란 노선</b> 포함 2~3개 노선 타며 엘 알토 전망대에서 라파스 파노라마 감상.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--cantuta)">
+        <div class="tl-time">오후</div>
+        <h4>마녀시장 & 시내 구경 🔮</h4>
+        <p>기묘한 부적과 기념품이 가득한 골목. 우유니에서 먹을 간식·물도 미리 사두기.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--cantuta)">
+        <div class="tl-time">저녁</div>
+        <h4>라파스 야경 ✨</h4>
+        <p>해 지고 분지 전체에 불이 켜지면 — 은하수가 쏟아진 것 같은 풍경.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--cantuta)">
+        <div class="tl-time">21:00</div>
+        <h4>우유니행 야간버스 🚌🌙</h4>
+        <p>약 9~10시간. <b>풀까마(180도 눕는 좌석) 등급</b>으로 예약하기. 귀중품은 몸에, 담요·목베개 필수.</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- ============ D10 ============ -->
+<article class="day reveal" id="d10">
+  <div class="day-card">
+    <div class="band" style="background:linear-gradient(90deg,var(--cielo),var(--salt))"></div>
+    <div class="day-head">
+      <span class="day-num">DAY 10 · 10.24 토</span>
+      <h3>우유니 — 하늘을 걷는 날 🧂</h3>
+    </div>
+    <div class="day-meta">
+      <span class="tag hot" style="background:var(--cielo)">🇧🇴 우유니 소금사막</span>
+      <span class="tag alt">3,656m</span>
+      <span class="tag">데이+선셋 투어</span>
+    </div>
+    <div class="tl">
+      <div class="tl-item" style="--dot:var(--cielo)">
+        <div class="tl-time">아침</div>
+        <h4>우유니 도착 & 투어 예약 확인</h4>
+        <p>야간버스에서 내려 아침 먹고 정신 차리기. 데이 투어 + <b>선셋 투어</b> 조합이 최고.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--cielo)">
+        <div class="tl-time">10:30</div>
+        <h4>소금사막 데이 투어 시작 🚙</h4>
+        <p>기차 무덤 → 콜차니 마을 → 끝없는 소금 평원. 원근감이 사라지는 곳에서 <b>공룡 장난감 원근 샷</b> 필수(장난감은 미리 준비!).</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--cielo)">
+        <div class="tl-time">17:00</div>
+        <h4>선셋 & 거울 반영 🌅</h4>
+        <p>10월은 우기 직전이라 물이 고인 구역이 있다면 그 유명한 <b>하늘 반영 샷</b>도 가능. 해 지는 순간 하늘과 땅의 경계가 사라진다 — 이번 여행의 클라이맥스.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--cielo)">
+        <div class="tl-time">밤</div>
+        <h4>우유니 숙박 😴</h4>
+        <p>야간버스+투어로 긴 하루. 내일 이동을 위해 푹 자기. (밤 별 투어 여력이 되면 추가 — 남반구 은하수는 인생 밤하늘)</p>
+      </div>
+    </div>
+    <div class="note tip">
+      <span class="nt">📸 우유니 준비물</span>
+      선글라스 필수(설맹 수준으로 눈부심) · 선크림 · 장화(물 구역용, 투어사 대여 가능) · 원근샷용 소품 · 보조배터리(추위에 방전 빠름)
+    </div>
+  </div>
+</article>
+
+<!-- ============ D11 ============ -->
+<article class="day reveal" id="d11">
+  <div class="day-card">
+    <div class="band" style="background:var(--lago)"></div>
+    <div class="day-head">
+      <span class="day-num">DAY 11 · 10.25 일</span>
+      <h3>리마로 — 바다와 함께 마무리</h3>
+    </div>
+    <div class="day-meta">
+      <span class="tag hot" style="background:var(--lago)">🇧🇴→🇵🇪 우유니 → 리마</span>
+      <span class="tag alt">3,656m → 0m</span>
+      <span class="tag">항공 2회 연결</span>
+    </div>
+    <div class="tl">
+      <div class="tl-item" style="--dot:var(--lago)">
+        <div class="tl-time">오전</div>
+        <h4>우유니 → 라파스 → 리마 ✈️✈️</h4>
+        <p>항공 연결(BOA/Amaszonas → LATAM 등). <b>연결 시간 여유 있게</b> 예약 — 내일 귀국편이 있으니 오늘은 무조건 리마에 도착해야 하는 날.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--lago)">
+        <div class="tl-time">오후</div>
+        <h4>미라플로레스 🌊</h4>
+        <p>사랑의 공원, 태평양 절벽 산책길, 라르코마르. 고산에서 내려와 산소 가득한 바닷바람 — 몸이 가벼워지는 게 느껴질 것.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--lago)">
+        <div class="tl-time">저녁</div>
+        <h4>바랑코 & 마지막 만찬 🐟</h4>
+        <p>알록달록한 골목과 벽화, 한숨의 다리. 저녁은 드디어 <b>세비체</b> — 리마는 세비체의 수도. 잉카콜라와 함께 여행 마지막 밤 자축.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--lago)">
+        <div class="tl-time">밤</div>
+        <h4>미라플로레스 숙박, 짐 정리</h4>
+        <p>기념품 포함 짐 다시 싸고 일찍 취침 — 내일 아침 일찍 공항으로.</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- ============ D12 ============ -->
+<article class="day reveal" id="d12">
+  <div class="day-card">
+    <div class="band" style="background:var(--sol)"></div>
+    <div class="day-head">
+      <span class="day-num">DAY 12 · 10.26 월</span>
+      <h3>다시 집으로 ✈️</h3>
+    </div>
+    <div class="day-meta">
+      <span class="tag hot" style="background:var(--sol)">🇵🇪→🇰🇷 귀국</span>
+      <span class="tag">12:00 출발</span>
+    </div>
+    <div class="tl">
+      <div class="tl-item" style="--dot:var(--sol)">
+        <div class="tl-time">08:00</div>
+        <h4>숙소 출발 → 공항</h4>
+        <p>미라플로레스→공항 차로 40~60분(교통 변수). <b>09:00까지 공항 도착</b>이 목표.</p>
+      </div>
+      <div class="tl-item" style="--dot:var(--sol)">
+        <div class="tl-time">12:00</div>
+        <h4>리마 출발 — 안녕, 남미 👋</h4>
+        <p>12일간 4개국, 고도 5,000m, 소금사막과 잉카의 도시까지. 수고했어, 유지!</p>
+      </div>
+    </div>
+    <div class="note tip">
+      <span class="nt">💭 파라카스 · 와카치나는?</span>
+      정오 출발편이라 마지막 날 근교 투어는 물리적으로 불가능. 사막 오아시스 와카치나와 바예스타스 섬은 <b>다음 페루 여행의 확실한 이유</b>로 남겨두기. (귀국을 하루 미룰 수 있게 된다면 10/26 새벽 파라카스+와카치나 일일투어 → 10/27 귀국 루트로 업그레이드 가능!)
+    </div>
+  </div>
+</article>
+
+<!-- ============ SAFETY ============ -->
+<section class="section reveal" id="safety">
+  <h2>혼자 여행 안전수칙 🛡</h2>
+  <p class="lead">전 일정 공통 — 몸에 배게 해두면 마음이 훨씬 편해요.</p>
+  <div class="rules">
+    <div class="rule"><span class="ico">🛂</span><b>여권은 몸에</b>가방에만 넣지 말고 복대나 안주머니에. 사본·사진도 따로 보관.</div>
+    <div class="rule"><span class="ico">🚕</span><b>이동은 공식 수단만</b>공항·야간에는 공식 택시 또는 앱으로 부른 우버만. 호객 택시 금지.</div>
+    <div class="rule"><span class="ico">🌙</span><b>어두워지면 실내로</b>해 진 뒤 골목 걷지 않기. 목적지까지는 차로 바로 이동.</div>
+    <div class="rule"><span class="ico">📱</span><b>폰은 손에 들고 다니지 않기</b>길에서 폰 사용 최소화. 사진 찍을 때도 주변 먼저 확인.</div>
+    <div class="rule"><span class="ico">🎧</span><b>이어폰은 한쪽만</b>주변 소리를 항상 들을 수 있게.</div>
+    <div class="rule"><span class="ico">💍</span><b>귀중품은 안 보이게</b>카메라(Z6 III 빌려간다면 특히!)는 사용할 때만 꺼내고 크로스백 앞으로 메기.</div>
+    <div class="rule"><span class="ico">🗣</span><b>긴 대화는 정중히 거절</b>낯선 사람이 오래 말 걸면 "미안해요, 일행이 기다려요" 하고 자리 뜨기.</div>
+    <div class="rule"><span class="ico">📍</span><b>위치 공유 켜두기</b>정모와 실시간 위치 공유 + 매일 정해진 시간에 생존신고 ❤️</div>
+  </div>
+</section>
+
+<!-- ============ PREP ============ -->
+<section class="section reveal" id="prep">
+  <h2>출발 전 준비 체크리스트 ✅</h2>
+  <p class="lead">체크한 항목은 이 브라우저에 저장돼요. 하나씩 지워나가요!</p>
+  <div class="check" id="checklist">
+    <label class="ck"><input type="checkbox" data-k="c1"><span><span class="ct">A형 간염 백신 (필수 ⭐)</span><br><span class="cs">출국 최소 2주 전, 가능하면 1~2개월 전 1차 접종</span></span></label>
+    <label class="ck"><input type="checkbox" data-k="c2"><span><span class="ct">장티푸스 백신</span><br><span class="cs">길거리 음식·현지 식당 이용 시 권장 · 출국 2주 전</span></span></label>
+    <label class="ck"><input type="checkbox" data-k="c3"><span><span class="ct">파상풍(Tdap) 접종 이력 확인</span><br><span class="cs">최근 10년 이내 접종했다면 OK</span></span></label>
+    <label class="ck"><input type="checkbox" data-k="c4"><span><span class="ct">고산병약 다이아목스 처방</span><br><span class="cs">출국 1~2주 전 병원 상담 · 여행의학 클리닉 추천</span></span></label>
+    <label class="ck"><input type="checkbox" data-k="c5"><span><span class="ct">볼리비아 입국 요건 최종 확인</span><br><span class="cs">황열 증명서 요구 여부 등 — 출발 한 달 전 재확인</span></span></label>
+    <label class="ck"><input type="checkbox" data-k="c6"><span><span class="ct">여행자보험 가입</span><br><span class="cs">고산 트레킹 보장 포함 여부 확인</span></span></label>
+    <label class="ck"><input type="checkbox" data-k="c7"><span><span class="ct">여행용 백팩 40~45L + 크로스백 5~10L</span><br><span class="cs">쿠스코 돌길에서 캐리어는 지옥 — 백팩이 정답 · 총 8~10kg 목표</span></span></label>
+    <label class="ck"><input type="checkbox" data-k="c8"><span><span class="ct">JetSMART 온라인 체크인 + 수하물 확인</span><br><span class="cs">JA7027 · 위탁수하물 포함 여부 예약 내역에서 확인</span></span></label>
+    <label class="ck"><input type="checkbox" data-k="c9"><span><span class="ct">쿠스코 숙소 예약 (아르마스 광장 도보 5~10분)</span><br><span class="cs">새벽 4시 픽업 대응 가능한 위치</span></span></label>
+    <label class="ck"><input type="checkbox" data-k="c10"><span><span class="ct">달러 현금 + 해외결제 카드 2장</span><br><span class="cs">카드는 분산 보관 · 소액권 달러 넉넉히</span></span></label>
+    <label class="ck"><input type="checkbox" data-k="c11"><span><span class="ct">우유니 소품 & 선글라스 & 선크림</span><br><span class="cs">원근샷 장난감, 고산용 SPF50+</span></span></label>
+    <label class="ck"><input type="checkbox" data-k="c12"><span><span class="ct">우버 앱 + 오프라인 지도 + 번역 앱 설치</span><br><span class="cs">구글맵 오프라인 저장: LA·리마·쿠스코·라파스·우유니</span></span></label>
+  </div>
+
+  <div style="margin-top:28px">
+    <table class="btable">
+      <tr><th>백신 · 약</th><th>추천도</th><th>시기</th></tr>
+      <tr><td><b>A형 간염</b></td><td>⭐⭐⭐⭐⭐</td><td>~9월 중순</td></tr>
+      <tr><td>장티푸스</td><td>⭐⭐⭐⭐</td><td>~10월 초</td></tr>
+      <tr><td>파상풍 확인</td><td>⭐⭐⭐⭐</td><td>병원 상담 시</td></tr>
+      <tr><td>황열</td><td>⭐⭐⭐ (아마존 안 가면 보통 불필요)</td><td>필요 시</td></tr>
+      <tr><td><b>다이아목스</b></td><td>⭐⭐⭐⭐⭐</td><td>~10월 초</td></tr>
+    </table>
+  </div>
+</section>
+
+</main>
+</div>
+
+<footer>
+  <p class="msg">낯선 대륙의 밤하늘 아래에서도,<br>매일이 <b>안전하고 눈부신</b> 하루이기를.<br>잘 다녀와, 유지 누나 ✈️</p>
+  <p class="from">FROM 정모 · MADE WITH CLAUDE</p>
+</footer>
+
+<script>
+// stars
+(function(){
+  var c = document.getElementById('stars');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  for(var i=0;i<70;i++){
+    var s=document.createElement('span');
+    s.style.left=Math.random()*100+'%';
+    s.style.top=Math.random()*100+'%';
+    var sc=.5+Math.random()*1.2;
+    s.style.transform='scale('+sc+')';
+    if(!reduce){s.style.animationDelay=(Math.random()*4)+'s';s.style.animationDuration=(3+Math.random()*4)+'s';}
+    c.appendChild(s);
+  }
+})();
+
+// reveal on scroll
+(function(){
+  var els=document.querySelectorAll('.reveal');
+  if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('in')});return;}
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}});
+  },{threshold:.08});
+  els.forEach(function(e){io.observe(e)});
+})();
+
+// active chip on scroll
+(function(){
+  var chips=document.querySelectorAll('.chip');
+  var map={};
+  chips.forEach(function(ch){map[ch.getAttribute('href').slice(1)]=ch;});
+  var targets=document.querySelectorAll('.day, .section');
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting && map[en.target.id]){
+        chips.forEach(function(c){c.classList.remove('active')});
+        var ch=map[en.target.id];
+        ch.classList.add('active');
+        ch.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'});
+      }
+    });
+  },{rootMargin:'-30% 0px -60% 0px'});
+  targets.forEach(function(t){io.observe(t)});
+})();
+
+// checklist persistence
+(function(){
+  var boxes=document.querySelectorAll('#checklist input');
+  boxes.forEach(function(b){
+    try{ if(localStorage.getItem('peru_'+b.dataset.k)==='1'){b.checked=true;b.closest('.ck').classList.add('done');} }catch(e){}
+    b.addEventListener('change',function(){
+      b.closest('.ck').classList.toggle('done',b.checked);
+      try{ localStorage.setItem('peru_'+b.dataset.k, b.checked?'1':'0'); }catch(e){}
+    });
+  });
+})();
+</script>
+</body>
+</html>
