@@ -3,415 +3,401 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>유지의 남미 일주 · 2026.10.15 – 10.26</title>
-<meta name="description" content="LA 레이오버부터 마추픽추, 우유니까지 — 12일간의 페루·볼리비아 여행 일정">
+<title>유지의 남미 일주 ✦ 2026.10.15 – 10.26</title>
+<meta name="description" content="LA 레이오버부터 마추픽추, 우유니까지 — 스크롤로 떠나는 12일">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --night:#131226;
-  --night2:#1B1A33;
-  --card:#201E3D;
-  --card-soft:#26244a;
-  --line:rgba(244,239,228,.12);
-  --salt:#F4EFE4;
-  --salt-dim:#B8B3AF;
-  --salt-faint:#8B87A3;
-  --cantuta:#E85D8A;
-  --sol:#F0B23F;
-  --lago:#4FC4B0;
-  --cielo:#8A9BE8;
-  --terra:#E8804F;
-  --radius:18px;
+  --night:#0A0916;
+  --sheet:#12102A;
+  --glass:rgba(22,19,46,.72);
+  --line:rgba(240,235,222,.13);
+  --salt:#F2EDE1;
+  --dim:#AFA9C4;
+  --faint:#7C77A0;
+  --cantuta:#FF5C8A;
+  --sol:#FFB84D;
+  --lago:#3FE0C5;
+  --cielo:#7C9BFF;
+  --terra:#FF8A5C;
+  --violet:#B67CFF;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-@media (prefers-reduced-motion: reduce){
-  html{scroll-behavior:auto}
-  *,*::before,*::after{animation:none!important;transition:none!important}
-}
+html{scroll-behavior:auto}
 body{
-  background:var(--night);
-  color:var(--salt);
-  font-family:'IBM Plex Sans KR',sans-serif;
-  font-weight:400;
-  line-height:1.7;
-  -webkit-font-smoothing:antialiased;
-  overflow-x:hidden;
+  background:var(--night);color:var(--salt);
+  font-family:'IBM Plex Sans KR',sans-serif;line-height:1.75;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
 }
 ::selection{background:var(--cantuta);color:var(--night)}
+img,svg{display:block}
 
-/* ---------- stars ---------- */
-.stars{position:fixed;inset:0;pointer-events:none;z-index:0}
-.stars span{position:absolute;width:2px;height:2px;border-radius:50%;background:var(--salt);opacity:.35;animation:twinkle 4s ease-in-out infinite}
-@keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.55}}
+/* ===== fixed layers ===== */
+#cosmos{position:fixed;inset:0;z-index:0;pointer-events:none}
+#progress{position:fixed;top:0;left:0;height:4px;width:0;z-index:200;
+  background:linear-gradient(90deg,var(--cantuta),var(--sol),var(--terra),var(--lago),var(--cielo),var(--violet));
+  box-shadow:0 0 16px rgba(255,92,138,.7)}
+.content{position:relative;z-index:2}
 
-/* ---------- textile stripe ---------- */
-.stripe{
-  height:6px;width:100%;
-  background:repeating-linear-gradient(90deg,
-    var(--cantuta) 0 28px, var(--sol) 28px 44px,
-    var(--terra) 44px 72px, var(--lago) 72px 88px,
-    var(--cielo) 88px 116px);
-}
+/* ===== HERO ===== */
+.hero{height:100svh;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.hero-inner{text-align:center;padding:0 20px}
+.hero .eyebrow{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.55em;text-indent:.55em;color:var(--sol);margin-bottom:24px}
+.hero h1{font-family:'Gowun Batang',serif;font-weight:700;font-size:clamp(54px,15vw,150px);line-height:1.08;letter-spacing:-.02em}
+.hero h1 .row{display:block;overflow:hidden}
+.hero h1 .ch{display:inline-block;will-change:transform}
+.hero h1 .grad{background:linear-gradient(100deg,var(--sol),var(--cantuta) 55%,var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero .sub{margin-top:26px;color:var(--dim);font-size:clamp(14px,3.6vw,17px);font-weight:300}
+.hero .cue{position:absolute;bottom:34px;left:50%;transform:translateX(-50%);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.4em;color:var(--faint)}
+.hero .cue::after{content:'';display:block;width:1px;height:40px;margin:10px auto 0;background:linear-gradient(var(--cantuta),transparent);animation:cue 1.8s ease-in-out infinite}
+@keyframes cue{0%{transform:scaleY(0);transform-origin:top}55%{transform:scaleY(1);transform-origin:top}56%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+@media (prefers-reduced-motion: reduce){.hero .cue::after{animation:none}}
 
-/* ---------- layout ---------- */
-.wrap{max-width:760px;margin:0 auto;padding:0 20px;position:relative;z-index:1}
+/* ===== MARQUEE ===== */
+.marquee{overflow:hidden;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  background:rgba(10,9,22,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:16px 0}
+.marquee .track{display:flex;width:max-content;will-change:transform;animation:marq 26s linear infinite}
+.marquee.rev .track{animation-direction:reverse}
+.marquee span{font-family:'Space Mono',monospace;font-size:clamp(15px,4vw,22px);letter-spacing:.18em;
+  white-space:nowrap;padding-right:44px;color:var(--faint)}
+.marquee span b{color:var(--salt);font-weight:700}
+.marquee span i{font-style:normal;color:var(--cantuta)}
+@keyframes marq{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion: reduce){.marquee .track{animation:none}}
 
-/* ---------- hero ---------- */
-header.hero{padding:64px 0 40px;text-align:center;position:relative}
-.hero .eyebrow{
-  font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.28em;
-  color:var(--sol);text-transform:uppercase;margin-bottom:18px;
-}
-.hero h1{
-  font-family:'Gowun Batang',serif;font-weight:700;
-  font-size:clamp(38px,9vw,64px);line-height:1.25;letter-spacing:-.01em;
-}
-.hero h1 em{font-style:normal;color:var(--cantuta)}
-.hero .sub{color:var(--salt-dim);margin-top:14px;font-size:15px}
-.hero .route{
-  font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.08em;
-  color:var(--salt-faint);margin-top:24px;display:flex;flex-wrap:wrap;justify-content:center;gap:6px 4px;
-}
-.hero .route b{color:var(--salt);font-weight:700}
-.hero .route .arr{color:var(--cantuta)}
+/* ===== TICKET ===== */
+.ticket-sec{padding:16svh 20px;display:flex;justify-content:center;perspective:1200px}
+.ticket{width:min(560px,100%);border-radius:24px;overflow:hidden;position:relative;
+  background:linear-gradient(135deg,#1E1B44,#141232);border:1px solid var(--line);
+  box-shadow:0 40px 90px rgba(0,0,0,.6);transform-style:preserve-3d;will-change:transform}
+.ticket .stripe{height:8px;background:repeating-linear-gradient(90deg,var(--cantuta) 0 30px,var(--sol) 30px 48px,var(--terra) 48px 78px,var(--lago) 78px 96px,var(--cielo) 96px 126px)}
+.ticket .body{padding:26px 26px 20px}
+.ticket .hdr{display:flex;justify-content:space-between;align-items:center;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.22em;color:var(--faint);margin-bottom:20px}
+.ticket .hdr b{color:var(--sol)}
+.ticket .cities{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ticket .city{font-family:'Space Mono',monospace}
+.ticket .city .code{font-size:clamp(40px,11vw,58px);font-weight:700;line-height:1;color:var(--salt)}
+.ticket .city .name{font-size:11px;color:var(--faint);letter-spacing:.14em;margin-top:6px}
+.ticket .plane-path{flex:1;position:relative;height:34px;min-width:60px}
+.ticket .plane-path .dash{position:absolute;top:50%;left:0;right:0;border-top:1.5px dashed rgba(242,237,225,.3)}
+.ticket .plane-path .pl{position:absolute;top:50%;left:0;transform:translate(-2px,-58%);font-size:19px;will-change:left}
+.ticket .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:24px;padding-top:18px;border-top:1px dashed rgba(242,237,225,.2)}
+.ticket .cell .k{font-size:10px;letter-spacing:.2em;color:var(--faint);font-family:'Space Mono',monospace}
+.ticket .cell .v{font-size:14.5px;font-weight:600;margin-top:2px}
+.ticket .barcode{margin-top:20px;height:44px;background:repeating-linear-gradient(90deg,var(--salt) 0 2px,transparent 2px 5px,var(--salt) 5px 6px,transparent 6px 11px,var(--salt) 11px 14px,transparent 14px 17px);opacity:.75;border-radius:3px}
+.ticket .punch{position:absolute;width:26px;height:26px;border-radius:50%;background:var(--night);top:58%;}
+.ticket .punch.l{left:-13px}.ticket .punch.r{right:-13px}
 
-/* ---------- altitude chart ---------- */
-.alt-section{margin:44px 0 8px}
-.alt-card{
-  background:linear-gradient(180deg,var(--night2),var(--card));
-  border:1px solid var(--line);border-radius:var(--radius);
-  padding:26px 18px 14px;overflow:hidden;position:relative;
-}
-.alt-card h2{
-  font-family:'Gowun Batang',serif;font-size:19px;font-weight:700;margin:0 6px 4px;
-}
-.alt-card p.cap{font-size:13px;color:var(--salt-dim);margin:0 6px 14px}
-.alt-card p.cap b{color:var(--sol);font-weight:600}
-.alt-svg{width:100%;height:auto;display:block}
-.alt-path{fill:none;stroke:url(#altGrad);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;
-  stroke-dasharray:1200;stroke-dashoffset:1200;animation:draw 2.4s .3s ease forwards}
-@keyframes draw{to{stroke-dashoffset:0}}
-.alt-fill{fill:url(#altFill);opacity:0;animation:fadein 1.2s 1.6s ease forwards}
-@keyframes fadein{to{opacity:1}}
-.alt-dot{fill:var(--night);stroke:var(--salt);stroke-width:2;opacity:0;animation:fadein .5s ease forwards}
-.alt-label{font-family:'Space Mono',monospace;font-size:10px;fill:var(--salt-dim);opacity:0;animation:fadein .8s 1.8s ease forwards}
-.alt-label.hi{fill:var(--sol)}
-.alt-note{font-size:12px;color:var(--salt-faint);text-align:right;margin:6px 8px 4px;font-family:'Space Mono',monospace}
+/* ===== section titles ===== */
+.sec-eyebrow{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.4em;color:var(--sol);text-align:center;margin-bottom:12px}
+.sec-title{font-family:'Gowun Batang',serif;font-size:clamp(30px,8.4vw,52px);font-weight:700;text-align:center;line-height:1.3}
+.sec-title .grad{background:linear-gradient(100deg,var(--lago),var(--cielo));-webkit-background-clip:text;background-clip:text;color:transparent}
 
-/* ---------- stats ---------- */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:26px 0 10px}
-.stat{background:var(--night2);border:1px solid var(--line);border-radius:14px;padding:14px 8px;text-align:center}
-.stat .n{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:var(--salt)}
-.stat .l{font-size:11.5px;color:var(--salt-faint);margin-top:2px}
-@media(max-width:480px){.stats{grid-template-columns:repeat(2,1fr)}}
+/* ===== ALTITUDE scrollytelling ===== */
+.altwrap{height:340vh;position:relative}
+.altpin{position:sticky;top:0;height:100svh;display:flex;flex-direction:column;justify-content:center;overflow:hidden;padding:0 18px}
+.bignum{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;
+  font-family:'Space Mono',monospace;font-weight:700;font-size:clamp(90px,26vw,300px);line-height:1;
+  color:transparent;-webkit-text-stroke:1.5px rgba(242,237,225,.14);letter-spacing:-.04em;z-index:0;
+}
+.altpin .top{position:relative;z-index:2;text-align:center;margin-bottom:4svh}
+.alt-city{font-family:'Gowun Batang',serif;font-size:clamp(26px,7.4vw,44px);font-weight:700;min-height:1.4em}
+.alt-desc{color:var(--dim);font-size:clamp(13px,3.6vw,15px);margin-top:6px;min-height:3.2em;max-width:520px;margin-left:auto;margin-right:auto}
+.alt-m{font-family:'Space Mono',monospace;color:var(--sol);font-size:clamp(15px,4.4vw,19px);margin-top:8px}
+.altchart{position:relative;z-index:2;width:min(760px,100%);margin:0 auto}
+.altchart svg{width:100%;height:auto}
+.apath{fill:none;stroke:url(#agrad);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 10px rgba(255,92,138,.55))}
+.aglow{fill:url(#afill)}
+.acursor{filter:drop-shadow(0 0 8px #fff)}
+.alab{font-family:'Space Mono',monospace;font-size:10px;fill:var(--faint)}
+.alab.on{fill:var(--sol)}
+.alt-hint{position:absolute;bottom:26px;left:0;right:0;text-align:center;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.3em;color:var(--faint);z-index:2}
 
-/* ---------- day nav ---------- */
-nav.daynav{
-  position:sticky;top:0;z-index:50;
-  background:rgba(19,18,38,.88);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--line);
-  margin:36px -20px 0;padding:10px 0;
+/* ===== CHAPTERS ===== */
+.chapter{position:relative;margin-top:10svh}
+.cover{position:relative;height:86svh;overflow:hidden;display:flex;align-items:flex-end}
+.cover .scene{position:absolute;inset:-12% 0 0 0;will-change:transform}
+.cover .scene svg{width:100%;height:100%;}
+.cover .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,9,22,.55) 0%,rgba(10,9,22,.08) 34%,rgba(10,9,22,.92) 88%)}
+.cover .num{
+  position:absolute;top:6svh;right:-8px;font-family:'Space Mono',monospace;font-weight:700;
+  font-size:clamp(120px,34vw,340px);line-height:.9;letter-spacing:-.06em;
+  color:transparent;-webkit-text-stroke:1.5px rgba(242,237,225,.28);will-change:transform;
 }
-.daynav .rail{display:flex;gap:8px;overflow-x:auto;padding:0 20px;scrollbar-width:none}
-.daynav .rail::-webkit-scrollbar{display:none}
-.chip{
-  flex:0 0 auto;font-family:'Space Mono',monospace;font-size:12px;
-  padding:7px 13px;border-radius:99px;border:1px solid var(--line);
-  color:var(--salt-dim);text-decoration:none;white-space:nowrap;transition:all .2s;
-}
-.chip:hover{border-color:var(--cantuta);color:var(--salt)}
-.chip.active{background:var(--cantuta);border-color:var(--cantuta);color:var(--night);font-weight:700}
-
-/* ---------- day cards ---------- */
-main{padding-bottom:20px}
-.day{margin-top:44px;scroll-margin-top:76px}
-.day-card{
-  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
-  overflow:hidden;
-}
-.day-card .band{height:5px}
-.day-head{padding:22px 22px 6px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
-.day-num{
-  font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.2em;
-  color:var(--salt-faint);
-}
-.day-head h3{
-  font-family:'Gowun Batang',serif;font-size:clamp(21px,5.4vw,26px);font-weight:700;flex:1 1 100%;
-  line-height:1.35;
-}
-.day-head h3 .accent{color:inherit}
-.day-meta{display:flex;gap:8px;flex-wrap:wrap;padding:8px 22px 0}
-.tag{
-  font-size:11.5px;font-weight:500;padding:4px 11px;border-radius:99px;
-  border:1px solid var(--line);color:var(--salt-dim);
-}
+.cover .head{position:relative;z-index:3;padding:0 22px 8svh;max-width:820px;margin:0 auto;width:100%}
+.cover .date{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.3em;color:var(--sol);margin-bottom:10px}
+.cover h2{font-family:'Gowun Batang',serif;font-weight:700;font-size:clamp(34px,9.6vw,64px);line-height:1.22;letter-spacing:-.01em}
+.cover h2 .line{display:block;overflow:hidden}
+.cover h2 .line>span{display:inline-block;will-change:transform}
+.cover .meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.tag{font-size:11.5px;font-weight:500;padding:5px 13px;border-radius:99px;border:1px solid var(--line);color:var(--dim);background:rgba(10,9,22,.4);backdrop-filter:blur(6px)}
 .tag.alt{font-family:'Space Mono',monospace}
 .tag.hot{border-color:transparent;color:var(--night);font-weight:700}
 
-/* timeline */
-.tl{padding:20px 22px 8px;position:relative}
-.tl-item{
-  position:relative;padding:0 0 22px 78px;
+/* sheet that slides over cover */
+.sheet{
+  position:relative;z-index:4;background:var(--sheet);
+  border:1px solid var(--line);border-bottom:none;
+  border-radius:30px 30px 0 0;margin:-34px auto 0;max-width:820px;
+  box-shadow:0 -30px 80px rgba(0,0,0,.55);
+  padding:14px 0 6px;
 }
-.tl-item::before{
-  content:'';position:absolute;left:62px;top:8px;bottom:-2px;width:1px;
-  background:var(--line);
-}
-.tl-item:last-child::before{display:none}
-.tl-item::after{
-  content:'';position:absolute;left:58.5px;top:7px;width:8px;height:8px;border-radius:50%;
-  background:var(--night);border:2px solid var(--dot,var(--salt-dim));
-}
-.tl-time{
-  position:absolute;left:0;top:2px;width:52px;text-align:right;
-  font-family:'Space Mono',monospace;font-size:12px;color:var(--salt-dim);line-height:1.4;
-}
-.tl-item h4{font-size:15.5px;font-weight:600;margin-bottom:2px}
-.tl-item p{font-size:13.5px;color:var(--salt-dim);line-height:1.65}
-.tl-item p b{color:var(--salt);font-weight:600}
-.tl-item .pin{font-size:12.5px;color:var(--salt-faint);margin-top:2px}
+.sheet::before{content:'';display:block;width:44px;height:4px;border-radius:99px;background:rgba(242,237,225,.2);margin:0 auto 8px}
+.sheet-end{max-width:820px;margin:0 auto;height:1px;background:var(--line)}
 
-/* note boxes */
-.note{
-  margin:6px 22px 22px;padding:15px 17px;border-radius:14px;
-  background:var(--night2);border:1px solid var(--line);
-  font-size:13.5px;color:var(--salt-dim);line-height:1.7;
-}
+.tl{padding:16px 24px 8px;position:relative}
+.tl-item{position:relative;padding:0 0 24px 80px}
+.tl-item::before{content:'';position:absolute;left:63px;top:9px;bottom:-2px;width:1px;background:var(--line)}
+.tl-item:last-child::before{display:none}
+.tl-item::after{content:'';position:absolute;left:59px;top:7px;width:9px;height:9px;border-radius:50%;
+  background:var(--dot,var(--dim));box-shadow:0 0 10px var(--dot,transparent)}
+.tl-time{position:absolute;left:0;top:2px;width:52px;text-align:right;font-family:'Space Mono',monospace;font-size:12px;color:var(--dim);line-height:1.4}
+.tl-item h4{font-size:15.5px;font-weight:600;margin-bottom:3px}
+.tl-item p{font-size:13.5px;color:var(--dim);line-height:1.7}
+.tl-item p b{color:var(--salt);font-weight:600}
+.tl-item .pin{font-size:12.5px;color:var(--faint);margin-top:3px}
+
+.note{margin:6px 24px 24px;padding:16px 18px;border-radius:16px;background:rgba(10,9,22,.55);
+  border:1px solid var(--line);font-size:13.5px;color:var(--dim);line-height:1.75}
 .note b{color:var(--salt);font-weight:600}
-.note .nt{
-  display:block;font-size:12px;font-weight:700;letter-spacing:.12em;margin-bottom:6px;
-  font-family:'Space Mono',monospace;
-}
-.note.safety{border-left:3px solid var(--cantuta)}
-.note.safety .nt{color:var(--cantuta)}
-.note.tip{border-left:3px solid var(--sol)}
-.note.tip .nt{color:var(--sol)}
-.note.food{border-left:3px solid var(--lago)}
-.note.food .nt{color:var(--lago)}
+.note .nt{display:block;font-size:12px;font-weight:700;letter-spacing:.12em;margin-bottom:7px;font-family:'Space Mono',monospace}
+.note.safety{border-left:3px solid var(--cantuta)}.note.safety .nt{color:var(--cantuta)}
+.note.tip{border-left:3px solid var(--sol)}.note.tip .nt{color:var(--sol)}
+.note.food{border-left:3px solid var(--lago)}.note.food .nt{color:var(--lago)}
 .note ul{list-style:none;margin-top:4px}
 .note ul li{padding-left:16px;position:relative;margin-bottom:5px}
-.note ul li::before{content:'—';position:absolute;left:0;color:var(--salt-faint)}
+.note ul li::before{content:'✦';position:absolute;left:0;color:var(--faint);font-size:10px;top:3px}
 
-/* ---------- sections ---------- */
-.section{margin-top:64px;scroll-margin-top:76px}
-.section > h2{
-  font-family:'Gowun Batang',serif;font-size:clamp(24px,6vw,30px);font-weight:700;
-  margin-bottom:6px;
-}
-.section > .lead{color:var(--salt-dim);font-size:14.5px;margin-bottom:22px}
+/* ===== NAZCA ===== */
+.nazca{display:flex;flex-direction:column;align-items:center;padding:12svh 0 4svh;position:relative}
+.nazca svg{width:min(320px,70vw);height:auto;opacity:.9}
+.nazca path{fill:none;stroke:var(--terra);stroke-width:1.6;stroke-linecap:round}
+.nazca .tag-n{margin-top:10px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.3em;color:var(--faint)}
 
-/* safety grid */
-.rules{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media(max-width:560px){.rules{grid-template-columns:1fr}}
-.rule{
-  background:var(--card);border:1px solid var(--line);border-radius:14px;
-  padding:16px 17px;font-size:13.5px;color:var(--salt-dim);line-height:1.65;
+/* ===== HORIZONTAL SAFETY ===== */
+.hwrap{position:relative}
+.hpin{height:100svh;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.hpin .htitle{padding:0 22px;margin-bottom:5svh}
+.htrack{display:flex;gap:16px;padding:0 22px;will-change:transform;width:max-content}
+.hcard{
+  flex:0 0 auto;width:min(310px,76vw);border-radius:24px;padding:26px 24px;
+  background:var(--glass);border:1px solid var(--line);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  font-size:14px;color:var(--dim);line-height:1.75;
 }
-.rule b{display:block;color:var(--salt);font-weight:600;font-size:14.5px;margin-bottom:4px}
-.rule .ico{font-size:19px;display:block;margin-bottom:8px}
+.hcard .ico{font-size:34px;display:block;margin-bottom:16px}
+.hcard b{display:block;color:var(--salt);font-size:18px;font-weight:700;margin-bottom:8px;font-family:'Gowun Batang',serif}
+.hcard .idx{font-family:'Space Mono',monospace;font-size:11px;color:var(--faint);letter-spacing:.2em;display:block;margin-bottom:14px}
+.hcard:nth-child(4n+1){border-top:3px solid var(--cantuta)}
+.hcard:nth-child(4n+2){border-top:3px solid var(--sol)}
+.hcard:nth-child(4n+3){border-top:3px solid var(--lago)}
+.hcard:nth-child(4n){border-top:3px solid var(--violet)}
 
-/* budget table */
-.btable{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--card);border-radius:var(--radius);overflow:hidden;border:1px solid var(--line)}
-.btable th{
-  text-align:left;font-weight:600;font-size:12.5px;color:var(--sol);
-  padding:13px 16px;border-bottom:1px solid var(--line);
-  font-family:'Space Mono',monospace;letter-spacing:.05em;
-}
-.btable td{padding:12px 16px;border-bottom:1px solid var(--line);color:var(--salt-dim)}
-.btable td:last-child,.btable th:last-child{text-align:right;font-family:'Space Mono',monospace}
-.btable tr:last-child td{border-bottom:none;color:var(--salt);font-weight:600}
-.btable td b{color:var(--salt)}
-
-/* checklist */
-.check{display:flex;flex-direction:column;gap:8px}
-.ck{
-  display:flex;align-items:flex-start;gap:12px;background:var(--card);
-  border:1px solid var(--line);border-radius:13px;padding:13px 15px;cursor:pointer;
-  transition:border-color .2s;
-}
-.ck:hover{border-color:var(--salt-faint)}
-.ck input{
-  appearance:none;flex:0 0 auto;width:20px;height:20px;margin-top:2px;border-radius:6px;
-  border:1.5px solid var(--salt-faint);cursor:pointer;position:relative;transition:all .15s;
-}
-.ck input:checked{background:var(--lago);border-color:var(--lago)}
-.ck input:checked::after{
-  content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  color:var(--night);font-size:13px;font-weight:700;
-}
+/* ===== CHECKLIST ===== */
+.preps{max-width:820px;margin:0 auto;padding:14svh 20px 6svh}
+.ring-row{display:flex;align-items:center;gap:18px;justify-content:center;margin:26px 0 30px}
+.ring{position:relative;width:92px;height:92px;flex:0 0 auto}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .bg{fill:none;stroke:rgba(242,237,225,.12);stroke-width:7}
+.ring .fg{fill:none;stroke:url(#ringgrad);stroke-width:7;stroke-linecap:round;transition:stroke-dashoffset .5s cubic-bezier(.2,.8,.2,1)}
+.ring .pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:19px}
+.ring-cap{color:var(--dim);font-size:14px;max-width:220px}
+.check{display:flex;flex-direction:column;gap:9px}
+.ck{display:flex;align-items:flex-start;gap:13px;background:var(--glass);border:1px solid var(--line);
+  border-radius:16px;padding:15px 17px;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  transition:border-color .2s,transform .2s}
+.ck:hover{border-color:var(--faint);transform:translateX(4px)}
+.ck input{appearance:none;flex:0 0 auto;width:22px;height:22px;margin-top:2px;border-radius:8px;
+  border:1.5px solid var(--faint);cursor:pointer;position:relative;transition:all .18s}
+.ck input:checked{background:linear-gradient(120deg,var(--lago),var(--cielo));border-color:transparent;box-shadow:0 0 14px rgba(63,224,197,.55)}
+.ck input:checked::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--night);font-size:13px;font-weight:700}
 .ck input:focus-visible{outline:2px solid var(--sol);outline-offset:2px}
 .ck .ct{font-size:14px;font-weight:500}
-.ck.done .ct{color:var(--salt-faint);text-decoration:line-through}
-.ck .cs{font-size:12.5px;color:var(--salt-faint)}
+.ck.done .ct{color:var(--faint);text-decoration:line-through}
+.ck .cs{font-size:12.5px;color:var(--faint)}
+.btable{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:30px;border:1px solid var(--line);border-radius:20px;overflow:hidden;background:var(--glass)}
+.btable th{text-align:left;font-weight:600;font-size:12.5px;color:var(--sol);padding:14px 17px;border-bottom:1px solid var(--line);font-family:'Space Mono',monospace;letter-spacing:.05em}
+.btable td{padding:13px 17px;border-bottom:1px solid var(--line);color:var(--dim)}
+.btable td:last-child,.btable th:last-child{text-align:right;font-family:'Space Mono',monospace}
+.btable tr:last-child td{border-bottom:none}
+.btable td b{color:var(--salt)}
 
-/* footer */
-footer{
-  margin-top:80px;padding:44px 20px 56px;text-align:center;
-  border-top:1px solid var(--line);position:relative;z-index:1;
-}
-footer .msg{font-family:'Gowun Batang',serif;font-size:17px;line-height:1.9;color:var(--salt-dim)}
-footer .msg b{color:var(--cantuta);font-weight:700}
-footer .from{margin-top:14px;font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:.2em;color:var(--salt-faint)}
+/* ===== FOOTER ===== */
+footer{padding:16svh 20px 20svh;text-align:center;position:relative;overflow:hidden}
+footer .chakana{width:46px;height:46px;margin:0 auto 28px;animation:spin 24s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){footer .chakana{animation:none}}
+footer .msg{font-family:'Gowun Batang',serif;font-size:clamp(19px,5.4vw,26px);line-height:2;color:var(--dim)}
+footer .msg b{background:linear-gradient(100deg,var(--sol),var(--cantuta));-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700}
+footer .from{margin-top:20px;font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:.25em;color:var(--faint)}
 
-/* reveal on scroll */
-.reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
-.reveal.in{opacity:1;transform:none}
-@media (prefers-reduced-motion: reduce){.reveal{opacity:1;transform:none}}
+/* ===== LOADER ===== */
+#loader{position:fixed;inset:0;z-index:300;background:var(--night);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .7s ease,visibility .7s}
+#loader.off{opacity:0;visibility:hidden}
+#loader .lg{font-family:'Space Mono',monospace;letter-spacing:.5em;text-indent:.5em;font-size:12px;color:var(--sol)}
+#loader .bar{width:min(240px,60vw);height:2px;background:rgba(242,237,225,.12);border-radius:99px;overflow:hidden}
+#loader .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cantuta),var(--sol));transition:width .3s}
 </style>
 </head>
 <body>
 
-<div class="stars" id="stars" aria-hidden="true"></div>
-<div class="stripe" aria-hidden="true"></div>
+<div id="loader" aria-hidden="true"><div class="lg">NOW BOARDING</div><div class="bar"><i id="lbar"></i></div></div>
+<canvas id="cosmos" aria-hidden="true"></canvas>
+<div id="progress" aria-hidden="true"></div>
 
-<div class="wrap">
+<div class="content">
 
-<header class="hero">
-  <div class="eyebrow">Perú · Bolivia · 2026</div>
-  <h1>유지의<br><em>남미 일주</em></h1>
-  <p class="sub">2026년 10월 15일 — 10월 26일 · 혼자 떠나는 12일</p>
-  <div class="route">
-    <b>ICN</b><span class="arr">→</span><b>LAX</b><span class="arr">→</span><b>LIM</b><span class="arr">→</span><b>CUZ</b><span class="arr">→</span>푸노<span class="arr">→</span>라파스<span class="arr">→</span>우유니<span class="arr">→</span><b>LIM</b><span class="arr">→</span><b>ICN</b>
+<!-- ================= HERO ================= -->
+<section class="hero" id="hero">
+  <div class="hero-inner">
+    <div class="eyebrow" data-split-fade>PERÚ · BOLIVIA · 2026</div>
+    <h1 id="heroTitle">
+      <span class="row" data-split>유지의</span>
+      <span class="row grad" data-split>남미일주</span>
+    </h1>
+    <p class="sub" data-split-fade>2026.10.15 — 10.26 · 혼자 떠나는 12일 · 스크롤해서 함께 떠나기</p>
   </div>
-</header>
+  <div class="cue">SCROLL</div>
+</section>
 
-<section class="alt-section reveal">
-  <div class="alt-card">
-    <h2>고도로 보는 12일</h2>
-    <p class="cap">이번 여행의 진짜 주인공은 <b>고도</b>. 해수면의 리마에서 5,036m 무지개산까지 — 첫 이틀은 무조건 천천히, 물 많이.</p>
-    <svg class="alt-svg" viewBox="0 0 700 240" role="img" aria-label="여행 12일간 고도 변화 그래프. 리마 0미터에서 시작해 쿠스코 3,399미터, 무지개산 5,036미터까지 올라갔다가 리마로 돌아옵니다.">
-      <defs>
-        <linearGradient id="altGrad" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stop-color="#F0B23F"/>
-          <stop offset=".35" stop-color="#E8804F"/>
-          <stop offset=".62" stop-color="#E85D8A"/>
-          <stop offset="1" stop-color="#4FC4B0"/>
-        </linearGradient>
-        <linearGradient id="altFill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#E85D8A" stop-opacity=".22"/>
-          <stop offset="1" stop-color="#E85D8A" stop-opacity="0"/>
-        </linearGradient>
-      </defs>
-      <!-- grid -->
-      <line x1="30" y1="196" x2="680" y2="196" stroke="rgba(244,239,228,.14)" stroke-width="1"/>
-      <line x1="30" y1="76" x2="680" y2="76" stroke="rgba(244,239,228,.07)" stroke-dasharray="3 5"/>
-      <text x="34" y="70" class="alt-label">4,000m</text>
-      <line x1="30" y1="136" x2="680" y2="136" stroke="rgba(244,239,228,.07)" stroke-dasharray="3 5"/>
-      <text x="34" y="130" class="alt-label">2,000m</text>
-      <!-- area: days D1..D12 x = 40 + (d-1)*58 ; y = 196 - alt*0.03 -->
-      <path class="alt-fill" d="M40,194.9 L98,94 L156,123.1 L214,94 L272,44.9 L330,112.2 L388,81.2 L446,86.5 L504,86.5 L562,86.3 L620,196 L678,196 L678,196 L40,196 Z"/>
-      <path class="alt-path" d="M40,194.9 L98,94 L156,123.1 L214,94 L272,44.9 L330,112.2 L388,81.2 L446,86.5 L504,86.5 L562,86.3 L620,196 L678,196"/>
-      <!-- dots -->
-      <circle class="alt-dot" style="animation-delay:.4s" cx="40" cy="194.9" r="4"/>
-      <circle class="alt-dot" style="animation-delay:.6s" cx="98" cy="94" r="4"/>
-      <circle class="alt-dot" style="animation-delay:.8s" cx="156" cy="123.1" r="4"/>
-      <circle class="alt-dot" style="animation-delay:1s" cx="214" cy="94" r="4"/>
-      <circle class="alt-dot" style="animation-delay:1.2s" cx="272" cy="44.9" r="4.5" stroke="#F0B23F"/>
-      <circle class="alt-dot" style="animation-delay:1.4s" cx="330" cy="112.2" r="4"/>
-      <circle class="alt-dot" style="animation-delay:1.6s" cx="388" cy="81.2" r="4"/>
-      <circle class="alt-dot" style="animation-delay:1.8s" cx="446" cy="86.5" r="4"/>
-      <circle class="alt-dot" style="animation-delay:2s" cx="504" cy="86.5" r="4"/>
-      <circle class="alt-dot" style="animation-delay:2.2s" cx="562" cy="86.3" r="4"/>
-      <circle class="alt-dot" style="animation-delay:2.4s" cx="620" cy="196" r="4"/>
-      <!-- labels -->
-      <text x="26" y="216" class="alt-label">LA·리마 0m</text>
-      <text x="72" y="86" class="alt-label">쿠스코 3,399m</text>
-      <text x="140" y="145" class="alt-label">마추픽추 2,430m</text>
-      <text x="228" y="34" class="alt-label hi">★ 무지개산 5,036m</text>
-      <text x="300" y="134" class="alt-label">성스러운 계곡</text>
-      <text x="366" y="70" class="alt-label">푸노 3,827m</text>
-      <text x="452" y="72" class="alt-label">라파스 · 우유니 3,650m</text>
-      <text x="596" y="216" class="alt-label">리마 → 귀국</text>
-    </svg>
-    <p class="alt-note">D1 → D12 · elevation profile</p>
+<!-- ================= MARQUEE ================= -->
+<div class="marquee" aria-hidden="true">
+  <div class="track">
+    <span><b>ICN</b> <i>✦</i> LAX <i>✦</i> <b>LIMA</b> <i>✦</i> CUSCO <i>✦</i> MACHU PICCHU <i>✦</i> VINICUNCA <i>✦</i> PUNO <i>✦</i> LA PAZ <i>✦</i> <b>UYUNI</b> <i>✦</i> LIMA <i>✦</i> <b>HOME</b> <i>✦</i> </span>
+    <span><b>ICN</b> <i>✦</i> LAX <i>✦</i> <b>LIMA</b> <i>✦</i> CUSCO <i>✦</i> MACHU PICCHU <i>✦</i> VINICUNCA <i>✦</i> PUNO <i>✦</i> LA PAZ <i>✦</i> <b>UYUNI</b> <i>✦</i> LIMA <i>✦</i> <b>HOME</b> <i>✦</i> </span>
   </div>
+</div>
 
-  <div class="stats">
-    <div class="stat"><div class="n">12</div><div class="l">일간의 여정</div></div>
-    <div class="stat"><div class="n">4</div><div class="l">나라 (한·미·페·볼)</div></div>
-    <div class="stat"><div class="n">5,036</div><div class="l">최고 고도 (m)</div></div>
-    <div class="stat"><div class="n">7</div><div class="l">비행 횟수</div></div>
+<!-- ================= TICKET ================= -->
+<section class="ticket-sec">
+  <div class="ticket" id="ticket">
+    <div class="stripe"></div>
+    <div class="body">
+      <div class="hdr"><span>BOARDING PASS</span><b>SOLO TRAVELER ✦ YUJI</b></div>
+      <div class="cities">
+        <div class="city"><div class="code">ICN</div><div class="name">SEOUL · 10.15 12:40</div></div>
+        <div class="plane-path"><div class="dash"></div><div class="pl" id="ticketPlane">✈️</div></div>
+        <div class="city" style="text-align:right"><div class="code">LIM</div><div class="name">LIMA · 10.16 07:25</div></div>
+      </div>
+      <div class="grid">
+        <div class="cell"><div class="k">VIA</div><div class="v">LAX 13h 30m</div></div>
+        <div class="cell"><div class="k">SEAT</div><div class="v">WINDOW 🌙</div></div>
+        <div class="cell"><div class="k">RETURN</div><div class="v">10.26 12:00</div></div>
+      </div>
+      <div class="barcode"></div>
+    </div>
+    <div class="punch l"></div><div class="punch r"></div>
   </div>
 </section>
 
-<nav class="daynav" aria-label="날짜별 이동">
-  <div class="rail">
-    <a class="chip" href="#d1">D1 · LA</a>
-    <a class="chip" href="#d2">D2 · 리마→쿠스코</a>
-    <a class="chip" href="#d3">D3 · 마추픽추</a>
-    <a class="chip" href="#d4">D4 · 쿠스코</a>
-    <a class="chip" href="#d5">D5 · 무지개산</a>
-    <a class="chip" href="#d6">D6 · 성스러운 계곡</a>
-    <a class="chip" href="#d7">D7 · 푸노</a>
-    <a class="chip" href="#d8">D8 · 라파스</a>
-    <a class="chip" href="#d9">D9 · 야간버스</a>
-    <a class="chip" href="#d10">D10 · 우유니</a>
-    <a class="chip" href="#d11">D11 · 리마</a>
-    <a class="chip" href="#d12">D12 · 귀국</a>
-    <a class="chip" href="#safety">안전</a>
-    <a class="chip" href="#prep">준비물</a>
+<!-- ================= ALTITUDE SCROLLYTELLING ================= -->
+<div class="altwrap" id="altwrap">
+  <div class="altpin">
+    <div class="bignum"><span id="altCounter">0</span><span style="font-size:.32em">m</span></div>
+    <div class="top">
+      <div class="sec-eyebrow">ELEVATION JOURNEY</div>
+      <div class="alt-city" id="altCity">인천에서 출발</div>
+      <p class="alt-desc" id="altDesc">이번 여행의 진짜 주인공은 고도. 스크롤하면 12일의 높이가 그려집니다.</p>
+      <div class="alt-m" id="altDay">READY</div>
+    </div>
+    <div class="altchart">
+      <svg viewBox="0 0 700 250" role="img" aria-label="12일간 고도 변화: 리마 0m에서 무지개산 5,036m까지">
+        <defs>
+          <linearGradient id="agrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#FFB84D"/><stop offset=".35" stop-color="#FF8A5C"/>
+            <stop offset=".62" stop-color="#FF5C8A"/><stop offset="1" stop-color="#3FE0C5"/>
+          </linearGradient>
+          <linearGradient id="afill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#FF5C8A" stop-opacity=".22"/>
+            <stop offset="1" stop-color="#FF5C8A" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <line x1="30" y1="196" x2="680" y2="196" stroke="rgba(242,237,225,.16)"/>
+        <line x1="30" y1="76" x2="680" y2="76" stroke="rgba(242,237,225,.07)" stroke-dasharray="3 5"/>
+        <text x="34" y="70" class="alab">4,000m</text>
+        <line x1="30" y1="136" x2="680" y2="136" stroke="rgba(242,237,225,.07)" stroke-dasharray="3 5"/>
+        <text x="34" y="130" class="alab">2,000m</text>
+        <path class="aglow" id="aglow" d="" opacity="0"/>
+        <path class="apath" id="apath" d="M40,194.9 L98,94 L156,123.1 L214,94 L272,44.9 L330,112.2 L388,81.2 L446,86.5 L504,86.5 L562,86.3 L620,196 L678,196"/>
+        <circle class="acursor" id="acursor" cx="40" cy="194.9" r="6" fill="#fff"/>
+        <text x="26" y="216" class="alab" data-d="0">LA·리마</text>
+        <text x="66" y="86" class="alab" data-d="1">쿠스코</text>
+        <text x="128" y="145" class="alab" data-d="2">마추픽추</text>
+        <text x="224" y="34" class="alab" data-d="4">★ 무지개산</text>
+        <text x="296" y="134" class="alab" data-d="5">성스러운계곡</text>
+        <text x="366" y="70" class="alab" data-d="6">푸노</text>
+        <text x="444" y="72" class="alab" data-d="7">라파스·우유니</text>
+        <text x="600" y="216" class="alab" data-d="10">리마→귀국</text>
+      </svg>
+    </div>
+    <div class="alt-hint">KEEP SCROLLING ↓</div>
   </div>
-</nav>
+</div>
 
-<main>
+<!-- ================= CHAPTERS ================= -->
 
-<!-- ============ D1 ============ -->
-<article class="day reveal" id="d1">
-  <div class="day-card">
-    <div class="band" style="background:var(--sol)"></div>
-    <div class="day-head">
-      <span class="day-num">DAY 01 · 10.15 목</span>
-      <h3>출국, 그리고 LA에서의 반나절</h3>
+<!-- D1 -->
+<section class="chapter" id="d1">
+  <div class="cover">
+    <div class="scene">
+      <svg viewBox="0 0 700 320" preserveAspectRatio="xMidYMax slice">
+        <defs><linearGradient id="laSky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#221448"/><stop offset=".55" stop-color="#8A3D6E"/><stop offset="1" stop-color="#FF8A5C"/>
+        </linearGradient></defs>
+        <rect width="700" height="320" fill="url(#laSky)"/>
+        <circle cx="350" cy="268" r="72" fill="#FFB84D" opacity=".95"/>
+        <rect x="0" y="292" width="700" height="28" fill="#1A0F33"/>
+        <g stroke="#160C2C" stroke-width="9" fill="none" stroke-linecap="round">
+          <path d="M92,300 C96,240 88,200 98,158"/><path d="M612,300 C604,244 616,208 600,166"/>
+        </g>
+        <g stroke="#160C2C" stroke-width="7" fill="none" stroke-linecap="round">
+          <path d="M98,158 C72,142 46,142 26,154 M98,158 C88,130 66,120 44,120 M98,158 C112,130 138,122 160,130 M98,158 C126,146 152,154 166,170"/>
+          <path d="M600,166 C574,150 548,150 530,162 M600,166 C590,138 568,128 546,128 M600,166 C616,138 642,130 664,138 M600,166 C628,154 654,162 668,178"/>
+        </g>
+        <g transform="translate(452,86) rotate(-8)" fill="#F2EDE1">
+          <path d="M0,12 L68,12 L88,4 L92,12 L120,14 L92,18 L88,24 L68,16 Z"/>
+          <path d="M44,12 L28,-8 L36,-8 L56,12 Z M44,16 L28,36 L36,36 L56,16 Z"/>
+        </g>
+        <path d="M368,108 q-60,12 -120,4" stroke="rgba(242,237,225,.35)" stroke-width="2.4" fill="none" stroke-dasharray="6 8"/>
+      </svg>
     </div>
-    <div class="day-meta">
-      <span class="tag hot" style="background:var(--sol)">🇺🇸 로스앤젤레스</span>
-      <span class="tag alt">레이오버 13h 30m</span>
-      <span class="tag">실제 관광 6~7시간</span>
+    <div class="veil"></div>
+    <div class="num">01</div>
+    <div class="head">
+      <div class="date">DAY 01 · 10.15 THU · 🇺🇸 LOS ANGELES</div>
+      <h2><span class="line"><span>출국, 그리고</span></span><span class="line"><span>LA에서의 반나절 🌴</span></span></h2>
+      <div class="meta">
+        <span class="tag hot" style="background:var(--sol)">레이오버 13h 30m</span>
+        <span class="tag">실제 관광 6~7시간</span>
+      </div>
     </div>
+  </div>
+  <div class="sheet">
     <div class="tl">
-      <div class="tl-item" style="--dot:var(--sol)">
-        <div class="tl-time">12:40</div>
-        <h4>인천공항 출발 ✈️</h4>
-        <p>드디어 출발! 기내에서 물 자주 마시고 푹 자두기.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--sol)">
-        <div class="tl-time">07:50</div>
-        <h4>LAX 도착 (현지 시각)</h4>
-        <p>입국심사 + 짐 찾기 약 1.5~2시간. <b>09:30~10:00쯤 공항 밖으로.</b></p>
-      </div>
-      <div class="tl-item" style="--dot:var(--sol)">
-        <div class="tl-time">10:00</div>
+      <div class="tl-item" style="--dot:var(--sol)"><div class="tl-time">12:40</div>
+        <h4>인천공항 출발 ✈️</h4><p>드디어 출발! 기내에서 물 자주 마시고 푹 자두기.</p></div>
+      <div class="tl-item" style="--dot:var(--sol)"><div class="tl-time">07:50</div>
+        <h4>LAX 도착 (현지 시각)</h4><p>입국심사 + 짐 찾기 약 1.5~2시간. <b>09:30~10:00쯤 공항 밖으로.</b></p></div>
+      <div class="tl-item" style="--dot:var(--sol)"><div class="tl-time">10:00</div>
         <h4>인앤아웃 버거 🍔</h4>
         <p>추천 메뉴: <b>Double-Double + Animal Style Fries + 딸기쉐이크.</b> 비행기가 머리 위로 지나가는 그 유명한 지점. 낮에도 사람 많아서 혼자여도 안심.</p>
-        <p class="pin">📍 In-N-Out Burger, 9149 S Sepulveda Blvd (공항에서 우버 10분)</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--sol)">
-        <div class="tl-time">11:00</div>
-        <h4>Clutter's Park ✈️</h4>
-        <p>인앤아웃에서 도보 5~10분. 착륙하는 비행기 구경하며 사진 찍고 30분 정도 쉬기.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--sol)">
-        <div class="tl-time">12:00</div>
-        <h4>Manhattan Beach 🌴</h4>
-        <p>우버 15분. 바다, 야자수, 자전거길 — 미국 서부 감성 그 자체. 점심은 <b>피쉬타코</b>, 오후엔 해변 카페에서 커피와 디저트. 여유롭게 2~3시간.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--sol)">
-        <div class="tl-time">17:30</div>
-        <h4>공항 복귀</h4>
-        <p>늦어도 18:00까지 LAX 도착. 밤이 되기 전에 복귀하는 게 포인트.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--sol)">
-        <div class="tl-time">21:20</div>
-        <h4>LATAM 탑승, 리마로 ✈️</h4>
-        <p>남미까지 밤 비행. 최대한 자두기 — 내일 아침 바로 리마 도착.</p>
-      </div>
+        <p class="pin">📍 In-N-Out Burger, 9149 S Sepulveda Blvd (공항에서 우버 10분)</p></div>
+      <div class="tl-item" style="--dot:var(--sol)"><div class="tl-time">11:00</div>
+        <h4>Clutter's Park ✈️</h4><p>인앤아웃에서 도보 5~10분. 착륙하는 비행기 구경하며 사진 찍고 30분 쉬기.</p></div>
+      <div class="tl-item" style="--dot:var(--sol)"><div class="tl-time">12:00</div>
+        <h4>Manhattan Beach 🌊</h4>
+        <p>우버 15분. 바다, 야자수, 자전거길 — 미국 서부 감성 그 자체. 점심은 <b>피쉬타코</b>, 오후엔 해변 카페에서 커피와 디저트. 여유롭게 2~3시간.</p></div>
+      <div class="tl-item" style="--dot:var(--sol)"><div class="tl-time">17:30</div>
+        <h4>공항 복귀</h4><p>늦어도 18:00까지 LAX 도착. 밤이 되기 전에 복귀하는 게 포인트.</p></div>
+      <div class="tl-item" style="--dot:var(--sol)"><div class="tl-time">21:20</div>
+        <h4>LATAM 탑승, 리마로 ✈️</h4><p>남미까지 밤 비행. 최대한 자두기 — 내일 아침 바로 리마 도착.</p></div>
     </div>
     <div class="note tip">
       <span class="nt">💰 오늘 예산 · 약 15~20만 원</span>
-      우버 왕복 약 $75~105 (10~15만 원) + 식비 $25~35. 공항에서는 <b>공식 Uber 승차장</b> 이용. 기사님 팁은 앱에서 $2~5 정도가 일반적. 시간이 남고 체력이 되면 Manhattan Beach 대신 산타모니카(우버 25~35분)도 옵션 — 다만 이동이 길어 우선순위는 낮게.
+      우버 왕복 약 $75~105 (10~15만 원) + 식비 $25~35. 공항에서는 <b>공식 Uber 승차장</b> 이용. 기사님 팁은 앱에서 $2~5 정도가 일반적. 시간·체력이 남으면 Manhattan Beach 대신 산타모니카(우버 25~35분)도 옵션 — 다만 이동이 길어 우선순위는 낮게.
     </div>
     <div class="note safety">
       <span class="nt">🛡 레이오버 안전수칙</span>
@@ -423,57 +409,60 @@ footer .from{margin-top:14px;font-family:'Space Mono',monospace;font-size:11.5px
       </ul>
     </div>
   </div>
-</article>
+  <div class="sheet-end"></div>
+</section>
 
-<!-- ============ D2 ============ -->
-<article class="day reveal" id="d2">
-  <div class="day-card">
-    <div class="band" style="background:var(--lago)"></div>
-    <div class="day-head">
-      <span class="day-num">DAY 02 · 10.16 금</span>
-      <h3>리마 도착 → 곧장 쿠스코로</h3>
+<!-- D2 -->
+<section class="chapter" id="d2">
+  <div class="cover">
+    <div class="scene">
+      <svg viewBox="0 0 700 320" preserveAspectRatio="xMidYMax slice">
+        <defs><linearGradient id="cuSky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#100E30"/><stop offset="1" stop-color="#3C2E6E"/>
+        </linearGradient></defs>
+        <rect width="700" height="320" fill="url(#cuSky)"/>
+        <g fill="#fff" opacity=".85"><circle cx="80" cy="54" r="2"/><circle cx="200" cy="90" r="1.4"/><circle cx="330" cy="40" r="2.2"/><circle cx="470" cy="76" r="1.4"/><circle cx="600" cy="50" r="2"/><circle cx="540" cy="120" r="1.4"/><circle cx="150" cy="150" r="1.3"/><circle cx="650" cy="140" r="1.5"/></g>
+        <path d="M0,320 L0,232 L110,128 L210,224 L320,100 L430,216 L540,120 L650,220 L700,172 L700,320 Z" fill="#241E52"/>
+        <path d="M0,320 L0,272 L140,192 L280,272 L400,176 L540,268 L700,212 L700,320 Z" fill="#171338"/>
+        <path d="M310,112 L320,100 L330,112 L324,120 L316,118 Z" fill="#EDE6F4" opacity=".9"/>
+        <g transform="translate(290,150) rotate(-16)" fill="#F2EDE1">
+          <path d="M0,10 L58,10 L74,4 L78,10 L102,12 L78,15 L74,20 L58,13 Z"/>
+          <path d="M38,10 L24,-7 L31,-7 L48,10 Z M38,13 L24,30 L31,30 L48,13 Z"/>
+        </g>
+        <path d="M222,196 q-60,22 -140,26" stroke="rgba(242,237,225,.3)" stroke-width="2.4" fill="none" stroke-dasharray="6 8"/>
+      </svg>
     </div>
-    <div class="day-meta">
-      <span class="tag hot" style="background:var(--lago)">🇵🇪 리마 → 쿠스코</span>
-      <span class="tag alt">0m → 3,399m ⚠️</span>
-      <span class="tag">JetSMART JA7027</span>
+    <div class="veil"></div>
+    <div class="num">02</div>
+    <div class="head">
+      <div class="date">DAY 02 · 10.16 FRI · 🇵🇪 LIMA → CUSCO</div>
+      <h2><span class="line"><span>리마 도착,</span></span><span class="line"><span>곧장 쿠스코로</span></span></h2>
+      <div class="meta">
+        <span class="tag hot" style="background:var(--lago)">JetSMART JA7027</span>
+        <span class="tag alt">0m → 3,399m ⚠️</span>
+      </div>
     </div>
+  </div>
+  <div class="sheet">
     <div class="tl">
-      <div class="tl-item" style="--dot:var(--lago)">
-        <div class="tl-time">07:25</div>
+      <div class="tl-item" style="--dot:var(--lago)"><div class="tl-time">07:25</div>
         <h4>리마 호르헤 차베스 공항(LIM) 도착 🇵🇪</h4>
-        <p>입국심사 30~90분 + 짐 20~40분. 국제선·국내선이 <b>같은 공항 건물</b>이라 이동 걱정 없음.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--lago)">
-        <div class="tl-time">09:30</div>
+        <p>입국심사 30~90분 + 짐 20~40분. 국제선·국내선이 <b>같은 공항 건물</b>이라 이동 걱정 없음.</p></div>
+      <div class="tl-item" style="--dot:var(--lago)"><div class="tl-time">09:30</div>
         <h4>입국 완료 → 국내선 이동</h4>
-        <p>도보 5~15분. JetSMART는 <b>온라인 체크인 미리</b> 해두기(카운터 체크인은 수수료 있을 수 있음). 위탁수하물 포함 여부도 예약 내역에서 확인.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--lago)">
-        <div class="tl-time">11:00</div>
-        <h4>공항에서 브런치 & 대기</h4>
-        <p>서두를 필요 없이 여유 있게. 첫 잉카콜라 도전해보기 🥤</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--lago)">
-        <div class="tl-time">14:00</div>
-        <h4>JA7027 쿠스코행 출발 ✈️</h4>
-        <p>비행 약 1시간 25분. 창가라면 안데스 산맥 뷰가 펼쳐짐.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--lago)">
-        <div class="tl-time">15:25</div>
+        <p>도보 5~15분. JetSMART는 <b>온라인 체크인 미리</b> 해두기(카운터 체크인은 수수료 있을 수 있음). 위탁수하물 포함 여부도 예약 내역에서 확인.</p></div>
+      <div class="tl-item" style="--dot:var(--lago)"><div class="tl-time">11:00</div>
+        <h4>공항에서 브런치 & 대기</h4><p>서두를 필요 없이 여유 있게. 첫 잉카콜라 도전해보기 🥤</p></div>
+      <div class="tl-item" style="--dot:var(--lago)"><div class="tl-time">14:00</div>
+        <h4>JA7027 쿠스코행 출발 ✈️</h4><p>비행 약 1시간 25분. 창가라면 안데스 산맥 뷰가 펼쳐짐.</p></div>
+      <div class="tl-item" style="--dot:var(--lago)"><div class="tl-time">15:25</div>
         <h4>쿠스코 도착 — 여기서부터 3,399m</h4>
-        <p>공항→아르마스 광장은 차로 15~20분. <b>공식 택시 또는 우버</b>로 바로 숙소 이동.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--lago)">
-        <div class="tl-time">16:30</div>
+        <p>공항→아르마스 광장은 차로 15~20분. <b>공식 택시 또는 우버</b>로 바로 숙소 이동.</p></div>
+      <div class="tl-item" style="--dot:var(--lago)"><div class="tl-time">16:30</div>
         <h4>호텔 체크인 & 코카차 한 잔 🍵</h4>
-        <p>오늘은 관광 금지! 물 많이 마시고, 과식·음주 피하고, 광장 근처에서 가볍게 저녁만.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--lago)">
-        <div class="tl-time">21:00</div>
-        <h4>취침 😴</h4>
-        <p>내일 새벽 4시 픽업. 짐은 자기 전에 미리 싸두기.</p>
-      </div>
+        <p>오늘은 관광 금지! 물 많이 마시고, 과식·음주 피하고, 광장 근처에서 가볍게 저녁만.</p></div>
+      <div class="tl-item" style="--dot:var(--lago)"><div class="tl-time">21:00</div>
+        <h4>취침 😴</h4><p>내일 새벽 4시 픽업. 짐은 자기 전에 미리 싸두기.</p></div>
     </div>
     <div class="note tip">
       <span class="nt">🏨 숙소는 아르마스 광장 도보 5~10분 이내</span>
@@ -484,410 +473,610 @@ footer .from{margin-top:14px;font-family:'Space Mono',monospace;font-size:11.5px
       고산병은 도착 첫날 가장 많이 온다. 오늘 얼마나 쉬느냐가 내일 마추픽추의 컨디션을 결정. 다이아목스를 처방받았다면 의사 안내에 따라 복용 시작.
     </div>
   </div>
-</article>
+  <div class="sheet-end"></div>
+</section>
 
-<!-- ============ D3 ============ -->
-<article class="day reveal" id="d3">
-  <div class="day-card">
-    <div class="band" style="background:var(--terra)"></div>
-    <div class="day-head">
-      <span class="day-num">DAY 03 · 10.17 토</span>
-      <h3>마추픽추 — 여행의 하이라이트 🏔</h3>
+<!-- D3 -->
+<section class="chapter" id="d3">
+  <div class="cover">
+    <div class="scene">
+      <svg viewBox="0 0 700 320" preserveAspectRatio="xMidYMax slice">
+        <defs><linearGradient id="mpSky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#16303F"/><stop offset=".7" stop-color="#3E7A6E"/><stop offset="1" stop-color="#7FB08A"/>
+        </linearGradient></defs>
+        <rect width="700" height="320" fill="url(#mpSky)"/>
+        <ellipse cx="180" cy="240" rx="200" ry="34" fill="#DCEBE2" opacity=".2"/>
+        <ellipse cx="560" cy="260" rx="220" ry="30" fill="#DCEBE2" opacity=".16"/>
+        <path d="M270,320 L318,66 C328,34 340,34 350,66 L396,320 Z" fill="#1E4A40"/>
+        <path d="M180,320 L240,140 L300,320 Z" fill="#173B33"/>
+        <path d="M380,320 L460,124 L540,320 Z" fill="#173B33"/>
+        <path d="M60,320 L130,184 L210,320 Z" fill="#12302A"/>
+        <path d="M480,320 L580,168 L680,320 Z" fill="#12302A"/>
+        <g stroke="#0D241F" stroke-width="5" opacity=".9">
+          <line x1="300" y1="252" x2="376" y2="252"/><line x1="290" y1="272" x2="388" y2="272"/><line x1="282" y1="292" x2="398" y2="292"/><line x1="274" y1="312" x2="406" y2="312"/>
+        </g>
+        <circle cx="614" cy="70" r="32" fill="#FFE9B0" opacity=".9"/>
+      </svg>
     </div>
-    <div class="day-meta">
-      <span class="tag hot" style="background:var(--terra)">🇵🇪 마추픽추</span>
-      <span class="tag alt">2,430m</span>
-      <span class="tag">투어 예약 완료 ✓</span>
+    <div class="veil"></div>
+    <div class="num">03</div>
+    <div class="head">
+      <div class="date">DAY 03 · 10.17 SAT · 🇵🇪 MACHU PICCHU</div>
+      <h2><span class="line"><span>마추픽추,</span></span><span class="line"><span>여행의 하이라이트 🏔</span></span></h2>
+      <div class="meta">
+        <span class="tag hot" style="background:var(--terra)">투어 예약 완료 ✓</span>
+        <span class="tag alt">2,430m</span>
+      </div>
     </div>
+  </div>
+  <div class="sheet">
     <div class="tl">
-      <div class="tl-item" style="--dot:var(--terra)">
-        <div class="tl-time">04:00</div>
+      <div class="tl-item" style="--dot:var(--terra)"><div class="tl-time">04:00</div>
         <h4>호텔 픽업 🚐</h4>
-        <p>전날 준비물: 여권(입장 시 <b>필수</b>), 물, 간식, 선크림, 모자, 우비(10월은 우기 초입), 보조배터리.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--terra)">
-        <div class="tl-time">오전</div>
+        <p>전날 준비물: 여권(입장 시 <b>필수</b>), 물, 간식, 선크림, 모자, 우비(10월은 우기 초입), 보조배터리.</p></div>
+      <div class="tl-item" style="--dot:var(--terra)"><div class="tl-time">오전</div>
         <h4>쿠스코 → 오얀타이탐보 → 기차 🚂</h4>
-        <p>기차 창밖 우루밤바 계곡 풍경이 이미 절경. 아구아스칼리엔테스 도착 후 셔틀버스로 마추픽추 입구까지.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--terra)">
-        <div class="tl-time">낮</div>
+        <p>기차 창밖 우루밤바 계곡 풍경이 이미 절경. 아구아스칼리엔테스 도착 후 셔틀버스로 마추픽추 입구까지.</p></div>
+      <div class="tl-item" style="--dot:var(--terra)"><div class="tl-time">낮</div>
         <h4>마추픽추 입장 ✨</h4>
-        <p>잉카의 잃어버린 도시. 가이드 설명 들으며 여유롭게 — 파수꾼의 집(전망 포인트)에서 그 유명한 전경 사진 꼭 찍기. 라마 만나면 손 대지 말고 눈으로만 🦙</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--terra)">
-        <div class="tl-time">저녁</div>
-        <h4>쿠스코 복귀 & 휴식</h4>
-        <p>왕복이 긴 하루. 돌아와서 따뜻한 저녁 먹고 일찍 쉬기.</p>
-      </div>
+        <p>잉카의 잃어버린 도시. 파수꾼의 집(전망 포인트)에서 그 유명한 전경 사진 꼭 찍기. 라마 만나면 손 대지 말고 눈으로만 🦙</p></div>
+      <div class="tl-item" style="--dot:var(--terra)"><div class="tl-time">저녁</div>
+        <h4>쿠스코 복귀 & 휴식</h4><p>왕복이 긴 하루. 돌아와서 따뜻한 저녁 먹고 일찍 쉬기.</p></div>
     </div>
     <div class="note tip">
       <span class="nt">💡 알아두면 좋은 것</span>
       마추픽추는 오히려 쿠스코보다 <b>1,000m 낮아서</b> 숨쉬기가 편하다. 입장권 시간대와 여권을 아침에 다시 한번 확인. 큰 배낭은 반입 제한이 있으니 작은 크로스백만.
     </div>
   </div>
-</article>
+  <div class="sheet-end"></div>
+</section>
 
-<!-- ============ D4 ============ -->
-<article class="day reveal" id="d4">
-  <div class="day-card">
-    <div class="band" style="background:var(--terra)"></div>
-    <div class="day-head">
-      <span class="day-num">DAY 04 · 10.18 일</span>
-      <h3>쿠스코 — 잉카의 수도를 걷다</h3>
+<!-- nazca hummingbird -->
+<div class="nazca">
+  <svg viewBox="0 0 320 170">
+    <path class="nz" d="M20,96 C50,90 78,86 104,84 C96,70 92,54 98,40 C103,29 114,26 121,34 C128,42 126,56 118,68 C130,62 144,58 158,58 C150,44 150,28 160,18 C168,10 180,12 183,22 C186,33 178,48 166,58 C182,56 198,58 210,66 C222,74 228,86 226,96 C240,92 256,92 268,98 C282,105 288,118 282,128 C276,138 262,140 252,132 C258,142 258,152 250,158 C242,164 230,160 226,150 C222,158 212,162 204,158 C196,154 194,144 200,136 C188,142 174,144 162,140 C166,150 162,160 152,162 C142,164 134,156 136,146 C126,152 114,152 106,144 C98,136 100,124 110,118 C94,118 76,114 64,106 C50,112 34,112 24,104 C20,101 18,98 20,96 Z"/>
+  </svg>
+  <span class="tag-n">NAZCA LINES · 벌새</span>
+</div>
+
+<!-- D4 -->
+<section class="chapter" id="d4">
+  <div class="cover">
+    <div class="scene">
+      <svg viewBox="0 0 700 320" preserveAspectRatio="xMidYMax slice">
+        <defs><linearGradient id="czSky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#2A1840"/><stop offset="1" stop-color="#B0574A"/>
+        </linearGradient></defs>
+        <rect width="700" height="320" fill="url(#czSky)"/>
+        <g fill="#1D1030">
+          <rect x="290" y="150" width="120" height="170"/>
+          <rect x="276" y="120" width="30" height="200"/><path d="M276,120 L291,80 L306,120 Z"/>
+          <rect x="394" y="120" width="30" height="200"/><path d="M394,120 L409,80 L424,120 Z"/>
+          <path d="M290,150 L350,110 L410,150 Z"/>
+          <rect x="40" y="222" width="220" height="98"/>
+          <g fill="#B0574A" opacity=".55"><rect x="58" y="244" width="20" height="76" rx="10"/><rect x="94" y="244" width="20" height="76" rx="10"/><rect x="130" y="244" width="20" height="76" rx="10"/><rect x="166" y="244" width="20" height="76" rx="10"/><rect x="202" y="244" width="20" height="76" rx="10"/><rect x="232" y="244" width="20" height="76" rx="10"/></g>
+          <rect x="440" y="222" width="220" height="98"/>
+          <g fill="#B0574A" opacity=".55"><rect x="458" y="244" width="20" height="76" rx="10"/><rect x="494" y="244" width="20" height="76" rx="10"/><rect x="530" y="244" width="20" height="76" rx="10"/><rect x="566" y="244" width="20" height="76" rx="10"/><rect x="602" y="244" width="20" height="76" rx="10"/><rect x="632" y="244" width="20" height="76" rx="10"/></g>
+        </g>
+        <circle cx="120" cy="78" r="28" fill="#FFE9B0" opacity=".85"/>
+        <g fill="#fff" opacity=".7"><circle cx="520" cy="50" r="2"/><circle cx="600" cy="90" r="1.4"/><circle cx="660" cy="40" r="2"/><circle cx="460" cy="30" r="1.4"/></g>
+      </svg>
     </div>
-    <div class="day-meta">
-      <span class="tag hot" style="background:var(--terra)">🇵🇪 쿠스코</span>
-      <span class="tag alt">3,399m</span>
-      <span class="tag">여유로운 하루</span>
+    <div class="veil"></div>
+    <div class="num">04</div>
+    <div class="head">
+      <div class="date">DAY 04 · 10.18 SUN · 🇵🇪 CUSCO</div>
+      <h2><span class="line"><span>잉카의 수도를</span></span><span class="line"><span>천천히 걷다</span></span></h2>
+      <div class="meta">
+        <span class="tag hot" style="background:var(--terra)">여유로운 하루</span>
+        <span class="tag alt">3,399m</span>
+      </div>
     </div>
+  </div>
+  <div class="sheet">
     <div class="tl">
-      <div class="tl-item" style="--dot:var(--terra)">
-        <div class="tl-time">오전</div>
-        <h4>아르마스 광장 & 대성당 ⛪</h4>
-        <p>쿠스코의 심장. 광장 카페 2층에서 커피 마시며 광장 내려다보기.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--terra)">
-        <div class="tl-time">11:00</div>
+      <div class="tl-item" style="--dot:var(--terra)"><div class="tl-time">오전</div>
+        <h4>아르마스 광장 & 대성당 ⛪</h4><p>쿠스코의 심장. 광장 카페 2층에서 커피 마시며 광장 내려다보기.</p></div>
+      <div class="tl-item" style="--dot:var(--terra)"><div class="tl-time">11:00</div>
         <h4>산페드로 시장 🍊</h4>
-        <p>과일주스 골목 강력 추천 — 즉석에서 갈아주는 생과일주스가 1~2천 원. 기념품도 여기가 시내보다 저렴.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--terra)">
-        <div class="tl-time">오후</div>
+        <p>과일주스 골목 강력 추천 — 즉석에서 갈아주는 생과일주스가 1~2천 원. 기념품도 여기가 시내보다 저렴.</p></div>
+      <div class="tl-item" style="--dot:var(--terra)"><div class="tl-time">오후</div>
         <h4>코리칸차(태양의 신전) → 산 블라스 골목 🎨</h4>
-        <p>잉카 석벽 위에 세워진 수도원. 이후 언덕의 산 블라스 예술가 골목 — 사진 맛집. 돌길 언덕이니 천천히.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--terra)">
-        <div class="tl-time">저녁</div>
+        <p>잉카 석벽 위에 세워진 수도원. 이후 언덕의 산 블라스 예술가 골목 — 사진 맛집. 돌길 언덕이니 천천히.</p></div>
+      <div class="tl-item" style="--dot:var(--terra)"><div class="tl-time">저녁</div>
         <h4>페루 음식 도장깨기 🍽</h4>
-        <p><b>로모 살타도</b>(잉카식 소고기볶음) 또는 알파카 스테이크 도전. 내일 새벽 투어 대비 일찍 취침.</p>
-      </div>
+        <p><b>로모 살타도</b>(잉카식 소고기볶음) 또는 알파카 스테이크 도전. 내일 새벽 투어 대비 일찍 취침.</p></div>
     </div>
     <div class="note food">
       <span class="nt">🍽 페루에서 꼭 먹어야 할 것</span>
       세비체(리마에서!) · 로모 살타도 · 잉카콜라 · 코카차 · 산페드로 시장 생과일주스 · 알파카 요리(호기심 있다면)
     </div>
   </div>
-</article>
+  <div class="sheet-end"></div>
+</section>
 
-<!-- ============ D5 ============ -->
-<article class="day reveal" id="d5">
-  <div class="day-card">
-    <div class="band" style="background:var(--cantuta)"></div>
-    <div class="day-head">
-      <span class="day-num">DAY 05 · 10.19 월</span>
-      <h3>비니쿤카, 무지개산 🌈</h3>
+<!-- D5 -->
+<section class="chapter" id="d5">
+  <div class="cover">
+    <div class="scene">
+      <svg viewBox="0 0 700 320" preserveAspectRatio="xMidYMax slice">
+        <rect width="700" height="320" fill="#26224E"/>
+        <g fill="#fff" opacity=".7"><circle cx="90" cy="46" r="2"/><circle cx="240" cy="30" r="1.4"/><circle cx="620" cy="56" r="2"/><circle cx="420" cy="24" r="1.4"/></g>
+        <g>
+          <path d="M100,320 L350,60 L600,320 Z" fill="#8A4A5E"/>
+          <path d="M140,290 L350,86 L560,290 L542,304 L350,108 L158,304 Z" fill="#FF5C8A" opacity=".9"/>
+          <path d="M186,262 L350,118 L516,262 L496,276 L350,140 L206,276 Z" fill="#FFB84D" opacity=".9"/>
+          <path d="M232,232 L350,150 L470,232 L450,246 L350,172 L252,246 Z" fill="#3FE0C5" opacity=".85"/>
+          <path d="M278,206 L350,180 L424,206 L406,220 L350,200 L296,220 Z" fill="#B67CFF" opacity=".85"/>
+        </g>
+        <path d="M0,320 L90,220 L220,320 Z" fill="#1A1740"/>
+        <path d="M480,320 L610,208 L700,320 Z" fill="#1A1740"/>
+        <g transform="translate(347,48)"><line x1="0" y1="0" x2="0" y2="22" stroke="#F2EDE1" stroke-width="3"/><path d="M0,0 L18,6 L0,12 Z" fill="#FF5C8A"/></g>
+      </svg>
     </div>
-    <div class="day-meta">
-      <span class="tag hot" style="background:var(--cantuta)">🇵🇪 비니쿤카</span>
-      <span class="tag alt">5,036m — 최고 고도 ⚠️</span>
-      <span class="tag">새벽 출발 투어</span>
+    <div class="veil"></div>
+    <div class="num">05</div>
+    <div class="head">
+      <div class="date">DAY 05 · 10.19 MON · 🇵🇪 VINICUNCA</div>
+      <h2><span class="line"><span>무지개산,</span></span><span class="line"><span>5,036m의 색 🌈</span></span></h2>
+      <div class="meta">
+        <span class="tag hot" style="background:var(--cantuta)">최고 고도 ⚠️</span>
+        <span class="tag">새벽 출발 투어</span>
+      </div>
     </div>
+  </div>
+  <div class="sheet">
     <div class="tl">
-      <div class="tl-item" style="--dot:var(--cantuta)">
-        <div class="tl-time">04:30</div>
-        <h4>투어 픽업 (보통 04~05시)</h4>
-        <p>차로 약 3시간 이동 후 트레킹 시작. 아침·점심 포함 투어가 대부분.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--cantuta)">
-        <div class="tl-time">오전</div>
+      <div class="tl-item" style="--dot:var(--cantuta)"><div class="tl-time">04:30</div>
+        <h4>투어 픽업 (보통 04~05시)</h4><p>차로 약 3시간 이동 후 트레킹 시작. 아침·점심 포함 투어가 대부분.</p></div>
+      <div class="tl-item" style="--dot:var(--cantuta)"><div class="tl-time">오전</div>
         <h4>무지개산 트레킹 ⛰</h4>
-        <p>왕복 2~3시간. <b>천천히, 아주 천천히</b> 걷는 게 요령. 힘들면 말 타기 옵션(현장 결제) 이용해도 전혀 부끄럽지 않음. 정상에서 보는 줄무늬 산맥은 남미에서 가장 기억에 남을 풍경 중 하나.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--cantuta)">
-        <div class="tl-time">+α</div>
+        <p>왕복 2~3시간. <b>천천히, 아주 천천히</b> 걷는 게 요령. 힘들면 말 타기 옵션(현장 결제) 이용해도 전혀 부끄럽지 않음. 정상에서 보는 줄무늬 산맥은 남미에서 가장 기억에 남을 풍경 중 하나.</p></div>
+      <div class="tl-item" style="--dot:var(--cantuta)"><div class="tl-time">+α</div>
         <h4>레드 밸리 (선택) 🔴</h4>
-        <p>무지개산 바로 옆, 붉은 계곡 코스가 포함된 투어라면 꼭 — 오히려 여기가 더 예쁘다는 사람도 많음.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--cantuta)">
-        <div class="tl-time">17:00</div>
-        <h4>쿠스코 복귀 & 휴식</h4>
-        <p>오늘 체력 소모가 크니 저녁은 가볍게, 일찍 쉬기.</p>
-      </div>
+        <p>무지개산 바로 옆, 붉은 계곡 코스가 포함된 투어라면 꼭 — 오히려 여기가 더 예쁘다는 사람도 많음.</p></div>
+      <div class="tl-item" style="--dot:var(--cantuta)"><div class="tl-time">17:00</div>
+        <h4>쿠스코 복귀 & 휴식</h4><p>오늘 체력 소모가 크니 저녁은 가볍게, 일찍 쉬기.</p></div>
     </div>
     <div class="note safety">
       <span class="nt">⚠️ 5,000m — 이번 여행 최고 고도</span>
       두통·메스꺼움이 심하면 <b>무리하지 말고 중간에 멈추기.</b> 코카잎·코카캔디 챙기고, 방한복 필수(정상은 한겨울 날씨). 선크림도 듬뿍 — 고산 자외선은 차원이 다름.
     </div>
   </div>
-</article>
+  <div class="sheet-end"></div>
+</section>
 
-<!-- ============ D6 ============ -->
-<article class="day reveal" id="d6">
-  <div class="day-card">
-    <div class="band" style="background:var(--terra)"></div>
-    <div class="day-head">
-      <span class="day-num">DAY 06 · 10.20 화</span>
-      <h3>성스러운 계곡 — 잉카의 속살</h3>
+<!-- D6 -->
+<section class="chapter" id="d6">
+  <div class="cover">
+    <div class="scene">
+      <svg viewBox="0 0 700 320" preserveAspectRatio="xMidYMax slice">
+        <defs><linearGradient id="svSky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#1A2C4A"/><stop offset="1" stop-color="#4E7A5E"/>
+        </linearGradient></defs>
+        <rect width="700" height="320" fill="url(#svSky)"/>
+        <g fill="none" stroke="#16321F" stroke-width="22" opacity=".85">
+          <circle cx="200" cy="290" r="150"/><circle cx="200" cy="290" r="106"/><circle cx="200" cy="290" r="66"/><circle cx="200" cy="290" r="30"/>
+        </g>
+        <g fill="#EDE6D4" opacity=".9">
+          <path d="M430,170 l60,-10 l8,20 l-62,11 Z"/><path d="M498,158 l62,-11 l8,20 l-64,12 Z"/>
+          <path d="M440,196 l64,-11 l8,20 l-66,12 Z"/><path d="M512,184 l64,-12 l8,20 l-66,13 Z"/>
+          <path d="M452,222 l66,-12 l7,19 l-67,13 Z"/><path d="M526,210 l66,-13 l7,19 l-67,14 Z"/>
+          <path d="M600,198 l64,-13 l7,19 l-65,14 Z"/><path d="M464,248 l68,-14 l7,19 l-69,15 Z"/>
+          <path d="M540,236 l68,-14 l7,19 l-69,15 Z"/><path d="M614,224 l66,-14 l7,19 l-67,15 Z"/>
+        </g>
+        <circle cx="90" cy="60" r="24" fill="#FFE9B0" opacity=".85"/>
+      </svg>
     </div>
-    <div class="day-meta">
-      <span class="tag hot" style="background:var(--terra)">🇵🇪 Sacred Valley</span>
-      <span class="tag alt">2,800~3,300m</span>
-      <span class="tag">일일 투어</span>
+    <div class="veil"></div>
+    <div class="num">06</div>
+    <div class="head">
+      <div class="date">DAY 06 · 10.20 TUE · 🇵🇪 SACRED VALLEY</div>
+      <h2><span class="line"><span>성스러운 계곡,</span></span><span class="line"><span>잉카의 속살</span></span></h2>
+      <div class="meta">
+        <span class="tag hot" style="background:var(--terra)">일일 투어</span>
+        <span class="tag alt">2,800~3,300m</span>
+      </div>
     </div>
+  </div>
+  <div class="sheet">
     <div class="tl">
-      <div class="tl-item" style="--dot:var(--terra)">
-        <div class="tl-time">오전</div>
-        <h4>오얀타이탐보 요새 🏛</h4>
-        <p>살아있는 잉카 마을. 계단식 요새 위에서 내려다보는 계곡 풍경.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--terra)">
-        <div class="tl-time">낮</div>
-        <h4>모라이 원형 계단밭 🌀</h4>
-        <p>잉카의 농업 실험장이었던 신비로운 동심원 유적.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--terra)">
-        <div class="tl-time">오후</div>
+      <div class="tl-item" style="--dot:var(--terra)"><div class="tl-time">오전</div>
+        <h4>오얀타이탐보 요새 🏛</h4><p>살아있는 잉카 마을. 계단식 요새 위에서 내려다보는 계곡 풍경.</p></div>
+      <div class="tl-item" style="--dot:var(--terra)"><div class="tl-time">낮</div>
+        <h4>모라이 원형 계단밭 🌀</h4><p>잉카의 농업 실험장이었던 신비로운 동심원 유적.</p></div>
+      <div class="tl-item" style="--dot:var(--terra)"><div class="tl-time">오후</div>
         <h4>마라스 소금광산 🧂</h4>
-        <p>산비탈을 가득 채운 수천 개의 하얀 소금밭 — 사진이 정말 잘 나오는 곳. 핑크솔트 기념품 사기 좋음.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--terra)">
-        <div class="tl-time">저녁</div>
-        <h4>쿠스코 마지막 밤 🌙</h4>
-        <p>아르마스 광장 야경 보며 쿠스코와 작별. 내일은 푸노로.</p>
-      </div>
+        <p>산비탈을 가득 채운 수천 개의 하얀 소금밭 — 사진이 정말 잘 나오는 곳. 핑크솔트 기념품 사기 좋음.</p></div>
+      <div class="tl-item" style="--dot:var(--terra)"><div class="tl-time">저녁</div>
+        <h4>쿠스코 마지막 밤 🌙</h4><p>아르마스 광장 야경 보며 쿠스코와 작별. 내일은 푸노로.</p></div>
     </div>
     <div class="note tip">
       <span class="nt">💡 아우산가떼 대신 여기를 고른 이유</span>
       아우산가떼는 풍경이 무지개산과 다소 겹치고 체력 소모가 매우 큼. 성스러운 계곡은 어제의 고강도 트레킹 후 회복하기 좋은 <b>낮은 고도 + 편한 일정</b>이라 만족도가 더 높은 선택.
     </div>
   </div>
-</article>
+  <div class="sheet-end"></div>
+</section>
 
-<!-- ============ D7 ============ -->
-<article class="day reveal" id="d7">
-  <div class="day-card">
-    <div class="band" style="background:var(--cielo)"></div>
-    <div class="day-head">
-      <span class="day-num">DAY 07 · 10.21 수</span>
-      <h3>쿠스코 → 푸노, 티티카카를 향해</h3>
+<!-- D7 -->
+<section class="chapter" id="d7">
+  <div class="cover">
+    <div class="scene">
+      <svg viewBox="0 0 700 320" preserveAspectRatio="xMidYMax slice">
+        <defs><linearGradient id="rdSky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#2E1F46"/><stop offset="1" stop-color="#C97B4A"/>
+        </linearGradient></defs>
+        <rect width="700" height="320" fill="url(#rdSky)"/>
+        <circle cx="560" cy="110" r="42" fill="#FFE9B0" opacity=".9"/>
+        <path d="M0,320 L0,256 L180,196 L360,256 L520,206 L700,250 L700,320 Z" fill="#2A1B3E"/>
+        <path d="M300,320 L348,256 L376,256 L460,320 Z" fill="#1A1030"/>
+        <path d="M372,316 L360,258 M384,310 L370,272" stroke="#FFB84D" stroke-width="4" stroke-dasharray="10 14" fill="none"/>
+        <g transform="translate(322,236)">
+          <rect x="0" y="0" width="82" height="36" rx="7" fill="#3FE0C5"/>
+          <rect x="7" y="7" width="16" height="13" rx="3" fill="#0B0A1A"/><rect x="29" y="7" width="16" height="13" rx="3" fill="#0B0A1A"/><rect x="51" y="7" width="16" height="13" rx="3" fill="#0B0A1A"/>
+          <circle cx="19" cy="38" r="8" fill="#0B0A1A"/><circle cx="63" cy="38" r="8" fill="#0B0A1A"/>
+        </g>
+        <g stroke="#1A1030" stroke-width="11" stroke-linecap="round" fill="none">
+          <path d="M120,314 L120,254 M120,278 L96,264 M120,288 L144,270"/>
+          <path d="M600,314 L600,262 M600,282 L580,268"/>
+        </g>
+      </svg>
     </div>
-    <div class="day-meta">
-      <span class="tag hot" style="background:var(--cielo)">🇵🇪 푸노</span>
-      <span class="tag alt">3,827m</span>
-      <span class="tag">관광버스 7~8h</span>
-    </div>
-    <div class="tl">
-      <div class="tl-item" style="--dot:var(--cielo)">
-        <div class="tl-time">아침</div>
-        <h4>쿠스코 → 푸노 관광버스 🚌</h4>
-        <p>일반 버스 대신 <b>관광버스(Inka Express 등)</b> 추천 — 중간에 안다우아일리야스 성당, 락치 유적 등 들르며 가서 지루하지 않고 점심도 포함.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--cielo)">
-        <div class="tl-time">저녁</div>
-        <h4>푸노 도착 & 휴식</h4>
-        <p>티티카카 호숫가 도시. 저녁 먹고 일찍 쉬면서 내일 국경 이동 준비. 여권·볼리비아 입국 서류 미리 확인.</p>
+    <div class="veil"></div>
+    <div class="num">07</div>
+    <div class="head">
+      <div class="date">DAY 07 · 10.21 WED · 🇵🇪 PUNO</div>
+      <h2><span class="line"><span>알티플라노를 달려</span></span><span class="line"><span>티티카카를 향해</span></span></h2>
+      <div class="meta">
+        <span class="tag hot" style="background:var(--cielo)">관광버스 7~8h</span>
+        <span class="tag alt">3,827m</span>
       </div>
     </div>
   </div>
-</article>
-
-<!-- ============ D8 ============ -->
-<article class="day reveal" id="d8">
-  <div class="day-card">
-    <div class="band" style="background:var(--cielo)"></div>
-    <div class="day-head">
-      <span class="day-num">DAY 08 · 10.22 목</span>
-      <h3>티티카카 호수 → 국경을 넘어 라파스로</h3>
-    </div>
-    <div class="day-meta">
-      <span class="tag hot" style="background:var(--cielo)">🇵🇪→🇧🇴 국경 이동</span>
-      <span class="tag alt">3,812m</span>
-      <span class="tag">시차 +1h</span>
-    </div>
+  <div class="sheet">
     <div class="tl">
-      <div class="tl-item" style="--dot:var(--cielo)">
-        <div class="tl-time">오전</div>
+      <div class="tl-item" style="--dot:var(--cielo)"><div class="tl-time">아침</div>
+        <h4>쿠스코 → 푸노 관광버스 🚌</h4>
+        <p>일반 버스 대신 <b>관광버스(Inka Express 등)</b> 추천 — 중간에 안다우아일리야스 성당, 락치 유적 등 들르며 가서 지루하지 않고 점심도 포함.</p></div>
+      <div class="tl-item" style="--dot:var(--cielo)"><div class="tl-time">저녁</div>
+        <h4>푸노 도착 & 휴식</h4>
+        <p>티티카카 호숫가 도시. 저녁 먹고 일찍 쉬면서 내일 국경 이동 준비. 여권·볼리비아 입국 서류 미리 확인.</p></div>
+    </div>
+  </div>
+  <div class="sheet-end"></div>
+</section>
+
+<!-- D8 -->
+<section class="chapter" id="d8">
+  <div class="cover">
+    <div class="scene">
+      <svg viewBox="0 0 700 320" preserveAspectRatio="xMidYMax slice">
+        <defs><linearGradient id="ttSky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#182A4E"/><stop offset="1" stop-color="#3E6E9E"/>
+        </linearGradient></defs>
+        <rect width="700" height="190" fill="url(#ttSky)"/>
+        <rect y="190" width="700" height="130" fill="#1B4E6E"/>
+        <path d="M0,190 h700" stroke="#7CC4E8" stroke-width="2" opacity=".5"/>
+        <path d="M0,320 L0,190 L90,146 L200,190 L320,132 L450,190 L560,150 L700,190 L700,320 Z" fill="#152A4A" opacity=".55"/>
+        <g transform="translate(260,200)">
+          <path d="M0,20 C34,44 200,44 234,20 C218,4 188,-4 117,-4 C46,-4 16,4 0,20 Z" fill="#C9A24D"/>
+          <path d="M10,16 C40,-16 56,-26 64,-30 M224,16 C196,-16 180,-26 172,-30" stroke="#C9A24D" stroke-width="11" fill="none" stroke-linecap="round"/>
+          <path d="M100,-8 L100,-52 L148,-30 Z" fill="#FF5C8A" opacity=".9"/>
+        </g>
+        <g stroke="#7CC4E8" stroke-width="2.4" opacity=".45">
+          <path d="M60,250 q28,7 56,0 M480,268 q30,7 60,0 M160,290 q28,7 56,0 M580,236 q24,7 48,0"/>
+        </g>
+        <circle cx="620" cy="60" r="26" fill="#FFE9B0" opacity=".85"/>
+      </svg>
+    </div>
+    <div class="veil"></div>
+    <div class="num">08</div>
+    <div class="head">
+      <div class="date">DAY 08 · 10.22 THU · 🇵🇪→🇧🇴 BORDER</div>
+      <h2><span class="line"><span>티티카카 호수,</span></span><span class="line"><span>국경을 넘어 라파스로</span></span></h2>
+      <div class="meta">
+        <span class="tag hot" style="background:var(--cielo)">국경 이동</span>
+        <span class="tag alt">3,812m · 시차 +1h</span>
+      </div>
+    </div>
+  </div>
+  <div class="sheet">
+    <div class="tl">
+      <div class="tl-item" style="--dot:var(--cielo)"><div class="tl-time">오전</div>
         <h4>티티카카 호수 — 우로스 갈대섬 🛶</h4>
-        <p>세계에서 가장 높은 곳에 있는 배가 다니는 호수. 갈대로 만든 떠 있는 섬 우로스 방문(반나절 투어).</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--cielo)">
-        <div class="tl-time">오후</div>
+        <p>세계에서 가장 높은 곳에 있는 배가 다니는 호수. 갈대로 만든 떠 있는 섬 우로스 방문(반나절 투어).</p></div>
+      <div class="tl-item" style="--dot:var(--cielo)"><div class="tl-time">오후</div>
         <h4>푸노 → 라파스 이동 (버스 6~7h) 🇧🇴</h4>
-        <p>코파카바나 경유 국경 통과. 볼리비아는 페루보다 <b>1시간 빠름</b> — 시계 맞추기.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--cielo)">
-        <div class="tl-time">저녁</div>
+        <p>코파카바나 경유 국경 통과. 볼리비아는 페루보다 <b>1시간 빠름</b> — 시계 맞추기.</p></div>
+      <div class="tl-item" style="--dot:var(--cielo)"><div class="tl-time">저녁</div>
         <h4>라파스 도착 & 체크인</h4>
-        <p>세계에서 가장 높은 수도. 분지를 가득 채운 불빛이 도착하는 순간부터 장관.</p>
-      </div>
+        <p>세계에서 가장 높은 수도. 분지를 가득 채운 불빛이 도착하는 순간부터 장관.</p></div>
     </div>
     <div class="note safety">
       <span class="nt">🛂 국경 이동 체크</span>
       여권 + 볼리비아 입국 요건은 출발 전 최신 정보 확인(황열 증명서 요구 여부 포함). 국경에서는 소지품 항상 몸에 붙이고, 환전은 소액만.
     </div>
   </div>
-</article>
+  <div class="sheet-end"></div>
+</section>
 
-<!-- ============ D9 ============ -->
-<article class="day reveal" id="d9">
-  <div class="day-card">
-    <div class="band" style="background:var(--cantuta)"></div>
-    <div class="day-head">
-      <span class="day-num">DAY 09 · 10.23 금</span>
-      <h3>라파스 하늘길, 그리고 밤의 이동</h3>
+<!-- D9 -->
+<section class="chapter" id="d9">
+  <div class="cover">
+    <div class="scene">
+      <svg viewBox="0 0 700 320" preserveAspectRatio="xMidYMax slice">
+        <rect width="700" height="320" fill="#100E28"/>
+        <path d="M0,90 C160,300 540,300 700,90 L700,320 L0,320 Z" fill="#181438"/>
+        <g fill="#FFB84D">
+          <circle cx="120" cy="206" r="3"/><circle cx="160" cy="234" r="2.6"/><circle cx="200" cy="256" r="3.2"/><circle cx="250" cy="272" r="2.6"/>
+          <circle cx="300" cy="282" r="3.2"/><circle cx="350" cy="286" r="2.8"/><circle cx="400" cy="282" r="3.2"/><circle cx="450" cy="272" r="2.6"/>
+          <circle cx="500" cy="256" r="3.2"/><circle cx="545" cy="234" r="2.6"/><circle cx="585" cy="210" r="3"/><circle cx="180" cy="272" r="2.4"/>
+          <circle cx="330" cy="262" r="2.4"/><circle cx="420" cy="252" r="2.4"/><circle cx="270" cy="244" r="2.4"/><circle cx="470" cy="292" r="2.6"/>
+          <circle cx="230" cy="292" r="2.6"/><circle cx="380" cy="302" r="2.6"/><circle cx="520" cy="286" r="2.4"/><circle cx="140" cy="250" r="2.2"/>
+        </g>
+        <path d="M40,80 C240,150 460,150 660,72" stroke="rgba(242,237,225,.4)" stroke-width="2.4" fill="none"/>
+        <g transform="translate(215,118)"><line x1="15" y1="-12" x2="15" y2="0" stroke="#F2EDE1" stroke-width="2.4"/><rect x="0" y="0" width="30" height="22" rx="5" fill="#FFB84D"/></g>
+        <g transform="translate(428,122)"><line x1="15" y1="-12" x2="15" y2="0" stroke="#F2EDE1" stroke-width="2.4"/><rect x="0" y="0" width="30" height="22" rx="5" fill="#3FE0C5"/></g>
+        <path d="M520,140 L610,34 L700,140 Z" fill="#242052"/>
+        <path d="M592,55 L610,34 L628,55 L618,70 L602,66 Z" fill="#EDE6F4" opacity=".9"/>
+        <g fill="#fff" opacity=".85"><circle cx="80" cy="40" r="2"/><circle cx="300" cy="26" r="1.4"/><circle cx="480" cy="44" r="2"/><circle cx="180" cy="60" r="1.4"/></g>
+      </svg>
     </div>
-    <div class="day-meta">
-      <span class="tag hot" style="background:var(--cantuta)">🇧🇴 라파스</span>
-      <span class="tag alt">3,650m</span>
-      <span class="tag">야간버스 → 우유니</span>
-    </div>
-    <div class="tl">
-      <div class="tl-item" style="--dot:var(--cantuta)">
-        <div class="tl-time">낮</div>
-        <h4>미 텔레페리코 케이블카 🚠</h4>
-        <p>도시 전체를 케이블카로 여행하는 세계 유일의 도시. <b>노란 노선</b> 포함 2~3개 노선 타며 엘 알토 전망대에서 라파스 파노라마 감상.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--cantuta)">
-        <div class="tl-time">오후</div>
-        <h4>마녀시장 & 시내 구경 🔮</h4>
-        <p>기묘한 부적과 기념품이 가득한 골목. 우유니에서 먹을 간식·물도 미리 사두기.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--cantuta)">
-        <div class="tl-time">저녁</div>
-        <h4>라파스 야경 ✨</h4>
-        <p>해 지고 분지 전체에 불이 켜지면 — 은하수가 쏟아진 것 같은 풍경.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--cantuta)">
-        <div class="tl-time">21:00</div>
-        <h4>우유니행 야간버스 🚌🌙</h4>
-        <p>약 9~10시간. <b>풀까마(180도 눕는 좌석) 등급</b>으로 예약하기. 귀중품은 몸에, 담요·목베개 필수.</p>
+    <div class="veil"></div>
+    <div class="num">09</div>
+    <div class="head">
+      <div class="date">DAY 09 · 10.23 FRI · 🇧🇴 LA PAZ</div>
+      <h2><span class="line"><span>하늘길의 도시,</span></span><span class="line"><span>그리고 밤의 이동 🚠</span></span></h2>
+      <div class="meta">
+        <span class="tag hot" style="background:var(--violet)">야간버스 → 우유니</span>
+        <span class="tag alt">3,650m</span>
       </div>
     </div>
   </div>
-</article>
-
-<!-- ============ D10 ============ -->
-<article class="day reveal" id="d10">
-  <div class="day-card">
-    <div class="band" style="background:linear-gradient(90deg,var(--cielo),var(--salt))"></div>
-    <div class="day-head">
-      <span class="day-num">DAY 10 · 10.24 토</span>
-      <h3>우유니 — 하늘을 걷는 날 🧂</h3>
-    </div>
-    <div class="day-meta">
-      <span class="tag hot" style="background:var(--cielo)">🇧🇴 우유니 소금사막</span>
-      <span class="tag alt">3,656m</span>
-      <span class="tag">데이+선셋 투어</span>
-    </div>
+  <div class="sheet">
     <div class="tl">
-      <div class="tl-item" style="--dot:var(--cielo)">
-        <div class="tl-time">아침</div>
+      <div class="tl-item" style="--dot:var(--violet)"><div class="tl-time">낮</div>
+        <h4>미 텔레페리코 케이블카 🚠</h4>
+        <p>도시 전체를 케이블카로 여행하는 세계 유일의 도시. <b>노란 노선</b> 포함 2~3개 노선 타며 엘 알토 전망대에서 라파스 파노라마 감상.</p></div>
+      <div class="tl-item" style="--dot:var(--violet)"><div class="tl-time">오후</div>
+        <h4>마녀시장 & 시내 구경 🔮</h4>
+        <p>기묘한 부적과 기념품이 가득한 골목. 우유니에서 먹을 간식·물도 미리 사두기.</p></div>
+      <div class="tl-item" style="--dot:var(--violet)"><div class="tl-time">저녁</div>
+        <h4>라파스 야경 ✨</h4>
+        <p>해 지고 분지 전체에 불이 켜지면 — 은하수가 쏟아진 것 같은 풍경.</p></div>
+      <div class="tl-item" style="--dot:var(--violet)"><div class="tl-time">21:00</div>
+        <h4>우유니행 야간버스 🚌🌙</h4>
+        <p>약 9~10시간. <b>풀까마(180도 눕는 좌석) 등급</b>으로 예약하기. 귀중품은 몸에, 담요·목베개 필수.</p></div>
+    </div>
+  </div>
+  <div class="sheet-end"></div>
+</section>
+
+<!-- D10 -->
+<section class="chapter" id="d10">
+  <div class="cover">
+    <div class="scene">
+      <svg viewBox="0 0 700 320" preserveAspectRatio="xMidYMax slice">
+        <defs>
+          <linearGradient id="uySky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#241C52"/><stop offset=".8" stop-color="#C86A8E"/><stop offset="1" stop-color="#E89AA8"/>
+          </linearGradient>
+          <linearGradient id="uyMirror" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#E89AA8"/><stop offset=".3" stop-color="#B06A94"/><stop offset="1" stop-color="#3A2E68"/>
+          </linearGradient>
+        </defs>
+        <rect width="700" height="164" fill="url(#uySky)"/>
+        <rect y="164" width="700" height="156" fill="url(#uyMirror)"/>
+        <line x1="0" y1="164" x2="700" y2="164" stroke="#FFE9F0" stroke-width="2" opacity=".8"/>
+        <circle cx="350" cy="130" r="34" fill="#FFE9B0"/>
+        <circle cx="350" cy="198" r="34" fill="#FFE9B0" opacity=".4"/>
+        <g fill="#FFE9F0" opacity=".85">
+          <ellipse cx="140" cy="82" rx="86" ry="18"/><ellipse cx="176" cy="68" rx="52" ry="14"/>
+          <ellipse cx="540" cy="96" rx="96" ry="18"/><ellipse cx="576" cy="82" rx="52" ry="14"/>
+        </g>
+        <g fill="#FFE9F0" opacity=".28">
+          <ellipse cx="140" cy="246" rx="86" ry="18"/><ellipse cx="540" cy="232" rx="96" ry="18"/>
+        </g>
+        <g stroke="#FFE9F0" stroke-width="1.6" fill="none" opacity=".35">
+          <path d="M60,296 l22,-13 l22,13 l0,18 M240,304 l22,-13 l22,13 M430,300 l22,-13 l22,13 l0,15 M620,304 l22,-13 l22,13"/>
+        </g>
+        <g fill="#0B0A1A"><circle cx="466" cy="128" r="7"/><rect x="461" y="134" width="10" height="24" rx="4"/></g>
+        <g fill="#0B0A1A" opacity=".4" transform="scale(1,-1) translate(0,-328)"><circle cx="466" cy="128" r="7"/><rect x="461" y="134" width="10" height="24" rx="4"/></g>
+      </svg>
+    </div>
+    <div class="veil"></div>
+    <div class="num">10</div>
+    <div class="head">
+      <div class="date">DAY 10 · 10.24 SAT · 🇧🇴 UYUNI</div>
+      <h2><span class="line"><span>우유니,</span></span><span class="line"><span>하늘을 걷는 날 🧂</span></span></h2>
+      <div class="meta">
+        <span class="tag hot" style="background:var(--cielo)">데이+선셋 투어</span>
+        <span class="tag alt">3,656m</span>
+      </div>
+    </div>
+  </div>
+  <div class="sheet">
+    <div class="tl">
+      <div class="tl-item" style="--dot:var(--cielo)"><div class="tl-time">아침</div>
         <h4>우유니 도착 & 투어 예약 확인</h4>
-        <p>야간버스에서 내려 아침 먹고 정신 차리기. 데이 투어 + <b>선셋 투어</b> 조합이 최고.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--cielo)">
-        <div class="tl-time">10:30</div>
+        <p>야간버스에서 내려 아침 먹고 정신 차리기. 데이 투어 + <b>선셋 투어</b> 조합이 최고.</p></div>
+      <div class="tl-item" style="--dot:var(--cielo)"><div class="tl-time">10:30</div>
         <h4>소금사막 데이 투어 시작 🚙</h4>
-        <p>기차 무덤 → 콜차니 마을 → 끝없는 소금 평원. 원근감이 사라지는 곳에서 <b>공룡 장난감 원근 샷</b> 필수(장난감은 미리 준비!).</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--cielo)">
-        <div class="tl-time">17:00</div>
+        <p>기차 무덤 → 콜차니 마을 → 끝없는 소금 평원. 원근감이 사라지는 곳에서 <b>공룡 장난감 원근 샷</b> 필수(장난감은 미리 준비!).</p></div>
+      <div class="tl-item" style="--dot:var(--cielo)"><div class="tl-time">17:00</div>
         <h4>선셋 & 거울 반영 🌅</h4>
-        <p>10월은 우기 직전이라 물이 고인 구역이 있다면 그 유명한 <b>하늘 반영 샷</b>도 가능. 해 지는 순간 하늘과 땅의 경계가 사라진다 — 이번 여행의 클라이맥스.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--cielo)">
-        <div class="tl-time">밤</div>
+        <p>10월은 우기 직전이라 물이 고인 구역이 있다면 그 유명한 <b>하늘 반영 샷</b>도 가능. 해 지는 순간 하늘과 땅의 경계가 사라진다 — 이번 여행의 클라이맥스.</p></div>
+      <div class="tl-item" style="--dot:var(--cielo)"><div class="tl-time">밤</div>
         <h4>우유니 숙박 😴</h4>
-        <p>야간버스+투어로 긴 하루. 내일 이동을 위해 푹 자기. (밤 별 투어 여력이 되면 추가 — 남반구 은하수는 인생 밤하늘)</p>
-      </div>
+        <p>야간버스+투어로 긴 하루. 내일 이동을 위해 푹 자기. (밤 별 투어 여력이 되면 추가 — 남반구 은하수에서 잉카의 검은 별자리 <b>야카나</b> 찾아보기!)</p></div>
     </div>
     <div class="note tip">
       <span class="nt">📸 우유니 준비물</span>
       선글라스 필수(설맹 수준으로 눈부심) · 선크림 · 장화(물 구역용, 투어사 대여 가능) · 원근샷용 소품 · 보조배터리(추위에 방전 빠름)
     </div>
   </div>
-</article>
+  <div class="sheet-end"></div>
+</section>
 
-<!-- ============ D11 ============ -->
-<article class="day reveal" id="d11">
-  <div class="day-card">
-    <div class="band" style="background:var(--lago)"></div>
-    <div class="day-head">
-      <span class="day-num">DAY 11 · 10.25 일</span>
-      <h3>리마로 — 바다와 함께 마무리</h3>
+<!-- D11 -->
+<section class="chapter" id="d11">
+  <div class="cover">
+    <div class="scene">
+      <svg viewBox="0 0 700 320" preserveAspectRatio="xMidYMax slice">
+        <defs><linearGradient id="lmSky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#2C1B42"/><stop offset=".6" stop-color="#C05A6E"/><stop offset="1" stop-color="#F0945C"/>
+        </linearGradient></defs>
+        <rect width="700" height="236" fill="url(#lmSky)"/>
+        <rect y="236" width="700" height="84" fill="#274468"/>
+        <circle cx="180" cy="188" r="38" fill="#FFE9B0" opacity=".95"/>
+        <path d="M0,236 h700" stroke="#F0C4A0" stroke-width="2.4" opacity=".7"/>
+        <g stroke="#7CC4E8" stroke-width="2.4" opacity=".5">
+          <path d="M80,266 q34,9 68,0 M300,286 q38,9 76,0 M540,262 q34,9 68,0"/>
+        </g>
+        <path d="M420,236 L700,236 L700,124 L620,142 L540,182 L470,208 Z" fill="#241832"/>
+        <g fill="#180F26">
+          <rect x="600" y="64" width="28" height="78"/><rect x="640" y="44" width="32" height="98"/><rect x="556" y="94" width="26" height="70"/>
+        </g>
+        <g fill="#FFB84D" opacity=".9">
+          <rect x="606" y="76" width="5" height="5"/><rect x="616" y="94" width="5" height="5"/><rect x="648" y="58" width="5" height="5"/><rect x="658" y="80" width="5" height="5"/><rect x="562" y="106" width="5" height="5"/>
+        </g>
+        <g transform="translate(300,64)">
+          <path d="M0,0 C26,-24 82,-24 108,0" stroke="#FF5C8A" stroke-width="8" fill="none" stroke-linecap="round"/>
+          <path d="M12,4 L50,40 M96,4 L58,40" stroke="#F2EDE1" stroke-width="1.6" opacity=".7"/>
+          <circle cx="54" cy="46" r="7" fill="#F2EDE1"/>
+        </g>
+        <g stroke="#180F26" stroke-width="9" fill="none" stroke-linecap="round">
+          <path d="M62,236 C66,190 58,160 68,128"/>
+          <path d="M68,128 C44,116 20,116 2,128 M68,128 C56,100 34,92 14,92 M68,128 C84,100 108,92 130,100 M68,128 C96,116 120,124 136,140"/>
+        </g>
+      </svg>
     </div>
-    <div class="day-meta">
-      <span class="tag hot" style="background:var(--lago)">🇧🇴→🇵🇪 우유니 → 리마</span>
-      <span class="tag alt">3,656m → 0m</span>
-      <span class="tag">항공 2회 연결</span>
-    </div>
-    <div class="tl">
-      <div class="tl-item" style="--dot:var(--lago)">
-        <div class="tl-time">오전</div>
-        <h4>우유니 → 라파스 → 리마 ✈️✈️</h4>
-        <p>항공 연결(BOA/Amaszonas → LATAM 등). <b>연결 시간 여유 있게</b> 예약 — 내일 귀국편이 있으니 오늘은 무조건 리마에 도착해야 하는 날.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--lago)">
-        <div class="tl-time">오후</div>
-        <h4>미라플로레스 🌊</h4>
-        <p>사랑의 공원, 태평양 절벽 산책길, 라르코마르. 고산에서 내려와 산소 가득한 바닷바람 — 몸이 가벼워지는 게 느껴질 것.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--lago)">
-        <div class="tl-time">저녁</div>
-        <h4>바랑코 & 마지막 만찬 🐟</h4>
-        <p>알록달록한 골목과 벽화, 한숨의 다리. 저녁은 드디어 <b>세비체</b> — 리마는 세비체의 수도. 잉카콜라와 함께 여행 마지막 밤 자축.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--lago)">
-        <div class="tl-time">밤</div>
-        <h4>미라플로레스 숙박, 짐 정리</h4>
-        <p>기념품 포함 짐 다시 싸고 일찍 취침 — 내일 아침 일찍 공항으로.</p>
+    <div class="veil"></div>
+    <div class="num">11</div>
+    <div class="head">
+      <div class="date">DAY 11 · 10.25 SUN · 🇧🇴→🇵🇪 LIMA</div>
+      <h2><span class="line"><span>바다로 내려와,</span></span><span class="line"><span>여행을 마무리 🌊</span></span></h2>
+      <div class="meta">
+        <span class="tag hot" style="background:var(--lago)">항공 2회 연결</span>
+        <span class="tag alt">3,656m → 0m</span>
       </div>
     </div>
   </div>
-</article>
-
-<!-- ============ D12 ============ -->
-<article class="day reveal" id="d12">
-  <div class="day-card">
-    <div class="band" style="background:var(--sol)"></div>
-    <div class="day-head">
-      <span class="day-num">DAY 12 · 10.26 월</span>
-      <h3>다시 집으로 ✈️</h3>
-    </div>
-    <div class="day-meta">
-      <span class="tag hot" style="background:var(--sol)">🇵🇪→🇰🇷 귀국</span>
-      <span class="tag">12:00 출발</span>
-    </div>
+  <div class="sheet">
     <div class="tl">
-      <div class="tl-item" style="--dot:var(--sol)">
-        <div class="tl-time">08:00</div>
+      <div class="tl-item" style="--dot:var(--lago)"><div class="tl-time">오전</div>
+        <h4>우유니 → 라파스 → 리마 ✈️✈️</h4>
+        <p>항공 연결(BOA/Amaszonas → LATAM 등). <b>연결 시간 여유 있게</b> 예약 — 내일 귀국편이 있으니 오늘은 무조건 리마에 도착해야 하는 날.</p></div>
+      <div class="tl-item" style="--dot:var(--lago)"><div class="tl-time">오후</div>
+        <h4>미라플로레스 🌴</h4>
+        <p>사랑의 공원, 태평양 절벽 산책길, 라르코마르. 고산에서 내려와 산소 가득한 바닷바람 — 몸이 가벼워지는 게 느껴질 것.</p></div>
+      <div class="tl-item" style="--dot:var(--lago)"><div class="tl-time">저녁</div>
+        <h4>바랑코 & 마지막 만찬 🐟</h4>
+        <p>알록달록한 골목과 벽화, 한숨의 다리. 저녁은 드디어 <b>세비체</b> — 리마는 세비체의 수도. 잉카콜라와 함께 여행 마지막 밤 자축.</p></div>
+      <div class="tl-item" style="--dot:var(--lago)"><div class="tl-time">밤</div>
+        <h4>미라플로레스 숙박, 짐 정리</h4>
+        <p>기념품 포함 짐 다시 싸고 일찍 취침 — 내일 아침 일찍 공항으로.</p></div>
+    </div>
+  </div>
+  <div class="sheet-end"></div>
+</section>
+
+<!-- D12 -->
+<section class="chapter" id="d12">
+  <div class="cover">
+    <div class="scene">
+      <svg viewBox="0 0 700 320" preserveAspectRatio="xMidYMax slice">
+        <defs><linearGradient id="hmSky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#0D0B20"/><stop offset="1" stop-color="#2A2258"/>
+        </linearGradient></defs>
+        <rect width="700" height="320" fill="url(#hmSky)"/>
+        <g fill="#fff" opacity=".85">
+          <circle cx="70" cy="70" r="2"/><circle cx="150" cy="140" r="1.4"/><circle cx="230" cy="56" r="2.2"/><circle cx="390" cy="104" r="1.4"/>
+          <circle cx="470" cy="46" r="2"/><circle cx="560" cy="130" r="1.4"/><circle cx="640" cy="70" r="2.2"/><circle cx="320" cy="164" r="1.4"/>
+        </g>
+        <g transform="translate(380,140) rotate(-10)" fill="#F2EDE1">
+          <path d="M0,16 L88,16 L116,4 L120,16 L160,18 L120,22 L116,30 L88,20 Z"/>
+          <path d="M56,16 L36,-12 L46,-12 L72,16 Z M56,20 L36,48 L46,48 L72,20 Z"/>
+        </g>
+        <path d="M320,172 q-90,20 -190,20 q-90,0 -160,-16" stroke="rgba(255,92,138,.5)" stroke-width="3" fill="none" stroke-dasharray="9 12"/>
+        <path d="M130,156 c-6,-10 -20,-10 -24,0 c-4,8 4,16 12,22 c8,-6 16,-14 12,-22 Z" fill="#FF5C8A" opacity=".9"/>
+        <circle cx="600" cy="212" r="34" fill="#FFE9B0" opacity=".9"/>
+        <circle cx="614" cy="204" r="30" fill="#2A2258"/>
+      </svg>
+    </div>
+    <div class="veil"></div>
+    <div class="num">12</div>
+    <div class="head">
+      <div class="date">DAY 12 · 10.26 MON · 🇵🇪→🇰🇷 HOME</div>
+      <h2><span class="line"><span>다시,</span></span><span class="line"><span>집으로 ✈️</span></span></h2>
+      <div class="meta">
+        <span class="tag hot" style="background:var(--sol)">12:00 출발</span>
+      </div>
+    </div>
+  </div>
+  <div class="sheet">
+    <div class="tl">
+      <div class="tl-item" style="--dot:var(--sol)"><div class="tl-time">08:00</div>
         <h4>숙소 출발 → 공항</h4>
-        <p>미라플로레스→공항 차로 40~60분(교통 변수). <b>09:00까지 공항 도착</b>이 목표.</p>
-      </div>
-      <div class="tl-item" style="--dot:var(--sol)">
-        <div class="tl-time">12:00</div>
+        <p>미라플로레스→공항 차로 40~60분(교통 변수). <b>09:00까지 공항 도착</b>이 목표.</p></div>
+      <div class="tl-item" style="--dot:var(--sol)"><div class="tl-time">12:00</div>
         <h4>리마 출발 — 안녕, 남미 👋</h4>
-        <p>12일간 4개국, 고도 5,000m, 소금사막과 잉카의 도시까지. 수고했어, 유지!</p>
-      </div>
+        <p>12일간 4개국, 고도 5,000m, 소금사막과 잉카의 도시까지. 수고했어, 유지!</p></div>
     </div>
     <div class="note tip">
       <span class="nt">💭 파라카스 · 와카치나는?</span>
       정오 출발편이라 마지막 날 근교 투어는 물리적으로 불가능. 사막 오아시스 와카치나와 바예스타스 섬은 <b>다음 페루 여행의 확실한 이유</b>로 남겨두기. (귀국을 하루 미룰 수 있게 된다면 10/26 새벽 파라카스+와카치나 일일투어 → 10/27 귀국 루트로 업그레이드 가능!)
     </div>
   </div>
-</article>
-
-<!-- ============ SAFETY ============ -->
-<section class="section reveal" id="safety">
-  <h2>혼자 여행 안전수칙 🛡</h2>
-  <p class="lead">전 일정 공통 — 몸에 배게 해두면 마음이 훨씬 편해요.</p>
-  <div class="rules">
-    <div class="rule"><span class="ico">🛂</span><b>여권은 몸에</b>가방에만 넣지 말고 복대나 안주머니에. 사본·사진도 따로 보관.</div>
-    <div class="rule"><span class="ico">🚕</span><b>이동은 공식 수단만</b>공항·야간에는 공식 택시 또는 앱으로 부른 우버만. 호객 택시 금지.</div>
-    <div class="rule"><span class="ico">🌙</span><b>어두워지면 실내로</b>해 진 뒤 골목 걷지 않기. 목적지까지는 차로 바로 이동.</div>
-    <div class="rule"><span class="ico">📱</span><b>폰은 손에 들고 다니지 않기</b>길에서 폰 사용 최소화. 사진 찍을 때도 주변 먼저 확인.</div>
-    <div class="rule"><span class="ico">🎧</span><b>이어폰은 한쪽만</b>주변 소리를 항상 들을 수 있게.</div>
-    <div class="rule"><span class="ico">💍</span><b>귀중품은 안 보이게</b>카메라(Z6 III 빌려간다면 특히!)는 사용할 때만 꺼내고 크로스백 앞으로 메기.</div>
-    <div class="rule"><span class="ico">🗣</span><b>긴 대화는 정중히 거절</b>낯선 사람이 오래 말 걸면 "미안해요, 일행이 기다려요" 하고 자리 뜨기.</div>
-    <div class="rule"><span class="ico">📍</span><b>위치 공유 켜두기</b>정모와 실시간 위치 공유 + 매일 정해진 시간에 생존신고 ❤️</div>
-  </div>
+  <div class="sheet-end"></div>
 </section>
 
-<!-- ============ PREP ============ -->
-<section class="section reveal" id="prep">
-  <h2>출발 전 준비 체크리스트 ✅</h2>
-  <p class="lead">체크한 항목은 이 브라우저에 저장돼요. 하나씩 지워나가요!</p>
+<!-- nazca condor -->
+<div class="nazca">
+  <svg viewBox="0 0 320 150">
+    <path class="nz" d="M160,120 C150,112 144,102 144,92 C130,98 110,100 88,96 C60,90 34,76 20,58 C40,66 62,70 84,68 C64,58 48,44 40,28 C58,40 80,48 102,50 C96,38 96,26 102,18 C108,26 118,34 130,38 C134,26 142,16 152,12 C150,22 152,32 158,40 C164,32 172,26 182,24 C178,34 178,44 184,52 C198,46 214,44 230,48 C252,54 272,68 284,86 C266,78 246,76 226,80 C244,90 258,104 264,120 C248,108 228,100 208,98 C212,108 210,118 202,124 C198,116 190,110 180,108 C178,116 172,122 164,124 C162,122 160,121 160,120 Z"/>
+  </svg>
+  <span class="tag-n">NAZCA LINES · 콘도르</span>
+</div>
+
+<!-- ================= HORIZONTAL SAFETY ================= -->
+<div class="hwrap" id="hwrap">
+  <div class="hpin">
+    <div class="htitle">
+      <div class="sec-eyebrow">SOLO TRAVEL PROTOCOL</div>
+      <h2 class="sec-title">혼자 여행 <span class="grad">안전수칙</span> 🛡</h2>
+    </div>
+    <div class="htrack" id="htrack">
+      <div class="hcard"><span class="idx">01 / 08</span><span class="ico">🛂</span><b>여권은 몸에</b>가방에만 넣지 말고 복대나 안주머니에. 사본·사진도 따로 보관.</div>
+      <div class="hcard"><span class="idx">02 / 08</span><span class="ico">🚕</span><b>이동은 공식 수단만</b>공항·야간에는 공식 택시 또는 앱으로 부른 우버만. 호객 택시 금지.</div>
+      <div class="hcard"><span class="idx">03 / 08</span><span class="ico">🌙</span><b>어두워지면 실내로</b>해 진 뒤 골목 걷지 않기. 목적지까지는 차로 바로 이동.</div>
+      <div class="hcard"><span class="idx">04 / 08</span><span class="ico">📱</span><b>폰은 손에 들지 않기</b>길에서 폰 사용 최소화. 사진 찍을 때도 주변 먼저 확인.</div>
+      <div class="hcard"><span class="idx">05 / 08</span><span class="ico">🎧</span><b>이어폰은 한쪽만</b>주변 소리를 항상 들을 수 있게.</div>
+      <div class="hcard"><span class="idx">06 / 08</span><span class="ico">💍</span><b>귀중품은 안 보이게</b>카메라는 사용할 때만 꺼내고 크로스백 앞으로 메기.</div>
+      <div class="hcard"><span class="idx">07 / 08</span><span class="ico">🗣</span><b>긴 대화는 정중히 거절</b>낯선 사람이 오래 말 걸면 "미안해요, 일행이 기다려요" 하고 자리 뜨기.</div>
+      <div class="hcard"><span class="idx">08 / 08</span><span class="ico">📍</span><b>위치 공유 켜두기</b>정모와 실시간 위치 공유 + 매일 정해진 시간에 생존신고 ❤️</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= CHECKLIST ================= -->
+<section class="preps" id="prep">
+  <div class="sec-eyebrow">PRE-FLIGHT CHECK</div>
+  <h2 class="sec-title">출발 전 준비 <span class="grad">체크리스트</span></h2>
+  <div class="ring-row">
+    <div class="ring">
+      <svg viewBox="0 0 100 100">
+        <defs><linearGradient id="ringgrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#3FE0C5"/><stop offset="1" stop-color="#7C9BFF"/>
+        </linearGradient></defs>
+        <circle class="bg" cx="50" cy="50" r="42"/>
+        <circle class="fg" id="ringFg" cx="50" cy="50" r="42" stroke-dasharray="263.9" stroke-dashoffset="263.9"/>
+      </svg>
+      <div class="pct" id="ringPct">0%</div>
+    </div>
+    <p class="ring-cap">체크한 항목은 이 브라우저에 저장돼요. 하나씩 지워나가요!</p>
+  </div>
   <div class="check" id="checklist">
     <label class="ck"><input type="checkbox" data-k="c1"><span><span class="ct">A형 간염 백신 (필수 ⭐)</span><br><span class="cs">출국 최소 2주 전, 가능하면 1~2개월 전 1차 접종</span></span></label>
     <label class="ck"><input type="checkbox" data-k="c2"><span><span class="ct">장티푸스 백신</span><br><span class="cs">길거리 음식·현지 식당 이용 시 권장 · 출국 2주 전</span></span></label>
@@ -902,82 +1091,298 @@ footer .from{margin-top:14px;font-family:'Space Mono',monospace;font-size:11.5px
     <label class="ck"><input type="checkbox" data-k="c11"><span><span class="ct">우유니 소품 & 선글라스 & 선크림</span><br><span class="cs">원근샷 장난감, 고산용 SPF50+</span></span></label>
     <label class="ck"><input type="checkbox" data-k="c12"><span><span class="ct">우버 앱 + 오프라인 지도 + 번역 앱 설치</span><br><span class="cs">구글맵 오프라인 저장: LA·리마·쿠스코·라파스·우유니</span></span></label>
   </div>
-
-  <div style="margin-top:28px">
-    <table class="btable">
-      <tr><th>백신 · 약</th><th>추천도</th><th>시기</th></tr>
-      <tr><td><b>A형 간염</b></td><td>⭐⭐⭐⭐⭐</td><td>~9월 중순</td></tr>
-      <tr><td>장티푸스</td><td>⭐⭐⭐⭐</td><td>~10월 초</td></tr>
-      <tr><td>파상풍 확인</td><td>⭐⭐⭐⭐</td><td>병원 상담 시</td></tr>
-      <tr><td>황열</td><td>⭐⭐⭐ (아마존 안 가면 보통 불필요)</td><td>필요 시</td></tr>
-      <tr><td><b>다이아목스</b></td><td>⭐⭐⭐⭐⭐</td><td>~10월 초</td></tr>
-    </table>
-  </div>
+  <table class="btable">
+    <tr><th>백신 · 약</th><th>추천도</th><th>시기</th></tr>
+    <tr><td><b>A형 간염</b></td><td>⭐⭐⭐⭐⭐</td><td>~9월 중순</td></tr>
+    <tr><td>장티푸스</td><td>⭐⭐⭐⭐</td><td>~10월 초</td></tr>
+    <tr><td>파상풍 확인</td><td>⭐⭐⭐⭐</td><td>병원 상담 시</td></tr>
+    <tr><td>황열</td><td>⭐⭐⭐ (아마존 안 가면 보통 불필요)</td><td>필요 시</td></tr>
+    <tr><td><b>다이아목스</b></td><td>⭐⭐⭐⭐⭐</td><td>~10월 초</td></tr>
+  </table>
 </section>
 
-</main>
-</div>
-
+<!-- ================= FOOTER ================= -->
 <footer>
-  <p class="msg">낯선 대륙의 밤하늘 아래에서도,<br>매일이 <b>안전하고 눈부신</b> 하루이기를.<br>잘 다녀와, 유지 누나 ✈️</p>
-  <p class="from">FROM 정모 · MADE WITH CLAUDE</p>
+  <svg class="chakana" viewBox="0 0 48 48" aria-hidden="true">
+    <path d="M18,2 h12 v6 h6 v6 h6 v12 h-6 v6 h-6 v6 h-12 v-6 h-6 v-6 h-6 v-12 h6 v-6 h6 Z" fill="none" stroke="#B67CFF" stroke-width="2"/>
+    <circle cx="24" cy="24" r="4" fill="none" stroke="#FFB84D" stroke-width="2"/>
+  </svg>
+  <p class="msg" data-split-fade>낯선 대륙의 밤하늘 아래에서도,<br>매일이 <b>안전하고 눈부신</b> 하루이기를.<br>잘 다녀와, 유지 누나 ✈️</p>
+  <p class="from">FROM 정모 · MADE WITH CLAUDE ✦ BAJO LAS ESTRELLAS DE LOS ANDES</p>
 </footer>
 
+</div><!-- /content -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script>
-// stars
+var REDUCE = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ================= LOADER ================= */
 (function(){
-  var c = document.getElementById('stars');
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  for(var i=0;i<70;i++){
-    var s=document.createElement('span');
-    s.style.left=Math.random()*100+'%';
-    s.style.top=Math.random()*100+'%';
-    var sc=.5+Math.random()*1.2;
-    s.style.transform='scale('+sc+')';
-    if(!reduce){s.style.animationDelay=(Math.random()*4)+'s';s.style.animationDuration=(3+Math.random()*4)+'s';}
-    c.appendChild(s);
+  var l=document.getElementById('loader'),b=document.getElementById('lbar'),p=0;
+  var iv=setInterval(function(){p=Math.min(p+Math.random()*26,100);b.style.width=p+'%';
+    if(p>=100){clearInterval(iv);setTimeout(function(){l.classList.add('off')},250);}},110);
+  setTimeout(function(){l.classList.add('off')},2600); // hard fallback
+})();
+
+/* ================= THREE.JS COSMOS (scroll fly-through) ================= */
+var COSMOS = {progress:0};
+(function(){
+  var canvas=document.getElementById('cosmos');
+  if(!window.THREE){canvas.style.display='none';return;}
+  var renderer;
+  try{renderer=new THREE.WebGLRenderer({canvas:canvas,alpha:true,antialias:false});}
+  catch(e){canvas.style.display='none';return;}
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+  var scene=new THREE.Scene();
+  scene.fog=new THREE.FogExp2(0x0a0916,0.0009);
+  var camera=new THREE.PerspectiveCamera(64,1,0.1,3000);
+  camera.position.z=420;
+
+  function starTex(){
+    var c=document.createElement('canvas');c.width=c.height=64;
+    var g=c.getContext('2d');var gr=g.createRadialGradient(32,32,0,32,32,32);
+    gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(.28,'rgba(255,255,255,.85)');
+    gr.addColorStop(.6,'rgba(200,205,255,.22)');gr.addColorStop(1,'rgba(0,0,0,0)');
+    g.fillStyle=gr;g.fillRect(0,0,64,64);return new THREE.CanvasTexture(c);
   }
+  var tex=starTex();
+
+  // deep tunnel of stars (so camera can fly through)
+  var N=2600,pos=new Float32Array(N*3),col=new Float32Array(N*3);
+  var pal=[[1,1,1],[1,.92,.75],[.78,.85,1],[1,.72,.82],[.75,1,.94],[.85,.75,1]];
+  for(var i=0;i<N;i++){
+    var a=Math.random()*Math.PI*2,r=90+Math.pow(Math.random(),.6)*680;
+    pos[i*3]=Math.cos(a)*r; pos[i*3+1]=Math.sin(a)*r; pos[i*3+2]=500-Math.random()*2600;
+    var cc=pal[(Math.random()*pal.length)|0],b=.5+Math.random()*.5;
+    col[i*3]=cc[0]*b;col[i*3+1]=cc[1]*b;col[i*3+2]=cc[2]*b;
+  }
+  var geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  geo.setAttribute('color',new THREE.BufferAttribute(col,3));
+  var stars=new THREE.Points(geo,new THREE.PointsMaterial({size:4.2,map:tex,vertexColors:true,
+    transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,sizeAttenuation:true,opacity:.95}));
+  scene.add(stars);
+
+  // milky way band
+  var M=2000,mpos=new Float32Array(M*3),mcol=new Float32Array(M*3);
+  var tilt=new THREE.Matrix4().makeRotationZ(-.5).multiply(new THREE.Matrix4().makeRotationX(.9));
+  var v=new THREE.Vector3();
+  for(var j=0;j<M;j++){
+    var aa=Math.random()*Math.PI*2,rad=380+Math.random()*560,sp=(Math.random()-.5)*(Math.random()-.5)*240;
+    v.set(Math.cos(aa)*rad,sp,Math.sin(aa)*rad).applyMatrix4(tilt);
+    mpos[j*3]=v.x;mpos[j*3+1]=v.y;mpos[j*3+2]=v.z-600;
+    var warm=Math.random()<.3,bb=.22+Math.random()*.45;
+    mcol[j*3]=(warm?1:.7)*bb;mcol[j*3+1]=(warm?.85:.75)*bb;mcol[j*3+2]=(warm?.7:1)*bb;
+  }
+  var mgeo=new THREE.BufferGeometry();
+  mgeo.setAttribute('position',new THREE.BufferAttribute(mpos,3));
+  mgeo.setAttribute('color',new THREE.BufferAttribute(mcol,3));
+  var mw=new THREE.Points(mgeo,new THREE.PointsMaterial({size:2.4,map:tex,vertexColors:true,
+    transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,opacity:.65}));
+  scene.add(mw);
+
+  var shooters=[];
+  function spawn(){
+    var g=new THREE.BufferGeometry(),p=new Float32Array(6);
+    var x=(Math.random()-.5)*900,y=220+Math.random()*260,z=-300-Math.random()*400;
+    p[0]=x;p[1]=y;p[2]=z;p[3]=x-70;p[4]=y+20;p[5]=z;
+    g.setAttribute('position',new THREE.BufferAttribute(p,3));
+    var line=new THREE.Line(g,new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:.9}));
+    line.userData={vx:-(5+Math.random()*4),vy:-(2+Math.random()*2),life:1};
+    scene.add(line);shooters.push(line);
+  }
+
+  function resize(){renderer.setSize(innerWidth,innerHeight,false);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();}
+  resize();addEventListener('resize',resize);
+
+  var tx=0,ty=0,cx=0,cy=0;
+  addEventListener('pointermove',function(e){tx=(e.clientX/innerWidth-.5)*2;ty=(e.clientY/innerHeight-.5)*2;},{passive:true});
+
+  var t=0;
+  function loop(){
+    t+=.0015;
+    stars.rotation.z=t*.25;
+    mw.rotation.y=t*.3;
+    cx+=(tx-cx)*.04;cy+=(ty-cy)*.04;
+    // scroll fly-through: hero progress pushes camera forward
+    var flyZ = 420 - COSMOS.progress*900;
+    camera.position.set(cx*24, -cy*18, flyZ);
+    camera.rotation.z = COSMOS.progress*.35;
+    if(Math.random()<.004&&shooters.length<3)spawn();
+    for(var k=shooters.length-1;k>=0;k--){
+      var s=shooters[k],d=s.userData,pp=s.geometry.attributes.position.array;
+      pp[0]+=d.vx;pp[1]+=d.vy;pp[3]+=d.vx;pp[4]+=d.vy;
+      s.geometry.attributes.position.needsUpdate=true;
+      d.life-=.012;s.material.opacity=Math.max(d.life,0)*.9;
+      if(d.life<=0){scene.remove(s);s.geometry.dispose();s.material.dispose();shooters.splice(k,1);}
+    }
+    renderer.render(scene,camera);
+    if(!REDUCE)requestAnimationFrame(loop);
+  }
+  loop();
+  if(REDUCE)renderer.render(scene,camera);
 })();
 
-// reveal on scroll
+/* ================= progress bar ================= */
 (function(){
-  var els=document.querySelectorAll('.reveal');
-  if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('in')});return;}
-  var io=new IntersectionObserver(function(entries){
-    entries.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}});
-  },{threshold:.08});
-  els.forEach(function(e){io.observe(e)});
+  var bar=document.getElementById('progress');
+  function u(){var h=document.documentElement;bar.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';}
+  addEventListener('scroll',u,{passive:true});u();
 })();
 
-// active chip on scroll
-(function(){
-  var chips=document.querySelectorAll('.chip');
-  var map={};
-  chips.forEach(function(ch){map[ch.getAttribute('href').slice(1)]=ch;});
-  var targets=document.querySelectorAll('.day, .section');
-  var io=new IntersectionObserver(function(entries){
-    entries.forEach(function(en){
-      if(en.isIntersecting && map[en.target.id]){
-        chips.forEach(function(c){c.classList.remove('active')});
-        var ch=map[en.target.id];
-        ch.classList.add('active');
-        ch.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'});
-      }
-    });
-  },{rootMargin:'-30% 0px -60% 0px'});
-  targets.forEach(function(t){io.observe(t)});
-})();
-
-// checklist persistence
+/* ================= checklist ================= */
 (function(){
   var boxes=document.querySelectorAll('#checklist input');
+  var fg=document.getElementById('ringFg'),pct=document.getElementById('ringPct');
+  var C=263.9;
+  function ring(){
+    var n=0;boxes.forEach(function(b){if(b.checked)n++;});
+    var r=n/boxes.length;
+    fg.style.strokeDashoffset=C*(1-r);
+    pct.textContent=Math.round(r*100)+'%';
+  }
   boxes.forEach(function(b){
-    try{ if(localStorage.getItem('peru_'+b.dataset.k)==='1'){b.checked=true;b.closest('.ck').classList.add('done');} }catch(e){}
+    try{if(localStorage.getItem('peru_'+b.dataset.k)==='1'){b.checked=true;b.closest('.ck').classList.add('done');}}catch(e){}
     b.addEventListener('change',function(){
       b.closest('.ck').classList.toggle('done',b.checked);
-      try{ localStorage.setItem('peru_'+b.dataset.k, b.checked?'1':'0'); }catch(e){}
+      try{localStorage.setItem('peru_'+b.dataset.k,b.checked?'1':'0');}catch(e){}
+      ring();
     });
   });
+  ring();
+})();
+
+/* ================= GSAP scrollytelling ================= */
+(function(){
+  if(!window.gsap||!window.ScrollTrigger||REDUCE){
+    // fallback: horizontal section becomes a native swipe carousel
+    var hp=document.querySelector('.hpin');
+    if(hp){hp.style.height='auto';hp.style.padding='14svh 0';hp.style.overflowX='auto';hp.style.webkitOverflowScrolling='touch';}
+    return;
+  }
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* split hero title into chars */
+  document.querySelectorAll('[data-split]').forEach(function(el){
+    var txt=el.textContent;el.textContent='';
+    txt.split('').forEach(function(ch){
+      var s=document.createElement('span');s.className='ch';s.textContent=ch===' '?'\u00A0':ch;el.appendChild(s);
+    });
+  });
+  gsap.from('#heroTitle .ch',{yPercent:120,rotate:6,stagger:.05,duration:1.1,ease:'expo.out',delay:.9});
+  gsap.from('[data-split-fade]',{opacity:0,y:24,duration:1,stagger:.15,ease:'power2.out',delay:1.2});
+
+  /* hero fly-through: scrub COSMOS.progress + title exit */
+  gsap.to(COSMOS,{progress:1,ease:'none',
+    scrollTrigger:{trigger:'#hero',start:'top top',end:'bottom top',scrub:true}});
+  gsap.to('.hero-inner',{scale:.86,opacity:0,ease:'none',
+    scrollTrigger:{trigger:'#hero',start:'top top',end:'70% top',scrub:true}});
+
+  /* ticket 3D entrance + plane along dash */
+  gsap.from('#ticket',{rotateX:42,y:120,opacity:0,transformOrigin:'50% 100%',ease:'none',
+    scrollTrigger:{trigger:'.ticket-sec',start:'top 92%',end:'top 42%',scrub:true}});
+  gsap.to('#ticketPlane',{left:'100%',ease:'none',
+    scrollTrigger:{trigger:'.ticket-sec',start:'top 80%',end:'bottom 30%',scrub:true}});
+
+  /* ===== altitude scrollytelling ===== */
+  (function(){
+    var path=document.getElementById('apath');
+    var glow=document.getElementById('aglow');
+    var cursor=document.getElementById('acursor');
+    var counter=document.getElementById('altCounter');
+    var cityEl=document.getElementById('altCity');
+    var descEl=document.getElementById('altDesc');
+    var dayEl=document.getElementById('altDay');
+    var labs=document.querySelectorAll('.alab[data-d]');
+    var L=path.getTotalLength();
+    path.style.strokeDasharray=L;path.style.strokeDashoffset=L;
+    // build area path once
+    glow.setAttribute('d', path.getAttribute('d')+' L678,196 L40,196 Z');
+
+    var stops=[
+      {alt:0,   city:'인천 → LA → 리마',desc:'해수면에서 출발. LA에서 인앤아웃 먹고, 밤 비행으로 남미까지.',day:'D1–D2 · 10.15–16'},
+      {alt:3399,city:'쿠스코',desc:'JA7027로 단숨에 3,399m. 오늘은 코카차 마시고 쉬는 날.',day:'D2 · 10.16'},
+      {alt:2430,city:'마추픽추',desc:'새벽 4시 픽업. 잉카의 잃어버린 도시는 오히려 쿠스코보다 낮아 숨쉬기 편하다.',day:'D3 · 10.17'},
+      {alt:3399,city:'쿠스코 시내',desc:'아르마스 광장, 산페드로 시장, 산 블라스 골목 산책.',day:'D4 · 10.18'},
+      {alt:5036,city:'비니쿤카 · 무지개산',desc:'이번 여행 최고 고도. 천천히, 아주 천천히. 코카캔디 필수.',day:'D5 · 10.19 ★'},
+      {alt:2792,city:'성스러운 계곡',desc:'모라이 동심원과 마라스 소금밭. 회복하기 좋은 낮은 고도.',day:'D6 · 10.20'},
+      {alt:3827,city:'푸노 · 티티카카',desc:'관광버스로 알티플라노 횡단. 세계에서 가장 높은 호수로.',day:'D7 · 10.21'},
+      {alt:3650,city:'라파스',desc:'국경을 넘어 볼리비아. 케이블카로 도시 위를 날기.',day:'D8–D9 · 10.22–23'},
+      {alt:3650,city:'라파스의 밤',desc:'분지 가득한 불빛. 그리고 우유니행 야간버스.',day:'D9 · 10.23'},
+      {alt:3656,city:'우유니 소금사막',desc:'하늘과 땅의 경계가 사라지는 곳. 여행의 클라이맥스.',day:'D10 · 10.24 ★'},
+      {alt:0,   city:'리마',desc:'바다로 내려와 세비체와 함께 마지막 밤.',day:'D11 · 10.25'},
+      {alt:0,   city:'집으로',desc:'12일간 4개국, 5,036m. 수고했어, 유지!',day:'D12 · 10.26 ✈️'}
+    ];
+    var state={p:0};
+    gsap.to(state,{p:1,ease:'none',
+      scrollTrigger:{trigger:'#altwrap',start:'top top',end:'bottom bottom',scrub:.4,
+        onUpdate:function(){
+          var p=state.p;
+          path.style.strokeDashoffset=L*(1-p);
+          glow.setAttribute('opacity',(p*.9).toFixed(2));
+          var pt=path.getPointAtLength(L*p);
+          cursor.setAttribute('cx',pt.x);cursor.setAttribute('cy',pt.y);
+          // segment index across 11 segments
+          var seg=Math.min(p*11,10.999),i=Math.floor(seg),f=seg-i;
+          var alt=Math.round(stops[i].alt+(stops[i+1].alt-stops[i].alt)*f);
+          counter.textContent=alt.toLocaleString();
+          var idx=f<.5?i:i+1;
+          if(cityEl.textContent!==stops[idx].city){
+            cityEl.textContent=stops[idx].city;
+            descEl.textContent=stops[idx].desc;
+            dayEl.textContent=stops[idx].day;
+            gsap.fromTo([cityEl,descEl,dayEl],{opacity:0,y:10},{opacity:1,y:0,duration:.4,stagger:.05,overwrite:true});
+          }
+          labs.forEach(function(lb){lb.classList.toggle('on', p*11>=(+lb.dataset.d));});
+        }}});
+  })();
+
+  /* ===== chapter covers ===== */
+  document.querySelectorAll('.chapter').forEach(function(ch){
+    var cover=ch.querySelector('.cover');
+    var scene=ch.querySelector('.scene');
+    var num=ch.querySelector('.num');
+    var lines=ch.querySelectorAll('h2 .line>span');
+    var meta=ch.querySelector('.meta');
+    var date=ch.querySelector('.date');
+
+    gsap.fromTo(scene,{yPercent:-10,scale:1.14},{yPercent:6,scale:1,ease:'none',
+      scrollTrigger:{trigger:cover,start:'top bottom',end:'bottom top',scrub:true}});
+    gsap.fromTo(num,{yPercent:26},{yPercent:-26,ease:'none',
+      scrollTrigger:{trigger:cover,start:'top bottom',end:'bottom top',scrub:true}});
+    gsap.from(lines,{yPercent:110,duration:.9,stagger:.12,ease:'expo.out',
+      scrollTrigger:{trigger:cover,start:'top 55%'}});
+    gsap.from([date,meta],{opacity:0,y:18,duration:.7,stagger:.1,ease:'power2.out',
+      scrollTrigger:{trigger:cover,start:'top 55%'}});
+    gsap.from(ch.querySelectorAll('.tl-item, .note'),{opacity:0,y:26,duration:.6,stagger:.07,ease:'power2.out',
+      scrollTrigger:{trigger:ch.querySelector('.sheet'),start:'top 78%'}});
+  });
+
+  /* ===== nazca draw ===== */
+  document.querySelectorAll('.nazca .nz').forEach(function(p){
+    var L=p.getTotalLength();
+    p.style.strokeDasharray=L;p.style.strokeDashoffset=L;
+    gsap.to(p,{strokeDashoffset:0,ease:'none',
+      scrollTrigger:{trigger:p.closest('.nazca'),start:'top 88%',end:'top 30%',scrub:true}});
+  });
+
+  /* ===== horizontal safety ===== */
+  (function(){
+    var track=document.getElementById('htrack');
+    var wrap=document.getElementById('hwrap');
+    function dist(){return Math.max(track.scrollWidth-innerWidth+44,0);}
+    var st=gsap.to(track,{x:function(){return -dist();},ease:'none',
+      scrollTrigger:{trigger:wrap,start:'top top',end:function(){return '+='+(dist()+innerHeight*.4);},
+        scrub:.4,pin:'.hpin',pinSpacing:true,invalidateOnRefresh:true}});
+    // set wrapper height via pin spacing automatically
+  })();
+
+  /* footer */
+  gsap.from('footer .msg, footer .from',{opacity:0,y:30,duration:1,stagger:.15,ease:'power2.out',
+    scrollTrigger:{trigger:'footer',start:'top 75%'}});
 })();
 </script>
 </body>
