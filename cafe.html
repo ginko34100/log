@@ -357,6 +357,8 @@ body {
   transition: opacity .8s ease;
 }
 #bgVideo.ready { opacity:1; }
+/* 선명도 보정 — 대비/채도만 살짝, 블러 아님 */
+#bgVideo { filter: contrast(1.08) saturate(1.12); }
 /* 영상은 손대지 않고, 글자 쪽에만 외곽 그림자로 가독성 확보 */
 #overlay .logo, #overlay h2, #overlay p, #overlay button { position:relative; z-index:2; }
 #overlay h2 {
@@ -1103,10 +1105,22 @@ const hardTimeout = setTimeout(() => {
     if (bgVideo && !bgVideo.src) bgVideo.remove(); // 영상 포기, 게임은 정상 진행
     finishLoading();
   }
-}, 15000);
+}, 12000);
+
+// blob 세팅 후 디코딩 완료 대기 — 이벤트가 안 와도 짧게 기다렸다 진행
+function waitDecodeThenFinish() {
+  setProgress(98);
+  const done = () => finishLoading();
+  bgVideo.addEventListener('loadeddata', done, { once:true });
+  bgVideo.addEventListener('canplay', done, { once:true });
+  bgVideo.load();
+  // blob은 이미 메모리에 있으므로 디코딩은 순식간 — 이벤트 누락 대비 보험
+  setTimeout(done, 1800);
+}
 
 // fetch로 실제 바이트 진행률을 읽어 로딩바에 반영
 async function preloadVideo() {
+  setProgress(2); // 시작 표시
   try {
     const res = await fetch(VIDEO_SRC);
     if (!res.ok) throw new Error('not ok');
@@ -1117,6 +1131,7 @@ async function preloadVideo() {
       setProgress(60);
       const blob = await res.blob();
       bgVideo.src = URL.createObjectURL(blob);
+      waitDecodeThenFinish();
       return;
     }
 
@@ -1132,18 +1147,27 @@ async function preloadVideo() {
     }
     const blob = new Blob(chunks, { type: res.headers.get('content-type') || 'video/mp4' });
     bgVideo.src = URL.createObjectURL(blob);
+    waitDecodeThenFinish();
   } catch (e) {
-    // 영상을 못 받으면 그라데이션 배경으로 폴백
-    if (bgVideo) bgVideo.remove();
-    finishLoading();
+    // fetch가 안 되는 환경(file:// 로컬 등)이면 video에 직접 연결 시도
+    try {
+      setProgress(70);
+      bgVideo.src = VIDEO_SRC;
+      bgVideo.addEventListener('loadeddata', finishLoading, { once:true });
+      bgVideo.addEventListener('error', () => { bgVideo.remove(); finishLoading(); }, { once:true });
+      bgVideo.load();
+      setTimeout(finishLoading, 4000);
+    } catch (e2) {
+      if (bgVideo) bgVideo.remove();
+      finishLoading();
+    }
   }
 }
 
 if (bgVideo) {
-  // 디코딩까지 끝나면 완료
-  bgVideo.addEventListener('canplaythrough', finishLoading);
-  bgVideo.addEventListener('loadeddata', () => setProgress(98));
-  bgVideo.addEventListener('error', () => { bgVideo.remove(); finishLoading(); });
+  bgVideo.addEventListener('error', () => {
+    if (!bgVideo.src) { bgVideo.remove(); finishLoading(); }
+  });
   preloadVideo();
 
   // 백그라운드 전환 시 배터리 절약
