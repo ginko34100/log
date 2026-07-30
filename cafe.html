@@ -151,12 +151,142 @@ body {
   flex:1; min-height:0;
   display:flex; align-items:center; justify-content:center;
   position:relative;
+  overflow:hidden;
 }
 #stage::after {
   content:''; position:absolute; left:0; right:0; bottom:0; height:34%;
   background: linear-gradient(180deg,#C08A57 0 14px, #A9744F 14px);
   border-radius: 26px 26px 0 0;
   box-shadow: inset 0 6px 8px rgba(255,255,255,.25);
+}
+
+/* ───────── 매대 데코 ───────── */
+#deco { position:absolute; inset:0; z-index:1; pointer-events:none; }
+
+/* 컵 뒤 따뜻한 스포트라이트 */
+#deco .glow {
+  position:absolute; left:50%; top:44%;
+  width:240px; height:240px;
+  transform: translate(-50%,-50%);
+  background: radial-gradient(circle, rgba(255,214,150,.5), rgba(255,214,150,.18) 45%, transparent 68%);
+}
+
+/* 벽 선반 + 시럽병 */
+#deco .shelf {
+  position:absolute; top:22px; left:7%; right:7%; height:10px;
+  background: linear-gradient(180deg,#C89463,#9C6A42);
+  border-radius: 5px;
+  box-shadow: 0 4px 0 rgba(90,62,43,.22);
+}
+#deco .shelf::before, #deco .shelf::after {
+  content:''; position:absolute; top:10px; width:8px; height:12px;
+  background:#8A5C38; border-radius:0 0 3px 3px;
+}
+#deco .shelf::before { left:12%; }
+#deco .shelf::after { right:12%; }
+.bottle {
+  position:absolute; bottom:10px; width:17px; height:34px;
+  border-radius: 5px 5px 4px 4px;
+  box-shadow: inset -3px 0 0 rgba(0,0,0,.12), inset 2px 2px 0 rgba(255,255,255,.3);
+}
+.bottle::before {
+  content:''; position:absolute; top:-8px; left:4.5px;
+  width:8px; height:9px; background:inherit; border-radius:3px 3px 0 0;
+  box-shadow: inset -2px 0 0 rgba(0,0,0,.12);
+}
+.bottle::after {
+  content:''; position:absolute; top:-12px; left:3.5px;
+  width:10px; height:5px; background:#6B4526; border-radius:2px;
+}
+.bottle .lab {
+  position:absolute; top:12px; left:2px; right:2px; height:11px;
+  background: rgba(255,250,240,.85); border-radius:2px;
+}
+.jar {
+  position:absolute; bottom:10px; width:26px; height:24px;
+  background: linear-gradient(135deg, rgba(255,255,255,.55), rgba(230,215,190,.5));
+  border: 2.5px solid rgba(255,255,255,.8);
+  border-radius: 6px;
+  overflow:hidden;
+}
+.jar::before {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:60%;
+}
+.jar::after {
+  content:''; position:absolute; top:-6px; left:3px; right:3px; height:5px;
+  background:#8A5C38; border-radius:2px;
+}
+.jar.beans::before { background:#4A2C18; }
+.jar.sugar::before { background:#F6EDD9; }
+
+/* 에스프레소 머신 (왼쪽) */
+.machine { position:absolute; left:4%; bottom:24%; width:82px; height:92px; }
+.machine .mBody {
+  position:absolute; inset:0 0 12px 0;
+  background: linear-gradient(180deg,#D9D2C6,#AFA69A);
+  border-radius: 12px 12px 6px 6px;
+  box-shadow: inset 0 4px 0 rgba(255,255,255,.55), inset 0 -4px 0 rgba(90,62,43,.18);
+}
+.machine .mTop {
+  position:absolute; top:8px; left:8px; right:8px; height:16px;
+  background:#8C8478; border-radius:6px;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.25);
+}
+.machine .mGauge {
+  position:absolute; top:32px; left:12px; width:16px; height:16px;
+  background:#FFF7EA; border:3px solid #8C8478; border-radius:50%;
+}
+.machine .mGauge::before {
+  content:''; position:absolute; top:2px; left:6px; width:2px; height:6px;
+  background:#C6483E; transform: rotate(35deg);
+}
+.machine .mHead {
+  position:absolute; top:34px; right:14px; width:22px; height:18px;
+  background:#8C8478; border-radius:4px 4px 6px 6px;
+}
+.machine .mHead::after {
+  content:''; position:absolute; bottom:-8px; left:7px; width:8px; height:8px;
+  background:#6E675D; border-radius:0 0 3px 3px;
+}
+.machine .mCup {
+  position:absolute; bottom:14px; right:15px; width:20px; height:13px;
+  background:#FFF7EA; border-radius: 2px 2px 8px 8px;
+  box-shadow: inset 0 -3px 0 rgba(198,138,59,.35);
+}
+.machine .mTray {
+  position:absolute; bottom:0; left:4px; right:4px; height:10px;
+  background:#6E675D; border-radius: 4px;
+  box-shadow: inset 0 2px 0 rgba(0,0,0,.2);
+}
+
+/* 화분 (오른쪽) */
+.plant { position:absolute; right:5%; bottom:25%; width:64px; height:78px; }
+.plant .pot {
+  position:absolute; bottom:0; left:14px; width:36px; height:30px;
+  background: linear-gradient(180deg,#D98A6A,#B96A4C);
+  border-radius: 6px 6px 12px 12px;
+  box-shadow: inset 0 4px 0 rgba(255,255,255,.28);
+}
+.plant .pot::before {
+  content:''; position:absolute; top:-5px; left:-4px; right:-4px; height:8px;
+  background:#C97A58; border-radius:4px;
+}
+.plant .leaf {
+  position:absolute; width:18px; height:34px;
+  background: linear-gradient(180deg,#7CC08A,#4E9660);
+  border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+  bottom:24px;
+}
+.plant .l1 { left:22px; height:42px; }
+.plant .l2 { left:8px; transform: rotate(-26deg); }
+.plant .l3 { left:36px; transform: rotate(26deg); }
+.plant .l4 { left:15px; height:26px; transform: rotate(-10deg); background:linear-gradient(180deg,#8FCf9A,#5EA870); }
+.plant .l5 { left:30px; height:26px; transform: rotate(10deg); background:linear-gradient(180deg,#8FCF9A,#5EA870); }
+
+/* 좁은 화면에서는 양옆 소품 축소 */
+@media (max-width: 360px) {
+  .machine { transform: scale(.85); transform-origin: left bottom; }
+  .plant { transform: scale(.85); transform-origin: right bottom; }
 }
 
 #cupWrap {
@@ -372,6 +502,11 @@ body {
 }
 
 /* ───────── 로딩 화면 ───────── */
+/* 로딩이 끝나기 전엔 게임도 첫 화면도 일절 보이지 않음 */
+body.loading #app,
+body.loading #overlay,
+body.loading #fx { visibility:hidden; }
+
 #loader {
   position:fixed; inset:0; z-index:40;
   background: linear-gradient(180deg,#5A3E2B,#2A180D);
@@ -414,7 +549,7 @@ body {
 }
 </style>
 </head>
-<body>
+<body class="loading">
 
 <!-- SVG 아이콘 정의 (이모지 대체) -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -470,6 +605,33 @@ body {
   </div>
 
   <div id="stage">
+    <div id="deco" aria-hidden="true">
+      <div class="glow"></div>
+      <div class="shelf">
+        <div class="bottle" style="left:16%; background:linear-gradient(180deg,#F0CD84,#D9AE58)"><div class="lab"></div></div>
+        <div class="bottle" style="left:16%; margin-left:22px; background:linear-gradient(180deg,#C98A4B,#A2621F)"><div class="lab"></div></div>
+        <div class="bottle" style="left:16%; margin-left:44px; background:linear-gradient(180deg,#6E4426,#4A2A12)"><div class="lab"></div></div>
+        <div class="jar beans" style="right:24%"></div>
+        <div class="jar sugar" style="right:24%; margin-right:32px"></div>
+        <div class="bottle" style="right:15%; background:linear-gradient(180deg,#8FD9B0,#5BB584)"><div class="lab"></div></div>
+      </div>
+      <div class="machine">
+        <div class="mBody"></div>
+        <div class="mTop"></div>
+        <div class="mGauge"></div>
+        <div class="mHead"></div>
+        <div class="mCup"></div>
+        <div class="mTray"></div>
+      </div>
+      <div class="plant">
+        <div class="leaf l2"></div>
+        <div class="leaf l3"></div>
+        <div class="leaf l4"></div>
+        <div class="leaf l5"></div>
+        <div class="leaf l1"></div>
+        <div class="pot"></div>
+      </div>
+    </div>
     <div id="toast"></div>
     <div id="cupWrap">
       <div id="whip"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="cherry"></div></div>
@@ -1085,6 +1247,7 @@ function finishLoading() {
   setProgress(100);
   $('loadTip').textContent = '준비 완료!';
   setTimeout(() => {
+    document.body.classList.remove('loading'); // 이제서야 화면 공개
     loader.classList.add('done');
     if (bgVideo && bgVideo.src) {
       bgVideo.play().then(()=>bgVideo.classList.add('ready')).catch(()=>{
