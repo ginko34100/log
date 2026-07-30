@@ -347,25 +347,54 @@ body {
 }
 #overlay.hidden { opacity:0; pointer-events:none; }
 
-/* 배경 영상 */
+/* 배경 영상 — 흐림/딤 처리 없이 원본 그대로 */
 #bgVideo {
   position:absolute; inset:0;
   width:100%; height:100%;
   object-fit: cover;
   z-index:0;
   opacity:0;
-  transition: opacity 1.2s ease;
+  transition: opacity .8s ease;
 }
 #bgVideo.ready { opacity:1; }
-/* 영상 위 어둡게 깔아 텍스트 가독성 확보 */
-#overlay .scrim {
-  position:absolute; inset:0; z-index:1;
-  background:
-    radial-gradient(ellipse 70% 55% at 50% 45%, rgba(30,18,10,.72), rgba(30,18,10,.42) 60%, rgba(30,18,10,.68)),
-    linear-gradient(180deg, rgba(58,36,23,.55), rgba(28,16,9,.75));
-}
-/* 콘텐츠는 영상 위로 */
+/* 영상은 손대지 않고, 글자 쪽에만 외곽 그림자로 가독성 확보 */
 #overlay .logo, #overlay h2, #overlay p, #overlay button { position:relative; z-index:2; }
+#overlay h2 {
+  text-shadow: 0 2px 10px rgba(20,10,4,.9), 0 0 24px rgba(20,10,4,.7);
+}
+#overlay p {
+  text-shadow: 0 1px 6px rgba(20,10,4,.95), 0 0 16px rgba(20,10,4,.8);
+}
+#overlay .logo {
+  filter: drop-shadow(0 3px 10px rgba(20,10,4,.9));
+}
+
+/* ───────── 로딩 화면 ───────── */
+#loader {
+  position:fixed; inset:0; z-index:40;
+  background: linear-gradient(180deg,#5A3E2B,#2A180D);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:18px; padding:32px; color:#FFEFD8; text-align:center;
+  transition: opacity .5s ease;
+}
+#loader.done { opacity:0; pointer-events:none; }
+#loader .lLogo { width:72px; height:72px; animation: bob 1.6s ease-in-out infinite; }
+#loader .lTitle { font-size:26px; color:#FFD98E; letter-spacing:1px; }
+#loader .lTip { font-size:14px; color:#D9BE97; min-height:20px; }
+#barTrack {
+  width: min(260px, 72vw); height:16px;
+  background: rgba(255,239,216,.16);
+  border-radius:999px; overflow:hidden;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,.35);
+}
+#barFill {
+  height:100%; width:0%;
+  border-radius:999px;
+  background: linear-gradient(90deg,#F5B85C,#FFD98E);
+  transition: width .25s ease;
+  box-shadow: 0 0 12px rgba(245,184,92,.6);
+}
+#barPct { font-size:15px; color:#F5B85C; }
 #overlay .logo { width:84px; height:84px; animation: bob 2s ease-in-out infinite; }
 #overlay h2 { font-size:32px; color:#FFD98E; }
 #overlay p { font-size:15px; line-height:1.75; max-width:340px; color:#F3DDBE; }
@@ -470,9 +499,8 @@ body {
 </div>
 
 <div id="overlay">
-  <video id="bgVideo" src="coffee.mp4" autoplay muted loop playsinline
+  <video id="bgVideo" muted loop playsinline
          preload="auto" disablepictureinpicture aria-hidden="true"></video>
-  <div class="scrim"></div>
   <svg class="logo" id="ovLogo"><use href="#i-cup"/></svg>
   <h2 id="ovTitle">모카모카 카페</h2>
   <p id="ovText">
@@ -482,6 +510,14 @@ body {
     3잔 서빙마다 새 레시피가 열려요!
   </p>
   <button id="startBtn">영업 시작!</button>
+</div>
+
+<div id="loader">
+  <svg class="lLogo"><use href="#i-cup"/></svg>
+  <div class="lTitle">모카모카 카페</div>
+  <div id="barTrack"><div id="barFill"></div></div>
+  <div id="barPct">0%</div>
+  <div class="lTip" id="loadTip">원두를 갈고 있어요...</div>
 </div>
 
 <script>
@@ -1012,35 +1048,115 @@ function gameOver() {
   setBgVideo(true);
 }
 
-/* ============ 배경 영상 제어 ============ */
+/* ============ 배경 영상 프리로드 + 로딩바 ============ */
+const VIDEO_SRC = 'coffee.mp4';
 const bgVideo = $('bgVideo');
+const loader  = $('loader');
+let loaderDone = false;
+
+const TIPS = [
+  '원두를 갈고 있어요...',
+  '머신을 예열하는 중...',
+  '우유를 스티밍하는 중...',
+  '잔을 데우고 있어요...',
+];
+let tipIdx = 0;
+const tipTimer = setInterval(() => {
+  tipIdx = (tipIdx + 1) % TIPS.length;
+  $('loadTip').textContent = TIPS[tipIdx];
+}, 1500);
+
+let shownPct = 0;
+function setProgress(pct) {
+  pct = Math.max(0, Math.min(100, pct));
+  if (pct < shownPct) return;   // 뒤로 가지 않게
+  shownPct = pct;
+  $('barFill').style.width = pct + '%';
+  $('barPct').textContent = Math.round(pct) + '%';
+}
+
+function finishLoading() {
+  if (loaderDone) return;
+  loaderDone = true;
+  clearInterval(tipTimer);
+  clearTimeout(hardTimeout);
+  setProgress(100);
+  $('loadTip').textContent = '준비 완료!';
+  setTimeout(() => {
+    loader.classList.add('done');
+    if (bgVideo && bgVideo.src) {
+      bgVideo.play().then(()=>bgVideo.classList.add('ready')).catch(()=>{
+        bgVideo.classList.add('ready');
+        // 자동재생 차단 시 첫 입력에 재생
+        const kick = () => bgVideo.play().catch(()=>{});
+        addEventListener('touchstart', kick, { once:true, passive:true });
+        addEventListener('click', kick, { once:true });
+      });
+    }
+    setTimeout(()=>loader.remove(), 600);
+  }, 420);
+}
+
+// 네트워크가 느려도 무한 대기하지 않도록 안전장치
+const hardTimeout = setTimeout(() => {
+  if (!loaderDone) {
+    if (bgVideo && !bgVideo.src) bgVideo.remove(); // 영상 포기, 게임은 정상 진행
+    finishLoading();
+  }
+}, 15000);
+
+// fetch로 실제 바이트 진행률을 읽어 로딩바에 반영
+async function preloadVideo() {
+  try {
+    const res = await fetch(VIDEO_SRC);
+    if (!res.ok) throw new Error('not ok');
+    const total = Number(res.headers.get('content-length')) || 0;
+
+    if (!res.body || !total) {
+      // 스트림/용량 정보를 못 쓰면 통째로 받기 (진행률은 추정)
+      setProgress(60);
+      const blob = await res.blob();
+      bgVideo.src = URL.createObjectURL(blob);
+      return;
+    }
+
+    const reader = res.body.getReader();
+    const chunks = [];
+    let received = 0;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+      received += value.length;
+      setProgress((received / total) * 96); // 96%까지, 나머지는 디코딩 몫
+    }
+    const blob = new Blob(chunks, { type: res.headers.get('content-type') || 'video/mp4' });
+    bgVideo.src = URL.createObjectURL(blob);
+  } catch (e) {
+    // 영상을 못 받으면 그라데이션 배경으로 폴백
+    if (bgVideo) bgVideo.remove();
+    finishLoading();
+  }
+}
+
 if (bgVideo) {
-  // 첫 프레임 준비되면 페이드 인 (검은 깜빡임 방지)
-  const showVideo = () => bgVideo.classList.add('ready');
-  bgVideo.addEventListener('loadeddata', showVideo);
-  if (bgVideo.readyState >= 2) showVideo();
+  // 디코딩까지 끝나면 완료
+  bgVideo.addEventListener('canplaythrough', finishLoading);
+  bgVideo.addEventListener('loadeddata', () => setProgress(98));
+  bgVideo.addEventListener('error', () => { bgVideo.remove(); finishLoading(); });
+  preloadVideo();
 
-  // 자동재생이 막힌 경우(일부 iOS 저전력 모드) 첫 터치에 재생
-  const kick = () => {
-    bgVideo.play().then(showVideo).catch(()=>{});
-    removeEventListener('touchstart', kick);
-    removeEventListener('click', kick);
-  };
-  bgVideo.play().catch(() => {
-    addEventListener('touchstart', kick, { once:true, passive:true });
-    addEventListener('click', kick, { once:true });
-  });
-
-  // 영상 못 불러오면 그라데이션 배경만 유지
-  bgVideo.addEventListener('error', () => bgVideo.remove());
   // 백그라운드 전환 시 배터리 절약
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) bgVideo.pause();
     else if (!$('overlay').classList.contains('hidden')) bgVideo.play().catch(()=>{});
   });
+} else {
+  finishLoading();
 }
+
 function setBgVideo(playing) {
-  if (!bgVideo) return;
+  if (!bgVideo || !bgVideo.isConnected) return;
   if (playing) bgVideo.play().catch(()=>{});
   else bgVideo.pause();
 }
