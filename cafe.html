@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#5A3E2B">
-<title>모카모카 카페</title>
+<title>파도와 열매</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
@@ -136,6 +136,18 @@ body {
   transform: translateY(-50%);
 }
 #orderName { font-size:19px; color:#7A4A1E; line-height:1.15; }
+#orderType {
+  display:inline-block;
+  font-size:16px; color:#fff;
+  padding: 3px 14px; border-radius:999px;
+  margin-bottom:5px;
+  text-shadow: 0 1px 0 rgba(0,0,0,.15);
+  box-shadow: 0 3px 0 rgba(0,0,0,.14);
+  animation: pop .35s cubic-bezier(.2,1.6,.4,1) both;
+}
+#orderType:empty { display:none; }
+#orderType.dinein { background: linear-gradient(180deg,#6FD8A0,#45BE7C); }
+#orderType.togo { background: linear-gradient(180deg,#FF9C8F,#F2685C); }
 #orderHint { font-size:12.5px; color:#B08A64; margin-top:2px; display:flex; align-items:center; gap:3px; }
 
 #patienceBar {
@@ -176,6 +188,95 @@ body {
   transform: translateX(-50%);
   background: radial-gradient(circle, rgba(255,214,150,.5), rgba(255,214,150,.18) 45%, transparent 68%);
 }
+
+/* 제주 바다 창문 (와이드, 모래사장 포함) */
+.window {
+  position:absolute; top:6px; left:10px; right:10px;
+  height:128px;
+  background:#5A3A22; border-radius:18px;
+  box-shadow: 0 5px 0 rgba(90,62,43,.28), inset 0 2px 0 rgba(255,255,255,.15);
+}
+.window .view {
+  position:absolute; inset:7px; border-radius:12px; overflow:hidden;
+  background: linear-gradient(180deg,
+    #C9E9F7 0%, #E2F3FB 34%,
+    #58AECB 34%, #3E8FB0 58%,
+    #6BBFD9 58%, #57B2CE 72%,
+    #F5E6C4 72%, #EFD9AC 100%);
+}
+/* 모래사장 조개/자갈 점 + 물거품 경계 */
+.view .sand {
+  position:absolute; left:0; right:0; bottom:0; height:28%;
+  background:
+    radial-gradient(circle at 12px 8px, rgba(255,255,255,.8) 1.6px, transparent 2.2px) 0 0/34px 16px,
+    radial-gradient(circle at 5px 4px, rgba(198,160,110,.5) 1.3px, transparent 1.8px) 10px 6px/28px 14px;
+}
+.view .foam {
+  position:absolute; left:-12px; right:-12px; top:69%; height:9px;
+  background: radial-gradient(circle at 9px 0, rgba(255,255,255,.92) 6px, transparent 7px) 0 0/18px 9px repeat-x;
+  animation: foamMove 5s ease-in-out infinite;
+}
+@keyframes foamMove { 0%,100% { transform:translateY(0); } 50% { transform:translateY(3px); } }
+/* 모래 위 파라솔 */
+.view .parasol { position:absolute; right:9%; bottom:6%; }
+.view .parasol .pPole { position:absolute; left:12px; bottom:0; width:3px; height:22px; background:#A9744F; }
+.view .parasol .pTop {
+  position:absolute; left:0; bottom:18px; width:28px; height:13px;
+  background: repeating-linear-gradient(90deg, #F2685C 0 6px, #FFFDF6 6px 12px);
+  border-radius: 28px 28px 0 0 / 26px 26px 0 0;
+}
+.view .sun {
+  position:absolute; top:9%; right:12%;
+  width:18px; height:18px; border-radius:50%;
+  background:#FFE9A8;
+  box-shadow: 0 0 12px 4px rgba(255,233,168,.75);
+}
+.view .isle {
+  position:absolute; top:26%; left:5%;
+  width:70px; height:16px;
+  background: linear-gradient(180deg,#9EC3A6,#7FA88B);
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  opacity:.85;
+}
+.view .cloud {
+  position:absolute; width:32px; height:9px;
+  background:#FFFDF6; border-radius:10px;
+  top:12%; left:-40px; opacity:.95;
+  animation: cloudMove 24s linear infinite;
+}
+.view .cloud::before {
+  content:''; position:absolute; width:15px; height:11px;
+  background:#FFFDF6; border-radius:50%; top:-6px; left:7px;
+}
+.view .cloud.c2 { top:24%; animation-duration:34s; animation-delay:-14s; transform:scale(.75); }
+@keyframes cloudMove { from { transform:translateX(0); } to { transform:translateX(300px); } }
+.view .wave {
+  position:absolute; left:-40px; right:-40px; height:3px;
+  background: repeating-linear-gradient(90deg, rgba(255,255,255,.7) 0 13px, transparent 13px 30px);
+  border-radius:3px;
+  animation: waveMove 6s linear infinite;
+}
+.view .wave.w1 { top:44%; }
+.view .wave.w2 { top:56%; animation-duration:8.5s; animation-delay:-3s; opacity:.7; }
+.view .wave.w3 { top:64%; animation-duration:7s; animation-delay:-1s; opacity:.5; }
+@keyframes waveMove { from { transform:translateX(0); } to { transform:translateX(30px); } }
+.view .boat {
+  position:absolute; top:36%; left:56%;
+  animation: boatBob 3.2s ease-in-out infinite;
+}
+@keyframes boatBob { 0%,100% { transform:translateY(0) rotate(-2deg); } 50% { transform:translateY(-2.5px) rotate(2deg); } }
+.boat .hull { width:20px; height:7px; background:#A9744F; clip-path: polygon(0 0,100% 0,82% 100%,18% 100%); border-radius:2px; }
+.boat .sail {
+  position:absolute; bottom:7px; left:9px;
+  width:11px; height:13px; background:#FFFDF6;
+  clip-path: polygon(0 100%, 0 0, 100% 100%);
+}
+.window .barV {
+  position:absolute; top:7px; bottom:7px; width:6px;
+  background:#5A3A22; border-radius:3px; z-index:2;
+}
+.window .barV.v1 { left:33%; }
+.window .barV.v2 { left:66%; }
 
 /* 뒷줄 카운터 (장비가 올라가는 단) */
 #deco .backBar {
@@ -302,6 +403,129 @@ body {
   position:absolute; top:11px; left:2px; right:2px; height:14px;
   background: rgba(255,250,240,.85); border-radius: 3px;
 }
+
+/* ── 앞 카운터 카페 데코 ── */
+/* 원목 간판 */
+.sign {
+  position:absolute; left:50%; bottom:9%;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg,#8A5C38,#6E4426);
+  border:3px solid #5A3A22; border-radius:10px;
+  padding: 4px 14px;
+  color:#F3DDBE; font-size:13.5px; letter-spacing:1.5px;
+  box-shadow: 0 3px 0 rgba(0,0,0,.28);
+}
+.sign::before, .sign::after {
+  content:''; position:absolute; top:-9px; width:3px; height:9px;
+  background:#5A3A22;
+}
+.sign::before { left:22%; } .sign::after { right:22%; }
+/* 카운터 모서리 꼬마전구 */
+.fairy {
+  position:absolute; left:4%; right:4%; bottom: calc(34% - 4px);
+  height:8px; display:flex; justify-content:space-between;
+  pointer-events:none;
+}
+.fairy i {
+  width:7px; height:7px; border-radius:50%;
+  background:#FFE9A8;
+  box-shadow: 0 0 6px 2px rgba(255,233,168,.65);
+  animation: twinkle 2.2s ease-in-out infinite;
+}
+.fairy i:nth-child(2n) { animation-delay: 1.1s; background:#FFD9C4; }
+.fairy i:nth-child(3n) { animation-delay: .5s; }
+@keyframes twinkle { 0%,100% { opacity:1; } 50% { opacity:.45; } }
+
+/* 치즈 고양이 */
+.cat { position:absolute; left:6%; bottom:2.5%; width:66px; height:60px; }
+.cat .ctBody {
+  position:absolute; bottom:0; left:10px; width:52px; height:32px;
+  background:#F2B26B; border-radius:24px 24px 13px 13px;
+  box-shadow: inset -5px -4px 0 rgba(190,120,50,.28);
+}
+.cat .ctStripe { position:absolute; width:5px; height:11px; background:#D98F42; border-radius:3px; bottom:14px; }
+.cat .ctStripe.s1 { left:34px; } .cat .ctStripe.s2 { left:43px; }
+.cat .ctHead {
+  position:absolute; bottom:22px; left:0; width:40px; height:34px;
+  background:#F2B26B; border-radius:46%;
+  box-shadow: inset -4px -4px 0 rgba(190,120,50,.22);
+}
+.cat .ctEar {
+  position:absolute; width:13px; height:12px; background:#F2B26B;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  bottom:52px;
+}
+.cat .ctEar.eL2 { left:3px; } .cat .ctEar.eR2 { left:24px; }
+.cat .ctEar::after {
+  content:''; position:absolute; left:3.5px; bottom:0;
+  width:6px; height:6px; background:#F2A9C4;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+.cat .ctEye {
+  position:absolute; width:7px; height:4px; bottom:36px;
+  border-bottom: 2.5px solid #3A2417; border-radius:0 0 8px 8px;
+}
+.cat .ctEye.eyL { left:8px; } .cat .ctEye.eyR { left:23px; }
+.cat .ctNose {
+  position:absolute; left:17px; bottom:32px;
+  width:6px; height:4px; background:#E28B84;
+  clip-path: polygon(50% 100%, 0 0, 100% 0);
+  border-radius:2px;
+}
+.cat .ctTail {
+  position:absolute; right:-8px; bottom:4px;
+  width:26px; height:22px;
+  border:6px solid #F2B26B; border-left:none; border-bottom:none;
+  border-radius: 0 16px 0 0;
+  transform-origin: left bottom;
+  animation: tailWag 2.8s ease-in-out infinite;
+}
+@keyframes tailWag { 0%,100% { transform:rotate(0); } 50% { transform:rotate(-16deg); } }
+
+/* 하얀 말티즈 */
+.malt {
+  position:absolute; right:6%; bottom:2.5%; width:60px; height:52px;
+  animation: puppyBob 2.3s ease-in-out infinite;
+}
+@keyframes puppyBob { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-2.5px); } }
+.malt .mtBody {
+  position:absolute; bottom:0; left:12px; width:46px; height:27px;
+  background:#FFFDF6; border-radius:20px;
+  box-shadow: inset -5px -4px 0 rgba(214,204,184,.5);
+}
+.malt .mtHead {
+  position:absolute; bottom:16px; left:0; width:38px; height:33px;
+  background:#FFFDF6; border-radius:50%;
+  box-shadow: inset -4px -4px 0 rgba(214,204,184,.4);
+}
+.malt .mtEar {
+  position:absolute; width:13px; height:19px; background:#F2EBDD;
+  border-radius:50% 50% 60% 60%;
+  bottom:24px;
+}
+.malt .mtEar.mL { left:-4px; transform:rotate(14deg); }
+.malt .mtEar.mR { left:29px; transform:rotate(-14deg); }
+.malt .mtTuft {
+  position:absolute; left:11px; bottom:44px;
+  width:16px; height:10px; background:#FFFDF6;
+  border-radius:50% 50% 20% 20%;
+}
+.malt .mtEye { position:absolute; width:5px; height:6px; border-radius:50%; background:#3A2417; bottom:31px; }
+.malt .mtEye.eyL { left:9px; } .malt .mtEye.eyR { left:24px; }
+.malt .mtNose { position:absolute; left:16px; bottom:25px; width:7px; height:5px; background:#3A2417; border-radius:50%; }
+.malt .mtTongue {
+  position:absolute; left:18px; bottom:20px;
+  width:5px; height:6px; background:#F2A9C4;
+  border-radius:0 0 5px 5px;
+}
+.malt .mtTail {
+  position:absolute; right:-5px; bottom:18px;
+  width:14px; height:13px; background:#FFFDF6;
+  border-radius:50% 50% 50% 20%;
+  transform-origin: left bottom;
+  animation: mtWag .6s ease-in-out infinite;
+}
+@keyframes mtWag { 0%,100% { transform:rotate(-8deg); } 50% { transform:rotate(14deg); } }
 
 /* 좁은 화면에서는 장비 살짝 축소 (그래도 컵보다 크게 유지) */
 @media (max-width: 385px) {
@@ -631,6 +855,43 @@ body {
 }
 .act:active { transform:translateY(4px); box-shadow:none !important; }
 
+/* 콤보 (리듬게임 이펙트) */
+.comboPop {
+  position:absolute; left:50%; top:26%;
+  transform: translateX(-50%);
+  z-index:7; pointer-events:none;
+  font-size:30px; letter-spacing:1px;
+  color:#57B2CE;
+  text-shadow: 0 3px 0 rgba(255,255,255,.9), 0 5px 8px rgba(74,46,27,.25);
+  animation: comboPunch .8s cubic-bezier(.2,1.5,.4,1) both;
+  white-space:nowrap;
+}
+.comboPop.t2 { color:#E8A23C; font-size:34px; }
+.comboPop.t3 {
+  font-size:38px;
+  background: linear-gradient(90deg,#F2685C,#F5B85C,#6FD8A0,#7FA8D9,#B58AD9);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  text-shadow:none;
+  filter: drop-shadow(0 3px 0 rgba(255,255,255,.9)) drop-shadow(0 5px 8px rgba(74,46,27,.3));
+}
+@keyframes comboPunch {
+  0% { transform: translateX(-50%) scale(.3) rotate(-6deg); opacity:0; }
+  45% { transform: translateX(-50%) scale(1.22) rotate(2deg); opacity:1; }
+  65% { transform: translateX(-50%) scale(1); }
+  100% { transform: translateX(-50%) scale(1) translateY(-14px); opacity:0; }
+}
+.hitRing {
+  position:absolute; z-index:6; pointer-events:none;
+  border-radius:50%;
+  border:4px solid rgba(245,184,92,.9);
+  animation: ringOut .55s ease-out both;
+}
+.hitRing.gold { border-color:rgba(255,220,120,1); border-width:5px; }
+@keyframes ringOut {
+  from { width:30px; height:30px; margin:-15px; opacity:1; }
+  to { width:150px; height:150px; margin:-75px; opacity:0; }
+}
+
 #toast {
   position:absolute; left:50%; top:12px; transform:translateX(-50%) scale(.8);
   background:rgba(74,46,27,.92); color:#FFEFD8;
@@ -756,7 +1017,18 @@ body.loading #fx { visibility:hidden; }
   display:none;
 }
 #overlay .logo { width:84px; height:84px; animation: bob 2s ease-in-out infinite; }
-#overlay h2 { font-size:32px; color:#FFD98E; }
+#overlay h2 { font-size:40px; color:#FFD98E; letter-spacing:1px; }
+#overlay h2 .tSea { color:#9ADFF0; }
+#overlay h2 .tAnd { color:#F3DDBE; font-size:28px; }
+#overlay h2 .tFruit { color:#FFB56E; }
+.ovStaff {
+  position:relative; z-index:2;
+  background: rgba(255,247,234,.16);
+  border: 2px solid rgba(255,233,168,.4);
+  border-radius:999px; padding:5px 18px;
+  font-size:14px; color:#FFEFD8;
+  text-shadow: 0 1px 4px rgba(20,10,4,.9);
+}
 #overlay p { font-size:15px; line-height:1.75; max-width:340px; color:#F3DDBE; }
 #overlay p .ic { width:17px; height:17px; }
 #overlay button {
@@ -801,6 +1073,16 @@ body.loading #fx { visibility:hidden; }
     <path d="M16 9.5h2a2.6 2.6 0 0 1 0 5.2h-2" fill="none" stroke="#C68A3B" stroke-width="1.8"/>
     <path d="M8.5 5.5c0-1 .8-1 .8-2M12 5.5c0-1 .8-1 .8-2" fill="none" stroke="#E8C9A0" stroke-width="1.6" stroke-linecap="round"/>
   </symbol>
+  <symbol id="i-wavefruit" viewBox="0 0 24 24">
+    <path d="M2 19c2.4-2.6 4.6-2.6 7 0 2.4 2.6 4.6 2.6 7 0 1.7-1.8 3.3-2.3 6-1"
+      fill="none" stroke="#8FD9E8" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M2 22.5c2.4-2.2 4.6-2.2 7 0 2.4 2.2 4.6 2.2 7 0 1.6-1.5 3.2-1.9 6-.8"
+      fill="none" stroke="#5AB0CC" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+    <circle cx="12" cy="9" r="6.2" fill="#F5A742" stroke="#D97F2C" stroke-width="1.6"/>
+    <circle cx="10" cy="7.4" r="1.6" fill="rgba(255,255,255,.55)"/>
+    <path d="M12 2.6c1.8-.9 3.4-.7 4.6.5-1.5 1-3.2 1.1-4.6-.5z" fill="#6FA57C"/>
+    <path d="M12 3.2V1.4" stroke="#5A3A22" stroke-width="1.6" stroke-linecap="round"/>
+  </symbol>
   <symbol id="i-togo" viewBox="0 0 24 24">
     <path d="M6.5 8h11l-1.4 12a1.8 1.8 0 0 1-1.8 1.6H9.7A1.8 1.8 0 0 1 7.9 20z" fill="#FFF7EA" stroke="#C68A3B" stroke-width="1.8"/>
     <rect x="5" y="4.5" width="14" height="3.4" rx="1.6" fill="#E8DFC9" stroke="#C68A3B" stroke-width="1.6"/>
@@ -835,6 +1117,7 @@ body.loading #fx { visibility:hidden; }
     <div id="charSlot"></div>
     <div id="bubbleWrap">
       <div id="bubble">
+        <div id="orderType"></div>
         <div id="orderName">손님을 기다리는 중...</div>
         <div id="orderHint"></div>
       </div>
@@ -845,6 +1128,23 @@ body.loading #fx { visibility:hidden; }
   <div id="stage">
     <div id="deco" aria-hidden="true">
       <div class="glow"></div>
+      <div class="window">
+        <div class="view">
+          <div class="sun"></div>
+          <div class="cloud c1"></div>
+          <div class="cloud c2"></div>
+          <div class="isle"></div>
+          <div class="boat"><div class="sail"></div><div class="hull"></div></div>
+          <div class="wave w1"></div>
+          <div class="wave w2"></div>
+          <div class="wave w3"></div>
+          <div class="sand"></div>
+          <div class="foam"></div>
+          <div class="parasol"><div class="pTop"></div><div class="pPole"></div></div>
+        </div>
+        <div class="barV v1"></div>
+        <div class="barV v2"></div>
+      </div>
       <div class="backBar"></div>
       <div class="machine">
         <div class="mBody"></div>
@@ -869,6 +1169,27 @@ body.loading #fx { visibility:hidden; }
         <div class="pump" style="left:0; background:linear-gradient(180deg,#D6913F,#A85F1C)"><div class="pLab"></div></div>
         <div class="pump" style="left:21px; background:linear-gradient(180deg,#7A4A2A,#4E2E15)"><div class="pLab"></div></div>
         <div class="pump" style="left:42px; background:linear-gradient(180deg,#F0CD84,#D9AE58)"><div class="pLab"></div></div>
+      </div>
+      <div class="fairy"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="sign">파도와 열매</div>
+      <div class="cat">
+        <div class="ctTail"></div>
+        <div class="ctBody"></div>
+        <div class="ctStripe s1"></div><div class="ctStripe s2"></div>
+        <div class="ctEar eL2"></div><div class="ctEar eR2"></div>
+        <div class="ctHead"></div>
+        <div class="ctEye eyL"></div><div class="ctEye eyR"></div>
+        <div class="ctNose"></div>
+      </div>
+      <div class="malt">
+        <div class="mtTail"></div>
+        <div class="mtBody"></div>
+        <div class="mtEar mL"></div><div class="mtEar mR"></div>
+        <div class="mtHead"></div>
+        <div class="mtTuft"></div>
+        <div class="mtEye eyL"></div><div class="mtEye eyR"></div>
+        <div class="mtNose"></div>
+        <div class="mtTongue"></div>
       </div>
     </div>
     <div id="toast"></div>
@@ -919,9 +1240,11 @@ body.loading #fx { visibility:hidden; }
 <div id="overlay">
   <video id="bgVideo" muted loop playsinline
          preload="auto" disablepictureinpicture aria-hidden="true"></video>
-  <svg class="logo" id="ovLogo"><use href="#i-cup"/></svg>
-  <h2 id="ovTitle">모카모카 카페</h2>
+  <svg class="logo" id="ovLogo"><use href="#i-wavefruit"/></svg>
+  <h2 id="ovTitle"><span class="tSea">파도</span><span class="tAnd">와</span> <span class="tFruit">열매</span></h2>
+  <div class="ovStaff">사장 유지 · 직원 말티즈 열매</div>
   <p id="ovText">
+    제주 바닷가 작은 카페.<br>
     말풍선 속 주문을 확인하고<br>
     레시피대로 재료를 담아 서빙하세요!<br><br>
     잘못 서빙하거나 손님이 떠나면 하트가 줄어요.<br>
@@ -931,14 +1254,14 @@ body.loading #fx { visibility:hidden; }
 </div>
 
 <div id="loader">
-  <svg class="lLogo"><use href="#i-cup"/></svg>
-  <div class="lTitle">모카모카 카페</div>
+  <svg class="lLogo"><use href="#i-wavefruit"/></svg>
+  <div class="lTitle">파도와 열매</div>
   <div id="barTrack"><div id="barFill"></div></div>
   <div id="barPct">0%</div>
   <div class="lTip" id="loadTip">원두를 갈고 있어요...</div>
 </div>
 
-<div id="verBadge">v15</div>
+<div id="verBadge">v18</div>
 <div id="errBar"></div>
 
 <script>
@@ -998,7 +1321,7 @@ const MAX_LEVEL = 6;
 let state = null;
 let lastLiquidTop = 0; // 컵 안 액체 표면 높이(px, 컵 하단 기준)
 function newState() {
-  return { coins:0, served:0, level:1, lives:3, cup:[], cupType:null, cupDef:null, customer:null, running:false, lastTime:0 };
+  return { coins:0, served:0, level:1, lives:3, cup:[], cupType:null, cupDef:null, combo:0, customer:null, running:false, lastTime:0 };
 }
 
 /* ============ DOM 헬퍼 ============ */
@@ -1124,10 +1447,13 @@ function fxSplash(color) {
   emit(r.left + r.width/2, liquidSurfaceY(),
     { colors:[color,'#FFFFFF'], count:12, speed:110, up:130, g:420, life:.55, sizes:[3,4,5] });
 }
-function fxSuccess() {
+function fxSuccess(combo = 0) {
   const r = cupRect();
+  const colors = ['#FFD98E','#F5B85C','#FFF3D6','#E8A23C'];
+  if (combo >= 4) colors.push('#7FC8A9','#F2A9C4');
+  if (combo >= 7) colors.push('#8FC1E8','#C4A9E8','#F2685C');
   emit(r.left + r.width/2, r.top + r.height*0.45,
-    { colors:['#FFD98E','#F5B85C','#FFF3D6','#E8A23C'], count:26, speed:170, up:170, g:380, life:.9, sizes:[4,5,6] });
+    { colors, count: Math.min(26 + combo*5, 62), speed: 170 + combo*8, up:170, g:380, life:.9, sizes:[4,5,6] });
 }
 function fxFail() {
   const r = $('charSlot').getBoundingClientRect();
@@ -1152,6 +1478,32 @@ function fxConfetti() {
       wob: 2 + Math.random()*3,
     });
   }
+}
+
+/* 콤보 이펙트 (리듬게임 스타일) */
+function hitRing(gold) {
+  try {
+    const r = cupRect();
+    const ring = document.createElement('div');
+    ring.className = 'hitRing' + (gold ? ' gold' : '');
+    ring.style.position = 'fixed';
+    ring.style.left = (r.left + r.width/2) + 'px';
+    ring.style.top = (r.top + r.height*0.45) + 'px';
+    document.body.appendChild(ring);
+    setTimeout(()=>ring.remove(), 600);
+  } catch(e) {}
+}
+function comboFx(n) {
+  hitRing(n >= 4);
+  if (n >= 4 && !reduceMotion) setTimeout(()=>hitRing(true), 120); // 이중 링
+  if (n < 2) return;
+  const el = document.createElement('div');
+  const tier = n >= 7 ? 't3' : n >= 4 ? 't2' : '';
+  el.className = 'comboPop ' + tier;
+  el.textContent = 'COMBO x' + n + (n >= 7 ? ' FEVER!' : '');
+  $('stage').appendChild(el);
+  setTimeout(()=>el.remove(), 850);
+  if (n >= 7) fxConfetti(); // 피버: 컨페티까지
 }
 
 /* 메인 파티클 루프 */
@@ -1268,7 +1620,11 @@ const sfx = {
   pop()     { tone(660, .06, 'triangle', .14, 880); },                     // 컵 선택
   trash()   { noiseSfx(.22, 550, .2); },                                   // 버리기 (쏴아)
   bell()    { tone(880, .28, 'sine', .14); setTimeout(()=>tone(1174, .34, 'sine', .11), 90); }, // 손님 등장 (딸랑)
-  success() { [523,659,784].forEach((f,i)=>setTimeout(()=>tone(f, .13, 'triangle', .16), i*80)); },
+  success(combo = 0) {
+    const t = Math.pow(2, Math.min(combo, 9) / 12); // 콤보당 반음씩 상승
+    const notes = combo >= 4 ? [523,659,784,1046] : [523,659,784];
+    notes.forEach((f,i)=>setTimeout(()=>tone(f*t, .13, 'triangle', .17), i*80));
+  },
   level()   { [523,659,784,1046].forEach((f,i)=>setTimeout(()=>tone(f, .15, 'triangle', .17), i*90)); },
   fail()    { tone(220, .28, 'sawtooth', .13, 130); },
   warn()    { tone(330, .1, 'square', .1, 300); },                          // 안내 (컵 먼저 등)
@@ -1647,10 +2003,13 @@ function spawnCustomer() {
   const slot = $('charSlot');
   slot.innerHTML = '';
   slot.appendChild(spawnCharDOM());
+  const ot = $('orderType');
+  ot.textContent = togo ? '포장할게요!' : '먹고 갈게요!';
+  ot.className = togo ? 'togo' : 'dinein';
+  ot.style.animation = 'none';
+  requestAnimationFrame(()=> ot.style.animation = '');
   $('orderName').textContent = recipe.name + ' 주세요!';
-  $('orderHint').innerHTML =
-    '<b style="color:#B0672C">' + (togo ? '포장해갈게요' : '먹고 갈게요') + '</b>' +
-    ' · 재료 ' + recipe.ing.length + '개 · +' + recipe.pay + ' ' + icon('i-coin');
+  $('orderHint').innerHTML = '재료 ' + recipe.ing.length + '개 · +' + recipe.pay + ' ' + icon('i-coin');
   $('bubble').style.animation = 'none';
   requestAnimationFrame(()=> $('bubble').style.animation = '');
   sfx.bell();
@@ -1664,6 +2023,7 @@ function customerLeaves(angry=false) {
     ch.classList.add('leave');
   }
   state.customer = null;
+  $('orderType').textContent = '';
   $('orderName').textContent = '...';
   $('orderHint').textContent = '';
 }
@@ -1676,17 +2036,21 @@ function serve() {
   const cupOK = state.cupType === (cu.togo ? 'togo' : 'mug');
   const recipeOK = sameRecipe(state.cup, cu.recipe.ing);
   if (cupOK && recipeOK) {
+    state.combo++;
     const tip = Math.floor((cu.patience / cu.maxPatience) * 2);
     const rareBonus = (state.cupDef && state.cupDef.rare) ? state.cupDef.bonus : 0;
-    const total = cu.recipe.pay + tip + rareBonus;
+    const comboBonus = Math.min(Math.floor(state.combo / 3), 3); // 3콤보마다 +1 (최대 +3)
+    const total = cu.recipe.pay + tip + rareBonus + comboBonus;
     state.coins += total;
     state.served++;
     coinPop(total);
     toast(cu.recipe.name + ' 성공!'
       + (tip>0 ? ' (팁 +'+tip+')' : '')
+      + (comboBonus>0 ? ' (콤보 +'+comboBonus+')' : '')
       + (rareBonus>0 ? ' [' + state.cupDef.name + ' 보너스 +' + rareBonus + '!]' : ''), 'good');
-    fxSuccess();
-    sfx.success();
+    fxSuccess(state.combo);
+    sfx.success(state.combo);
+    comboFx(state.combo);
     if (navigator.vibrate) navigator.vibrate([12,40,12]);
     customerLeaves(false);
     const newLevel = Math.min(Math.floor(state.served/3)+1, MAX_LEVEL);
@@ -1697,6 +2061,7 @@ function serve() {
     }
   } else {
     state.lives--;
+    state.combo = 0;
     if (!cupOK) {
       toast('컵이 달라요! 손님은 ' + (cu.togo ? '테이크아웃' : '매장컵') + ' 주문!', 'bad');
     } else {
@@ -1733,6 +2098,7 @@ function tick(t) {
     fill.className = ratio > .5 ? '' : ratio > .25 ? 'warn' : 'danger';
     if (cu.patience <= 0) {
       state.lives--;
+      state.combo = 0;
       toast('손님이 화나서 떠났어요...', 'bad');
       fxFail();
       sfx.fail();
