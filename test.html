@@ -23,6 +23,7 @@ body {
   height: 100vh;
   height: 100dvh;
   height: 100svh;
+  height: var(--vh, 100svh); /* JS가 실측한 픽셀값이 최우선 */
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 /* 게임 본체 래퍼 — 셰이크는 여기에만 적용 (fixed 좌표계 오염 방지) */
@@ -170,9 +171,9 @@ body {
 
 /* 컵 뒤 따뜻한 스포트라이트 */
 #deco .glow {
-  position:absolute; left:50%; top:46%;
-  width:250px; height:250px;
-  transform: translate(-50%,-50%);
+  position:absolute; left:50%; bottom: calc(31% - 40px);
+  width:230px; height:230px;
+  transform: translateX(-50%);
   background: radial-gradient(circle, rgba(255,214,150,.5), rgba(255,214,150,.18) 45%, transparent 68%);
 }
 
@@ -185,7 +186,7 @@ body {
 }
 
 /* 에스프레소 머신 — 컵보다 크게 (가장 큰 장비) */
-.machine { position:absolute; left:2%; bottom:calc(31% + 10px); width:112px; height:150px; }
+.machine { position:absolute; left:1%; bottom:calc(31% + 10px); width:106px; height:146px; }
 .machine .mBody {
   position:absolute; inset:0 0 16px 0;
   background: linear-gradient(180deg,#D9D2C6,#AFA69A);
@@ -225,7 +226,7 @@ body {
 }
 
 /* 그라인더 — 컵보다 크게 */
-.grinder { position:absolute; left:calc(2% + 120px); bottom:calc(31% + 10px); width:58px; height:140px; }
+.grinder { position:absolute; left:calc(1% + 112px); bottom:calc(31% + 10px); width:54px; height:134px; }
 .grinder .gHopper {
   position:absolute; top:0; left:7px; width:44px; height:38px;
   background: rgba(225,242,250,.55);
@@ -259,7 +260,7 @@ body {
 }
 
 /* 원두통 — 컵과 비슷한 덩치 */
-.canister { position:absolute; right:calc(3% + 62px); bottom:calc(31% + 10px); width:76px; height:112px; }
+.canister { position:absolute; right:calc(1% + 60px); bottom:calc(31% + 10px); width:70px; height:104px; }
 .canister .cBody {
   position:absolute; bottom:0; left:0; width:76px; height:92px;
   background: linear-gradient(180deg,#B96A4C,#96502F);
@@ -283,7 +284,7 @@ body {
 }
 
 /* 소스 펌프병 3종 (작은 소품은 작아도 자연스러움) */
-.pumps { position:absolute; right:2%; bottom:calc(31% + 10px); width:60px; height:66px; }
+.pumps { position:absolute; right:1%; bottom:calc(31% + 10px); width:58px; height:64px; }
 .pump {
   position:absolute; bottom:0; width:18px; height:46px;
   border-radius: 5px 5px 6px 6px;
@@ -433,17 +434,34 @@ body {
   box-shadow: 0 -5px 12px rgba(90,62,43,.15);
   padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
 }
-/* 컵 진열대 (매대 위에 표시) — transform 정렬 금지 (pop 애니메이션과 충돌) */
-#cupRack {
-  position:absolute; left:8px; right:8px; top:36%;
-  z-index:4; display:none;
-  flex-direction:column; align-items:center; gap:10px;
+/* 컵 자리 — 그라인더 옆 매대 빈자리. 위치는 래퍼가 담당(내부 애니메이션과 분리) */
+#cupSpot {
+  position:absolute; left:50%; bottom: calc(31% + 12px);
+  transform: translateX(-50%);
+  z-index:2;
 }
-#cupRack.show { display:flex; animation: pop .3s cubic-bezier(.2,1.6,.4,1) both; }
+#cupSpot.empty::before {
+  content:''; position:absolute; left:50%; bottom:-8px;
+  transform: translateX(-50%);
+  width:118px; height:26px;
+  border:3px dashed rgba(122,74,30,.45);
+  border-radius:50%;
+  background: rgba(255,247,234,.35);
+}
+
+/* 하단 패널: 컵 고르기 ↔ 재료 만들기 전환 */
+.hidden2 { display:none !important; }
+#controls { min-height: 208px; display:flex; flex-direction:column; justify-content:flex-end; }
+#pickPanel {
+  display:flex; flex-direction:column; align-items:center; gap:10px;
+  padding-bottom: 6px;
+}
+#brewPanel { animation: panelUp .28s cubic-bezier(.2,1.2,.4,1) both; }
+@keyframes panelUp { from { transform: translateY(30px); opacity:0 } to { transform:none; opacity:1 } }
 .rackTitle {
-  background:rgba(255,247,234,.94); border-radius:999px;
+  background:rgba(255,239,216,.9); border-radius:999px;
   padding:5px 16px; font-size:14px; color:#7A4A1E;
-  box-shadow: 0 3px 0 rgba(90,62,43,.18);
+  box-shadow: 0 3px 0 rgba(90,62,43,.12);
 }
 .rackRow { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
 .rackCup {
@@ -495,8 +513,6 @@ body {
 #cupWrap.style-pink #handle { border-color:#F2A9C4; }
 #cupWrap.style-togo #glass { border-color:#E3CBA8; border-radius: 8px 8px 18px 18px; }
 
-/* 재료 잠금 (컵 고르기 전) */
-#ingredients.locked .ing-btn { opacity:.4; pointer-events:none; filter:grayscale(.5); }
 #ingredients {
   display:grid; grid-template-columns: repeat(5, 1fr);
   gap:8px; margin-bottom:10px;
@@ -643,6 +659,19 @@ body.loading #fx { visibility:hidden; }
   box-shadow: 0 0 12px rgba(245,184,92,.6);
 }
 #barPct { font-size:15px; color:#F5B85C; }
+#verBadge {
+  position:fixed; right:8px; bottom:6px; z-index:60;
+  font-size:11px; color:rgba(122,74,30,.55);
+  background:rgba(255,247,234,.6); border-radius:999px; padding:2px 9px;
+  pointer-events:none;
+}
+#errBar {
+  position:fixed; left:8px; right:8px; top:8px; z-index:99;
+  background:#C6483E; color:#fff;
+  border-radius:12px; padding:10px 12px;
+  font-size:12px; line-height:1.5; word-break:break-all;
+  display:none;
+}
 #overlay .logo { width:84px; height:84px; animation: bob 2s ease-in-out infinite; }
 #overlay h2 { font-size:32px; color:#FFD98E; }
 #overlay p { font-size:15px; line-height:1.75; max-width:340px; color:#F3DDBE; }
@@ -785,10 +814,7 @@ body.loading #fx { visibility:hidden; }
       </div>
     </div>
     <div id="toast"></div>
-    <div id="cupRack">
-      <div class="rackTitle">컵을 골라주세요!</div>
-      <div class="rackRow" id="rackRow"></div>
-    </div>
+    <div id="cupSpot" class="empty">
     <div id="cupWrap" class="waiting">
       <div id="lid"></div>
       <div id="straw"></div>
@@ -801,13 +827,20 @@ body.loading #fx { visibility:hidden; }
       </div>
       <div id="cupLabel">빈 컵</div>
     </div>
+    </div>
   </div>
 
   <div id="controls">
-    <div id="ingredients" class="locked"></div>
-    <div id="actions">
-      <button class="act" id="serveBtn">서빙하기!</button>
-      <button class="act" id="trashBtn">버리기</button>
+    <div id="pickPanel">
+      <div class="rackTitle">주문에 맞는 컵을 골라 매대에 올리세요!</div>
+      <div class="rackRow" id="rackRow"></div>
+    </div>
+    <div id="brewPanel" class="hidden2">
+      <div id="ingredients"></div>
+      <div id="actions">
+        <button class="act" id="serveBtn">서빙하기!</button>
+        <button class="act" id="trashBtn">버리기</button>
+      </div>
     </div>
   </div>
 </div>
@@ -842,7 +875,31 @@ body.loading #fx { visibility:hidden; }
   <div class="lTip" id="loadTip">원두를 갈고 있어요...</div>
 </div>
 
+<div id="verBadge">v12</div>
+<div id="errBar"></div>
+
 <script>
+/* ============ 전역 에러 가시화 (기기별 문제를 화면에서 바로 확인) ============ */
+window.addEventListener('error', e => {
+  const bar = document.getElementById('errBar');
+  if (bar) { bar.style.display = 'block'; bar.textContent = '오류: ' + (e.message || e.type) + (e.lineno ? ' (줄 ' + e.lineno + ')' : ''); }
+});
+window.addEventListener('unhandledrejection', e => {
+  const bar = document.getElementById('errBar');
+  if (bar) { bar.style.display = 'block'; bar.textContent = '오류(P): ' + (e.reason && e.reason.message || e.reason || 'unknown'); }
+});
+</script>
+
+<script>
+/* ============ 뷰포트 실측 (인앱 브라우저에서 하단 UI 잘림 방지) ============ */
+function setVH() {
+  const h = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+  document.documentElement.style.setProperty('--vh', h + 'px');
+}
+setVH();
+addEventListener('resize', setVH);
+if (window.visualViewport) window.visualViewport.addEventListener('resize', setVH);
+
 /* ============ 데이터 ============ */
 const ING = {
   ice:     { name:'얼음',   color:'linear-gradient(135deg,#DFF4FD,#AEDCF2)', flat:'#BFE4F5', liquid:false },
@@ -1327,8 +1384,11 @@ function renderRack() {
     row.appendChild(b);
   });
 }
-function showRack(v) {
-  $('cupRack').classList.toggle('show', !!(v && state.running));
+function setPhase(brew) {
+  // brew=false: 하단에 컵 고르기 / brew=true: 하단에 재료 패널
+  $('pickPanel').classList.toggle('hidden2', brew);
+  $('brewPanel').classList.toggle('hidden2', !brew);
+  $('cupSpot').classList.toggle('empty', !brew);
 }
 function pickCup(c, btn) {
   if (!state.running || state.cupType) return;
@@ -1341,7 +1401,6 @@ function pickCup(c, btn) {
   wrap.classList.remove('style-glass','style-mint','style-pink','style-togo','togo');
   wrap.classList.add('style-' + c.id);
   if (c.type === 'togo') wrap.classList.add('togo');
-  showRack(false);
 
   let revealed = false;
   const reveal = () => {
@@ -1355,7 +1414,7 @@ function pickCup(c, btn) {
         { transform:'scale(1)' },
       ], { duration:260, easing:'ease-out' });
     }
-    $('ingredients').classList.remove('locked');
+    setPhase(true); // 하단 패널: 컵 고르기 → 재료
     renderCup();
     sfx.land();
   };
@@ -1391,9 +1450,8 @@ function resetCup() {
   const wrap = $('cupWrap');
   wrap.classList.add('waiting');
   wrap.classList.remove('style-glass','style-mint','style-pink','style-togo','togo','hasWhip');
-  $('ingredients').classList.add('locked');
   renderCup();
-  showRack(true);
+  setPhase(false);
 }
 
 /* ============ 게임 로직 ============ */
