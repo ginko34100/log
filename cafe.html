@@ -17,7 +17,13 @@ body {
   background: linear-gradient(180deg, #FFE9C7 0%, #FBDCB0 45%, #F3CD9A 100%);
   color:#4A2E1B;
   touch-action: manipulation;
-  position: fixed; inset: 0;
+  position: fixed; top:0; left:0; width:100%;
+  /* 인앱 브라우저(인스타 등)에서 100%가 실제 화면보다 커지는 문제 방지:
+     지원되는 가장 안전한 단위가 마지막에 적용됨 (svh = 항상 보이는 최소 영역) */
+  height: 100vh;
+  height: 100dvh;
+  height: 100svh;
+  height: var(--vh, 100svh); /* JS가 실측한 픽셀값이 최우선 */
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 /* 게임 본체 래퍼 — 셰이크는 여기에만 적용 (fixed 좌표계 오염 방지) */
@@ -57,17 +63,17 @@ body {
 #lives .ic { width:17px; height:17px; }
 .heart-on { fill:#F2685C; stroke:#C6483E; }
 .heart-off { fill:#DCC9AB; stroke:#C4AE8D; }
-#bookBtn {
-  margin-left:auto;
+#bookBtn, #sndBtn {
   background: linear-gradient(180deg,#FFD98E,#F5B85C);
   border:none; border-radius: 14px;
-  width:46px; height:40px;
+  width:44px; height:40px;
   display:flex; align-items:center; justify-content:center;
   box-shadow: 0 4px 0 #C68A3B;
   cursor:pointer;
 }
-#bookBtn .ic { width:22px; height:22px; }
-#bookBtn:active { transform: translateY(3px); box-shadow: 0 1px 0 #C68A3B; }
+#sndBtn { margin-left:auto; }
+#bookBtn .ic, #sndBtn .ic { width:22px; height:22px; }
+#bookBtn:active, #sndBtn:active { transform: translateY(3px); box-shadow: 0 1px 0 #C68A3B; }
 
 /* ───────── 손님 카드 ───────── */
 #customerArea {
@@ -160,158 +166,197 @@ body {
   box-shadow: inset 0 6px 8px rgba(255,255,255,.25);
 }
 
-/* ───────── 매대 데코 ───────── */
+/* ───────── 매대 데코 (백카운터) ───────── */
 #deco { position:absolute; inset:0; z-index:1; pointer-events:none; }
 
 /* 컵 뒤 따뜻한 스포트라이트 */
 #deco .glow {
-  position:absolute; left:50%; top:44%;
-  width:240px; height:240px;
-  transform: translate(-50%,-50%);
+  position:absolute; left:50%; bottom: calc(31% - 40px);
+  width:230px; height:230px;
+  transform: translateX(-50%);
   background: radial-gradient(circle, rgba(255,214,150,.5), rgba(255,214,150,.18) 45%, transparent 68%);
 }
 
-/* 벽 선반 + 시럽병 */
-#deco .shelf {
-  position:absolute; top:22px; left:7%; right:7%; height:10px;
-  background: linear-gradient(180deg,#C89463,#9C6A42);
-  border-radius: 5px;
+/* 뒷줄 카운터 (장비가 올라가는 단) */
+#deco .backBar {
+  position:absolute; left:0; right:0; bottom:31%;
+  height:12px;
+  background: linear-gradient(180deg,#B67F4E,#8F6038);
   box-shadow: 0 4px 0 rgba(90,62,43,.22);
 }
-#deco .shelf::before, #deco .shelf::after {
-  content:''; position:absolute; top:10px; width:8px; height:12px;
-  background:#8A5C38; border-radius:0 0 3px 3px;
-}
-#deco .shelf::before { left:12%; }
-#deco .shelf::after { right:12%; }
-.bottle {
-  position:absolute; bottom:10px; width:17px; height:34px;
-  border-radius: 5px 5px 4px 4px;
-  box-shadow: inset -3px 0 0 rgba(0,0,0,.12), inset 2px 2px 0 rgba(255,255,255,.3);
-}
-.bottle::before {
-  content:''; position:absolute; top:-8px; left:4.5px;
-  width:8px; height:9px; background:inherit; border-radius:3px 3px 0 0;
-  box-shadow: inset -2px 0 0 rgba(0,0,0,.12);
-}
-.bottle::after {
-  content:''; position:absolute; top:-12px; left:3.5px;
-  width:10px; height:5px; background:#6B4526; border-radius:2px;
-}
-.bottle .lab {
-  position:absolute; top:12px; left:2px; right:2px; height:11px;
-  background: rgba(255,250,240,.85); border-radius:2px;
-}
-.jar {
-  position:absolute; bottom:10px; width:26px; height:24px;
-  background: linear-gradient(135deg, rgba(255,255,255,.55), rgba(230,215,190,.5));
-  border: 2.5px solid rgba(255,255,255,.8);
-  border-radius: 6px;
-  overflow:hidden;
-}
-.jar::before {
-  content:''; position:absolute; bottom:0; left:0; right:0; height:60%;
-}
-.jar::after {
-  content:''; position:absolute; top:-6px; left:3px; right:3px; height:5px;
-  background:#8A5C38; border-radius:2px;
-}
-.jar.beans::before { background:#4A2C18; }
-.jar.sugar::before { background:#F6EDD9; }
 
-/* 에스프레소 머신 (왼쪽) */
-.machine { position:absolute; left:4%; bottom:24%; width:82px; height:92px; }
+/* 에스프레소 머신 — 컵보다 크게 (가장 큰 장비) */
+.machine { position:absolute; left:1%; bottom:calc(31% + 10px); width:92px; height:144px; }
 .machine .mBody {
-  position:absolute; inset:0 0 12px 0;
+  position:absolute; inset:0 0 16px 0;
   background: linear-gradient(180deg,#D9D2C6,#AFA69A);
-  border-radius: 12px 12px 6px 6px;
-  box-shadow: inset 0 4px 0 rgba(255,255,255,.55), inset 0 -4px 0 rgba(90,62,43,.18);
+  border-radius: 16px 16px 8px 8px;
+  box-shadow: inset 0 6px 0 rgba(255,255,255,.55), inset 0 -5px 0 rgba(90,62,43,.18);
 }
 .machine .mTop {
-  position:absolute; top:8px; left:8px; right:8px; height:16px;
-  background:#8C8478; border-radius:6px;
-  box-shadow: inset 0 2px 0 rgba(255,255,255,.25);
+  position:absolute; top:10px; left:10px; right:10px; height:24px;
+  background:#8C8478; border-radius:9px;
+  box-shadow: inset 0 3px 0 rgba(255,255,255,.25);
 }
 .machine .mGauge {
-  position:absolute; top:32px; left:12px; width:16px; height:16px;
-  background:#FFF7EA; border:3px solid #8C8478; border-radius:50%;
+  position:absolute; top:46px; left:11px; width:23px; height:23px;
+  background:#FFF7EA; border:4px solid #8C8478; border-radius:50%;
 }
 .machine .mGauge::before {
-  content:''; position:absolute; top:2px; left:6px; width:2px; height:6px;
+  content:''; position:absolute; top:3px; left:9px; width:3px; height:9px;
   background:#C6483E; transform: rotate(35deg);
 }
 .machine .mHead {
-  position:absolute; top:34px; right:14px; width:22px; height:18px;
-  background:#8C8478; border-radius:4px 4px 6px 6px;
+  position:absolute; top:48px; right:13px; width:30px; height:26px;
+  background:#8C8478; border-radius:6px 6px 9px 9px;
 }
 .machine .mHead::after {
-  content:''; position:absolute; bottom:-8px; left:7px; width:8px; height:8px;
-  background:#6E675D; border-radius:0 0 3px 3px;
+  content:''; position:absolute; bottom:-12px; left:12px; width:10px; height:12px;
+  background:#6E675D; border-radius:0 0 4px 4px;
 }
 .machine .mCup {
-  position:absolute; bottom:14px; right:15px; width:20px; height:13px;
-  background:#FFF7EA; border-radius: 2px 2px 8px 8px;
-  box-shadow: inset 0 -3px 0 rgba(198,138,59,.35);
+  position:absolute; bottom:20px; right:19px; width:28px; height:19px;
+  background:#FFF7EA; border-radius: 3px 3px 11px 11px;
+  box-shadow: inset 0 -4px 0 rgba(198,138,59,.35);
 }
 .machine .mTray {
-  position:absolute; bottom:0; left:4px; right:4px; height:10px;
-  background:#6E675D; border-radius: 4px;
-  box-shadow: inset 0 2px 0 rgba(0,0,0,.2);
+  position:absolute; bottom:0; left:6px; right:6px; height:14px;
+  background:#6E675D; border-radius: 5px;
+  box-shadow: inset 0 3px 0 rgba(0,0,0,.2);
 }
 
-/* 화분 (오른쪽) */
-.plant { position:absolute; right:5%; bottom:25%; width:64px; height:78px; }
-.plant .pot {
-  position:absolute; bottom:0; left:14px; width:36px; height:30px;
-  background: linear-gradient(180deg,#D98A6A,#B96A4C);
-  border-radius: 6px 6px 12px 12px;
-  box-shadow: inset 0 4px 0 rgba(255,255,255,.28);
+/* 그라인더 — 컵보다 크게 */
+.grinder { position:absolute; left:calc(1% + 96px); bottom:calc(31% + 10px); width:48px; height:132px; }
+.grinder .gHopper {
+  position:absolute; top:0; left:6px; width:36px; height:34px;
+  background: rgba(225,242,250,.55);
+  border: 3px solid rgba(255,255,255,.78);
+  border-radius: 10px 10px 15px 15px;
+  overflow:hidden;
 }
-.plant .pot::before {
-  content:''; position:absolute; top:-5px; left:-4px; right:-4px; height:8px;
-  background:#C97A58; border-radius:4px;
+.grinder .gHopper::before {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:58%;
+  background:#4A2C18;
+  border-radius: 0 0 10px 10px;
 }
-.plant .leaf {
-  position:absolute; width:18px; height:34px;
-  background: linear-gradient(180deg,#7CC08A,#4E9660);
-  border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
-  bottom:24px;
+.grinder .gBody {
+  position:absolute; top:30px; left:0; width:48px; height:56px;
+  background: linear-gradient(180deg,#8C8478,#6E675D);
+  border-radius: 12px;
+  box-shadow: inset 0 4px 0 rgba(255,255,255,.25);
 }
-.plant .l1 { left:22px; height:42px; }
-.plant .l2 { left:8px; transform: rotate(-26deg); }
-.plant .l3 { left:36px; transform: rotate(26deg); }
-.plant .l4 { left:15px; height:26px; transform: rotate(-10deg); background:linear-gradient(180deg,#8FCf9A,#5EA870); }
-.plant .l5 { left:30px; height:26px; transform: rotate(10deg); background:linear-gradient(180deg,#8FCF9A,#5EA870); }
+.grinder .gBody::after {
+  content:''; position:absolute; top:20px; right:8px; width:14px; height:14px;
+  background:#5C564C; border:3px solid #AFA69A; border-radius:50%;
+}
+.grinder .gCup {
+  position:absolute; bottom:14px; left:10px; width:28px; height:24px;
+  background:#FFF7EA; border-radius: 4px 4px 9px 9px;
+  box-shadow: inset 0 -4px 0 rgba(198,138,59,.35);
+}
+.grinder .gBase {
+  position:absolute; bottom:0; left:3px; right:3px; height:12px;
+  background:#5C564C; border-radius: 4px;
+}
 
-/* 좁은 화면에서는 양옆 소품 축소 */
-@media (max-width: 360px) {
-  .machine { transform: scale(.85); transform-origin: left bottom; }
-  .plant { transform: scale(.85); transform-origin: right bottom; }
+/* 원두통 — 컵과 비슷한 덩치 */
+.canister { position:absolute; right:calc(1% + 58px); bottom:calc(31% + 10px); width:64px; height:100px; }
+.canister .cBody {
+  position:absolute; bottom:0; left:0; width:76px; height:92px;
+  background: linear-gradient(180deg,#B96A4C,#96502F);
+  border-radius: 14px;
+  box-shadow: inset 0 6px 0 rgba(255,255,255,.25), inset -7px 0 0 rgba(0,0,0,.12);
+}
+.canister .cBand {
+  position:absolute; bottom:30px; left:6px; right:6px; height:26px;
+  background: rgba(255,250,240,.88);
+  border-radius: 5px;
+  font-size:13px; color:#96502F; text-align:center; line-height:26px;
+  letter-spacing:1px;
+}
+.canister .cLid {
+  position:absolute; top:4px; left:7px; width:62px; height:20px;
+  background:#6B4526; border-radius: 10px 10px 5px 5px;
+}
+.canister .cLid::after {
+  content:''; position:absolute; top:-9px; left:24px; width:14px; height:10px;
+  background:#4A2A12; border-radius: 5px;
+}
+
+/* 소스 펌프병 3종 (작은 소품은 작아도 자연스러움) */
+.pumps { position:absolute; right:1%; bottom:calc(31% + 10px); width:56px; height:62px; }
+.pump {
+  position:absolute; bottom:0; width:18px; height:46px;
+  border-radius: 5px 5px 6px 6px;
+  box-shadow: inset -3px 0 0 rgba(0,0,0,.14), inset 2px 2px 0 rgba(255,255,255,.3);
+}
+.pump::before {
+  content:''; position:absolute; top:-8px; left:5px; width:8px; height:9px;
+  background:#D9D2C6; border-radius: 2px 2px 0 0;
+}
+.pump::after {
+  content:''; position:absolute; top:-14px; left:5px; width:14px; height:7px;
+  background:#8C8478; border-radius: 2px 5px 2px 2px;
+}
+.pump .pLab {
+  position:absolute; top:11px; left:2px; right:2px; height:14px;
+  background: rgba(255,250,240,.85); border-radius: 3px;
+}
+
+/* 좁은 화면에서는 장비 살짝 축소 (그래도 컵보다 크게 유지) */
+@media (max-width: 385px) {
+  .machine, .grinder { transform: scale(.8); transform-origin: left bottom; }
+  .canister, .pumps { transform: scale(.8); transform-origin: right bottom; }
 }
 
 #cupWrap {
   position:relative; z-index:2;
-  width: 128px; height: 168px;
+  width: 96px; height: 130px;
   filter: drop-shadow(0 10px 8px rgba(74,46,27,.28));
 }
+/* 테이크아웃 컵: 뚜껑+빨대, 손잡이 없음 */
+#lid {
+  position:absolute; left:-5px; right:-5px; top:-12px; height:16px;
+  background: linear-gradient(180deg,#FFFDF6,#E8DFC9);
+  border-radius: 8px 8px 4px 4px;
+  box-shadow: inset 0 -3px 0 rgba(150,130,100,.25);
+  display:none; z-index:4;
+}
+#lid::after {
+  content:''; position:absolute; top:-7px; left:50%; margin-left:-11px;
+  width:22px; height:8px; background:#E8DFC9; border-radius:4px 4px 0 0;
+}
+#straw {
+  position:absolute; left:58%; top:-46px;
+  width:11px; height:44px;
+  background: repeating-linear-gradient(45deg,#F2685C 0 6px,#FFF 6px 12px);
+  border-radius: 5px;
+  transform: rotate(8deg);
+  display:none; z-index:5;
+}
+#cupWrap.togo #lid, #cupWrap.togo #straw { display:block; }
+#cupWrap.togo #handle { display:none; }
+#cupWrap.togo #whip { display:none; } /* 뚜껑 위 휘핑 방지 — 휘핑은 뚜껑 없이 */
+#cupWrap.togo.hasWhip #lid, #cupWrap.togo.hasWhip #straw { display:none; }
+#cupWrap.togo.hasWhip #whip { display:block; }
 #whip {
   position:absolute; left:50%; transform:translateX(-50%);
-  bottom: calc(100% - 26px);
-  width: 96px; height: 54px;
+  bottom: calc(100% - 24px);
+  width: 86px; height: 50px;
   opacity:0; transition: opacity .25s, transform .25s;
   z-index:3; pointer-events:none;
 }
 #whip.on { opacity:1; }
 #whip .blob { position:absolute; background:#FFFDF6; border-radius:50%; box-shadow: inset -4px -5px 0 rgba(210,190,160,.35); }
-#whip .b1 { width:88px; height:34px; bottom:0; left:4px; }
-#whip .b2 { width:56px; height:28px; bottom:18px; left:20px; }
-#whip .b3 { width:28px; height:20px; bottom:36px; left:34px; }
-#whip .cherry { width:14px; height:14px; background:#F2685C; border-radius:50%; position:absolute; bottom:48px; left:41px; box-shadow: inset -2px -3px 0 rgba(0,0,0,.12); }
+#whip .b1 { width:78px; height:31px; bottom:0; left:4px; }
+#whip .b2 { width:50px; height:25px; bottom:16px; left:18px; }
+#whip .b3 { width:26px; height:18px; bottom:32px; left:30px; }
+#whip .cherry { width:13px; height:13px; background:#F2685C; border-radius:50%; position:absolute; bottom:43px; left:37px; box-shadow: inset -2px -3px 0 rgba(0,0,0,.12); }
 
 #glass {
   position:absolute; inset:0;
-  background: linear-gradient(105deg, rgba(255,255,255,.55), rgba(255,255,255,.18) 40%, rgba(255,255,255,.05) 60%, rgba(255,255,255,.3));
-  border: 4px solid rgba(255,255,255,.85);
+  background: var(--cupBg, linear-gradient(105deg, rgba(255,255,255,.55), rgba(255,255,255,.18) 40%, rgba(255,255,255,.05) 60%, rgba(255,255,255,.3)));
+  border: 4px solid var(--cupB, rgba(255,255,255,.85));
   border-top-width: 3px;
   border-radius: 14px 14px 30px 30px;
   clip-path: polygon(0 0, 100% 0, 92% 100%, 8% 100%);
@@ -347,11 +392,11 @@ body {
 }
 @keyframes iceIn { from { transform: translateY(-90px) rotate(-30deg); } }
 #handle {
-  position:absolute; right:-24px; top:34px;
-  width:30px; height:56px;
-  border: 8px solid rgba(255,255,255,.85);
+  position:absolute; right:-20px; top:26px;
+  width:24px; height:44px;
+  border: 7px solid var(--cupB, rgba(255,255,255,.85));
   border-left:none;
-  border-radius: 0 30px 30px 0;
+  border-radius: 0 26px 26px 0;
   z-index:1;
 }
 #cupLabel {
@@ -361,13 +406,16 @@ body {
   background:rgba(255,255,255,.7); border-radius:999px; padding:2px 12px;
 }
 
-.drop {
-  position:absolute; z-index:5; width:26px; height:26px; border-radius:50%;
-  left:50%; top:-10px; transform:translateX(-50%);
-  animation: dropIn .38s cubic-bezier(.5,0,.8,.4) forwards;
+/* 재료가 버튼에서 컵으로 날아가는 볼 */
+.flyBall {
+  position:fixed; z-index:18;
+  width:28px; height:28px; border-radius:50%;
+  box-shadow:
+    inset -3px -4px 0 rgba(0,0,0,.15),
+    inset 2px 3px 0 rgba(255,255,255,.45),
+    0 4px 8px rgba(74,46,27,.3);
   pointer-events:none;
 }
-@keyframes dropIn { to { top: 70%; opacity:.15; transform:translateX(-50%) scale(.5); } }
 
 .coinPop {
   position:absolute; z-index:6; font-size:22px; color:#B0672C;
@@ -384,8 +432,170 @@ body {
   background:#FFF7EA;
   border-radius: 26px 26px 0 0;
   box-shadow: 0 -5px 12px rgba(90,62,43,.15);
-  padding: 12px 12px calc(10px + env(safe-area-inset-bottom));
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
 }
+/* 컵 자리 — 그라인더 옆 매대 빈자리. 위치는 래퍼가 담당(내부 애니메이션과 분리) */
+#cupSpot {
+  position:absolute; left:50%; bottom: calc(31% + 12px);
+  transform: translateX(-50%);
+  z-index:3; /* 장비와 겹쳐도 컵이 항상 앞 */
+}
+
+/* 하단 패널: 컵 고르기 ↔ 재료 만들기 전환 */
+.hidden2 { display:none !important; }
+#controls { min-height: 208px; display:flex; flex-direction:column; justify-content:flex-end; }
+#pickPanel {
+  display:flex; flex-direction:column; align-items:center; gap:10px;
+  padding-bottom: 6px;
+}
+#brewPanel { animation: panelUp .28s cubic-bezier(.2,1.2,.4,1) both; }
+@keyframes panelUp { from { transform: translateY(30px); opacity:0 } to { transform:none; opacity:1 } }
+.rackTitle {
+  background:rgba(255,239,216,.9); border-radius:999px;
+  padding:5px 16px; font-size:14px; color:#7A4A1E;
+  box-shadow: 0 3px 0 rgba(90,62,43,.12);
+}
+/* 원목 컵 진열장 */
+#cabinet {
+  width:100%;
+  background: linear-gradient(180deg,#8A5C38,#6E4426);
+  border: 4px solid #5A3A22;
+  border-radius: 16px;
+  padding: 6px 6px 8px;
+  box-shadow: inset 0 4px 10px rgba(0,0,0,.3), 0 4px 0 rgba(58,36,23,.4);
+}
+.shelfRow {
+  display:flex; gap:4px; justify-content:center; align-items:flex-end;
+  position:relative;
+  padding: 8px 2px 12px;
+}
+.shelfRow::after {
+  content:''; position:absolute; left:2px; right:2px; bottom:2px; height:9px;
+  background: linear-gradient(180deg,#B67F4E,#8F6038);
+  border-radius:4px;
+  box-shadow: 0 3px 0 rgba(0,0,0,.25);
+}
+.rackCup {
+  font-family:inherit; border:none; cursor:pointer;
+  background:transparent; border-radius:10px;
+  padding: 4px 3px 0;
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  font-size:10px; color:#F3DDBE;
+  position:relative; z-index:1;
+}
+.rackCup:active { transform:translateY(2px); }
+.rackCup.rare {
+  animation: rareGlow 1.4s ease-in-out infinite;
+  border-radius:12px;
+}
+@keyframes rareGlow {
+  0%,100% { filter: drop-shadow(0 0 3px rgba(255,220,120,.7)); }
+  50% { filter: drop-shadow(0 0 9px rgba(255,220,120,1)); }
+}
+.rackCup.rare .rareTag {
+  position:absolute; top:-7px; right:-4px;
+  background: linear-gradient(180deg,#FFE9A8,#E8B84B);
+  color:#6B4526; font-size:9px;
+  border-radius:999px; padding:1px 6px;
+  box-shadow: 0 2px 0 rgba(90,62,43,.3);
+  z-index:2;
+}
+
+/* 진열대 미니 컵 그래픽 */
+.mini { position:relative; width:34px; height:42px; display:block; }
+.mini .mBody2 {
+  position:absolute; inset:5px 3px 0 3px;
+  border:2.5px solid rgba(180,200,215,.95);
+  border-radius:5px 5px 9px 9px;
+  clip-path: polygon(0 0,100% 0,88% 100%,12% 100%);
+  background: linear-gradient(105deg, rgba(255,255,255,.7), rgba(255,255,255,.2));
+}
+.mini .mHandle {
+  position:absolute; right:-4px; top:13px; width:9px; height:14px;
+  border:3px solid rgba(180,200,215,.95); border-left:none;
+  border-radius:0 8px 8px 0;
+}
+.mini.togo .mBody2 {
+  clip-path: polygon(4% 0,96% 0,86% 100%,14% 100%);
+}
+.mini.ms-tall .mBody2 { inset:3px 6px 0 6px; clip-path: polygon(2% 0,98% 0,86% 100%,14% 100%); }
+.mini.ms-round .mBody2 { clip-path:none; border-radius: 8px 8px 13px 13px; }
+.mini .mEars { position:absolute; top:-2px; left:0; right:0; height:10px; display:none; }
+.mini.ms-cat .mEars, .mini.ms-bear .mEars, .mini.ms-frog .mEars { display:block; }
+.mini .mEars i { position:absolute; width:10px; height:9px; }
+.mini.ms-cat .mEars i { clip-path: polygon(50% 0,100% 100%,0 100%); }
+.mini.ms-bear .mEars i, .mini.ms-frog .mEars i { border-radius:50%; }
+.mini .mEars i:first-child { left:4px; }
+.mini .mEars i:last-child { right:4px; }
+.mini .mFace { position:absolute; top:17px; left:0; right:0; display:none; }
+.mini.ms-cat .mFace, .mini.ms-bear .mFace, .mini.ms-frog .mFace { display:block; }
+.mini .mFace b { position:absolute; width:3.5px; height:4.5px; border-radius:50%; background:#3A2417; }
+.mini .mFace b.l { left:10px; } .mini .mFace b.r { right:10px; }
+.mini.togo .mLid2 { position:absolute; top:0; left:1px; right:1px; height:7px; background:#E8DFC9; border-radius:3px; box-shadow: inset 0 -2px 0 rgba(150,130,100,.25); }
+.mini.togo .mStraw2 {
+  position:absolute; top:-7px; left:55%; width:5px; height:13px;
+  background: repeating-linear-gradient(45deg,#F2685C 0 3px,#FFF 3px 6px);
+  border-radius:2px; transform:rotate(8deg);
+}
+.ghostCup { position:fixed; z-index:19; pointer-events:none; margin:0; }
+
+/* 컵 디자인은 --cupB/--cupBg 변수로 주입 */
+#cupWrap.waiting { opacity:0; pointer-events:none; }
+#cupWrap.togo #glass { border-radius: 8px 8px 18px 18px; }
+
+/* ── 컵 모양 변형 ── */
+#cupWrap.shape-tall #glass { inset:0 9px; clip-path: polygon(2% 0,98% 0,86% 100%,14% 100%); border-radius:10px 10px 20px 20px; }
+#cupWrap.shape-tall #handle { top:38px; height:34px; }
+#cupWrap.shape-round #glass { clip-path:none; border-radius: 22px 22px 38px 38px; }
+
+/* ── 캐릭터 컵: 귀 ── */
+#cupEars { position:absolute; left:0; right:0; top:-16px; height:24px; display:none; z-index:3; pointer-events:none; }
+#cupEars i { position:absolute; width:26px; height:22px; background: var(--cupB); }
+#cupEars i.eL { left:8px; } #cupEars i.eR { right:8px; }
+#cupWrap.shape-cat #cupEars { display:block; }
+#cupWrap.shape-cat #cupEars i { clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+#cupWrap.shape-bear #cupEars { display:block; top:-14px; }
+#cupWrap.shape-bear #cupEars i { border-radius:50%; width:24px; height:24px; }
+#cupWrap.shape-frog #cupEars { display:block; top:-18px; }
+#cupWrap.shape-frog #cupEars i {
+  border-radius:50%; width:24px; height:24px;
+  background:#FFFDF6; border:3.5px solid var(--cupB);
+}
+#cupWrap.shape-frog #cupEars i::after {
+  content:''; position:absolute; width:8px; height:9px;
+  background:#3A2417; border-radius:50%; left:7px; top:8px;
+}
+
+/* ── 캐릭터 컵: 얼굴 ── */
+#cupFace { display:none; position:absolute; top:34%; left:0; right:0; height:30px; z-index:3; pointer-events:none; }
+#cupWrap.hasFace #cupFace { display:block; }
+#cupFace .fe { position:absolute; width:7px; height:9px; border-radius:50%; background:#3A2417; top:0; }
+#cupFace .fe.l { left:31%; } #cupFace .fe.r { right:31%; }
+#cupFace .fm {
+  position:absolute; top:13px; left:50%; width:11px; height:5px; margin-left:-5.5px;
+  border:2.5px solid #3A2417; border-top:none; border-radius:0 0 10px 10px;
+}
+#cupFace .fc { position:absolute; width:8px; height:5px; border-radius:50%; background:rgba(255,120,110,.5); top:9px; }
+#cupFace .fc.l { left:20%; } #cupFace .fc.r { right:20%; }
+/* 고양이 수염 */
+#cupWrap.shape-cat #cupFace::before, #cupWrap.shape-cat #cupFace::after {
+  content:''; position:absolute; top:6px; width:15px; height:2px;
+  background:#3A2417; box-shadow: 0 6px 0 #3A2417;
+}
+#cupWrap.shape-cat #cupFace::before { left:2px; transform:rotate(6deg); }
+#cupWrap.shape-cat #cupFace::after { right:2px; transform:rotate(-6deg); }
+/* 곰 주둥이 */
+#cupWrap.shape-bear #cupFace .fm { border-color:transparent; }
+#cupWrap.shape-bear #cupFace::before {
+  content:''; position:absolute; top:9px; left:50%; margin-left:-9px;
+  width:18px; height:13px; background:#F6E8D2; border-radius:50%;
+}
+#cupWrap.shape-bear #cupFace::after {
+  content:''; position:absolute; top:12px; left:50%; margin-left:-3px;
+  width:6px; height:5px; background:#3A2417; border-radius:50%;
+  z-index:1;
+}
+
 #ingredients {
   display:grid; grid-template-columns: repeat(5, 1fr);
   gap:8px; margin-bottom:10px;
@@ -532,6 +742,19 @@ body.loading #fx { visibility:hidden; }
   box-shadow: 0 0 12px rgba(245,184,92,.6);
 }
 #barPct { font-size:15px; color:#F5B85C; }
+#verBadge {
+  position:fixed; right:8px; bottom:6px; z-index:60;
+  font-size:11px; color:rgba(122,74,30,.55);
+  background:rgba(255,247,234,.6); border-radius:999px; padding:2px 9px;
+  pointer-events:none;
+}
+#errBar {
+  position:fixed; left:8px; right:8px; top:8px; z-index:99;
+  background:#C6483E; color:#fff;
+  border-radius:12px; padding:10px 12px;
+  font-size:12px; line-height:1.5; word-break:break-all;
+  display:none;
+}
 #overlay .logo { width:84px; height:84px; animation: bob 2s ease-in-out infinite; }
 #overlay h2 { font-size:32px; color:#FFD98E; }
 #overlay p { font-size:15px; line-height:1.75; max-width:340px; color:#F3DDBE; }
@@ -578,6 +801,20 @@ body.loading #fx { visibility:hidden; }
     <path d="M16 9.5h2a2.6 2.6 0 0 1 0 5.2h-2" fill="none" stroke="#C68A3B" stroke-width="1.8"/>
     <path d="M8.5 5.5c0-1 .8-1 .8-2M12 5.5c0-1 .8-1 .8-2" fill="none" stroke="#E8C9A0" stroke-width="1.6" stroke-linecap="round"/>
   </symbol>
+  <symbol id="i-togo" viewBox="0 0 24 24">
+    <path d="M6.5 8h11l-1.4 12a1.8 1.8 0 0 1-1.8 1.6H9.7A1.8 1.8 0 0 1 7.9 20z" fill="#FFF7EA" stroke="#C68A3B" stroke-width="1.8"/>
+    <rect x="5" y="4.5" width="14" height="3.4" rx="1.6" fill="#E8DFC9" stroke="#C68A3B" stroke-width="1.6"/>
+    <path d="M13.5 4.5L15.5 1" stroke="#F2685C" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M8 12h8" stroke="#E3CBA8" stroke-width="1.6" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-snd" viewBox="0 0 24 24">
+    <path d="M4 9v6h4l5 4V5L8 9z" fill="#6B4526"/>
+    <path d="M16 9c1.4 1.6 1.4 4.4 0 6M18.5 6.5c2.6 3 2.6 8 0 11" fill="none" stroke="#6B4526" stroke-width="2" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-sndoff" viewBox="0 0 24 24">
+    <path d="M4 9v6h4l5 4V5L8 9z" fill="#9A8A7A"/>
+    <path d="M16 9.5l5 5M21 9.5l-5 5" stroke="#9A8A7A" stroke-width="2.2" stroke-linecap="round"/>
+  </symbol>
   <symbol id="i-spark" viewBox="0 0 24 24">
     <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"
       fill="#FF8B7E" stroke="#C6483E" stroke-width="1.4" stroke-linejoin="round"/>
@@ -590,6 +827,7 @@ body.loading #fx { visibility:hidden; }
     <div class="pill"><svg class="ic ic-lg"><use href="#i-coin"/></svg> <span class="num" id="coins">0</span></div>
     <div class="pill"><svg class="ic ic-lg"><use href="#i-star"/></svg> <span class="num" id="level">1</span></div>
     <div class="pill"><span id="lives"></span></div>
+    <button id="sndBtn" aria-label="사운드 켜기/끄기"><svg class="ic" id="sndIcon"><use href="#i-snd"/></svg></button>
     <button id="bookBtn" aria-label="레시피북 열기"><svg class="ic"><use href="#i-book"/></svg></button>
   </div>
 
@@ -607,14 +845,7 @@ body.loading #fx { visibility:hidden; }
   <div id="stage">
     <div id="deco" aria-hidden="true">
       <div class="glow"></div>
-      <div class="shelf">
-        <div class="bottle" style="left:16%; background:linear-gradient(180deg,#F0CD84,#D9AE58)"><div class="lab"></div></div>
-        <div class="bottle" style="left:16%; margin-left:22px; background:linear-gradient(180deg,#C98A4B,#A2621F)"><div class="lab"></div></div>
-        <div class="bottle" style="left:16%; margin-left:44px; background:linear-gradient(180deg,#6E4426,#4A2A12)"><div class="lab"></div></div>
-        <div class="jar beans" style="right:24%"></div>
-        <div class="jar sugar" style="right:24%; margin-right:32px"></div>
-        <div class="bottle" style="right:15%; background:linear-gradient(180deg,#8FD9B0,#5BB584)"><div class="lab"></div></div>
-      </div>
+      <div class="backBar"></div>
       <div class="machine">
         <div class="mBody"></div>
         <div class="mTop"></div>
@@ -623,33 +854,56 @@ body.loading #fx { visibility:hidden; }
         <div class="mCup"></div>
         <div class="mTray"></div>
       </div>
-      <div class="plant">
-        <div class="leaf l2"></div>
-        <div class="leaf l3"></div>
-        <div class="leaf l4"></div>
-        <div class="leaf l5"></div>
-        <div class="leaf l1"></div>
-        <div class="pot"></div>
+      <div class="grinder">
+        <div class="gHopper"></div>
+        <div class="gBody"></div>
+        <div class="gCup"></div>
+        <div class="gBase"></div>
+      </div>
+      <div class="canister">
+        <div class="cBody"></div>
+        <div class="cBand">BEANS</div>
+        <div class="cLid"></div>
+      </div>
+      <div class="pumps">
+        <div class="pump" style="left:0; background:linear-gradient(180deg,#D6913F,#A85F1C)"><div class="pLab"></div></div>
+        <div class="pump" style="left:21px; background:linear-gradient(180deg,#7A4A2A,#4E2E15)"><div class="pLab"></div></div>
+        <div class="pump" style="left:42px; background:linear-gradient(180deg,#F0CD84,#D9AE58)"><div class="pLab"></div></div>
       </div>
     </div>
     <div id="toast"></div>
-    <div id="cupWrap">
-      <div id="whip"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="cherry"></div></div>
-      <div id="handle"></div>
-      <div id="glass">
-        <div id="liquid"></div>
-        <div id="foamLayer"></div>
-        <div id="iceBox"></div>
+    <div id="cupSpot" class="empty">
+      <div id="cupWrap" class="waiting">
+        <div id="cupEars"><i class="eL"></i><i class="eR"></i></div>
+        <div id="cupFace"><span class="fe l"></span><span class="fe r"></span><span class="fc l"></span><span class="fc r"></span><span class="fm"></span></div>
+        <div id="lid"></div>
+        <div id="straw"></div>
+        <div id="whip"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="cherry"></div></div>
+        <div id="handle"></div>
+        <div id="glass">
+          <div id="liquid"></div>
+          <div id="foamLayer"></div>
+          <div id="iceBox"></div>
+        </div>
+        <div id="cupLabel">빈 컵</div>
       </div>
-      <div id="cupLabel">빈 컵</div>
     </div>
   </div>
 
   <div id="controls">
-    <div id="ingredients"></div>
-    <div id="actions">
-      <button class="act" id="serveBtn">서빙하기!</button>
-      <button class="act" id="trashBtn">버리기</button>
+    <div id="pickPanel">
+      <div class="rackTitle">진열장에서 컵을 골라 매대에 올리세요!</div>
+      <div id="cabinet">
+        <div class="shelfRow" id="shelfRow1"></div>
+        <div class="shelfRow" id="shelfRow2"></div>
+      </div>
+    </div>
+    <div id="brewPanel" class="hidden2">
+      <div id="ingredients"></div>
+      <div id="actions">
+        <button class="act" id="serveBtn">서빙하기!</button>
+        <button class="act" id="trashBtn">버리기</button>
+      </div>
     </div>
   </div>
 </div>
@@ -684,7 +938,31 @@ body.loading #fx { visibility:hidden; }
   <div class="lTip" id="loadTip">원두를 갈고 있어요...</div>
 </div>
 
+<div id="verBadge">v15</div>
+<div id="errBar"></div>
+
 <script>
+/* ============ 전역 에러 가시화 (기기별 문제를 화면에서 바로 확인) ============ */
+window.addEventListener('error', e => {
+  const bar = document.getElementById('errBar');
+  if (bar) { bar.style.display = 'block'; bar.textContent = '오류: ' + (e.message || e.type) + (e.lineno ? ' (줄 ' + e.lineno + ')' : ''); }
+});
+window.addEventListener('unhandledrejection', e => {
+  const bar = document.getElementById('errBar');
+  if (bar) { bar.style.display = 'block'; bar.textContent = '오류(P): ' + (e.reason && e.reason.message || e.reason || 'unknown'); }
+});
+</script>
+
+<script>
+/* ============ 뷰포트 실측 (인앱 브라우저에서 하단 UI 잘림 방지) ============ */
+function setVH() {
+  const h = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+  document.documentElement.style.setProperty('--vh', h + 'px');
+}
+setVH();
+addEventListener('resize', setVH);
+if (window.visualViewport) window.visualViewport.addEventListener('resize', setVH);
+
 /* ============ 데이터 ============ */
 const ING = {
   ice:     { name:'얼음',   color:'linear-gradient(135deg,#DFF4FD,#AEDCF2)', flat:'#BFE4F5', liquid:false },
@@ -720,7 +998,7 @@ const MAX_LEVEL = 6;
 let state = null;
 let lastLiquidTop = 0; // 컵 안 액체 표면 높이(px, 컵 하단 기준)
 function newState() {
-  return { coins:0, served:0, level:1, lives:3, cup:[], customer:null, running:false, lastTime:0 };
+  return { coins:0, served:0, level:1, lives:3, cup:[], cupType:null, cupDef:null, customer:null, running:false, lastTime:0 };
 }
 
 /* ============ DOM 헬퍼 ============ */
@@ -944,6 +1222,64 @@ fxResize();
 addEventListener('resize', fxResize);
 requestAnimationFrame(fxLoop);
 
+/* ============ 사운드 (WebAudio 합성, 파일 불필요) ============ */
+let AC = null, sfxOn = true;
+function ac() {
+  try {
+    if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+    if (AC.state === 'suspended') AC.resume();
+  } catch(e) { /* 오디오 미지원 환경 — 무음으로 진행 */ }
+  return AC;
+}
+function tone(f, d, type='sine', v=.18, f2) {
+  if (!sfxOn) return;
+  try {
+    const c = ac();
+    if (!c) return;
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = type;
+    o.frequency.setValueAtTime(f, c.currentTime);
+    if (f2) o.frequency.exponentialRampToValueAtTime(f2, c.currentTime + d);
+    g.gain.setValueAtTime(v, c.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001, c.currentTime + d);
+    o.connect(g).connect(c.destination);
+    o.start(); o.stop(c.currentTime + d);
+  } catch(e) {}
+}
+function noiseSfx(d=.15, ff=1200, v=.22) {
+  if (!sfxOn) return;
+  try {
+    const c = ac();
+    if (!c) return;
+    const n = Math.floor(c.sampleRate * d);
+    const buf = c.createBuffer(1, n, c.sampleRate);
+    const ch = buf.getChannelData(0);
+    for (let i=0; i<n; i++) ch[i] = (Math.random()*2-1) * (1 - i/n);
+    const s = c.createBufferSource(); s.buffer = buf;
+    const fl = c.createBiquadFilter(); fl.type = 'lowpass'; fl.frequency.value = ff;
+    const g = c.createGain(); g.gain.value = v;
+    s.connect(fl).connect(g).connect(c.destination);
+    s.start();
+  } catch(e) {}
+}
+const sfx = {
+  tap()     { tone(520, .07, 'square', .1, 760); },                       // 재료 버튼
+  land()    { noiseSfx(.13, 900, .28); tone(300, .1, 'sine', .13, 180); }, // 컵 착지 (퐁당)
+  pop()     { tone(660, .06, 'triangle', .14, 880); },                     // 컵 선택
+  trash()   { noiseSfx(.22, 550, .2); },                                   // 버리기 (쏴아)
+  bell()    { tone(880, .28, 'sine', .14); setTimeout(()=>tone(1174, .34, 'sine', .11), 90); }, // 손님 등장 (딸랑)
+  success() { [523,659,784].forEach((f,i)=>setTimeout(()=>tone(f, .13, 'triangle', .16), i*80)); },
+  level()   { [523,659,784,1046].forEach((f,i)=>setTimeout(()=>tone(f, .15, 'triangle', .17), i*90)); },
+  fail()    { tone(220, .28, 'sawtooth', .13, 130); },
+  warn()    { tone(330, .1, 'square', .1, 300); },                          // 안내 (컵 먼저 등)
+};
+$('sndBtn').onclick = () => {
+  sfxOn = !sfxOn;
+  $('sndIcon').innerHTML = `<use href="#${sfxOn ? 'i-snd' : 'i-sndoff'}"/>`;
+  if (sfxOn) { sfx.pop(); if (bgm.src) bgm.play().catch(()=>{}); }
+  else bgm.pause();
+};
+
 /* ============ 손님 캐릭터 ============ */
 const SKIN = ['#FBD3A9','#F2BE8C','#DEA06B','#B57A4C'];
 const HAIR = ['#3A2417','#6B4526','#C68A3B','#8A8A8A','#E27A6E','#5A7A9A','#3E7D5C'];
@@ -1023,10 +1359,12 @@ function renderCup() {
   }
 
   whip.classList.toggle('on', hasWhip);
+  $('cupWrap').classList.toggle('hasWhip', hasWhip);
 
-  $('cupLabel').textContent = state.cup.length
-    ? state.cup.map(k=>ING[k].name).join('·')
-    : '빈 컵';
+  const cupName = state.cupDef ? state.cupDef.name + ' · ' : '';
+  $('cupLabel').textContent = state.cupType
+    ? cupName + (state.cup.length ? state.cup.map(k=>ING[k].name).join('·') : '빈 컵')
+    : '컵을 골라주세요';
 }
 
 /* ============ UI 렌더 ============ */
@@ -1063,7 +1401,7 @@ function renderIngredients() {
     const b = document.createElement('button');
     b.className = 'ing-btn';
     b.innerHTML = `<span class="ing-icon" style="background:${ING[k].color}"></span>${ING[k].name}`;
-    b.onclick = () => addIngredient(k);
+    b.onclick = () => addIngredient(k, b);
     box.appendChild(b);
   });
 }
@@ -1086,17 +1424,211 @@ function coinPop(amount) {
   setTimeout(()=>el.remove(), 1000);
 }
 
+/* ============ 컵 진열장 ============ */
+// 일반 컵 12종 — 패턴/모양/캐릭터 다양화 (shape: mug|tall|round|cat|bear|frog|togo)
+const CUP_POOL = [
+  { id:'glass',    name:'유리컵',     type:'mug',  shape:'mug',   b:'rgba(180,200,215,.95)', bg:'linear-gradient(105deg, rgba(255,255,255,.7), rgba(255,255,255,.2))' },
+  { id:'tall',     name:'라떼글라스', type:'mug',  shape:'tall',  b:'rgba(190,205,215,.95)', bg:'linear-gradient(105deg, rgba(255,255,255,.65), rgba(255,255,255,.18))' },
+  { id:'dotpink',  name:'도트머그',   type:'mug',  shape:'mug',   b:'#F2A9C4', bg:'radial-gradient(circle at 5px 5px, #F2A9C4 2.5px, transparent 3px) 0 0/13px 13px, linear-gradient(#FFF9F0,#FFEFE6)' },
+  { id:'candy',    name:'캔디민트',   type:'mug',  shape:'mug',   b:'#7CC9A9', bg:'repeating-linear-gradient(115deg, #BFEAD8 0 8px, #FFF9F0 8px 16px)' },
+  { id:'gingham',  name:'체크블루',   type:'mug',  shape:'mug',   b:'#8FC1E8', bg:'repeating-linear-gradient(0deg, rgba(143,193,232,.4) 0 5px, transparent 5px 10px), repeating-linear-gradient(90deg, rgba(143,193,232,.4) 0 5px, transparent 5px 10px), linear-gradient(#FFF9F0,#FFF9F0)' },
+  { id:'lemon',    name:'레몬머그',   type:'mug',  shape:'mug',   b:'#E8CD6B', bg:'linear-gradient(105deg, rgba(250,238,190,.85), rgba(238,214,130,.45))' },
+  { id:'cocoa',    name:'코코아볼',   type:'mug',  shape:'round', b:'#A97B5A', bg:'linear-gradient(105deg, rgba(216,190,168,.9), rgba(180,142,110,.55))' },
+  { id:'charcoal', name:'차콜머그',   type:'mug',  shape:'mug',   b:'#7A7A7A', bg:'linear-gradient(105deg, rgba(160,160,160,.8), rgba(110,110,110,.55))' },
+  { id:'cat',      name:'고양이머그', type:'mug',  shape:'cat',   b:'#D9B98F', bg:'linear-gradient(180deg,#FBEFDD,#F0DEC2)' },
+  { id:'bear',     name:'곰돌이머그', type:'mug',  shape:'bear',  b:'#A97B5A', bg:'linear-gradient(180deg,#E2C4A4,#CBA277)' },
+  { id:'paper',    name:'일회용컵',   type:'togo', shape:'togo',  b:'#E3CBA8', bg:'linear-gradient(180deg,#FFFDF6,#F0E6D2)' },
+  { id:'candycane',name:'캔디컵',     type:'togo', shape:'togo',  b:'#E28B84', bg:'repeating-linear-gradient(115deg, #F5B0A9 0 7px, #FFFDF6 7px 14px)' },
+];
+// 레어 컵 (가끔만 진열장에 등장, 서빙 성공 시 보너스 코인)
+const RARE_POOL = [
+  { id:'gold',   name:'골드컵',   type:'mug',  shape:'mug',  rare:true, bonus:3, b:'#E8B84B', bg:'repeating-linear-gradient(105deg, #FFEDB0 0 9px, #F2CE79 9px 12px)' },
+  { id:'sakura', name:'벚꽃컵',   type:'mug',  shape:'mug',  rare:true, bonus:3, b:'#F58FB4', bg:'radial-gradient(circle at 6px 6px, #FFFDF6 2.5px, transparent 3px) 0 0/13px 13px, linear-gradient(135deg,#FFD4E4,#F7A9C8)' },
+  { id:'galaxy', name:'갤럭시컵', type:'togo', shape:'togo', rare:true, bonus:3, b:'#8A7BD9', bg:'radial-gradient(circle at 8px 10px, #FFFDF6 1.6px, transparent 2.2px) 0 0/16px 18px, radial-gradient(circle at 3px 4px, #FFE9A8 1.1px, transparent 1.6px) 8px 6px/14px 16px, linear-gradient(135deg,#4A3E7A,#7A5FB5)' },
+  { id:'tiger',  name:'호랑이컵', type:'mug',  shape:'mug',  rare:true, bonus:3, b:'#E88B3A', bg:'repeating-linear-gradient(115deg,#F2A95C 0 7px,#7A4A2A 7px 11px)' },
+  { id:'frog',   name:'개구리컵', type:'mug',  shape:'frog', rare:true, bonus:3, b:'#7CB08A', bg:'linear-gradient(180deg,#DFF0E0,#BFDDC4)' },
+];
+const RARE_CHANCE = 0.22; // 손님마다 22% 확률로 레어컵 1종 진열
+const CUPS = CUP_POOL; // (테스트 호환)
+
+function cupCardHTML(c) {
+  const shape = c.shape || (c.type === 'togo' ? 'togo' : 'mug');
+  const isChar = shape === 'cat' || shape === 'bear' || shape === 'frog';
+  let ears = '';
+  if (isChar) {
+    const earStyle = shape === 'frog'
+      ? `background:#FFFDF6;border:2px solid ${c.b}`
+      : `background:${c.b}`;
+    ears = `<span class="mEars"><i style="${earStyle}"></i><i style="${earStyle}"></i></span>
+            <span class="mFace"><b class="l"></b><b class="r"></b></span>`;
+  }
+  return `<span class="mini ${c.type === 'togo' ? 'togo' : ''} ms-${shape}">
+      <span class="mBody2" style="border-color:${c.b}; background:${c.bg}"></span>
+      ${c.type === 'mug'
+        ? `<span class="mHandle" style="border-color:${c.b}"></span>`
+        : '<span class="mLid2"></span><span class="mStraw2"></span>'}
+      ${ears}
+    </span>${c.name}`;
+}
+function renderRack() {
+  const r1 = $('shelfRow1'), r2 = $('shelfRow2');
+  r1.innerHTML = ''; r2.innerHTML = '';
+  const items = [...CUP_POOL];
+  if (Math.random() < RARE_CHANCE) {
+    items.push(rand(RARE_POOL)); // 레어템 등장!
+  }
+  items.forEach((c, i) => {
+    const b = document.createElement('button');
+    b.className = 'rackCup' + (c.rare ? ' rare' : '');
+    b.innerHTML = cupCardHTML(c) + (c.rare ? '<span class="rareTag">RARE</span>' : '');
+    b.onclick = () => pickCup(c, b);
+    (i < Math.ceil(items.length/2) ? r1 : r2).appendChild(b);
+  });
+}
+function setPhase(brew) {
+  // brew=false: 하단에 컵 고르기 / brew=true: 하단에 재료 패널
+  $('pickPanel').classList.toggle('hidden2', brew);
+  $('brewPanel').classList.toggle('hidden2', !brew);
+  if (!brew) renderRack(); // 손님마다 진열장 갱신 (레어 확률 재추첨)
+}
+function pickCup(c, btn) {
+  if (!state.running || state.cupType) return;
+  state.cupType = c.type;
+  state.cupDef = c;
+  sfx.pop();
+  if (navigator.vibrate) navigator.vibrate(6);
+
+  const wrap = $('cupWrap');
+  wrap.classList.remove('togo','shape-tall','shape-round','shape-cat','shape-bear','shape-frog','hasFace');
+  wrap.style.setProperty('--cupB', c.b);
+  wrap.style.setProperty('--cupBg', c.bg);
+  if (c.type === 'togo') wrap.classList.add('togo');
+  const shape = c.shape || 'mug';
+  if (shape !== 'mug' && shape !== 'togo') wrap.classList.add('shape-' + shape);
+  if (shape === 'cat' || shape === 'bear' || shape === 'frog') wrap.classList.add('hasFace');
+
+  let revealed = false;
+  const reveal = () => {
+    if (revealed) return;
+    revealed = true;
+    wrap.classList.remove('waiting');
+    if (wrap.animate) {
+      wrap.animate([
+        { transform:'scale(1.15)' },
+        { transform:'scale(.96)', offset:.6 },
+        { transform:'scale(1)' },
+      ], { duration:260, easing:'ease-out' });
+    }
+    setPhase(true); // 하단 패널: 컵 고르기 → 재료
+    renderCup();
+    sfx.land();
+  };
+
+  if (reduceMotion || !btn || !btn.querySelector) { reveal(); return; }
+  // 고른 미니 컵이 카운터로 날아가 커지는 연출
+  try {
+    const mini = btn.querySelector('.mini');
+    const mR = mini.getBoundingClientRect();
+    const tR = wrap.getBoundingClientRect();
+    const ghost = mini.cloneNode(true);
+    ghost.classList.add('ghostCup');
+    ghost.style.left = mR.left + 'px';
+    ghost.style.top = mR.top + 'px';
+    document.body.appendChild(ghost);
+    const dx = tR.left + tR.width/2 - (mR.left + mR.width/2);
+    const dy = tR.top + tR.height/2 - (mR.top + mR.height/2);
+    if (!ghost.animate) { ghost.remove(); reveal(); return; }
+    const a = ghost.animate([
+      { transform:'translate(0,0) scale(1)', opacity:1 },
+      { transform:`translate(${dx}px,${dy}px) scale(2.1)`, opacity:.85 },
+    ], { duration:340, easing:'cubic-bezier(.3,.6,.4,1)' });
+    a.onfinish = () => { ghost.remove(); reveal(); };
+    setTimeout(() => { ghost.remove(); reveal(); }, 500); // 이벤트 누락 보험
+  } catch (e) {
+    reveal(); // 어떤 경우에도 진행은 보장
+  }
+}
+function resetCup() {
+  state.cup = [];
+  state.cupType = null;
+  state.cupDef = null;
+  const wrap = $('cupWrap');
+  wrap.classList.add('waiting');
+  wrap.classList.remove('togo','hasWhip','shape-tall','shape-round','shape-cat','shape-bear','shape-frog','hasFace');
+  wrap.style.removeProperty('--cupB');
+  wrap.style.removeProperty('--cupBg');
+  renderCup();
+  setPhase(false);
+}
+
 /* ============ 게임 로직 ============ */
-function addIngredient(k) {
+function flyIngredient(k, btn) {
+  let landed = false;
+  const land = () => {
+    if (landed) return;
+    landed = true;
+    renderCup();
+    fxSplash(ING[k].flat);
+    sfx.land();
+    if ($('cupWrap').animate) {
+      $('cupWrap').animate([
+        { transform: 'scale(1,1)' },
+        { transform: 'scale(1.06,.94)', offset: .4 },
+        { transform: 'scale(.98,1.03)', offset: .7 },
+        { transform: 'scale(1,1)' },
+      ], { duration: 300, easing: 'ease-out' });
+    }
+    if (navigator.vibrate) navigator.vibrate(10);
+  };
+  try {
+    const bR = btn.getBoundingClientRect();
+    const cR = cupRect();
+    const sx = bR.left + bR.width/2 - 14;
+    const sy = bR.top - 4;
+    const ex = cR.left + cR.width/2 - 14;
+    const ey = cR.top + 4; // 컵 입구
+    const dx = ex - sx, dy = ey - sy;
+
+    const ball = document.createElement('div');
+    ball.className = 'flyBall';
+    ball.style.background = ING[k].color;
+    ball.style.left = sx + 'px';
+    ball.style.top = sy + 'px';
+    document.body.appendChild(ball);
+    if (!ball.animate) { ball.remove(); land(); return; }
+
+    // 포물선 비행 (중간 지점을 목표보다 높게)
+    const anim = ball.animate([
+      { transform: 'translate(0,0) scale(1)' },
+      { transform: `translate(${dx*0.5}px, ${dy - 120}px) scale(.92)`, offset: .55 },
+      { transform: `translate(${dx}px, ${dy}px) scale(.55)` },
+    ], { duration: 460, easing: 'cubic-bezier(.35,.15,.55,1)' });
+
+    // 비행 중 파티클 꼬리
+    const trail = () => {
+      if (anim.playState !== 'running') return;
+      const r = ball.getBoundingClientRect();
+      emit(r.left + r.width/2, r.top + r.height/2,
+        { colors:[ING[k].flat], count:1, speed:18, g:80, life:.32, sizes:[3,4] });
+      requestAnimationFrame(trail);
+    };
+    requestAnimationFrame(trail);
+
+    anim.onfinish = () => { ball.remove(); land(); };
+    setTimeout(() => { ball.remove(); land(); }, 650); // 이벤트 누락 보험
+  } catch (e) {
+    land();
+  }
+}
+
+function addIngredient(k, btn) {
   if (!state.running) return;
-  if (state.cup.length >= MAX_ITEMS) { toast('컵이 가득 찼어요!', 'bad'); return; }
+  if (!state.cupType) { toast('진열대에서 컵부터 골라주세요!', 'bad'); sfx.warn(); return; }
+  if (state.cup.length >= MAX_ITEMS) { toast('컵이 가득 찼어요!', 'bad'); sfx.warn(); return; }
   state.cup.push(k);
-  const d = document.createElement('div');
-  d.className = 'drop';
-  d.style.background = ING[k].color;
-  $('cupWrap').appendChild(d);
-  setTimeout(()=>d.remove(), 400);
-  setTimeout(()=>{ renderCup(); fxSplash(ING[k].flat); }, 220);
+  sfx.tap();
+  if (reduceMotion || !btn) { renderCup(); return; }
+  flyIngredient(k, btn);
   if (navigator.vibrate) navigator.vibrate(8);
 }
 
@@ -1110,14 +1642,18 @@ function unlockedRecipes() { return RECIPES.filter(r => r.unlock <= state.level)
 function spawnCustomer() {
   const recipe = rand(unlockedRecipes());
   const base = Math.max(26 - state.level*2, 12);
-  state.customer = { recipe, maxPatience:base, patience:base };
+  const togo = Math.random() < 0.5;
+  state.customer = { recipe, togo, maxPatience:base, patience:base };
   const slot = $('charSlot');
   slot.innerHTML = '';
   slot.appendChild(spawnCharDOM());
   $('orderName').textContent = recipe.name + ' 주세요!';
-  $('orderHint').innerHTML = '재료 ' + recipe.ing.length + '개 · +' + recipe.pay + ' ' + icon('i-coin');
+  $('orderHint').innerHTML =
+    '<b style="color:#B0672C">' + (togo ? '포장해갈게요' : '먹고 갈게요') + '</b>' +
+    ' · 재료 ' + recipe.ing.length + '개 · +' + recipe.pay + ' ' + icon('i-coin');
   $('bubble').style.animation = 'none';
   requestAnimationFrame(()=> $('bubble').style.animation = '');
+  sfx.bell();
 }
 
 function customerLeaves(angry=false) {
@@ -1134,41 +1670,53 @@ function customerLeaves(angry=false) {
 
 function serve() {
   if (!state.running || !state.customer) return;
-  if (state.cup.length === 0) { toast('컵이 비어있어요!', 'bad'); return; }
+  if (!state.cupType) { toast('컵부터 골라주세요!', 'bad'); sfx.warn(); return; }
+  if (state.cup.length === 0) { toast('컵이 비어있어요!', 'bad'); sfx.warn(); return; }
   const cu = state.customer;
-  if (sameRecipe(state.cup, cu.recipe.ing)) {
+  const cupOK = state.cupType === (cu.togo ? 'togo' : 'mug');
+  const recipeOK = sameRecipe(state.cup, cu.recipe.ing);
+  if (cupOK && recipeOK) {
     const tip = Math.floor((cu.patience / cu.maxPatience) * 2);
-    const total = cu.recipe.pay + tip;
+    const rareBonus = (state.cupDef && state.cupDef.rare) ? state.cupDef.bonus : 0;
+    const total = cu.recipe.pay + tip + rareBonus;
     state.coins += total;
     state.served++;
     coinPop(total);
-    toast(cu.recipe.name + ' 성공!' + (tip>0 ? ' (팁 +'+tip+')' : ''), 'good');
+    toast(cu.recipe.name + ' 성공!'
+      + (tip>0 ? ' (팁 +'+tip+')' : '')
+      + (rareBonus>0 ? ' [' + state.cupDef.name + ' 보너스 +' + rareBonus + '!]' : ''), 'good');
     fxSuccess();
+    sfx.success();
     if (navigator.vibrate) navigator.vibrate([12,40,12]);
     customerLeaves(false);
     const newLevel = Math.min(Math.floor(state.served/3)+1, MAX_LEVEL);
     if (newLevel > state.level) {
       state.level = newLevel;
       renderRecipes();
-      setTimeout(()=>{ toast('레벨 '+newLevel+' 달성! 새 레시피 해금!', 'good'); fxConfetti(); }, 900);
+      setTimeout(()=>{ toast('레벨 '+newLevel+' 달성! 새 레시피 해금!', 'good'); fxConfetti(); sfx.level(); }, 900);
     }
   } else {
     state.lives--;
-    toast('주문과 달라요! (' + cu.recipe.ing.map(k=>ING[k].name).join('+') + ')', 'bad');
+    if (!cupOK) {
+      toast('컵이 달라요! 손님은 ' + (cu.togo ? '테이크아웃' : '매장컵') + ' 주문!', 'bad');
+    } else {
+      toast('주문과 달라요! (' + cu.recipe.ing.map(k=>ING[k].name).join('+') + ')', 'bad');
+    }
     fxFail();
+    sfx.fail();
     if (navigator.vibrate) navigator.vibrate(80);
     customerLeaves(true);
   }
-  state.cup = [];
-  renderCup(); renderHUD();
+  resetCup();
+  renderHUD();
   if (state.lives <= 0) return gameOver();
   setTimeout(()=>{ if (state.running) spawnCustomer(); }, 1000);
 }
 
 function trash() {
-  if (!state.running || state.cup.length===0) return;
-  state.cup = [];
-  renderCup();
+  if (!state.running || (state.cup.length===0 && !state.cupType)) return;
+  resetCup();
+  sfx.trash();
   toast('컵을 비웠어요');
 }
 
@@ -1187,9 +1735,10 @@ function tick(t) {
       state.lives--;
       toast('손님이 화나서 떠났어요...', 'bad');
       fxFail();
+      sfx.fail();
       customerLeaves(true);
-      state.cup = [];
-      renderCup(); renderHUD();
+      resetCup();
+      renderHUD();
       if (state.lives <= 0) return gameOver();
       setTimeout(()=>{ if (state.running) spawnCustomer(); }, 1000);
     }
@@ -1212,16 +1761,31 @@ function gameOver() {
   setBgVideo(true);
 }
 
-/* ============ 배경 영상 프리로드 + 로딩바 ============ */
+/* ============ 배경 영상 + 음악 프리로드 (통합 로딩바) ============ */
 const VIDEO_SRC = 'coffee.mp4';
+const MUSIC_SRC = 'music.mp3';
 const bgVideo = $('bgVideo');
 const loader  = $('loader');
 let loaderDone = false;
+
+// 배경음악
+const bgm = new Audio();
+bgm.loop = true;
+bgm.volume = 0.35;
+function tryPlayBgm() {
+  if (!sfxOn || !bgm.src) return;
+  bgm.play().catch(() => {
+    const kick = () => { if (sfxOn && bgm.src) bgm.play().catch(()=>{}); };
+    addEventListener('touchstart', kick, { once:true, passive:true });
+    addEventListener('click', kick, { once:true });
+  });
+}
 
 const TIPS = [
   '원두를 갈고 있어요...',
   '머신을 예열하는 중...',
   '우유를 스티밍하는 중...',
+  '배경음악을 트는 중...',
   '잔을 데우고 있어요...',
 ];
 let tipIdx = 0;
@@ -1252,12 +1816,12 @@ function finishLoading() {
     if (bgVideo && bgVideo.src) {
       bgVideo.play().then(()=>bgVideo.classList.add('ready')).catch(()=>{
         bgVideo.classList.add('ready');
-        // 자동재생 차단 시 첫 입력에 재생
         const kick = () => bgVideo.play().catch(()=>{});
         addEventListener('touchstart', kick, { once:true, passive:true });
         addEventListener('click', kick, { once:true });
       });
     }
+    tryPlayBgm();
     setTimeout(()=>loader.remove(), 600);
   }, 420);
 }
@@ -1265,10 +1829,10 @@ function finishLoading() {
 // 네트워크가 느려도 무한 대기하지 않도록 안전장치
 const hardTimeout = setTimeout(() => {
   if (!loaderDone) {
-    if (bgVideo && !bgVideo.src) bgVideo.remove(); // 영상 포기, 게임은 정상 진행
+    if (bgVideo && !bgVideo.src) bgVideo.remove();
     finishLoading();
   }
-}, 12000);
+}, 15000);
 
 // blob 세팅 후 디코딩 완료 대기 — 이벤트가 안 와도 짧게 기다렸다 진행
 function waitDecodeThenFinish() {
@@ -1277,50 +1841,65 @@ function waitDecodeThenFinish() {
   bgVideo.addEventListener('loadeddata', done, { once:true });
   bgVideo.addEventListener('canplay', done, { once:true });
   bgVideo.load();
-  // blob은 이미 메모리에 있으므로 디코딩은 순식간 — 이벤트 누락 대비 보험
   setTimeout(done, 1800);
 }
 
-// fetch로 실제 바이트 진행률을 읽어 로딩바에 반영
-async function preloadVideo() {
-  setProgress(2); // 시작 표시
-  try {
-    const res = await fetch(VIDEO_SRC);
-    if (!res.ok) throw new Error('not ok');
-    const total = Number(res.headers.get('content-length')) || 0;
+// 에셋별 다운로드 진행률을 합산해 하나의 로딩바로 표시
+const prog = new Map(); // url -> { rec, tot }
+function updateCombined() {
+  let rec = 0, tot = 0;
+  prog.forEach(p => { rec += p.rec; tot += p.tot > 0 ? p.tot : p.rec * 2; });
+  if (tot > 0) setProgress((rec / tot) * 96);
+}
+async function fetchWithProgress(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(url + ' ' + res.status);
+  const tot = Number(res.headers.get('content-length')) || 0;
+  const p = { rec:0, tot };
+  prog.set(url, p);
+  if (!res.body) {
+    const blob = await res.blob();
+    p.rec = p.tot = blob.size;
+    updateCombined();
+    return blob;
+  }
+  const reader = res.body.getReader();
+  const chunks = [];
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+    p.rec += value.length;
+    updateCombined();
+  }
+  if (!p.tot) p.tot = p.rec;
+  updateCombined();
+  return new Blob(chunks, { type: res.headers.get('content-type') || '' });
+}
 
-    if (!res.body || !total) {
-      // 스트림/용량 정보를 못 쓰면 통째로 받기 (진행률은 추정)
-      setProgress(60);
-      const blob = await res.blob();
-      bgVideo.src = URL.createObjectURL(blob);
-      waitDecodeThenFinish();
-      return;
-    }
-
-    const reader = res.body.getReader();
-    const chunks = [];
-    let received = 0;
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      chunks.push(value);
-      received += value.length;
-      setProgress((received / total) * 96); // 96%까지, 나머지는 디코딩 몫
-    }
-    const blob = new Blob(chunks, { type: res.headers.get('content-type') || 'video/mp4' });
-    bgVideo.src = URL.createObjectURL(blob);
+async function preloadAssets() {
+  setProgress(2);
+  const [vid, mus] = await Promise.allSettled([
+    fetchWithProgress(VIDEO_SRC),
+    fetchWithProgress(MUSIC_SRC),
+  ]);
+  if (mus.status === 'fulfilled') {
+    bgm.src = URL.createObjectURL(mus.value);
+  } // 음악 실패는 치명적이지 않음 — 음악 없이 진행
+  if (vid.status === 'fulfilled') {
+    bgVideo.src = URL.createObjectURL(vid.value);
     waitDecodeThenFinish();
-  } catch (e) {
-    // fetch가 안 되는 환경(file:// 로컬 등)이면 video에 직접 연결 시도
+  } else {
+    // fetch가 안 되는 환경(file:// 로컬 등)이면 직접 연결 시도
     try {
       setProgress(70);
       bgVideo.src = VIDEO_SRC;
       bgVideo.addEventListener('loadeddata', finishLoading, { once:true });
       bgVideo.addEventListener('error', () => { bgVideo.remove(); finishLoading(); }, { once:true });
       bgVideo.load();
+      if (!bgm.src) { bgm.src = MUSIC_SRC; }
       setTimeout(finishLoading, 4000);
-    } catch (e2) {
+    } catch (e) {
       if (bgVideo) bgVideo.remove();
       finishLoading();
     }
@@ -1328,15 +1907,16 @@ async function preloadVideo() {
 }
 
 if (bgVideo) {
-  bgVideo.addEventListener('error', () => {
-    if (!bgVideo.src) { bgVideo.remove(); finishLoading(); }
-  });
-  preloadVideo();
-
+  preloadAssets();
   // 백그라운드 전환 시 배터리 절약
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden) bgVideo.pause();
-    else if (!$('overlay').classList.contains('hidden')) bgVideo.play().catch(()=>{});
+    if (document.hidden) {
+      bgVideo.pause();
+      bgm.pause();
+    } else {
+      if (!$('overlay').classList.contains('hidden')) bgVideo.play().catch(()=>{});
+      if (sfxOn) bgm.play().catch(()=>{});
+    }
   });
 } else {
   finishLoading();
@@ -1352,9 +1932,10 @@ function startGame() {
   state = newState();
   state.running = true;
   state.lastTime = performance.now();
+  ac(); // 사용자 제스처 시점에 오디오 활성화
   $('overlay').classList.add('hidden');
   setTimeout(()=>setBgVideo(false), 400); // 게임 중엔 영상 정지 (GPU/배터리 절약)
-  renderHUD(); renderRecipes(); renderCup();
+  renderHUD(); renderRecipes(); resetCup();
   spawnCustomer();
   requestAnimationFrame(tick);
 }
@@ -1370,7 +1951,7 @@ $('serveBtn').onclick = serve;
 $('trashBtn').onclick = trash;
 
 state = newState();
-renderHUD(); renderRecipes(); renderIngredients(); renderCup();
+renderHUD(); renderRecipes(); renderIngredients(); renderRack(); renderCup();
 </script>
 </body>
 </html>
