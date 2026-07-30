@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#5A3E2B">
+<title>모카모카 카페</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; overflow:hidden; overscroll-behavior:none; }
+body {
+  font-family:'Jua', sans-serif;
+  background: linear-gradient(180deg, #FFE9C7 0%, #FBDCB0 45%, #F3CD9A 100%);
+  color:#4A2E1B;
+  touch-action: manipulation;
+  position: fixed; inset: 0;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+/* 게임 본체 래퍼 — 셰이크는 여기에만 적용 (fixed 좌표계 오염 방지) */
+#app {
+  height:100%;
+  display:flex; flex-direction:column;
+}
+#app.shake { animation: shake .35s; }
+@keyframes shake {
+  0%,100%{transform:none}
+  20%{transform:translate(-5px,2px)}
+  40%{transform:translate(4px,-3px)}
+  60%{transform:translate(-3px,2px)}
+  80%{transform:translate(2px,-1px)}
+}
+
+/* SVG 아이콘 공통 */
+.ic { width:1em; height:1em; display:inline-block; vertical-align:-0.12em; }
+.ic-lg { width:1.25em; height:1.25em; vertical-align:-0.2em; }
+
+/* ───────── 상단 HUD ───────── */
+#hud {
+  display:flex; align-items:center; gap:8px;
+  padding: 10px 12px 6px;
+}
+.pill {
+  background:#fff;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 15px;
+  box-shadow: 0 3px 0 rgba(90,62,43,.25);
+  display:flex; align-items:center; gap:5px;
+  white-space:nowrap;
+}
+.pill .num { color:#B0672C; }
+#lives { display:flex; gap:3px; }
+#lives .ic { width:17px; height:17px; }
+.heart-on { fill:#F2685C; stroke:#C6483E; }
+.heart-off { fill:#DCC9AB; stroke:#C4AE8D; }
+#bookBtn {
+  margin-left:auto;
+  background: linear-gradient(180deg,#FFD98E,#F5B85C);
+  border:none; border-radius: 14px;
+  width:46px; height:40px;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow: 0 4px 0 #C68A3B;
+  cursor:pointer;
+}
+#bookBtn .ic { width:22px; height:22px; }
+#bookBtn:active { transform: translateY(3px); box-shadow: 0 1px 0 #C68A3B; }
+
+/* ───────── 손님 카드 ───────── */
+#customerArea {
+  margin: 2px 12px 0;
+  background: linear-gradient(180deg, #FFF7EA, #FFEFD8);
+  border-radius: 22px;
+  box-shadow: 0 5px 0 rgba(90,62,43,.18), inset 0 -8px 0 rgba(198,138,59,.12);
+  padding: 10px 14px 12px;
+  display:flex; align-items:center; gap:12px;
+  min-height: 118px;
+  position:relative;
+}
+#charSlot { width:86px; height:96px; flex:none; position:relative; }
+
+.char { position:absolute; inset:0; animation: bob 2.2s ease-in-out infinite; }
+@keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+.char.enter { animation: slideIn .45s cubic-bezier(.2,1.4,.4,1) both, bob 2.2s ease-in-out .5s infinite; }
+@keyframes slideIn { from { transform: translateX(-70px); opacity:0 } to { transform:none; opacity:1 } }
+.char.leave { animation: slideOut .4s ease-in both; }
+@keyframes slideOut { to { transform: translateX(-80px) rotate(-8deg); opacity:0 } }
+.char .body {
+  position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+  width:64px; height:46px;
+  border-radius: 26px 26px 18px 18px;
+}
+.char .head {
+  position:absolute; bottom:36px; left:50%; transform:translateX(-50%);
+  width:56px; height:52px; border-radius: 46%;
+}
+.char .hair { position:absolute; border-radius:50%; }
+.char .eye {
+  position:absolute; width:7px; height:9px; border-radius:50%;
+  background:#3A2417; bottom:52px;
+}
+.char .eye.l { left:24px; } .char .eye.r { left:44px; }
+.char .cheek {
+  position:absolute; width:9px; height:6px; border-radius:50%;
+  background:rgba(255,120,110,.45); bottom:47px;
+}
+.char .cheek.l { left:19px; } .char .cheek.r { left:50px; }
+.char .mouth {
+  position:absolute; width:12px; height:6px; left:32px; bottom:44px;
+  border:2.5px solid #3A2417; border-top:none; border-radius:0 0 12px 12px;
+}
+.char.angry .mouth { border-radius:12px 12px 0 0; border-bottom:none; border-top:2.5px solid #3A2417; height:5px; bottom:43px; }
+.char.angry .eye { height:5px; border-radius:3px; }
+
+#bubbleWrap { flex:1; min-width:0; }
+#bubble {
+  background:#fff; border-radius:18px;
+  padding: 8px 12px;
+  box-shadow: 0 3px 0 rgba(90,62,43,.15);
+  position:relative;
+  animation: pop .3s cubic-bezier(.2,1.6,.4,1) both;
+}
+@keyframes pop { from{ transform:scale(.6); opacity:0 } to{ transform:scale(1); opacity:1 } }
+#bubble::before {
+  content:''; position:absolute; left:-8px; top:50%;
+  border: 8px solid transparent; border-right-color:#fff;
+  transform: translateY(-50%);
+}
+#orderName { font-size:19px; color:#7A4A1E; line-height:1.15; }
+#orderHint { font-size:12.5px; color:#B08A64; margin-top:2px; display:flex; align-items:center; gap:3px; }
+
+#patienceBar {
+  height:12px; border-radius:999px; background:#EAD9BF;
+  margin-top:8px; overflow:hidden;
+  box-shadow: inset 0 2px 2px rgba(90,62,43,.2);
+}
+#patienceFill {
+  height:100%; width:100%;
+  border-radius:999px;
+  background: linear-gradient(90deg,#7ED9A7,#5BC98B);
+  transition: width .15s linear, background .3s;
+}
+#patienceFill.warn { background: linear-gradient(90deg,#FFC56E,#F5A742); }
+#patienceFill.danger { background: linear-gradient(90deg,#FF8B7E,#F2685C); }
+
+/* ───────── 제조 스테이지 ───────── */
+#stage {
+  flex:1; min-height:0;
+  display:flex; align-items:center; justify-content:center;
+  position:relative;
+}
+#stage::after {
+  content:''; position:absolute; left:0; right:0; bottom:0; height:34%;
+  background: linear-gradient(180deg,#C08A57 0 14px, #A9744F 14px);
+  border-radius: 26px 26px 0 0;
+  box-shadow: inset 0 6px 8px rgba(255,255,255,.25);
+}
+
+#cupWrap {
+  position:relative; z-index:2;
+  width: 128px; height: 168px;
+  filter: drop-shadow(0 10px 8px rgba(74,46,27,.28));
+}
+#whip {
+  position:absolute; left:50%; transform:translateX(-50%);
+  bottom: calc(100% - 26px);
+  width: 96px; height: 54px;
+  opacity:0; transition: opacity .25s, transform .25s;
+  z-index:3; pointer-events:none;
+}
+#whip.on { opacity:1; }
+#whip .blob { position:absolute; background:#FFFDF6; border-radius:50%; box-shadow: inset -4px -5px 0 rgba(210,190,160,.35); }
+#whip .b1 { width:88px; height:34px; bottom:0; left:4px; }
+#whip .b2 { width:56px; height:28px; bottom:18px; left:20px; }
+#whip .b3 { width:28px; height:20px; bottom:36px; left:34px; }
+#whip .cherry { width:14px; height:14px; background:#F2685C; border-radius:50%; position:absolute; bottom:48px; left:41px; box-shadow: inset -2px -3px 0 rgba(0,0,0,.12); }
+
+#glass {
+  position:absolute; inset:0;
+  background: linear-gradient(105deg, rgba(255,255,255,.55), rgba(255,255,255,.18) 40%, rgba(255,255,255,.05) 60%, rgba(255,255,255,.3));
+  border: 4px solid rgba(255,255,255,.85);
+  border-top-width: 3px;
+  border-radius: 14px 14px 30px 30px;
+  clip-path: polygon(0 0, 100% 0, 92% 100%, 8% 100%);
+  overflow:hidden;
+  z-index:2;
+}
+#liquid {
+  position:absolute; left:0; right:0; bottom:0;
+  display:flex; flex-direction:column-reverse;
+  transition: height .3s;
+}
+.layer {
+  width:100%;
+  transition: height .35s cubic-bezier(.3,1.3,.5,1);
+  position:relative;
+}
+.layer::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:4px;
+  background: rgba(255,255,255,.22);
+}
+#foamLayer {
+  position:absolute; left:0; right:0;
+  height:0; transition: height .35s, bottom .35s;
+  background: linear-gradient(180deg,#FFFDF4,#F6EBD2);
+  border-radius: 0 0 40% 40% / 0 0 30% 30%;
+}
+.ice {
+  position:absolute; width:30px; height:30px;
+  background: linear-gradient(135deg, rgba(230,248,255,.95), rgba(180,225,245,.8));
+  border-radius: 9px;
+  box-shadow: inset 2px 3px 0 rgba(255,255,255,.9), inset -2px -3px 0 rgba(140,190,215,.5);
+  animation: iceIn .4s cubic-bezier(.2,1.5,.4,1) both;
+}
+@keyframes iceIn { from { transform: translateY(-90px) rotate(-30deg); } }
+#handle {
+  position:absolute; right:-24px; top:34px;
+  width:30px; height:56px;
+  border: 8px solid rgba(255,255,255,.85);
+  border-left:none;
+  border-radius: 0 30px 30px 0;
+  z-index:1;
+}
+#cupLabel {
+  position:absolute; top:100%; left:50%; transform:translateX(-50%);
+  margin-top:14px; white-space:nowrap;
+  font-size:13px; color:#8A5E38;
+  background:rgba(255,255,255,.7); border-radius:999px; padding:2px 12px;
+}
+
+.drop {
+  position:absolute; z-index:5; width:26px; height:26px; border-radius:50%;
+  left:50%; top:-10px; transform:translateX(-50%);
+  animation: dropIn .38s cubic-bezier(.5,0,.8,.4) forwards;
+  pointer-events:none;
+}
+@keyframes dropIn { to { top: 70%; opacity:.15; transform:translateX(-50%) scale(.5); } }
+
+.coinPop {
+  position:absolute; z-index:6; font-size:22px; color:#B0672C;
+  display:flex; align-items:center; gap:4px;
+  text-shadow: 0 2px 0 rgba(255,255,255,.8);
+  animation: coinUp 1s ease-out forwards; pointer-events:none;
+  white-space:nowrap;
+}
+.coinPop .ic { width:22px; height:22px; filter: drop-shadow(0 2px 0 rgba(255,255,255,.8)); }
+@keyframes coinUp { from{ transform:translate(-50%,0); opacity:1 } to{ transform:translate(-50%,-56px); opacity:0 } }
+
+/* ───────── 하단 조작부 ───────── */
+#controls {
+  background:#FFF7EA;
+  border-radius: 26px 26px 0 0;
+  box-shadow: 0 -5px 12px rgba(90,62,43,.15);
+  padding: 12px 12px calc(10px + env(safe-area-inset-bottom));
+}
+#ingredients {
+  display:grid; grid-template-columns: repeat(5, 1fr);
+  gap:8px; margin-bottom:10px;
+}
+.ing-btn {
+  font-family:inherit; border:none; cursor:pointer;
+  background:#fff; border-radius:16px;
+  padding: 7px 2px 6px;
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  box-shadow: 0 4px 0 #E3CBA8;
+  font-size:12px; color:#6B4526;
+}
+.ing-btn:active { transform:translateY(3px); box-shadow: 0 1px 0 #E3CBA8; }
+.ing-icon {
+  width:30px; height:30px; border-radius:50%;
+  box-shadow: inset -3px -4px 0 rgba(0,0,0,.12), inset 2px 3px 0 rgba(255,255,255,.45);
+}
+#actions { display:flex; gap:10px; }
+.act {
+  font-family:inherit; border:none; cursor:pointer;
+  border-radius:18px; font-size:19px; padding: 13px 0;
+  color:#fff; text-shadow: 0 2px 0 rgba(0,0,0,.15);
+}
+#serveBtn {
+  flex:2.2;
+  background: linear-gradient(180deg,#6FD8A0,#45BE7C);
+  box-shadow: 0 5px 0 #2E9560;
+}
+#trashBtn {
+  flex:1;
+  background: linear-gradient(180deg,#FF9C8F,#F2685C);
+  box-shadow: 0 5px 0 #C6483E;
+}
+.act:active { transform:translateY(4px); box-shadow:none !important; }
+
+#toast {
+  position:absolute; left:50%; top:12px; transform:translateX(-50%) scale(.8);
+  background:rgba(74,46,27,.92); color:#FFEFD8;
+  padding: 8px 18px; border-radius:999px; font-size:14.5px;
+  opacity:0; transition: .25s; pointer-events:none; z-index:8;
+  white-space:nowrap; max-width:92vw; overflow:hidden; text-overflow:ellipsis;
+}
+#toast.show { opacity:1; transform:translateX(-50%) scale(1); }
+#toast.good { background:rgba(46,149,96,.94); }
+#toast.bad { background:rgba(198,72,62,.94); }
+
+/* ───────── 파티클 캔버스 ───────── */
+#fx {
+  position:fixed; inset:0; z-index:15;
+  pointer-events:none;
+  width:100%; height:100%;
+}
+
+/* ───────── 레시피북 / 오버레이 ───────── */
+.sheetBack {
+  position:fixed; inset:0; background:rgba(58,36,23,.55);
+  z-index:20; opacity:0; pointer-events:none; transition:.25s;
+}
+.sheetBack.open { opacity:1; pointer-events:auto; }
+#recipeSheet {
+  position:fixed; left:0; right:0; bottom:0; z-index:21;
+  background:#FFF7EA; border-radius:26px 26px 0 0;
+  padding: 16px 18px calc(16px + env(safe-area-inset-bottom));
+  transform: translateY(105%); transition: transform .3s cubic-bezier(.3,1,.4,1);
+  max-height: 72%; display:flex; flex-direction:column;
+}
+#recipeSheet.open { transform:none; }
+#recipeSheet h3 { font-size:20px; color:#7A4A1E; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+#recipeList { overflow-y:auto; -webkit-overflow-scrolling:touch; }
+.recipe {
+  display:flex; align-items:center; gap:10px;
+  padding:9px 4px; border-bottom:2px dashed #EAD9BF;
+}
+.recipe .dotRow { display:flex; gap:4px; flex:none; }
+.recipe .dot { width:18px; height:18px; border-radius:50%; box-shadow: inset -2px -2px 0 rgba(0,0,0,.12); }
+.recipe .info { flex:1; min-width:0; }
+.recipe .rname { font-size:16px; color:#6B4526; }
+.recipe .rIngs { font-size:12px; color:#B08A64; }
+.recipe .pay { color:#B0672C; font-size:15px; flex:none; display:flex; align-items:center; gap:3px; }
+.recipe.locked { opacity:.4; }
+
+#overlay {
+  position:fixed; inset:0; z-index:30;
+  background: linear-gradient(180deg,#5A3E2B,#3A2417);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:16px; text-align:center; padding:24px; color:#FFEFD8;
+  transition: opacity .35s;
+  overflow:hidden;
+}
+#overlay.hidden { opacity:0; pointer-events:none; }
+
+/* 배경 영상 */
+#bgVideo {
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit: cover;
+  z-index:0;
+  opacity:0;
+  transition: opacity 1.2s ease;
+}
+#bgVideo.ready { opacity:1; }
+/* 영상 위 어둡게 깔아 텍스트 가독성 확보 */
+#overlay .scrim {
+  position:absolute; inset:0; z-index:1;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 45%, rgba(30,18,10,.72), rgba(30,18,10,.42) 60%, rgba(30,18,10,.68)),
+    linear-gradient(180deg, rgba(58,36,23,.55), rgba(28,16,9,.75));
+}
+/* 콘텐츠는 영상 위로 */
+#overlay .logo, #overlay h2, #overlay p, #overlay button { position:relative; z-index:2; }
+#overlay .logo { width:84px; height:84px; animation: bob 2s ease-in-out infinite; }
+#overlay h2 { font-size:32px; color:#FFD98E; }
+#overlay p { font-size:15px; line-height:1.75; max-width:340px; color:#F3DDBE; }
+#overlay p .ic { width:17px; height:17px; }
+#overlay button {
+  font-family:inherit; font-size:20px; border:none; cursor:pointer;
+  background: linear-gradient(180deg,#FFD98E,#F5B85C); color:#5A3E2B;
+  padding: 14px 42px; border-radius:999px;
+  box-shadow: 0 6px 0 #C68A3B;
+}
+#overlay button:active { transform:translateY(4px); box-shadow: 0 2px 0 #C68A3B; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation:none !important; transition:none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- SVG 아이콘 정의 (이모지 대체) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+  <symbol id="i-coin" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10" fill="#F5B85C" stroke="#C68A3B" stroke-width="2.4"/>
+    <circle cx="12" cy="12" r="5.6" fill="none" stroke="#C68A3B" stroke-width="2"/>
+  </symbol>
+  <symbol id="i-star" viewBox="0 0 24 24">
+    <path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.3 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z"
+      fill="#F5B85C" stroke="#C68A3B" stroke-width="1.6" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24">
+    <path d="M12 21S4 15.6 2.2 11.2C.9 8 3.1 4.2 6.8 4.2c2.3 0 4.1 1.7 5.2 3.3 1.1-1.6 2.9-3.3 5.2-3.3 3.7 0 5.9 3.8 4.6 7C20 15.6 12 21 12 21z"
+      stroke-width="1.6" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-book" viewBox="0 0 24 24">
+    <path d="M4 5h7v15H6.2A2.2 2.2 0 0 1 4 17.8z" fill="#FFF7EA"/>
+    <path d="M20 5h-7v15h5.8a2.2 2.2 0 0 0 2.2-2.2z" fill="#F3DDBE"/>
+    <path d="M12 5v15" stroke="#8A5E38" stroke-width="1.6"/>
+    <rect x="4" y="5" width="16" height="15" rx="2.2" fill="none" stroke="#6B4526" stroke-width="2"/>
+    <path d="M7 9h2.5M14.5 9H17M7 12h2.5M14.5 12H17" stroke="#C8A87E" stroke-width="1.4" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-cup" viewBox="0 0 24 24">
+    <path d="M5 8h11v8.4A3.6 3.6 0 0 1 12.4 20H8.6A3.6 3.6 0 0 1 5 16.4z" fill="#FFF7EA" stroke="#C68A3B" stroke-width="1.8"/>
+    <path d="M16 9.5h2a2.6 2.6 0 0 1 0 5.2h-2" fill="none" stroke="#C68A3B" stroke-width="1.8"/>
+    <path d="M8.5 5.5c0-1 .8-1 .8-2M12 5.5c0-1 .8-1 .8-2" fill="none" stroke="#E8C9A0" stroke-width="1.6" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24">
+    <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"
+      fill="#FF8B7E" stroke="#C6483E" stroke-width="1.4" stroke-linejoin="round"/>
+  </symbol>
+</defs>
+</svg>
+
+<div id="app">
+  <div id="hud">
+    <div class="pill"><svg class="ic ic-lg"><use href="#i-coin"/></svg> <span class="num" id="coins">0</span></div>
+    <div class="pill"><svg class="ic ic-lg"><use href="#i-star"/></svg> <span class="num" id="level">1</span></div>
+    <div class="pill"><span id="lives"></span></div>
+    <button id="bookBtn" aria-label="레시피북 열기"><svg class="ic"><use href="#i-book"/></svg></button>
+  </div>
+
+  <div id="customerArea">
+    <div id="charSlot"></div>
+    <div id="bubbleWrap">
+      <div id="bubble">
+        <div id="orderName">손님을 기다리는 중...</div>
+        <div id="orderHint"></div>
+      </div>
+      <div id="patienceBar"><div id="patienceFill"></div></div>
+    </div>
+  </div>
+
+  <div id="stage">
+    <div id="toast"></div>
+    <div id="cupWrap">
+      <div id="whip"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="cherry"></div></div>
+      <div id="handle"></div>
+      <div id="glass">
+        <div id="liquid"></div>
+        <div id="foamLayer"></div>
+        <div id="iceBox"></div>
+      </div>
+      <div id="cupLabel">빈 컵</div>
+    </div>
+  </div>
+
+  <div id="controls">
+    <div id="ingredients"></div>
+    <div id="actions">
+      <button class="act" id="serveBtn">서빙하기!</button>
+      <button class="act" id="trashBtn">버리기</button>
+    </div>
+  </div>
+</div>
+
+<canvas id="fx"></canvas>
+
+<div class="sheetBack" id="sheetBack"></div>
+<div id="recipeSheet">
+  <h3><svg class="ic"><use href="#i-book"/></svg> 레시피북</h3>
+  <div id="recipeList"></div>
+</div>
+
+<div id="overlay">
+  <video id="bgVideo" src="coffee.mp4" autoplay muted loop playsinline
+         preload="auto" disablepictureinpicture aria-hidden="true"></video>
+  <div class="scrim"></div>
+  <svg class="logo" id="ovLogo"><use href="#i-cup"/></svg>
+  <h2 id="ovTitle">모카모카 카페</h2>
+  <p id="ovText">
+    말풍선 속 주문을 확인하고<br>
+    레시피대로 재료를 담아 서빙하세요!<br><br>
+    잘못 서빙하거나 손님이 떠나면 하트가 줄어요.<br>
+    3잔 서빙마다 새 레시피가 열려요!
+  </p>
+  <button id="startBtn">영업 시작!</button>
+</div>
+
+<script>
+/* ============ 데이터 ============ */
+const ING = {
+  ice:     { name:'얼음',   color:'linear-gradient(135deg,#DFF4FD,#AEDCF2)', flat:'#BFE4F5', liquid:false },
+  shot:    { name:'샷',     color:'linear-gradient(135deg,#5C3A22,#3B2314)', flat:'#4A2C18', liquid:true },
+  water:   { name:'물',     color:'linear-gradient(135deg,#BBD9EE,#8FB8D9)', flat:'#A3C6E2', liquid:true },
+  milk:    { name:'우유',   color:'linear-gradient(135deg,#FFF9EC,#F2E8D2)', flat:'#F6EDD9', liquid:true },
+  foam:    { name:'거품',   color:'linear-gradient(135deg,#FFFDF4,#F0E4C8)', flat:'#F8F0DC', liquid:false },
+  whip:    { name:'휘핑',   color:'linear-gradient(135deg,#FFFFFF,#F2ECDC)', flat:'#FFFDF6', liquid:false },
+  vanilla: { name:'바닐라', color:'linear-gradient(135deg,#F5DFA0,#E4C170)', flat:'#EBCF87', liquid:true },
+  caramel: { name:'카라멜', color:'linear-gradient(135deg,#D6913F,#A85F1C)', flat:'#C07A2C', liquid:true },
+  choco:   { name:'초코',   color:'linear-gradient(135deg,#7A4A2A,#4E2E15)', flat:'#5F3A1E', liquid:true },
+};
+const ING_KEYS = Object.keys(ING);
+const MAX_ITEMS = 6;
+
+const RECIPES = [
+  { name:'에스프레소',        ing:['shot'],                             unlock:1, pay:3 },
+  { name:'아메리카노',        ing:['shot','water'],                     unlock:1, pay:4 },
+  { name:'카페라떼',          ing:['shot','milk'],                      unlock:1, pay:5 },
+  { name:'아이스 아메리카노',  ing:['ice','shot','water'],               unlock:2, pay:5 },
+  { name:'카푸치노',          ing:['shot','milk','foam'],               unlock:2, pay:6 },
+  { name:'아이스 카페라떼',   ing:['ice','shot','milk'],                unlock:3, pay:6 },
+  { name:'바닐라라떼',        ing:['shot','milk','vanilla'],            unlock:3, pay:7 },
+  { name:'카라멜마끼아또',    ing:['shot','milk','foam','caramel'],     unlock:4, pay:8 },
+  { name:'카페모카',          ing:['shot','milk','choco','whip'],       unlock:4, pay:8 },
+  { name:'아인슈페너',        ing:['shot','water','whip'],              unlock:5, pay:8 },
+  { name:'아이스 바닐라라떼', ing:['ice','shot','milk','vanilla'],      unlock:5, pay:9 },
+  { name:'아이스 카페모카',   ing:['ice','shot','milk','choco','whip'], unlock:6, pay:10 },
+];
+const MAX_LEVEL = 6;
+
+/* ============ 상태 ============ */
+let state = null;
+let lastLiquidTop = 0; // 컵 안 액체 표면 높이(px, 컵 하단 기준)
+function newState() {
+  return { coins:0, served:0, level:1, lives:3, cup:[], customer:null, running:false, lastTime:0 };
+}
+
+/* ============ DOM 헬퍼 ============ */
+const $ = id => document.getElementById(id);
+const rand = a => a[Math.floor(Math.random()*a.length)];
+const icon = (id, cls='ic') => `<svg class="${cls}"><use href="#${id}"/></svg>`;
+
+/* ============ three.js 픽셀 파티클 엔진 ============ */
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const fx = $('fx');
+const MAXP = 512;
+let P = [];
+let steamAcc = 0;
+let W = 0, H = 0;
+
+let glOK = false;
+let renderer3, scene3, cam3, geo3;
+let posArr, colArr, sizeArr, alpArr;
+let ctx2d = null; // WebGL 실패 시 폴백
+
+function hexToRGB(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  return [ ((n>>16)&255)/255, ((n>>8)&255)/255, (n&255)/255 ];
+}
+
+function initGL() {
+  if (!window.THREE) return false;
+  try {
+    renderer3 = new THREE.WebGLRenderer({ canvas: fx, alpha: true, antialias: false });
+    renderer3.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    scene3 = new THREE.Scene();
+    // 화면 좌표계 그대로 쓰는 직교 카메라 (top=0, bottom=H → y가 아래로 증가)
+    cam3 = new THREE.OrthographicCamera(0, 1, 0, 1, -10, 10);
+
+    geo3 = new THREE.BufferGeometry();
+    posArr  = new Float32Array(MAXP * 3);
+    colArr  = new Float32Array(MAXP * 3);
+    sizeArr = new Float32Array(MAXP);
+    alpArr  = new Float32Array(MAXP);
+    geo3.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
+    geo3.setAttribute('pcolor',   new THREE.BufferAttribute(colArr, 3));
+    geo3.setAttribute('psize',    new THREE.BufferAttribute(sizeArr, 1));
+    geo3.setAttribute('palpha',   new THREE.BufferAttribute(alpArr, 1));
+
+    const mat = new THREE.ShaderMaterial({
+      transparent: true,
+      depthTest: false,
+      depthWrite: false,
+      vertexShader: `
+        attribute vec3 pcolor;
+        attribute float psize;
+        attribute float palpha;
+        varying vec3 vC;
+        varying float vA;
+        void main() {
+          vC = pcolor;
+          vA = palpha;
+          gl_PointSize = psize;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }`,
+      fragmentShader: `
+        varying vec3 vC;
+        varying float vA;
+        void main() {
+          gl_FragColor = vec4(vC, vA); // 사각 포인트 그대로 → 픽셀 느낌
+        }`,
+    });
+    scene3.add(new THREE.Points(geo3, mat));
+    glOK = true;
+  } catch (e) {
+    glOK = false;
+  }
+  return glOK;
+}
+
+function fxResize() {
+  const r = fx.getBoundingClientRect();
+  W = r.width; H = r.height;
+  if (glOK) {
+    renderer3.setSize(W, H, false);
+    cam3.left = 0; cam3.right = W;
+    cam3.top = 0;  cam3.bottom = H;
+    cam3.updateProjectionMatrix();
+  } else if (ctx2d) {
+    const d = Math.min(window.devicePixelRatio || 1, 2);
+    fx.width = W * d; fx.height = H * d;
+    ctx2d.setTransform(d,0,0,d,0,0);
+    ctx2d.imageSmoothingEnabled = false;
+  }
+}
+
+/* 파티클 생성 */
+function emit(x, y, o) {
+  if (reduceMotion) return;
+  const n = o.count || 14;
+  for (let i=0; i<n && P.length < MAXP; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const sp = (o.speed || 120) * (0.4 + Math.random() * 0.9);
+    P.push({
+      x, y,
+      vx: Math.cos(a)*sp,
+      vy: Math.sin(a)*sp - (o.up || 0),
+      g: o.g !== undefined ? o.g : 340,
+      s: o.sizes ? rand(o.sizes) : 4 + Math.floor(Math.random()*4),
+      rgb: hexToRGB(rand(o.colors)),
+      baseA: o.baseA !== undefined ? o.baseA : 1,
+      life: 0,
+      max: (o.life || 0.7) * (0.7 + Math.random()*0.6),
+      wob: o.wob || 0,
+    });
+  }
+}
+
+/* 위치 기준점: 컵 rect + 실제 액체 표면 */
+function cupRect() { return $('cupWrap').getBoundingClientRect(); }
+function liquidSurfaceY() {
+  const r = cupRect();
+  return r.bottom - Math.max(lastLiquidTop, 8) - 6;
+}
+
+function fxSplash(color) {
+  const r = cupRect();
+  emit(r.left + r.width/2, liquidSurfaceY(),
+    { colors:[color,'#FFFFFF'], count:12, speed:110, up:130, g:420, life:.55, sizes:[3,4,5] });
+}
+function fxSuccess() {
+  const r = cupRect();
+  emit(r.left + r.width/2, r.top + r.height*0.45,
+    { colors:['#FFD98E','#F5B85C','#FFF3D6','#E8A23C'], count:26, speed:170, up:170, g:380, life:.9, sizes:[4,5,6] });
+}
+function fxFail() {
+  const r = $('charSlot').getBoundingClientRect();
+  emit(r.left + r.width/2, r.top + r.height/2,
+    { colors:['#9A8A7A','#C6483E','#7A6A5A'], count:16, speed:90, up:60, g:150, life:.7, sizes:[4,6] });
+  if (!reduceMotion) {
+    const app = $('app');
+    app.classList.remove('shake');
+    void app.offsetWidth;
+    app.classList.add('shake');
+  }
+}
+function fxConfetti() {
+  if (reduceMotion) return;
+  for (let i=0; i<44 && P.length < MAXP; i++) {
+    P.push({
+      x: Math.random()*W, y: -10 - Math.random()*80,
+      vx: (Math.random()-.5)*40, vy: 60 + Math.random()*90,
+      g: 60, s: 4 + Math.floor(Math.random()*5),
+      rgb: hexToRGB(rand(['#6FD8A0','#F2685C','#F5B85C','#7FA8D9','#B58AD9','#FFFFFF'])),
+      baseA: 1, life: 0, max: 2 + Math.random()*1.2,
+      wob: 2 + Math.random()*3,
+    });
+  }
+}
+
+/* 메인 파티클 루프 */
+const GS = 2; // 픽셀 그리드 스냅
+let fxLast = performance.now();
+function fxLoop(t) {
+  const dt = Math.min((t - fxLast)/1000, .05);
+  fxLast = t;
+
+  // 따뜻한 음료 김
+  if (!reduceMotion && state && state.running && state.cup.includes('shot') && !state.cup.includes('ice')) {
+    steamAcc += dt;
+    if (steamAcc > .22 && P.length < MAXP) {
+      steamAcc = 0;
+      const r = cupRect();
+      P.push({
+        x: r.left + r.width/2 + (Math.random()-.5)*34,
+        y: liquidSurfaceY() - 8,
+        vx: 0, vy: -26 - Math.random()*14,
+        g: -8, s: 4, rgb: [1, .98, .94], baseA: .75,
+        life: 0, max: 1.4, wob: 3,
+      });
+    }
+  }
+
+  // 물리 업데이트
+  P = P.filter(p => {
+    p.life += dt;
+    if (p.life > p.max) return false;
+    p.vy += p.g * dt;
+    p.x += p.vx * dt + (p.wob ? Math.sin(p.life*6) * p.wob * dt * 30 : 0);
+    p.y += p.vy * dt;
+    return true;
+  });
+
+  // 렌더
+  if (glOK) {
+    const pr = renderer3.getPixelRatio();
+    for (let i=0; i<P.length; i++) {
+      const p = P[i];
+      posArr[i*3]   = Math.round(p.x/GS)*GS;
+      posArr[i*3+1] = Math.round(p.y/GS)*GS;
+      posArr[i*3+2] = 0;
+      colArr[i*3] = p.rgb[0]; colArr[i*3+1] = p.rgb[1]; colArr[i*3+2] = p.rgb[2];
+      sizeArr[i] = p.s * pr;
+      alpArr[i]  = Math.max(1 - p.life/p.max, 0) * p.baseA;
+    }
+    geo3.setDrawRange(0, P.length);
+    geo3.attributes.position.needsUpdate = true;
+    geo3.attributes.pcolor.needsUpdate = true;
+    geo3.attributes.psize.needsUpdate = true;
+    geo3.attributes.palpha.needsUpdate = true;
+    renderer3.render(scene3, cam3);
+  } else if (ctx2d) {
+    ctx2d.clearRect(0, 0, W, H);
+    P.forEach(p => {
+      ctx2d.globalAlpha = Math.max(1 - p.life/p.max, 0) * p.baseA;
+      ctx2d.fillStyle = `rgb(${p.rgb[0]*255|0},${p.rgb[1]*255|0},${p.rgb[2]*255|0})`;
+      ctx2d.fillRect(Math.round(p.x/GS)*GS, Math.round(p.y/GS)*GS, p.s, p.s);
+    });
+    ctx2d.globalAlpha = 1;
+  }
+  requestAnimationFrame(fxLoop);
+}
+
+if (!initGL()) ctx2d = fx.getContext('2d');
+fxResize();
+addEventListener('resize', fxResize);
+requestAnimationFrame(fxLoop);
+
+/* ============ 손님 캐릭터 ============ */
+const SKIN = ['#FBD3A9','#F2BE8C','#DEA06B','#B57A4C'];
+const HAIR = ['#3A2417','#6B4526','#C68A3B','#8A8A8A','#E27A6E','#5A7A9A','#3E7D5C'];
+const SHIRT= ['#6FD8A0','#F2685C','#F5B85C','#7FA8D9','#B58AD9','#F2A9C4'];
+function spawnCharDOM() {
+  const s = { skin:rand(SKIN), hair:rand(HAIR), shirt:rand(SHIRT), style:Math.floor(Math.random()*3) };
+  const el = document.createElement('div');
+  el.className = 'char enter';
+  let hair = '';
+  if (s.style===0) hair = `<div class="hair" style="background:${s.hair};width:56px;height:26px;left:15px;bottom:74px;border-radius:28px 28px 8px 8px;"></div>`;
+  if (s.style===1) hair = `<div class="hair" style="background:${s.hair};width:60px;height:30px;left:13px;bottom:70px;border-radius:30px 30px 12px 12px;"></div>
+                           <div class="hair" style="background:${s.hair};width:12px;height:34px;left:11px;bottom:42px;border-radius:8px;"></div>
+                           <div class="hair" style="background:${s.hair};width:12px;height:34px;left:63px;bottom:42px;border-radius:8px;"></div>`;
+  if (s.style===2) hair = `<div class="hair" style="background:${s.hair};width:56px;height:24px;left:15px;bottom:76px;border-radius:28px 28px 10px 10px;"></div>
+                           <div class="hair" style="background:${s.hair};width:16px;height:16px;left:56px;bottom:88px;border-radius:50%;"></div>`;
+  el.innerHTML = `
+    <div class="body" style="background:linear-gradient(180deg,${s.shirt},${shade(s.shirt,-24)})"></div>
+    <div class="head" style="background:${s.skin}"></div>
+    ${hair}
+    <div class="eye l"></div><div class="eye r"></div>
+    <div class="cheek l"></div><div class="cheek r"></div>
+    <div class="mouth"></div>`;
+  return el;
+}
+function shade(hex, amt) {
+  const n = parseInt(hex.slice(1),16);
+  const f = v => Math.max(0, Math.min(255, v));
+  const r=f((n>>16)+amt), g=f(((n>>8)&255)+amt), b=f((n&255)+amt);
+  return '#'+((r<<16)|(g<<8)|b).toString(16).padStart(6,'0');
+}
+
+/* ============ 컵 렌더링 ============ */
+function renderCup() {
+  const liquid = $('liquid'), iceBox = $('iceBox'), foam = $('foamLayer'), whip = $('whip');
+  liquid.innerHTML = ''; iceBox.innerHTML = '';
+
+  const liquids = state.cup.filter(k => ING[k].liquid);
+  const hasFoam = state.cup.includes('foam');
+  const hasIce  = state.cup.includes('ice');
+  const hasWhip = state.cup.includes('whip');
+
+  const glassH = $('glass').clientHeight;
+  const usable = glassH - 18;
+  const perLayer = liquids.length ? Math.min(usable / Math.max(liquids.length, 3), usable/liquids.length) : 0;
+
+  let totalH = 0;
+  liquids.forEach(k => {
+    const div = document.createElement('div');
+    div.className = 'layer';
+    div.style.background = ING[k].color;
+    div.style.height = perLayer + 'px';
+    liquid.appendChild(div);
+    totalH += perLayer;
+  });
+  liquid.style.height = totalH + 'px';
+
+  if (hasFoam) {
+    foam.style.height = '18px';
+    foam.style.bottom = totalH + 'px';
+  } else {
+    foam.style.height = '0';
+    foam.style.bottom = totalH + 'px';
+  }
+
+  lastLiquidTop = totalH + (hasFoam ? 18 : 0); // 파티클 기준점 갱신
+
+  if (hasIce) {
+    const top = Math.max(glassH - totalH - 44, 8);
+    [[14, top],[54, top+6],[32, top+22]].forEach(([x,y],i)=>{
+      const ice = document.createElement('div');
+      ice.className = 'ice';
+      ice.style.left = x+'px'; ice.style.top = y+'px';
+      ice.style.transform = `rotate(${(i*37)%40-20}deg)`;
+      ice.style.animationDelay = (i*0.06)+'s';
+      iceBox.appendChild(ice);
+    });
+  }
+
+  whip.classList.toggle('on', hasWhip);
+
+  $('cupLabel').textContent = state.cup.length
+    ? state.cup.map(k=>ING[k].name).join('·')
+    : '빈 컵';
+}
+
+/* ============ UI 렌더 ============ */
+function renderHUD() {
+  $('coins').textContent = state.coins;
+  $('level').textContent = state.level;
+  let hearts = '';
+  for (let i=0; i<3; i++) {
+    hearts += `<svg class="ic"><use href="#i-heart" class="${i < state.lives ? 'heart-on' : 'heart-off'}"/></svg>`;
+  }
+  $('lives').innerHTML = hearts;
+}
+function renderRecipes() {
+  const list = $('recipeList');
+  list.innerHTML = '';
+  RECIPES.forEach(r => {
+    const locked = r.unlock > state.level;
+    const div = document.createElement('div');
+    div.className = 'recipe' + (locked?' locked':'');
+    div.innerHTML = `
+      <div class="dotRow">${r.ing.map(k=>`<div class="dot" style="background:${ING[k].color}"></div>`).join('')}</div>
+      <div class="info">
+        <div class="rname">${locked ? '??? (레벨 '+r.unlock+')' : r.name}</div>
+        <div class="rIngs">${locked ? '아직 잠겨있어요' : r.ing.map(k=>ING[k].name).join(' + ')}</div>
+      </div>
+      <div class="pay">+${r.pay} ${icon('i-coin')}</div>`;
+    list.appendChild(div);
+  });
+}
+function renderIngredients() {
+  const box = $('ingredients');
+  box.innerHTML = '';
+  ING_KEYS.forEach(k => {
+    const b = document.createElement('button');
+    b.className = 'ing-btn';
+    b.innerHTML = `<span class="ing-icon" style="background:${ING[k].color}"></span>${ING[k].name}`;
+    b.onclick = () => addIngredient(k);
+    box.appendChild(b);
+  });
+}
+
+let toastTimer = null;
+function toast(text, cls='') {
+  const t = $('toast');
+  t.textContent = text;
+  t.className = 'show ' + cls;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> t.className='', 1700);
+}
+
+function coinPop(amount) {
+  const el = document.createElement('div');
+  el.className = 'coinPop';
+  el.innerHTML = `${icon('i-coin')} +${amount}`;
+  el.style.left = '50%'; el.style.top = '30%';
+  $('stage').appendChild(el);
+  setTimeout(()=>el.remove(), 1000);
+}
+
+/* ============ 게임 로직 ============ */
+function addIngredient(k) {
+  if (!state.running) return;
+  if (state.cup.length >= MAX_ITEMS) { toast('컵이 가득 찼어요!', 'bad'); return; }
+  state.cup.push(k);
+  const d = document.createElement('div');
+  d.className = 'drop';
+  d.style.background = ING[k].color;
+  $('cupWrap').appendChild(d);
+  setTimeout(()=>d.remove(), 400);
+  setTimeout(()=>{ renderCup(); fxSplash(ING[k].flat); }, 220);
+  if (navigator.vibrate) navigator.vibrate(8);
+}
+
+function sameRecipe(cup, ing) {
+  if (cup.length !== ing.length) return false;
+  const a=[...cup].sort(), b=[...ing].sort();
+  return a.every((v,i)=>v===b[i]);
+}
+function unlockedRecipes() { return RECIPES.filter(r => r.unlock <= state.level); }
+
+function spawnCustomer() {
+  const recipe = rand(unlockedRecipes());
+  const base = Math.max(26 - state.level*2, 12);
+  state.customer = { recipe, maxPatience:base, patience:base };
+  const slot = $('charSlot');
+  slot.innerHTML = '';
+  slot.appendChild(spawnCharDOM());
+  $('orderName').textContent = recipe.name + ' 주세요!';
+  $('orderHint').innerHTML = '재료 ' + recipe.ing.length + '개 · +' + recipe.pay + ' ' + icon('i-coin');
+  $('bubble').style.animation = 'none';
+  requestAnimationFrame(()=> $('bubble').style.animation = '');
+}
+
+function customerLeaves(angry=false) {
+  const ch = $('charSlot').querySelector('.char');
+  if (ch) {
+    if (angry) ch.classList.add('angry');
+    ch.classList.remove('enter');
+    ch.classList.add('leave');
+  }
+  state.customer = null;
+  $('orderName').textContent = '...';
+  $('orderHint').textContent = '';
+}
+
+function serve() {
+  if (!state.running || !state.customer) return;
+  if (state.cup.length === 0) { toast('컵이 비어있어요!', 'bad'); return; }
+  const cu = state.customer;
+  if (sameRecipe(state.cup, cu.recipe.ing)) {
+    const tip = Math.floor((cu.patience / cu.maxPatience) * 2);
+    const total = cu.recipe.pay + tip;
+    state.coins += total;
+    state.served++;
+    coinPop(total);
+    toast(cu.recipe.name + ' 성공!' + (tip>0 ? ' (팁 +'+tip+')' : ''), 'good');
+    fxSuccess();
+    if (navigator.vibrate) navigator.vibrate([12,40,12]);
+    customerLeaves(false);
+    const newLevel = Math.min(Math.floor(state.served/3)+1, MAX_LEVEL);
+    if (newLevel > state.level) {
+      state.level = newLevel;
+      renderRecipes();
+      setTimeout(()=>{ toast('레벨 '+newLevel+' 달성! 새 레시피 해금!', 'good'); fxConfetti(); }, 900);
+    }
+  } else {
+    state.lives--;
+    toast('주문과 달라요! (' + cu.recipe.ing.map(k=>ING[k].name).join('+') + ')', 'bad');
+    fxFail();
+    if (navigator.vibrate) navigator.vibrate(80);
+    customerLeaves(true);
+  }
+  state.cup = [];
+  renderCup(); renderHUD();
+  if (state.lives <= 0) return gameOver();
+  setTimeout(()=>{ if (state.running) spawnCustomer(); }, 1000);
+}
+
+function trash() {
+  if (!state.running || state.cup.length===0) return;
+  state.cup = [];
+  renderCup();
+  toast('컵을 비웠어요');
+}
+
+function tick(t) {
+  if (!state.running) return;
+  const dt = (t - state.lastTime)/1000;
+  state.lastTime = t;
+  const cu = state.customer;
+  if (cu) {
+    cu.patience -= dt;
+    const ratio = Math.max(cu.patience / cu.maxPatience, 0);
+    const fill = $('patienceFill');
+    fill.style.width = (ratio*100) + '%';
+    fill.className = ratio > .5 ? '' : ratio > .25 ? 'warn' : 'danger';
+    if (cu.patience <= 0) {
+      state.lives--;
+      toast('손님이 화나서 떠났어요...', 'bad');
+      fxFail();
+      customerLeaves(true);
+      state.cup = [];
+      renderCup(); renderHUD();
+      if (state.lives <= 0) return gameOver();
+      setTimeout(()=>{ if (state.running) spawnCustomer(); }, 1000);
+    }
+  } else {
+    $('patienceFill').style.width = '0%';
+  }
+  requestAnimationFrame(tick);
+}
+
+function gameOver() {
+  state.running = false;
+  $('ovTitle').textContent = '영업 종료...';
+  $('ovText').innerHTML =
+    '오늘의 결과<br><br>' +
+    icon('i-coin') + ' ' + state.coins + ' 코인<br>' +
+    icon('i-cup')  + ' ' + state.served + '잔 서빙<br>' +
+    icon('i-star') + ' 레벨 ' + state.level;
+  $('startBtn').textContent = '다시 도전!';
+  $('overlay').classList.remove('hidden');
+  setBgVideo(true);
+}
+
+/* ============ 배경 영상 제어 ============ */
+const bgVideo = $('bgVideo');
+if (bgVideo) {
+  // 첫 프레임 준비되면 페이드 인 (검은 깜빡임 방지)
+  const showVideo = () => bgVideo.classList.add('ready');
+  bgVideo.addEventListener('loadeddata', showVideo);
+  if (bgVideo.readyState >= 2) showVideo();
+
+  // 자동재생이 막힌 경우(일부 iOS 저전력 모드) 첫 터치에 재생
+  const kick = () => {
+    bgVideo.play().then(showVideo).catch(()=>{});
+    removeEventListener('touchstart', kick);
+    removeEventListener('click', kick);
+  };
+  bgVideo.play().catch(() => {
+    addEventListener('touchstart', kick, { once:true, passive:true });
+    addEventListener('click', kick, { once:true });
+  });
+
+  // 영상 못 불러오면 그라데이션 배경만 유지
+  bgVideo.addEventListener('error', () => bgVideo.remove());
+  // 백그라운드 전환 시 배터리 절약
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) bgVideo.pause();
+    else if (!$('overlay').classList.contains('hidden')) bgVideo.play().catch(()=>{});
+  });
+}
+function setBgVideo(playing) {
+  if (!bgVideo) return;
+  if (playing) bgVideo.play().catch(()=>{});
+  else bgVideo.pause();
+}
+
+function startGame() {
+  state = newState();
+  state.running = true;
+  state.lastTime = performance.now();
+  $('overlay').classList.add('hidden');
+  setTimeout(()=>setBgVideo(false), 400); // 게임 중엔 영상 정지 (GPU/배터리 절약)
+  renderHUD(); renderRecipes(); renderCup();
+  spawnCustomer();
+  requestAnimationFrame(tick);
+}
+
+function toggleSheet(open) {
+  $('recipeSheet').classList.toggle('open', open);
+  $('sheetBack').classList.toggle('open', open);
+}
+$('bookBtn').onclick = ()=>toggleSheet(true);
+$('sheetBack').onclick = ()=>toggleSheet(false);
+$('startBtn').onclick = startGame;
+$('serveBtn').onclick = serve;
+$('trashBtn').onclick = trash;
+
+state = newState();
+renderHUD(); renderRecipes(); renderIngredients(); renderCup();
+</script>
+</body>
+</html>
