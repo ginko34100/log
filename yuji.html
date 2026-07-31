@@ -19,8 +19,6 @@
     --amber:#EE8A11;
     --amber-lt:#FFC168;
     --amber-dk:#B65E00;
-    --steel:#CFCFCF;
-    --steel-2:#B0B0B0;
     --mono:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -34,14 +32,16 @@
   body::before{
     content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
     background:repeating-linear-gradient(0deg,transparent 0 27px,rgba(0,0,0,.022) 27px 28px);
+    transition:opacity .5s ease;
   }
+  body.zen::before{opacity:0}
+
   #warm{
     position:fixed;inset:-30%;pointer-events:none;opacity:0;z-index:0;
-    background:radial-gradient(circle at 50% 88%,#FFB454 0%,rgba(255,180,84,0) 56%);
+    background:radial-gradient(circle at 50% 90%,#FFB454 0%,rgba(255,180,84,0) 58%);
     transition:opacity .6s ease;
   }
-
-  #spark{position:fixed;left:0;bottom:0;width:100%;height:190px;
+  #spark{position:fixed;left:0;bottom:0;width:100%;height:220px;
          pointer-events:none;z-index:3;image-rendering:pixelated}
 
   #mute{
@@ -49,6 +49,7 @@
     border:1px solid var(--hair);border-radius:10px;background:#fff;
     color:var(--ink-2);font-size:14px;line-height:1;cursor:pointer;
     display:flex;align-items:center;justify-content:center;
+    transition:opacity .45s ease;
   }
   #mute:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
 
@@ -59,23 +60,21 @@
   #act2{justify-content:flex-start;padding:22px 20px 0}
   #act3{justify-content:center;padding:26px 20px;overflow-y:auto}
 
-  .inner{width:100%;max-width:360px;text-align:center}
+  .inner{width:100%;max-width:360px;text-align:center;transition:opacity .45s ease}
 
   .lab{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--muted)}
   .labkr{font-size:11.5px;font-weight:600;letter-spacing:.06em;color:var(--ink-2);margin-top:3px}
-
   h1{font-size:21px;font-weight:800;letter-spacing:-.04em;line-height:1.35;margin-top:18px}
   .sub{font-size:14px;font-weight:500;color:var(--ink-2);line-height:1.6;
        letter-spacing:-.02em;margin-top:8px}
-
   svg{display:block}
 
   .btn{
     width:100%;max-width:360px;height:56px;border:0;border-radius:14px;
     background:var(--ink);color:#fff;font:inherit;font-size:16px;font-weight:700;
     letter-spacing:-.03em;cursor:pointer;user-select:none;
-    transition:transform .12s ease,opacity .25s ease,box-shadow .2s ease;
     box-shadow:0 6px 16px -8px rgba(0,0,0,.7);
+    transition:transform .12s ease,opacity .45s ease,box-shadow .2s ease;
   }
   .btn:active{transform:scale(.977)}
   .btn:focus-visible{outline:3px solid var(--amber-dk);outline-offset:3px}
@@ -88,7 +87,7 @@
   .guide{
     width:100%;max-width:360px;text-align:left;margin-top:18px;
     background:#fff;border:1px solid var(--hair);border-radius:13px;
-    padding:14px 16px;transition:opacity .35s ease;
+    padding:14px 16px;transition:opacity .45s ease;
   }
   .guide .ttl{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;
               color:var(--muted);margin-bottom:9px}
@@ -100,7 +99,6 @@
            display:flex;align-items:center;justify-content:center;margin-top:2px}
   .guide em{display:block;font-style:normal;font-size:12.5px;font-weight:500;
             color:var(--ink-2);margin-top:2px;letter-spacing:-.02em}
-  .guide.dim{opacity:.3}
 
   .readout{display:flex;align-items:baseline;justify-content:center;gap:3px;
            font-variant-numeric:tabular-nums;margin-top:16px}
@@ -109,14 +107,12 @@
   .track{width:180px;height:4px;border-radius:99px;background:rgba(0,0,0,.12);
          margin:12px auto 0;overflow:hidden}
   #fill{height:100%;width:0;background:var(--amber-dk);border-radius:99px}
-
   .logline{margin-top:11px;height:16px;font-family:var(--mono);font-size:11px;
-           color:var(--ink-2);letter-spacing:.01em;transition:opacity .25s ease;opacity:0}
-  .logline.on{opacity:1}
-  .logline.hit{color:var(--amber-dk);font-weight:700}
+           color:var(--ink-2);letter-spacing:.01em;opacity:0}
 
   /* 주사기 — 바늘 끝이 화면 최하단 */
   .rig{position:absolute;left:50%;bottom:0;transform:translateX(-50%);z-index:2}
+  .rigIn{transform-origin:50% 100%;transition:transform .6s cubic-bezier(.2,.8,.3,1)}
   .rig svg{height:min(250px,33dvh);width:auto}
   .rig.busy{animation:jit .1s linear infinite}
   @keyframes jit{0%,100%{transform:translateX(-50%)}
@@ -124,10 +120,17 @@
                  75%{transform:translateX(calc(-50% + 1.3px))}}
 
   .skin{position:absolute;left:0;right:0;bottom:0;z-index:1;pointer-events:none;
-        border-bottom:2px dashed var(--hair-2);transition:opacity .35s ease}
+        border-bottom:2px dashed var(--hair-2);transition:opacity .45s ease}
   .skin span{position:absolute;right:12px;bottom:7px;font-family:var(--mono);
              font-size:9.5px;letter-spacing:.12em;color:var(--muted)}
-  .skin.dim{opacity:.25}
+
+  /* ===== 주입 중: 화면에서 글씨 전부 제거 ===== */
+  body.zen .inner,
+  body.zen .guide,
+  body.zen .btn,
+  body.zen .skin,
+  body.zen #mute{opacity:0;pointer-events:none}
+  body.zen .rigIn{transform:scale(1.12)}
 
   .amp{margin:22px 0 8px;transform-origin:50% 100%}
   .amp.shake{animation:sh .09s linear 4}
@@ -164,13 +167,13 @@
 
   @media (prefers-reduced-motion:reduce){
     .amp.shake,.rig.busy,.btn.pulse,.amp.open #shards circle{animation:none}
-    *{transition-duration:.01ms !important}
   }
 </style>
 </head>
 <body>
 <div id="warm"></div>
 <canvas id="spark"></canvas>
+<audio id="sil" loop playsinline preload="auto"></audio>
 <button id="mute" aria-label="소리 끄기">🔊</button>
 
 <!-- 1막 · 앰플 -->
@@ -232,21 +235,18 @@
 
   <div class="skin" id="skin"><span>SKIN ↓</span></div>
 
-  <div class="rig" id="rig">
+  <div class="rig" id="rig"><div class="rigIn">
     <svg width="118" height="252" viewBox="0 0 118 252" aria-hidden="true">
-      <!-- 밀대: 통째로 아래로 내려감 -->
       <g id="plungerG">
         <rect x="40" y="0" width="38" height="9" rx="4.5" fill="#9E9E9E"/>
         <rect x="52" y="7" width="14" height="54" rx="4" fill="#BFBFBF"/>
       </g>
-      <!-- 플랜지 · 배럴이 밀대를 덮음 -->
       <rect x="34" y="48" width="50" height="14" rx="5" fill="#E4E4E4"/>
       <rect x="38" y="58" width="42" height="150" rx="7" fill="#fff" stroke="#C8C8C8" stroke-width="1.5"/>
       <clipPath id="bar"><rect x="39" y="59" width="40" height="148" rx="6"/></clipPath>
       <g clip-path="url(#bar)">
         <rect id="serum" x="39" y="207" width="40" height="0" fill="#EE8A11"/>
         <rect id="serumTop" x="39" y="207" width="40" height="0" fill="#FFC168"/>
-        <!-- 배럴 안 고무 마개 -->
         <rect id="stopper" x="39" y="55" width="40" height="9" fill="#8C8C8C"/>
       </g>
       <g stroke="#CFCFCF" stroke-width="1.4" stroke-linecap="round">
@@ -258,7 +258,7 @@
       <rect x="57" y="222" width="4" height="24" rx="2" fill="#BFBFBF"/>
       <path d="M57 246 L61 246 L59 252 Z" fill="#8C8C8C"/>
     </svg>
-  </div>
+  </div></div>
 </section>
 
 <!-- 3막 · 처방전 -->
@@ -294,15 +294,50 @@
   const plungerG=$('plungerG'),stopper=$('stopper');
   const mgEl=$('mg'),fill=$('fill'),btnInject=$('btnInject'),logline=$('logline');
   const h2=$('h2'),warm=$('warm'),note=$('note'),serial=$('serial'),btnAgain=$('btnAgain');
-  const muteBtn=$('mute'),cv=$('spark'),cx2=cv.getContext('2d');
+  const muteBtn=$('mute'),cv=$('spark'),cx2=cv.getContext('2d'),sil=$('sil');
 
-  /* ============ 사운드 ============ */
-  let ac=null, muted=false;
+  /* ================= 오디오 ================= */
+  let ac=null, master=null, muted=false, unlocked=false;
+
+  /* iOS 무음 스위치 우회용 — 거의 안 들리는 루프 트랙 */
+  (function makeSilent(){
+    const sr=8000,sec=1,n=sr*sec,bytes=44+n*2;
+    const buf=new ArrayBuffer(bytes),v=new DataView(buf);
+    const w=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i))};
+    w(0,'RIFF');v.setUint32(4,bytes-8,true);w(8,'WAVE');w(12,'fmt ');
+    v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
+    v.setUint32(24,sr,true);v.setUint32(28,sr*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);
+    w(36,'data');v.setUint32(40,n*2,true);
+    for(let i=0;i<n;i++)v.setInt16(44+i*2,(i%2?1:-1),true);
+    let s='';const u8=new Uint8Array(buf);
+    for(let i=0;i<u8.length;i++)s+=String.fromCharCode(u8[i]);
+    sil.src='data:audio/wav;base64,'+btoa(s);
+    sil.volume=.01;
+  })();
+
   function AC(){
-    if(!ac){const C=window.AudioContext||window.webkitAudioContext; if(!C)return null; ac=new C();}
-    if(ac.state==='suspended')ac.resume();
+    if(!ac){
+      const C=window.AudioContext||window.webkitAudioContext;
+      if(!C)return null;
+      ac=new C();
+      master=ac.createGain();master.gain.value=1;master.connect(ac.destination);
+    }
+    if(ac.state!=='running')ac.resume();
     return ac;
   }
+  function unlock(){
+    const c=AC(); if(!c)return;
+    if(!unlocked){
+      const b=c.createBuffer(1,1,22050),s=c.createBufferSource();
+      s.buffer=b;s.connect(master);s.start(0);
+      sil.play().catch(()=>{});
+      unlocked=true;
+    }
+    if(c.state!=='running')c.resume();
+  }
+  ['pointerdown','touchstart','click','keydown'].forEach(ev=>
+    document.addEventListener(ev,unlock,{capture:true,passive:true}));
+
   function noise(c,sec){
     const b=c.createBuffer(1,Math.floor(c.sampleRate*sec),c.sampleRate),d=b.getChannelData(0);
     for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
@@ -310,17 +345,17 @@
   }
   function sndSnap(){
     const c=AC(); if(!c||muted)return; const t=c.currentTime;
-    const b=noise(c,.2),d=b.getChannelData(0);
+    const b=noise(c,.22),d=b.getChannelData(0);
     for(let i=0;i<d.length;i++)d[i]*=Math.pow(1-i/d.length,5);
     const s=c.createBufferSource();s.buffer=b;
     const bp=c.createBiquadFilter();bp.type='bandpass';bp.frequency.value=3400;bp.Q.value=1.1;
-    const g=c.createGain();g.gain.setValueAtTime(.55,t);g.gain.exponentialRampToValueAtTime(.001,t+.2);
-    s.connect(bp).connect(g).connect(c.destination);s.start(t);
+    const g=c.createGain();g.gain.setValueAtTime(.8,t);g.gain.exponentialRampToValueAtTime(.001,t+.22);
+    s.connect(bp).connect(g).connect(master);s.start(t);
     [2740,3980].forEach(f=>{
       const o=c.createOscillator();o.type='triangle';o.frequency.value=f;
-      const og=c.createGain();og.gain.setValueAtTime(.17,t+.004);
-      og.gain.exponentialRampToValueAtTime(.0006,t+.38);
-      o.connect(og).connect(c.destination);o.start(t+.004);o.stop(t+.4);
+      const og=c.createGain();og.gain.setValueAtTime(.26,t+.004);
+      og.gain.exponentialRampToValueAtTime(.0006,t+.4);
+      o.connect(og).connect(master);o.start(t+.004);o.stop(t+.42);
     });
   }
   let inj=null;
@@ -328,11 +363,11 @@
     const c=AC(); if(!c||muted)return; const t=c.currentTime;
     const s=c.createBufferSource();s.buffer=noise(c,2);s.loop=true;
     const bp=c.createBiquadFilter();bp.type='bandpass';bp.frequency.value=620;bp.Q.value=.7;
-    const g=c.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.085,t+.3);
-    s.connect(bp).connect(g).connect(c.destination);s.start();
+    const g=c.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.13,t+.3);
+    s.connect(bp).connect(g).connect(master);s.start();
     const o=c.createOscillator();o.type='sine';o.frequency.setValueAtTime(82,t);
-    const og=c.createGain();og.gain.setValueAtTime(0,t);og.gain.linearRampToValueAtTime(.1,t+.35);
-    o.connect(og).connect(c.destination);o.start();
+    const og=c.createGain();og.gain.setValueAtTime(0,t);og.gain.linearRampToValueAtTime(.16,t+.35);
+    o.connect(og).connect(master);o.start();
     inj={s,g,o,og,bp};
   }
   function sndInjMove(p){
@@ -348,27 +383,28 @@
   function sndTick(){
     const c=AC(); if(!c||muted)return; const t=c.currentTime;
     const o=c.createOscillator();o.type='square';o.frequency.setValueAtTime(1750,t);
-    const g=c.createGain();g.gain.setValueAtTime(.055,t);g.gain.exponentialRampToValueAtTime(.0004,t+.035);
-    o.connect(g).connect(c.destination);o.start(t);o.stop(t+.04);
+    const g=c.createGain();g.gain.setValueAtTime(.09,t);g.gain.exponentialRampToValueAtTime(.0004,t+.035);
+    o.connect(g).connect(master);o.start(t);o.stop(t+.04);
   }
   function sndDone(){
     const c=AC(); if(!c||muted)return; const t=c.currentTime;
     [[659.25,0],[987.77,.13]].forEach(([f,dt])=>{
       const o=c.createOscillator();o.type='sine';o.frequency.value=f;
       const g=c.createGain();g.gain.setValueAtTime(0,t+dt);
-      g.gain.linearRampToValueAtTime(.15,t+dt+.02);
+      g.gain.linearRampToValueAtTime(.22,t+dt+.02);
       g.gain.exponentialRampToValueAtTime(.0006,t+dt+.9);
-      o.connect(g).connect(c.destination);o.start(t+dt);o.stop(t+dt+.95);
+      o.connect(g).connect(master);o.start(t+dt);o.stop(t+dt+.95);
     });
   }
-  muteBtn.addEventListener('click',()=>{
+  muteBtn.addEventListener('click',e=>{
+    e.stopPropagation();
     muted=!muted;
     muteBtn.textContent=muted?'🔇':'🔊';
     muteBtn.setAttribute('aria-label',muted?'소리 켜기':'소리 끄기');
-    if(muted)sndInjStop();
+    if(muted){sndInjStop();sil.pause()}else{unlock()}
   });
 
-  /* ============ 픽셀 파티클 ============ */
+  /* ================= 픽셀 파티클 ================= */
   const PX=3, COLORS=['#EE8A11','#FFC168','#FFE0B0','#FFFFFF'];
   let parts=[],W=0,H=0,dpr=1,anim=null;
   function fitCanvas(){
@@ -383,9 +419,9 @@
     for(let i=0;i<n;i++){
       parts.push({
         x:W/2+(Math.random()*10-5), y:H-1,
-        vx:(Math.random()*2-1)*1.7*power,
-        vy:-(0.9+Math.random()*2.4)*power,
-        life:1, decay:.012+Math.random()*.016,
+        vx:(Math.random()*2-1)*1.8*power,
+        vy:-(1+Math.random()*2.6)*power,
+        life:1, decay:.011+Math.random()*.015,
         c:COLORS[(Math.random()*COLORS.length)|0]
       });
     }
@@ -405,11 +441,9 @@
   }
   const kick=()=>{if(!anim)anim=requestAnimationFrame(drawParts)};
 
-  /* ============ 진행 ============ */
-  const DOSE=5.5, DUR=4200;
-  const TOP=59, BOT=207, SPAN=BOT-TOP;   // 배럴 내부
-  const PUSH=38;                          // 밀대 이동 거리
-  const STOP_TOP=55, STOP_TRAVEL=(BOT-9)-STOP_TOP; // 고무 마개 이동
+  /* ================= 진행 ================= */
+  const DOSE=5.5, DUR=4600;
+  const TOP=59, BOT=207, SPAN=BOT-TOP, PUSH=38;
   const LOG=[
     [.00,'001 · 효과 지속시간 3초'],
     [.16,'019 · 기분은 좋은데 이유를 모름'],
@@ -429,33 +463,32 @@
   let prog=0,raf=null,last=0,count=0,ticked=0;
   const show=a=>[act1,act2,act3].forEach(x=>x.classList.toggle('on',x===a));
 
-  function level(p){                        // p = 남은 약물 비율
+  function level(p){                      // p = 남은 약물 비율
     const h=SPAN*p;
     serum.setAttribute('y',BOT-h);serum.setAttribute('height',h);
     serumTop.setAttribute('y',BOT-h);serumTop.setAttribute('height',h>3?3:0);
-    stopper.setAttribute('y',BOT-h-9);      // 마개는 항상 액면 바로 위
+    stopper.setAttribute('y',BOT-h-9);
     plungerG.setAttribute('transform','translate(0,'+(PUSH*(1-p)).toFixed(2)+')');
   }
   function paint(){
     mgEl.textContent=(DOSE*prog).toFixed(1);
     fill.style.width=(prog*100)+'%';
     level(1-prog);
-    warm.style.opacity=(prog*.5).toFixed(3);
+    warm.style.opacity=(prog*.55).toFixed(3);
     let cur=LOG[0];
     for(const l of LOG) if(prog>=l[0]) cur=l;
     logline.textContent=cur[1];
-    logline.classList.toggle('hit',cur===LOG[LOG.length-1]);
   }
 
   /* 1막 */
   btnOpen.addEventListener('click',()=>{
-    btnOpen.disabled=true; AC();
+    btnOpen.disabled=true;unlock();
     amp.classList.add('shake');
     setTimeout(()=>{amp.classList.remove('shake');amp.classList.add('open');sndSnap()},380);
     setTimeout(()=>{show(act2);fitCanvas();draw()},1150);
   });
 
-  /* 2막 — 충전 */
+  /* 2막 */
   function draw(){
     let t0=null;
     const step=t=>{
@@ -464,7 +497,7 @@
       level(p);
       if(p<1)requestAnimationFrame(step);
       else{
-        prog=0;paint();logline.classList.remove('on');
+        prog=0;paint();
         h2.textContent='주입할 준비가 됐어요';
         btnInject.disabled=false;
         btnInject.textContent='주입 시작';
@@ -478,7 +511,7 @@
     if(!last)last=t;
     prog=Math.min(1,prog+(t-last)/DUR);last=t;
     paint();sndInjMove(prog);
-    spawn(prog>.8?4:3,.8+prog*.7);kick();
+    spawn(prog>.8?6:4,.85+prog*.8);kick();
     const s=Math.floor(prog*12);
     if(s>ticked){ticked=s;sndTick()}
     if(prog>=1){finish();return;}
@@ -487,12 +520,10 @@
 
   btnInject.addEventListener('click',()=>{
     if(btnInject.disabled)return;
+    unlock();
     btnInject.disabled=true;btnInject.classList.remove('pulse');
-    btnInject.textContent='주입 중…';
     rig.classList.add('busy');
-    guide.classList.add('dim');skin.classList.add('dim');
-    logline.classList.add('on');
-    h2.textContent='긍정에너지가 주입되고 있어요';
+    document.body.classList.add('zen');      // ← 글씨 전부 사라짐
     fitCanvas();ticked=0;last=0;
     sndInjStart();
     raf=requestAnimationFrame(tick);
@@ -502,14 +533,14 @@
     cancelAnimationFrame(raf);
     rig.classList.remove('busy');
     sndInjStop();sndDone();
-    spawn(46,1.9);kick();
+    spawn(60,2.1);kick();
     if(navigator.vibrate)navigator.vibrate([18,60,18]);
     count++;
-    warm.style.opacity='.32';
+    warm.style.opacity='.34';
     h2.textContent='주입 완료';btnInject.textContent='주입 완료';
     serial.textContent=String(count).padStart(4,'0');
     note.textContent=NOTES[(Math.random()*NOTES.length)|0];
-    setTimeout(()=>show(act3),780);
+    setTimeout(()=>{document.body.classList.remove('zen');show(act3)},1000);
   }
 
   /* 3막 */
@@ -517,10 +548,8 @@
     prog=0;warm.style.opacity='0';parts=[];
     cx2.clearRect(0,0,W,H);
     amp.classList.remove('open');btnOpen.disabled=false;
-    guide.classList.remove('dim');skin.classList.remove('dim');
     btnInject.disabled=true;btnInject.textContent='충전 중…';
     h2.textContent='주사기에 옮기는 중';
-    logline.classList.remove('on','hit');
     paint();level(0);show(act1);
   });
 
