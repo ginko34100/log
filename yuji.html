@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>유지놀 · 정모제약 중앙연구소</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F3E4E0;      /* 블러시 클레이 */
+    --paper-2:#EAD6D2;
+    --ink:#2B1520;
+    --ink-2:#63404C;
+    --muted:#7E5A64;
+    --plum:#8E2F52;
+    --plum-dk:#6C2140;
+    --serum:#1BAE8B;      /* 민트 — 긍정에너지 */
+    --serum-lt:#6FE3C4;
+    --serum-dk:#0B6B55;
+    --glass:#FEFAF9;
+    --line:rgba(43,21,32,.18);
+    --mono:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    font-family:'Pretendard',-apple-system,'Apple SD Gothic Neo',sans-serif;
+    background:var(--paper);color:var(--ink);
+    height:100dvh;overflow:hidden;position:relative;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      repeating-linear-gradient(0deg,transparent 0 27px,rgba(43,21,32,.03) 27px 28px),
+      radial-gradient(circle at 50% 36%,rgba(255,252,251,.8),transparent 64%);
+  }
+  #warm{
+    position:fixed;inset:-30%;pointer-events:none;opacity:0;z-index:0;
+    background:radial-gradient(circle at 50% 88%,#6FE3C4 0%,rgba(111,227,196,0) 56%);
+    transition:opacity .6s ease;
+  }
+
+  #spark{position:fixed;left:0;bottom:0;width:100%;height:190px;
+         pointer-events:none;z-index:3;image-rendering:pixelated}
+
+  #mute{
+    position:fixed;top:14px;right:14px;z-index:6;width:34px;height:34px;
+    border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.6);
+    color:var(--ink-2);font-size:14px;line-height:1;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+  }
+  #mute:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+
+  .act{position:absolute;inset:0;z-index:1;display:none;flex-direction:column;align-items:center}
+  .act.on{display:flex;animation:in .4s ease both}
+  @keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  #act1{justify-content:center;padding:26px 20px}
+  #act2{justify-content:flex-start;padding:22px 20px 0}
+  #act3{justify-content:center;padding:26px 20px;overflow-y:auto}
+
+  .inner{width:100%;max-width:360px;text-align:center}
+
+  .lab{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--muted)}
+  .labkr{font-size:11.5px;font-weight:600;letter-spacing:.06em;color:var(--ink-2);margin-top:3px}
+
+  h1{font-size:21px;font-weight:800;letter-spacing:-.04em;line-height:1.35;margin-top:18px}
+  .sub{font-size:14px;font-weight:500;color:var(--ink-2);line-height:1.6;
+       letter-spacing:-.02em;margin-top:8px}
+
+  svg{display:block}
+
+  .btn{
+    width:100%;max-width:360px;height:56px;border:0;border-radius:15px;
+    background:var(--plum);color:#fff;font:inherit;font-size:16px;font-weight:700;
+    letter-spacing:-.03em;cursor:pointer;user-select:none;
+    box-shadow:0 8px 18px -7px rgba(108,33,64,.7);
+    transition:transform .12s ease,background .2s ease,opacity .25s ease;
+  }
+  .btn:active{transform:scale(.977)}
+  .btn:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+  .btn[disabled]{opacity:.45;cursor:default;box-shadow:none}
+  .btn.ghost{background:transparent;color:var(--plum);box-shadow:none;
+             border:1.5px solid rgba(142,47,82,.42)}
+  .btn.pulse{animation:pl 1.8s ease-in-out infinite}
+  @keyframes pl{0%,100%{box-shadow:0 8px 18px -7px rgba(108,33,64,.7)}
+                50%{box-shadow:0 8px 26px -4px rgba(108,33,64,.9)}}
+
+  .guide{
+    width:100%;max-width:360px;text-align:left;margin-top:18px;
+    background:rgba(255,255,255,.62);border:1px solid var(--line);
+    border-radius:13px;padding:14px 16px;transition:opacity .35s ease;
+  }
+  .guide .ttl{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;
+              color:var(--muted);margin-bottom:9px}
+  .guide ol{list-style:none;display:flex;flex-direction:column;gap:9px}
+  .guide li{display:flex;gap:10px;font-size:14.5px;font-weight:700;
+            letter-spacing:-.025em;line-height:1.4;color:var(--ink)}
+  .guide b{flex:0 0 19px;height:19px;border-radius:50%;background:var(--plum);color:#fff;
+           font-family:var(--mono);font-size:10.5px;font-weight:700;
+           display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .guide em{display:block;font-style:normal;font-size:12.5px;font-weight:500;
+            color:var(--ink-2);margin-top:2px;letter-spacing:-.02em}
+  .guide.dim{opacity:.3}
+
+  .readout{display:flex;align-items:baseline;justify-content:center;gap:3px;
+           font-variant-numeric:tabular-nums;margin-top:16px}
+  #mg{font-size:34px;font-weight:800;letter-spacing:-.05em;line-height:1;color:var(--serum-dk)}
+  .unit{font-size:15px;font-weight:700;color:var(--ink-2)}
+  .track{width:180px;height:4px;border-radius:99px;background:rgba(43,21,32,.14);
+         margin:12px auto 0;overflow:hidden}
+  #fill{height:100%;width:0;background:var(--serum-dk);border-radius:99px}
+
+  .logline{margin-top:11px;height:16px;font-family:var(--mono);font-size:11px;
+           color:var(--ink-2);letter-spacing:.01em;transition:opacity .25s ease;opacity:0}
+  .logline.on{opacity:1}
+  .logline.hit{color:var(--serum-dk);font-weight:700}
+
+  /* 주사기 — 바늘 끝이 화면 최하단 */
+  .rig{position:absolute;left:50%;bottom:0;transform:translateX(-50%);z-index:2}
+  .rig svg{height:min(250px,33dvh);width:auto}
+  .rig.busy{animation:jit .1s linear infinite}
+  @keyframes jit{0%,100%{transform:translateX(-50%)}
+                 25%{transform:translateX(calc(-50% - 1.3px))}
+                 75%{transform:translateX(calc(-50% + 1.3px))}}
+
+  .skin{position:absolute;left:0;right:0;bottom:0;z-index:1;pointer-events:none;
+        border-bottom:2px dashed rgba(43,21,32,.32);transition:opacity .35s ease}
+  .skin span{position:absolute;right:12px;bottom:7px;font-family:var(--mono);
+             font-size:9.5px;letter-spacing:.12em;color:var(--muted)}
+  .skin.dim{opacity:.25}
+
+  .amp{margin:22px 0 8px;transform-origin:50% 100%}
+  .amp.shake{animation:sh .09s linear 4}
+  @keyframes sh{0%,100%{transform:rotate(0)}25%{transform:rotate(-1.5deg)}75%{transform:rotate(1.5deg)}}
+  #ampTop{transition:transform .55s cubic-bezier(.4,1.5,.5,1),opacity .55s ease}
+  .amp.open #ampTop{transform:translate(26px,-42px) rotate(38deg);opacity:0}
+  #shards circle{opacity:0}
+  .amp.open #shards circle{animation:sp .6s ease-out forwards}
+  .amp.open #shards circle:nth-child(2){animation-delay:.05s}
+  .amp.open #shards circle:nth-child(3){animation-delay:.09s}
+  @keyframes sp{0%{opacity:1;transform:translate(0,0)}100%{opacity:0;transform:translate(14px,-22px)}}
+
+  .rx{width:100%;max-width:360px;background:#FFF8F5;border-radius:4px;
+      padding:26px 24px 22px;text-align:left;position:relative;
+      box-shadow:0 18px 40px -22px rgba(43,21,32,.6);font-family:'Gowun Batang',serif}
+  .rx-top{display:flex;justify-content:space-between;align-items:baseline;
+          padding-bottom:10px;border-bottom:1px solid var(--line)}
+  .rx-top b{font-size:14px;letter-spacing:-.02em}
+  .rx-top span{font-family:var(--mono);font-size:9.5px;color:var(--ink-2);letter-spacing:.08em}
+  .rx h2{font-size:27px;font-weight:700;letter-spacing:-.02em;margin:18px 0 3px;line-height:1.25}
+  .rx .en{font-family:var(--mono);font-size:10.5px;color:var(--ink-2);letter-spacing:.1em}
+  .rows{margin-top:20px;display:flex;flex-direction:column;gap:9px}
+  .row{display:flex;gap:12px;font-size:14px;line-height:1.5}
+  .row dt{flex:0 0 54px;color:var(--ink-2);font-size:13px}
+  .row dd{flex:1;font-weight:700;letter-spacing:-.01em}
+  .note{margin-top:18px;padding-top:14px;border-top:1px dashed var(--line);
+        font-size:13.5px;line-height:1.65;color:var(--ink)}
+  .sign{margin-top:18px;display:flex;justify-content:space-between;align-items:flex-end}
+  .sign small{font-size:11.5px;color:var(--ink-2)}
+  .stamp{font-family:var(--mono);font-size:9px;letter-spacing:.06em;color:var(--serum-dk);
+         border:1.5px solid var(--serum-dk);border-radius:50%;width:52px;height:52px;
+         display:flex;align-items:center;justify-content:center;text-align:center;
+         transform:rotate(-11deg);line-height:1.25;padding:4px}
+
+  @media (prefers-reduced-motion:reduce){
+    .amp.shake,.rig.busy,.btn.pulse,.amp.open #shards circle{animation:none}
+    *{transition-duration:.01ms !important}
+  }
+</style>
+</head>
+<body>
+<div id="warm"></div>
+<canvas id="spark"></canvas>
+<button id="mute" aria-label="소리 끄기">🔊</button>
+
+<!-- 1막 · 앰플 -->
+<section class="act on" id="act1">
+  <div class="inner">
+    <p class="lab">JEONGMO PHARM · LAB 01</p>
+    <p class="labkr">정모제약 중앙연구소</p>
+    <h1>유지놀, 127번째 시제품</h1>
+    <p class="sub">126번을 버리고 남은 하나예요.<br>조심히 열어주세요.</p>
+  </div>
+
+  <div class="amp" id="amp">
+    <svg width="86" height="188" viewBox="0 0 86 188" aria-hidden="true">
+      <g id="ampTop">
+        <path d="M43 6 L38 16 L38 40 L48 40 L48 16 Z" fill="#FEFAF9" stroke="#D3B9BC" stroke-width="1.5"/>
+        <circle cx="43" cy="8" r="4.5" fill="#FEFAF9" stroke="#D3B9BC" stroke-width="1.5"/>
+      </g>
+      <g id="shards">
+        <circle cx="47" cy="44" r="2" fill="#D3B9BC"/>
+        <circle cx="40" cy="46" r="1.4" fill="#D3B9BC"/>
+        <circle cx="50" cy="49" r="1.7" fill="#D3B9BC"/>
+      </g>
+      <path d="M38 44 L38 58 Q22 66 22 88 L22 158 Q22 176 43 176 Q64 176 64 158 L64 88 Q64 66 48 58 L48 44 Z"
+            fill="#FEFAF9" stroke="#D3B9BC" stroke-width="1.5"/>
+      <path d="M25 96 L25 157 Q25 173 43 173 Q61 173 61 157 L61 96 Z" fill="#1BAE8B"/>
+      <path d="M25 96 L61 96 L61 101 L25 101 Z" fill="#6FE3C4"/>
+      <rect x="30" y="112" width="4" height="42" rx="2" fill="#fff" opacity=".4"/>
+      <rect x="22" y="72" width="42" height="15" fill="#FDF1EC"/>
+      <text x="43" y="83" text-anchor="middle" font-family="ui-monospace,monospace"
+            font-size="8.5" fill="#7E5A64" letter-spacing="1">Y-127</text>
+    </svg>
+  </div>
+
+  <button class="btn" id="btnOpen" style="margin-top:8px">앰플 개봉</button>
+</section>
+
+<!-- 2막 · 주입 -->
+<section class="act" id="act2">
+  <div class="inner">
+    <p class="lab">YUJINOL-127 · 5.5mg</p>
+    <h1 id="h2">주사기에 옮기는 중</h1>
+
+    <div class="guide" id="guide">
+      <p class="ttl">사용 안내</p>
+      <ol>
+        <li><b>1</b><span>피부에 가져다 대시오
+          <em>휴대폰 아랫면을 배나 팔에 붙여주세요.</em></span></li>
+        <li><b>2</b><span>버튼을 누르세요
+          <em>한 번 누르면 자동으로 주입됩니다.</em></span></li>
+      </ol>
+    </div>
+
+    <div class="readout"><span id="mg">0.0</span><span class="unit">mg</span></div>
+    <div class="track"><div id="fill"></div></div>
+    <p class="logline" id="logline">—</p>
+  </div>
+
+  <button class="btn" id="btnInject" disabled style="margin-top:18px">충전 중…</button>
+
+  <div class="skin" id="skin"><span>SKIN ↓</span></div>
+
+  <div class="rig" id="rig">
+    <svg width="118" height="252" viewBox="0 0 118 252" aria-hidden="true">
+      <rect id="plunger" x="52" y="6" width="14" height="46" rx="4" fill="#CBB0B4"/>
+      <rect x="40" y="0" width="38" height="9" rx="4.5" fill="#BB9CA1"/>
+      <rect x="34" y="48" width="50" height="14" rx="5" fill="#EEDCD9"/>
+      <rect x="38" y="58" width="42" height="150" rx="7" fill="#FEFAF9" stroke="#D3B9BC" stroke-width="1.5"/>
+      <clipPath id="bar"><rect x="39" y="59" width="40" height="148" rx="6"/></clipPath>
+      <g clip-path="url(#bar)">
+        <rect id="serum" x="39" y="207" width="40" height="0" fill="#1BAE8B"/>
+        <rect id="serumTop" x="39" y="207" width="40" height="0" fill="#6FE3C4"/>
+      </g>
+      <g stroke="#D3B9BC" stroke-width="1.4" stroke-linecap="round">
+        <line x1="66" y1="86" x2="76" y2="86"/><line x1="70" y1="110" x2="76" y2="110"/>
+        <line x1="66" y1="134" x2="76" y2="134"/><line x1="70" y1="158" x2="76" y2="158"/>
+        <line x1="66" y1="182" x2="76" y2="182"/>
+      </g>
+      <path d="M40 206 L78 206 L64 224 L54 224 Z" fill="#EEDCD9"/>
+      <rect x="57" y="222" width="4" height="24" rx="2" fill="#C7ADB1"/>
+      <path d="M57 246 L61 246 L59 252 Z" fill="#A98C91"/>
+    </svg>
+  </div>
+</section>
+
+<!-- 3막 · 처방전 -->
+<section class="act" id="act3">
+  <div class="rx">
+    <div class="rx-top">
+      <b>정모제약 중앙연구소</b>
+      <span>NO. <i id="serial">0001</i></span>
+    </div>
+    <h2>유지 님</h2>
+    <p class="en">YUJINOL-127 · 5.5mg</p>
+    <dl class="rows">
+      <div class="row"><dt>약품명</dt><dd>유지놀 (Yujinol)</dd></div>
+      <div class="row"><dt>분류</dt><dd>마음 작용성 주사제</dd></div>
+      <div class="row"><dt>용법</dt><dd>1일 1회, 기운 안 날 때</dd></div>
+      <div class="row"><dt>유효성</dt><dd>피험자 1명 대상 100%</dd></div>
+    </dl>
+    <p class="note" id="note"></p>
+    <div class="sign">
+      <small>발행 · 단독 연구원 정모</small>
+      <div class="stamp">주입<br>완료</div>
+    </div>
+  </div>
+  <button class="btn ghost" id="btnAgain" style="margin-top:20px">한 대 더 맞기</button>
+</section>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const act1=$('act1'),act2=$('act2'),act3=$('act3');
+  const amp=$('amp'),btnOpen=$('btnOpen'),guide=$('guide'),skin=$('skin');
+  const rig=$('rig'),serum=$('serum'),serumTop=$('serumTop'),plunger=$('plunger');
+  const mgEl=$('mg'),fill=$('fill'),btnInject=$('btnInject'),logline=$('logline');
+  const h2=$('h2'),warm=$('warm'),note=$('note'),serial=$('serial'),btnAgain=$('btnAgain');
+  const muteBtn=$('mute'),cv=$('spark'),cx2=cv.getContext('2d');
+
+  /* ============ 사운드 ============ */
+  let ac=null, muted=false;
+  function AC(){
+    if(!ac){const C=window.AudioContext||window.webkitAudioContext; if(!C)return null; ac=new C();}
+    if(ac.state==='suspended')ac.resume();
+    return ac;
+  }
+  function noise(c,sec){
+    const b=c.createBuffer(1,Math.floor(c.sampleRate*sec),c.sampleRate),d=b.getChannelData(0);
+    for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+    return b;
+  }
+  /* 앰플 목 딱 부러지는 소리 */
+  function sndSnap(){
+    const c=AC(); if(!c||muted)return; const t=c.currentTime;
+    const b=noise(c,.2),d=b.getChannelData(0);
+    for(let i=0;i<d.length;i++)d[i]*=Math.pow(1-i/d.length,5);
+    const s=c.createBufferSource();s.buffer=b;
+    const bp=c.createBiquadFilter();bp.type='bandpass';bp.frequency.value=3400;bp.Q.value=1.1;
+    const g=c.createGain();g.gain.setValueAtTime(.55,t);g.gain.exponentialRampToValueAtTime(.001,t+.2);
+    s.connect(bp).connect(g).connect(c.destination);s.start(t);
+    [2740,3980].forEach(f=>{
+      const o=c.createOscillator();o.type='triangle';o.frequency.value=f;
+      const og=c.createGain();og.gain.setValueAtTime(.17,t+.004);
+      og.gain.exponentialRampToValueAtTime(.0006,t+.38);
+      o.connect(og).connect(c.destination);o.start(t+.004);o.stop(t+.4);
+    });
+  }
+  /* 약물 들어가는 소리 */
+  let inj=null;
+  function sndInjStart(){
+    const c=AC(); if(!c||muted)return; const t=c.currentTime;
+    const s=c.createBufferSource();s.buffer=noise(c,2);s.loop=true;
+    const bp=c.createBiquadFilter();bp.type='bandpass';bp.frequency.value=620;bp.Q.value=.7;
+    const g=c.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.085,t+.3);
+    s.connect(bp).connect(g).connect(c.destination);s.start();
+    const o=c.createOscillator();o.type='sine';o.frequency.setValueAtTime(82,t);
+    const og=c.createGain();og.gain.setValueAtTime(0,t);og.gain.linearRampToValueAtTime(.1,t+.35);
+    o.connect(og).connect(c.destination);o.start();
+    inj={s,g,o,og,bp};
+  }
+  function sndInjMove(p){
+    if(!inj||!ac)return;const t=ac.currentTime;
+    inj.bp.frequency.setTargetAtTime(560+p*1000,t,.12);
+    inj.o.frequency.setTargetAtTime(82+p*34,t,.25);
+  }
+  function sndInjStop(){
+    if(!inj||!ac)return;const t=ac.currentTime,r=inj;inj=null;
+    r.g.gain.setTargetAtTime(0,t,.07);r.og.gain.setTargetAtTime(0,t,.07);
+    setTimeout(()=>{try{r.s.stop();r.o.stop()}catch(e){}},420);
+  }
+  /* 오토인젝터 래칫 틱 */
+  function sndTick(){
+    const c=AC(); if(!c||muted)return; const t=c.currentTime;
+    const o=c.createOscillator();o.type='square';o.frequency.setValueAtTime(1750,t);
+    const g=c.createGain();g.gain.setValueAtTime(.055,t);g.gain.exponentialRampToValueAtTime(.0004,t+.035);
+    o.connect(g).connect(c.destination);o.start(t);o.stop(t+.04);
+  }
+  function sndDone(){
+    const c=AC(); if(!c||muted)return; const t=c.currentTime;
+    [[659.25,0],[987.77,.13]].forEach(([f,dt])=>{
+      const o=c.createOscillator();o.type='sine';o.frequency.value=f;
+      const g=c.createGain();g.gain.setValueAtTime(0,t+dt);
+      g.gain.linearRampToValueAtTime(.15,t+dt+.02);
+      g.gain.exponentialRampToValueAtTime(.0006,t+dt+.9);
+      o.connect(g).connect(c.destination);o.start(t+dt);o.stop(t+dt+.95);
+    });
+  }
+  muteBtn.addEventListener('click',()=>{
+    muted=!muted;
+    muteBtn.textContent=muted?'🔇':'🔊';
+    muteBtn.setAttribute('aria-label',muted?'소리 켜기':'소리 끄기');
+    if(muted)sndInjStop();
+  });
+
+  /* ============ 픽셀 파티클 ============ */
+  const PX=3, COLORS=['#1BAE8B','#6FE3C4','#B9F5E5','#FFFFFF'];
+  let parts=[],W=0,H=0,dpr=1,anim=null;
+  function fitCanvas(){
+    dpr=Math.min(2,window.devicePixelRatio||1);
+    W=cv.clientWidth;H=cv.clientHeight;
+    cv.width=W*dpr;cv.height=H*dpr;
+    cx2.setTransform(dpr,0,0,dpr,0,0);
+    cx2.imageSmoothingEnabled=false;
+  }
+  window.addEventListener('resize',fitCanvas);
+
+  function spawn(n,power){
+    for(let i=0;i<n;i++){
+      parts.push({
+        x:W/2+(Math.random()*10-5),
+        y:H-1,
+        vx:(Math.random()*2-1)*1.7*power,
+        vy:-(0.9+Math.random()*2.4)*power,
+        life:1,
+        decay:.012+Math.random()*.016,
+        c:COLORS[(Math.random()*COLORS.length)|0]
+      });
+    }
+  }
+  function drawParts(){
+    cx2.clearRect(0,0,W,H);
+    for(let i=parts.length-1;i>=0;i--){
+      const p=parts[i];
+      p.x+=p.vx;p.y+=p.vy;p.vy+=.055;p.life-=p.decay;
+      if(p.life<=0||p.y>H+8){parts.splice(i,1);continue;}
+      cx2.globalAlpha=Math.ceil(p.life*4)/4;      /* 알파도 4단계로 계단화 */
+      cx2.fillStyle=p.c;
+      cx2.fillRect(Math.round(p.x/PX)*PX,Math.round(p.y/PX)*PX,PX,PX);
+    }
+    cx2.globalAlpha=1;
+    anim=parts.length?requestAnimationFrame(drawParts):null;
+  }
+  function kick(){if(!anim)anim=requestAnimationFrame(drawParts);}
+
+  /* ============ 진행 ============ */
+  const DOSE=5.5, DUR=4200, TOP=59, BOT=207, SPAN=BOT-TOP;
+  const LOG=[
+    [.00,'001 · 효과 지속시간 3초'],
+    [.16,'019 · 기분은 좋은데 이유를 모름'],
+    [.34,'052 · 부작용: 연구자를 계속 칭찬함'],
+    [.52,'088 · 안정성 확보. 근데 씀'],
+    [.70,'114 · 안 씀. 근데 안 들어감'],
+    [.90,'127 · 들어감. 완성.']
+  ];
+  const NOTES=[
+    '오늘은 이걸로 충분합니다. 더 필요하면 만든 사람한테 직접 말할 것.',
+    '효과가 바로 안 와도 정상입니다. 원래 좀 있다가 옵니다.',
+    '주의: 아무 이유 없이 기분이 좋아질 수 있음. 그래도 됩니다.',
+    '연구자 소견 — 사실 이 약, 만드는 동안이 제일 좋았습니다.',
+    '남은 하루는 생각보다 괜찮게 흘러갈 예정입니다.'
+  ];
+
+  let prog=0,raf=null,last=0,count=0,ticked=0;
+  const show=a=>[act1,act2,act3].forEach(x=>x.classList.toggle('on',x===a));
+
+  function level(p){
+    const h=SPAN*p;
+    serum.setAttribute('y',BOT-h);serum.setAttribute('height',h);
+    serumTop.setAttribute('y',BOT-h);serumTop.setAttribute('height',h>3?3:0);
+  }
+  function paint(){
+    mgEl.textContent=(DOSE*prog).toFixed(1);
+    fill.style.width=(prog*100)+'%';
+    level(1-prog);
+    plunger.setAttribute('y',6+prog*42);
+    plunger.setAttribute('height',Math.max(6,46-prog*42));
+    warm.style.opacity=(prog*.5).toFixed(3);
+    let cur=LOG[0];
+    for(const l of LOG) if(prog>=l[0]) cur=l;
+    logline.textContent=cur[1];
+    logline.classList.toggle('hit',cur===LOG[LOG.length-1]);
+  }
+
+  /* 1막 */
+  btnOpen.addEventListener('click',()=>{
+    btnOpen.disabled=true;
+    AC();
+    amp.classList.add('shake');
+    setTimeout(()=>{amp.classList.remove('shake');amp.classList.add('open');sndSnap()},380);
+    setTimeout(()=>{show(act2);fitCanvas();draw()},1150);
+  });
+
+  /* 2막 */
+  function draw(){
+    let t0=null;
+    const step=t=>{
+      if(!t0)t0=t;
+      const p=Math.min(1,(t-t0)/1500);
+      level(p);
+      if(p<1)requestAnimationFrame(step);
+      else{
+        prog=0;paint();logline.classList.remove('on');
+        h2.textContent='주입할 준비가 됐어요';
+        btnInject.disabled=false;
+        btnInject.textContent='주입 시작';
+        btnInject.classList.add('pulse');
+      }
+    };
+    requestAnimationFrame(step);
+  }
+
+  function tick(t){
+    if(!last)last=t;
+    prog=Math.min(1,prog+(t-last)/DUR);last=t;
+    paint();
+    sndInjMove(prog);
+    spawn(prog>.8?4:3,.8+prog*.7);kick();
+    const step=Math.floor(prog*12);
+    if(step>ticked){ticked=step;sndTick()}
+    if(prog>=1){finish();return;}
+    raf=requestAnimationFrame(tick);
+  }
+
+  btnInject.addEventListener('click',()=>{
+    if(btnInject.disabled)return;
+    btnInject.disabled=true;btnInject.classList.remove('pulse');
+    btnInject.textContent='주입 중…';
+    rig.classList.add('busy');
+    guide.classList.add('dim');skin.classList.add('dim');
+    logline.classList.add('on');
+    h2.textContent='긍정에너지가 주입되고 있어요';
+    fitCanvas();ticked=0;last=0;
+    sndInjStart();
+    raf=requestAnimationFrame(tick);
+  });
+
+  function finish(){
+    cancelAnimationFrame(raf);
+    rig.classList.remove('busy');
+    sndInjStop();sndDone();
+    spawn(46,1.9);kick();
+    if(navigator.vibrate)navigator.vibrate([18,60,18]);
+    count++;
+    warm.style.opacity='.34';
+    h2.textContent='주입 완료';btnInject.textContent='주입 완료';
+    serial.textContent=String(count).padStart(4,'0');
+    note.textContent=NOTES[(Math.random()*NOTES.length)|0];
+    setTimeout(()=>show(act3),780);
+  }
+
+  /* 3막 */
+  btnAgain.addEventListener('click',()=>{
+    prog=0;warm.style.opacity='0';parts=[];
+    cx2.clearRect(0,0,W,H);
+    amp.classList.remove('open');btnOpen.disabled=false;
+    guide.classList.remove('dim');skin.classList.remove('dim');
+    btnInject.disabled=true;btnInject.textContent='충전 중…';
+    h2.textContent='주사기에 옮기는 중';
+    logline.classList.remove('on','hit');
+    paint();level(0);show(act1);
+  });
+
+  fitCanvas();paint();level(0);
+})();
+</script>
+</body>
+</html>
