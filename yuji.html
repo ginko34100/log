@@ -41,17 +41,40 @@
     background:radial-gradient(circle at 50% 90%,#FFB454 0%,rgba(255,180,84,0) 58%);
     transition:opacity .6s ease;
   }
-  #spark{position:fixed;left:0;bottom:0;width:100%;height:220px;
+  #spark{position:fixed;left:0;bottom:0;width:100%;height:62dvh;
          pointer-events:none;z-index:3;image-rendering:pixelated}
 
   #mute{
-    position:fixed;top:14px;right:14px;z-index:6;width:34px;height:34px;
+    position:fixed;top:14px;right:14px;z-index:7;width:34px;height:34px;
     border:1px solid var(--hair);border-radius:10px;background:#fff;
     color:var(--ink-2);font-size:14px;line-height:1;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;
-    transition:opacity .45s ease;
+    display:flex;align-items:center;justify-content:center;transition:opacity .45s ease;
   }
   #mute:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+
+  /* 주입 중 계기판 */
+  #hud{
+    position:fixed;left:0;right:0;top:0;z-index:5;
+    padding:calc(9dvh + env(safe-area-inset-top)) 20px 0;
+    display:flex;flex-direction:column;align-items:center;
+    opacity:0;pointer-events:none;transition:opacity .5s ease;
+  }
+  body.zen #hud{opacity:1}
+  .hud-num{display:flex;align-items:baseline;gap:4px;font-family:var(--mono);
+           font-variant-numeric:tabular-nums}
+  #hmg{font-size:62px;font-weight:700;letter-spacing:-.05em;line-height:1}
+  .hud-num i{font-style:normal;font-size:20px;font-weight:700;color:var(--amber-dk)}
+  .hud-track{width:min(300px,78vw);height:5px;border-radius:99px;
+             background:rgba(0,0,0,.1);margin-top:20px;overflow:hidden}
+  #hfill{height:100%;width:0;background:var(--amber);border-radius:99px}
+
+  /* 빨려 들어가는 단어들 */
+  #words{position:fixed;inset:0;z-index:4;pointer-events:none;
+         opacity:0;transition:opacity .4s ease}
+  body.zen #words{opacity:1}
+  .word{position:absolute;left:0;top:0;white-space:nowrap;font-weight:800;
+        letter-spacing:-.035em;color:var(--ink);will-change:transform,opacity}
+  .word.hot{color:var(--amber-dk)}
 
   .act{position:absolute;inset:0;z-index:1;display:none;flex-direction:column;align-items:center}
   .act.on{display:flex;animation:in .4s ease both}
@@ -61,7 +84,6 @@
   #act3{justify-content:center;padding:26px 20px;overflow-y:auto}
 
   .inner{width:100%;max-width:360px;text-align:center;transition:opacity .45s ease}
-
   .lab{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--muted)}
   .labkr{font-size:11.5px;font-weight:600;letter-spacing:.06em;color:var(--ink-2);margin-top:3px}
   h1{font-size:21px;font-weight:800;letter-spacing:-.04em;line-height:1.35;margin-top:18px}
@@ -85,7 +107,7 @@
                 50%{box-shadow:0 6px 22px -6px rgba(238,138,17,.9)}}
 
   .guide{
-    width:100%;max-width:360px;text-align:left;margin-top:18px;
+    width:100%;max-width:360px;text-align:left;margin-top:20px;
     background:#fff;border:1px solid var(--hair);border-radius:13px;
     padding:14px 16px;transition:opacity .45s ease;
   }
@@ -100,19 +122,8 @@
   .guide em{display:block;font-style:normal;font-size:12.5px;font-weight:500;
             color:var(--ink-2);margin-top:2px;letter-spacing:-.02em}
 
-  .readout{display:flex;align-items:baseline;justify-content:center;gap:3px;
-           font-variant-numeric:tabular-nums;margin-top:16px}
-  #mg{font-size:34px;font-weight:800;letter-spacing:-.05em;line-height:1}
-  .unit{font-size:15px;font-weight:700;color:var(--ink-2)}
-  .track{width:180px;height:4px;border-radius:99px;background:rgba(0,0,0,.12);
-         margin:12px auto 0;overflow:hidden}
-  #fill{height:100%;width:0;background:var(--amber-dk);border-radius:99px}
-  .logline{margin-top:11px;height:16px;font-family:var(--mono);font-size:11px;
-           color:var(--ink-2);letter-spacing:.01em;opacity:0}
-
-  /* 주사기 — 바늘 끝이 화면 최하단 */
   .rig{position:absolute;left:50%;bottom:0;transform:translateX(-50%);z-index:2}
-  .rigIn{transform-origin:50% 100%;transition:transform .6s cubic-bezier(.2,.8,.3,1)}
+  .rigIn{transform-origin:50% 100%;transition:transform .35s cubic-bezier(.2,.8,.3,1)}
   .rig svg{height:min(250px,33dvh);width:auto}
   .rig.busy{animation:jit .1s linear infinite}
   @keyframes jit{0%,100%{transform:translateX(-50%)}
@@ -124,13 +135,13 @@
   .skin span{position:absolute;right:12px;bottom:7px;font-family:var(--mono);
              font-size:9.5px;letter-spacing:.12em;color:var(--muted)}
 
-  /* ===== 주입 중: 화면에서 글씨 전부 제거 ===== */
   body.zen .inner,
   body.zen .guide,
   body.zen .btn,
   body.zen .skin,
   body.zen #mute{opacity:0;pointer-events:none}
   body.zen .rigIn{transform:scale(1.12)}
+  body.zen .rigIn.sip{transform:scale(1.17)}
 
   .amp{margin:22px 0 8px;transform-origin:50% 100%}
   .amp.shake{animation:sh .09s linear 4}
@@ -173,8 +184,14 @@
 <body>
 <div id="warm"></div>
 <canvas id="spark"></canvas>
+<div id="words"></div>
 <audio id="sil" loop playsinline preload="auto"></audio>
 <button id="mute" aria-label="소리 끄기">🔊</button>
+
+<div id="hud">
+  <div class="hud-num"><span id="hmg">0.0</span><i>mg</i></div>
+  <div class="hud-track"><div id="hfill"></div></div>
+</div>
 
 <!-- 1막 · 앰플 -->
 <section class="act on" id="act1">
@@ -225,17 +242,13 @@
           <em>한 번 누르면 자동으로 주입됩니다.</em></span></li>
       </ol>
     </div>
-
-    <div class="readout"><span id="mg">0.0</span><span class="unit">mg</span></div>
-    <div class="track"><div id="fill"></div></div>
-    <p class="logline" id="logline">—</p>
   </div>
 
-  <button class="btn" id="btnInject" disabled style="margin-top:18px">충전 중…</button>
+  <button class="btn" id="btnInject" disabled style="margin-top:22px">충전 중…</button>
 
   <div class="skin" id="skin"><span>SKIN ↓</span></div>
 
-  <div class="rig" id="rig"><div class="rigIn">
+  <div class="rig" id="rig"><div class="rigIn" id="rigIn">
     <svg width="118" height="252" viewBox="0 0 118 252" aria-hidden="true">
       <g id="plungerG">
         <rect x="40" y="0" width="38" height="9" rx="4.5" fill="#9E9E9E"/>
@@ -289,19 +302,18 @@
 (function(){
   const $=id=>document.getElementById(id);
   const act1=$('act1'),act2=$('act2'),act3=$('act3');
-  const amp=$('amp'),btnOpen=$('btnOpen'),guide=$('guide'),skin=$('skin');
-  const rig=$('rig'),serum=$('serum'),serumTop=$('serumTop');
+  const amp=$('amp'),btnOpen=$('btnOpen');
+  const rig=$('rig'),rigIn=$('rigIn'),serum=$('serum'),serumTop=$('serumTop');
   const plungerG=$('plungerG'),stopper=$('stopper');
-  const mgEl=$('mg'),fill=$('fill'),btnInject=$('btnInject'),logline=$('logline');
+  const btnInject=$('btnInject'),hmg=$('hmg'),hfill=$('hfill');
   const h2=$('h2'),warm=$('warm'),note=$('note'),serial=$('serial'),btnAgain=$('btnAgain');
   const muteBtn=$('mute'),cv=$('spark'),cx2=cv.getContext('2d'),sil=$('sil');
+  const wordsBox=$('words');
 
   /* ================= 오디오 ================= */
-  let ac=null, master=null, muted=false, unlocked=false;
-
-  /* iOS 무음 스위치 우회용 — 거의 안 들리는 루프 트랙 */
+  let ac=null,master=null,muted=false,unlocked=false;
   (function makeSilent(){
-    const sr=8000,sec=1,n=sr*sec,bytes=44+n*2;
+    const sr=8000,n=sr,bytes=44+n*2;
     const buf=new ArrayBuffer(bytes),v=new DataView(buf);
     const w=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i))};
     w(0,'RIFF');v.setUint32(4,bytes-8,true);w(8,'WAVE');w(12,'fmt ');
@@ -311,27 +323,23 @@
     for(let i=0;i<n;i++)v.setInt16(44+i*2,(i%2?1:-1),true);
     let s='';const u8=new Uint8Array(buf);
     for(let i=0;i<u8.length;i++)s+=String.fromCharCode(u8[i]);
-    sil.src='data:audio/wav;base64,'+btoa(s);
-    sil.volume=.01;
+    sil.src='data:audio/wav;base64,'+btoa(s);sil.volume=.01;
   })();
 
   function AC(){
     if(!ac){
-      const C=window.AudioContext||window.webkitAudioContext;
-      if(!C)return null;
-      ac=new C();
-      master=ac.createGain();master.gain.value=1;master.connect(ac.destination);
+      const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;
+      ac=new C();master=ac.createGain();master.gain.value=1;master.connect(ac.destination);
     }
     if(ac.state!=='running')ac.resume();
     return ac;
   }
   function unlock(){
-    const c=AC(); if(!c)return;
+    const c=AC();if(!c)return;
     if(!unlocked){
       const b=c.createBuffer(1,1,22050),s=c.createBufferSource();
       s.buffer=b;s.connect(master);s.start(0);
-      sil.play().catch(()=>{});
-      unlocked=true;
+      sil.play().catch(()=>{});unlocked=true;
     }
     if(c.state!=='running')c.resume();
   }
@@ -344,7 +352,7 @@
     return b;
   }
   function sndSnap(){
-    const c=AC(); if(!c||muted)return; const t=c.currentTime;
+    const c=AC();if(!c||muted)return;const t=c.currentTime;
     const b=noise(c,.22),d=b.getChannelData(0);
     for(let i=0;i<d.length;i++)d[i]*=Math.pow(1-i/d.length,5);
     const s=c.createBufferSource();s.buffer=b;
@@ -360,13 +368,13 @@
   }
   let inj=null;
   function sndInjStart(){
-    const c=AC(); if(!c||muted)return; const t=c.currentTime;
+    const c=AC();if(!c||muted)return;const t=c.currentTime;
     const s=c.createBufferSource();s.buffer=noise(c,2);s.loop=true;
     const bp=c.createBiquadFilter();bp.type='bandpass';bp.frequency.value=620;bp.Q.value=.7;
-    const g=c.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.13,t+.3);
+    const g=c.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.12,t+.3);
     s.connect(bp).connect(g).connect(master);s.start();
     const o=c.createOscillator();o.type='sine';o.frequency.setValueAtTime(82,t);
-    const og=c.createGain();og.gain.setValueAtTime(0,t);og.gain.linearRampToValueAtTime(.16,t+.35);
+    const og=c.createGain();og.gain.setValueAtTime(0,t);og.gain.linearRampToValueAtTime(.15,t+.35);
     o.connect(og).connect(master);o.start();
     inj={s,g,o,og,bp};
   }
@@ -380,14 +388,20 @@
     r.g.gain.setTargetAtTime(0,t,.07);r.og.gain.setTargetAtTime(0,t,.07);
     setTimeout(()=>{try{r.s.stop();r.o.stop()}catch(e){}},420);
   }
-  function sndTick(){
-    const c=AC(); if(!c||muted)return; const t=c.currentTime;
-    const o=c.createOscillator();o.type='square';o.frequency.setValueAtTime(1750,t);
-    const g=c.createGain();g.gain.setValueAtTime(.09,t);g.gain.exponentialRampToValueAtTime(.0004,t+.035);
-    o.connect(g).connect(master);o.start(t);o.stop(t+.04);
+  /* 단어가 빨려 들어갈 때 나는 짧은 슉 소리 */
+  function sndSip(){
+    const c=AC();if(!c||muted)return;const t=c.currentTime;
+    const s=c.createBufferSource();s.buffer=noise(c,.26);
+    const bp=c.createBiquadFilter();bp.type='bandpass';bp.Q.value=4;
+    bp.frequency.setValueAtTime(2400,t);
+    bp.frequency.exponentialRampToValueAtTime(420,t+.24);
+    const g=c.createGain();g.gain.setValueAtTime(.001,t);
+    g.gain.linearRampToValueAtTime(.075,t+.06);
+    g.gain.exponentialRampToValueAtTime(.0004,t+.26);
+    s.connect(bp).connect(g).connect(master);s.start(t);s.stop(t+.28);
   }
   function sndDone(){
-    const c=AC(); if(!c||muted)return; const t=c.currentTime;
+    const c=AC();if(!c||muted)return;const t=c.currentTime;
     [[659.25,0],[987.77,.13]].forEach(([f,dt])=>{
       const o=c.createOscillator();o.type='sine';o.frequency.value=f;
       const g=c.createGain();g.gain.setValueAtTime(0,t+dt);
@@ -397,31 +411,29 @@
     });
   }
   muteBtn.addEventListener('click',e=>{
-    e.stopPropagation();
-    muted=!muted;
+    e.stopPropagation();muted=!muted;
     muteBtn.textContent=muted?'🔇':'🔊';
     muteBtn.setAttribute('aria-label',muted?'소리 켜기':'소리 끄기');
     if(muted){sndInjStop();sil.pause()}else{unlock()}
   });
 
   /* ================= 픽셀 파티클 ================= */
-  const PX=3, COLORS=['#EE8A11','#FFC168','#FFE0B0','#FFFFFF'];
+  const PX=3,COLORS=['#EE8A11','#FFC168','#FFE0B0','#FFFFFF'];
   let parts=[],W=0,H=0,dpr=1,anim=null;
   function fitCanvas(){
     dpr=Math.min(2,window.devicePixelRatio||1);
     W=cv.clientWidth;H=cv.clientHeight;
     cv.width=W*dpr;cv.height=H*dpr;
-    cx2.setTransform(dpr,0,0,dpr,0,0);
-    cx2.imageSmoothingEnabled=false;
+    cx2.setTransform(dpr,0,0,dpr,0,0);cx2.imageSmoothingEnabled=false;
   }
   window.addEventListener('resize',fitCanvas);
   function spawn(n,power){
     for(let i=0;i<n;i++){
       parts.push({
-        x:W/2+(Math.random()*10-5), y:H-1,
-        vx:(Math.random()*2-1)*1.8*power,
-        vy:-(1+Math.random()*2.6)*power,
-        life:1, decay:.011+Math.random()*.015,
+        x:W/2+(Math.random()*10-5),y:H-1,
+        vx:(Math.random()*2-1)*1.9*power,
+        vy:-(1.4+Math.random()*3.4)*power,
+        life:1,decay:.008+Math.random()*.012,
         c:COLORS[(Math.random()*COLORS.length)|0]
       });
     }
@@ -430,7 +442,7 @@
     cx2.clearRect(0,0,W,H);
     for(let i=parts.length-1;i>=0;i--){
       const p=parts[i];
-      p.x+=p.vx;p.y+=p.vy;p.vy+=.055;p.life-=p.decay;
+      p.x+=p.vx;p.y+=p.vy;p.vy+=.048;p.life-=p.decay;
       if(p.life<=0||p.y>H+8){parts.splice(i,1);continue;}
       cx2.globalAlpha=Math.ceil(p.life*4)/4;
       cx2.fillStyle=p.c;
@@ -441,17 +453,64 @@
   }
   const kick=()=>{if(!anim)anim=requestAnimationFrame(drawParts)};
 
+  /* ================= 빨려 들어가는 단어 ================= */
+  const WORDS=['괜찮아','잘하고 있어','오늘 수고했어','천천히 해도 돼',
+               '여유','다정','든든','포근','안심','기운','반짝','씩씩',
+               '좋아질 거야','별일 없을 거야','잘될 거야','네 편이야',
+               '푹 자자','웃음','고마워','사랑'];
+  let items=[],spawnAcc=0;
+
+  function targetPoint(){
+    const r=rig.getBoundingClientRect();
+    return {x:r.left+r.width/2, y:r.top+r.height*.28};
+  }
+  function newWord(){
+    const el=document.createElement('span');
+    el.className='word'+(Math.random()<.3?' hot':'');
+    el.textContent=WORDS[(Math.random()*WORDS.length)|0];
+    el.style.fontSize=(17+Math.random()*13).toFixed(0)+'px';
+    wordsBox.appendChild(el);
+    const vw=innerWidth,vh=innerHeight,t=targetPoint();
+    items.push({
+      el,
+      x:vw*(.14+Math.random()*.72),
+      y:vh*(.30+Math.random()*.30),
+      tx:t.x,ty:t.y,
+      rot:(Math.random()*2-1)*16,
+      t:0,dur:1000+Math.random()*600
+    });
+  }
+  function stepWords(dt,feeding){
+    if(feeding){
+      spawnAcc+=dt;
+      if(spawnAcc>320){spawnAcc=0;newWord()}
+    }
+    for(let i=items.length-1;i>=0;i--){
+      const w=items[i];
+      w.t+=dt/w.dur;
+      if(w.t>=1){
+        w.el.remove();items.splice(i,1);
+        sndSip();
+        rigIn.classList.add('sip');
+        setTimeout(()=>rigIn.classList.remove('sip'),160);
+        spawn(10,1.2);kick();
+        continue;
+      }
+      const e=w.t*w.t*w.t;                        // 가속하며 빨려 들어감
+      const px=w.x+(w.tx-w.x)*e, py=w.y+(w.ty-w.y)*e;
+      const sc=1-e*.86;
+      const op=w.t<.14 ? w.t/.14 : (w.t>.82 ? (1-w.t)/.18 : 1);
+      w.el.style.opacity=op.toFixed(3);
+      w.el.style.transform='translate('+px.toFixed(1)+'px,'+py.toFixed(1)+'px) '+
+                           'translate(-50%,-50%) scale('+sc.toFixed(3)+') '+
+                           'rotate('+(w.rot*e).toFixed(1)+'deg)';
+    }
+  }
+  function clearWords(){items.forEach(w=>w.el.remove());items=[];spawnAcc=0}
+
   /* ================= 진행 ================= */
-  const DOSE=5.5, DUR=4600;
-  const TOP=59, BOT=207, SPAN=BOT-TOP, PUSH=38;
-  const LOG=[
-    [.00,'001 · 효과 지속시간 3초'],
-    [.16,'019 · 기분은 좋은데 이유를 모름'],
-    [.34,'052 · 부작용: 연구자를 계속 칭찬함'],
-    [.52,'088 · 안정성 확보. 근데 씀'],
-    [.70,'114 · 안 씀. 근데 안 들어감'],
-    [.90,'127 · 들어감. 완성.']
-  ];
+  const DOSE=5.5,DUR=5600;
+  const TOP=59,BOT=207,SPAN=BOT-TOP,PUSH=38;
   const NOTES=[
     '오늘은 이걸로 충분합니다. 더 필요하면 만든 사람한테 직접 말할 것.',
     '효과가 바로 안 와도 정상입니다. 원래 좀 있다가 옵니다.',
@@ -460,10 +519,10 @@
     '남은 하루는 생각보다 괜찮게 흘러갈 예정입니다.'
   ];
 
-  let prog=0,raf=null,last=0,count=0,ticked=0;
+  let prog=0,raf=null,last=0,count=0;
   const show=a=>[act1,act2,act3].forEach(x=>x.classList.toggle('on',x===a));
 
-  function level(p){                      // p = 남은 약물 비율
+  function level(p){
     const h=SPAN*p;
     serum.setAttribute('y',BOT-h);serum.setAttribute('height',h);
     serumTop.setAttribute('y',BOT-h);serumTop.setAttribute('height',h>3?3:0);
@@ -471,13 +530,10 @@
     plungerG.setAttribute('transform','translate(0,'+(PUSH*(1-p)).toFixed(2)+')');
   }
   function paint(){
-    mgEl.textContent=(DOSE*prog).toFixed(1);
-    fill.style.width=(prog*100)+'%';
+    hmg.textContent=(DOSE*prog).toFixed(1);
+    hfill.style.width=(prog*100)+'%';
     level(1-prog);
     warm.style.opacity=(prog*.55).toFixed(3);
-    let cur=LOG[0];
-    for(const l of LOG) if(prog>=l[0]) cur=l;
-    logline.textContent=cur[1];
   }
 
   /* 1막 */
@@ -509,11 +565,11 @@
 
   function tick(t){
     if(!last)last=t;
-    prog=Math.min(1,prog+(t-last)/DUR);last=t;
+    const dt=Math.min(50,t-last);
+    prog=Math.min(1,prog+dt/DUR);last=t;
     paint();sndInjMove(prog);
-    spawn(prog>.8?6:4,.85+prog*.8);kick();
-    const s=Math.floor(prog*12);
-    if(s>ticked){ticked=s;sndTick()}
+    stepWords(dt,true);
+    spawn(prog>.8?5:3,.85+prog*.8);kick();
     if(prog>=1){finish();return;}
     raf=requestAnimationFrame(tick);
   }
@@ -523,9 +579,10 @@
     unlock();
     btnInject.disabled=true;btnInject.classList.remove('pulse');
     rig.classList.add('busy');
-    document.body.classList.add('zen');      // ← 글씨 전부 사라짐
-    fitCanvas();ticked=0;last=0;
+    document.body.classList.add('zen');
+    fitCanvas();clearWords();last=0;
     sndInjStart();
+    newWord();
     raf=requestAnimationFrame(tick);
   });
 
@@ -533,19 +590,28 @@
     cancelAnimationFrame(raf);
     rig.classList.remove('busy');
     sndInjStop();sndDone();
-    spawn(60,2.1);kick();
+    spawn(70,2.2);kick();
     if(navigator.vibrate)navigator.vibrate([18,60,18]);
     count++;
     warm.style.opacity='.34';
     h2.textContent='주입 완료';btnInject.textContent='주입 완료';
     serial.textContent=String(count).padStart(4,'0');
     note.textContent=NOTES[(Math.random()*NOTES.length)|0];
-    setTimeout(()=>{document.body.classList.remove('zen');show(act3)},1000);
+    /* 남은 단어들이 다 들어간 뒤 처방전으로 */
+    let t0=null;
+    const hold=t=>{
+      if(!t0)t0=t;
+      const dt=Math.min(50,t-(last||t));last=t;
+      stepWords(dt,false);
+      if(items.length&&t-t0<2200)requestAnimationFrame(hold);
+      else{clearWords();document.body.classList.remove('zen');show(act3)}
+    };
+    requestAnimationFrame(hold);
   }
 
   /* 3막 */
   btnAgain.addEventListener('click',()=>{
-    prog=0;warm.style.opacity='0';parts=[];
+    prog=0;warm.style.opacity='0';parts=[];clearWords();
     cx2.clearRect(0,0,W,H);
     amp.classList.remove('open');btnOpen.disabled=false;
     btnInject.disabled=true;btnInject.textContent='충전 중…';
