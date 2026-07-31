@@ -10,18 +10,17 @@
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --paper:#F3E4E0;      /* 블러시 클레이 */
-    --paper-2:#EAD6D2;
-    --ink:#2B1520;
-    --ink-2:#63404C;
-    --muted:#7E5A64;
-    --plum:#8E2F52;
-    --plum-dk:#6C2140;
-    --serum:#1BAE8B;      /* 민트 — 긍정에너지 */
-    --serum-lt:#6FE3C4;
-    --serum-dk:#0B6B55;
-    --glass:#FEFAF9;
-    --line:rgba(43,21,32,.18);
+    --paper:#FFFFFF;
+    --ink:#000000;
+    --ink-2:#3D3D3D;
+    --muted:#5C5C5C;
+    --hair:rgba(0,0,0,.13);
+    --hair-2:rgba(0,0,0,.28);
+    --amber:#EE8A11;
+    --amber-lt:#FFC168;
+    --amber-dk:#B65E00;
+    --steel:#CFCFCF;
+    --steel-2:#B0B0B0;
     --mono:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -34,13 +33,11 @@
   }
   body::before{
     content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-    background:
-      repeating-linear-gradient(0deg,transparent 0 27px,rgba(43,21,32,.03) 27px 28px),
-      radial-gradient(circle at 50% 36%,rgba(255,252,251,.8),transparent 64%);
+    background:repeating-linear-gradient(0deg,transparent 0 27px,rgba(0,0,0,.022) 27px 28px);
   }
   #warm{
     position:fixed;inset:-30%;pointer-events:none;opacity:0;z-index:0;
-    background:radial-gradient(circle at 50% 88%,#6FE3C4 0%,rgba(111,227,196,0) 56%);
+    background:radial-gradient(circle at 50% 88%,#FFB454 0%,rgba(255,180,84,0) 56%);
     transition:opacity .6s ease;
   }
 
@@ -49,7 +46,7 @@
 
   #mute{
     position:fixed;top:14px;right:14px;z-index:6;width:34px;height:34px;
-    border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.6);
+    border:1px solid var(--hair);border-radius:10px;background:#fff;
     color:var(--ink-2);font-size:14px;line-height:1;cursor:pointer;
     display:flex;align-items:center;justify-content:center;
   }
@@ -74,32 +71,31 @@
   svg{display:block}
 
   .btn{
-    width:100%;max-width:360px;height:56px;border:0;border-radius:15px;
-    background:var(--plum);color:#fff;font:inherit;font-size:16px;font-weight:700;
+    width:100%;max-width:360px;height:56px;border:0;border-radius:14px;
+    background:var(--ink);color:#fff;font:inherit;font-size:16px;font-weight:700;
     letter-spacing:-.03em;cursor:pointer;user-select:none;
-    box-shadow:0 8px 18px -7px rgba(108,33,64,.7);
-    transition:transform .12s ease,background .2s ease,opacity .25s ease;
+    transition:transform .12s ease,opacity .25s ease,box-shadow .2s ease;
+    box-shadow:0 6px 16px -8px rgba(0,0,0,.7);
   }
   .btn:active{transform:scale(.977)}
-  .btn:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
-  .btn[disabled]{opacity:.45;cursor:default;box-shadow:none}
-  .btn.ghost{background:transparent;color:var(--plum);box-shadow:none;
-             border:1.5px solid rgba(142,47,82,.42)}
+  .btn:focus-visible{outline:3px solid var(--amber-dk);outline-offset:3px}
+  .btn[disabled]{opacity:.32;cursor:default;box-shadow:none}
+  .btn.ghost{background:#fff;color:var(--ink);box-shadow:none;border:1.5px solid var(--hair-2)}
   .btn.pulse{animation:pl 1.8s ease-in-out infinite}
-  @keyframes pl{0%,100%{box-shadow:0 8px 18px -7px rgba(108,33,64,.7)}
-                50%{box-shadow:0 8px 26px -4px rgba(108,33,64,.9)}}
+  @keyframes pl{0%,100%{box-shadow:0 6px 16px -8px rgba(0,0,0,.7)}
+                50%{box-shadow:0 6px 22px -6px rgba(238,138,17,.9)}}
 
   .guide{
     width:100%;max-width:360px;text-align:left;margin-top:18px;
-    background:rgba(255,255,255,.62);border:1px solid var(--line);
-    border-radius:13px;padding:14px 16px;transition:opacity .35s ease;
+    background:#fff;border:1px solid var(--hair);border-radius:13px;
+    padding:14px 16px;transition:opacity .35s ease;
   }
   .guide .ttl{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;
               color:var(--muted);margin-bottom:9px}
   .guide ol{list-style:none;display:flex;flex-direction:column;gap:9px}
   .guide li{display:flex;gap:10px;font-size:14.5px;font-weight:700;
             letter-spacing:-.025em;line-height:1.4;color:var(--ink)}
-  .guide b{flex:0 0 19px;height:19px;border-radius:50%;background:var(--plum);color:#fff;
+  .guide b{flex:0 0 19px;height:19px;border-radius:50%;background:var(--ink);color:#fff;
            font-family:var(--mono);font-size:10.5px;font-weight:700;
            display:flex;align-items:center;justify-content:center;margin-top:2px}
   .guide em{display:block;font-style:normal;font-size:12.5px;font-weight:500;
@@ -108,16 +104,16 @@
 
   .readout{display:flex;align-items:baseline;justify-content:center;gap:3px;
            font-variant-numeric:tabular-nums;margin-top:16px}
-  #mg{font-size:34px;font-weight:800;letter-spacing:-.05em;line-height:1;color:var(--serum-dk)}
+  #mg{font-size:34px;font-weight:800;letter-spacing:-.05em;line-height:1}
   .unit{font-size:15px;font-weight:700;color:var(--ink-2)}
-  .track{width:180px;height:4px;border-radius:99px;background:rgba(43,21,32,.14);
+  .track{width:180px;height:4px;border-radius:99px;background:rgba(0,0,0,.12);
          margin:12px auto 0;overflow:hidden}
-  #fill{height:100%;width:0;background:var(--serum-dk);border-radius:99px}
+  #fill{height:100%;width:0;background:var(--amber-dk);border-radius:99px}
 
   .logline{margin-top:11px;height:16px;font-family:var(--mono);font-size:11px;
            color:var(--ink-2);letter-spacing:.01em;transition:opacity .25s ease;opacity:0}
   .logline.on{opacity:1}
-  .logline.hit{color:var(--serum-dk);font-weight:700}
+  .logline.hit{color:var(--amber-dk);font-weight:700}
 
   /* 주사기 — 바늘 끝이 화면 최하단 */
   .rig{position:absolute;left:50%;bottom:0;transform:translateX(-50%);z-index:2}
@@ -128,7 +124,7 @@
                  75%{transform:translateX(calc(-50% + 1.3px))}}
 
   .skin{position:absolute;left:0;right:0;bottom:0;z-index:1;pointer-events:none;
-        border-bottom:2px dashed rgba(43,21,32,.32);transition:opacity .35s ease}
+        border-bottom:2px dashed var(--hair-2);transition:opacity .35s ease}
   .skin span{position:absolute;right:12px;bottom:7px;font-family:var(--mono);
              font-size:9.5px;letter-spacing:.12em;color:var(--muted)}
   .skin.dim{opacity:.25}
@@ -144,11 +140,11 @@
   .amp.open #shards circle:nth-child(3){animation-delay:.09s}
   @keyframes sp{0%{opacity:1;transform:translate(0,0)}100%{opacity:0;transform:translate(14px,-22px)}}
 
-  .rx{width:100%;max-width:360px;background:#FFF8F5;border-radius:4px;
-      padding:26px 24px 22px;text-align:left;position:relative;
-      box-shadow:0 18px 40px -22px rgba(43,21,32,.6);font-family:'Gowun Batang',serif}
+  .rx{width:100%;max-width:360px;background:#fff;border:1px solid var(--hair);
+      border-radius:4px;padding:26px 24px 22px;text-align:left;position:relative;
+      box-shadow:0 16px 36px -24px rgba(0,0,0,.9);font-family:'Gowun Batang',serif}
   .rx-top{display:flex;justify-content:space-between;align-items:baseline;
-          padding-bottom:10px;border-bottom:1px solid var(--line)}
+          padding-bottom:10px;border-bottom:1px solid var(--hair)}
   .rx-top b{font-size:14px;letter-spacing:-.02em}
   .rx-top span{font-family:var(--mono);font-size:9.5px;color:var(--ink-2);letter-spacing:.08em}
   .rx h2{font-size:27px;font-weight:700;letter-spacing:-.02em;margin:18px 0 3px;line-height:1.25}
@@ -157,12 +153,12 @@
   .row{display:flex;gap:12px;font-size:14px;line-height:1.5}
   .row dt{flex:0 0 54px;color:var(--ink-2);font-size:13px}
   .row dd{flex:1;font-weight:700;letter-spacing:-.01em}
-  .note{margin-top:18px;padding-top:14px;border-top:1px dashed var(--line);
+  .note{margin-top:18px;padding-top:14px;border-top:1px dashed var(--hair-2);
         font-size:13.5px;line-height:1.65;color:var(--ink)}
   .sign{margin-top:18px;display:flex;justify-content:space-between;align-items:flex-end}
   .sign small{font-size:11.5px;color:var(--ink-2)}
-  .stamp{font-family:var(--mono);font-size:9px;letter-spacing:.06em;color:var(--serum-dk);
-         border:1.5px solid var(--serum-dk);border-radius:50%;width:52px;height:52px;
+  .stamp{font-family:var(--mono);font-size:9px;letter-spacing:.06em;color:var(--amber-dk);
+         border:1.5px solid var(--amber-dk);border-radius:50%;width:52px;height:52px;
          display:flex;align-items:center;justify-content:center;text-align:center;
          transform:rotate(-11deg);line-height:1.25;padding:4px}
 
@@ -189,22 +185,22 @@
   <div class="amp" id="amp">
     <svg width="86" height="188" viewBox="0 0 86 188" aria-hidden="true">
       <g id="ampTop">
-        <path d="M43 6 L38 16 L38 40 L48 40 L48 16 Z" fill="#FEFAF9" stroke="#D3B9BC" stroke-width="1.5"/>
-        <circle cx="43" cy="8" r="4.5" fill="#FEFAF9" stroke="#D3B9BC" stroke-width="1.5"/>
+        <path d="M43 6 L38 16 L38 40 L48 40 L48 16 Z" fill="#fff" stroke="#C8C8C8" stroke-width="1.5"/>
+        <circle cx="43" cy="8" r="4.5" fill="#fff" stroke="#C8C8C8" stroke-width="1.5"/>
       </g>
       <g id="shards">
-        <circle cx="47" cy="44" r="2" fill="#D3B9BC"/>
-        <circle cx="40" cy="46" r="1.4" fill="#D3B9BC"/>
-        <circle cx="50" cy="49" r="1.7" fill="#D3B9BC"/>
+        <circle cx="47" cy="44" r="2" fill="#B0B0B0"/>
+        <circle cx="40" cy="46" r="1.4" fill="#B0B0B0"/>
+        <circle cx="50" cy="49" r="1.7" fill="#B0B0B0"/>
       </g>
       <path d="M38 44 L38 58 Q22 66 22 88 L22 158 Q22 176 43 176 Q64 176 64 158 L64 88 Q64 66 48 58 L48 44 Z"
-            fill="#FEFAF9" stroke="#D3B9BC" stroke-width="1.5"/>
-      <path d="M25 96 L25 157 Q25 173 43 173 Q61 173 61 157 L61 96 Z" fill="#1BAE8B"/>
-      <path d="M25 96 L61 96 L61 101 L25 101 Z" fill="#6FE3C4"/>
-      <rect x="30" y="112" width="4" height="42" rx="2" fill="#fff" opacity=".4"/>
-      <rect x="22" y="72" width="42" height="15" fill="#FDF1EC"/>
+            fill="#fff" stroke="#C8C8C8" stroke-width="1.5"/>
+      <path d="M25 96 L25 157 Q25 173 43 173 Q61 173 61 157 L61 96 Z" fill="#EE8A11"/>
+      <path d="M25 96 L61 96 L61 101 L25 101 Z" fill="#FFC168"/>
+      <rect x="30" y="112" width="4" height="42" rx="2" fill="#fff" opacity=".42"/>
+      <rect x="22" y="72" width="42" height="15" fill="#F2F2F2"/>
       <text x="43" y="83" text-anchor="middle" font-family="ui-monospace,monospace"
-            font-size="8.5" fill="#7E5A64" letter-spacing="1">Y-127</text>
+            font-size="8.5" fill="#000" letter-spacing="1">Y-127</text>
     </svg>
   </div>
 
@@ -238,23 +234,29 @@
 
   <div class="rig" id="rig">
     <svg width="118" height="252" viewBox="0 0 118 252" aria-hidden="true">
-      <rect id="plunger" x="52" y="6" width="14" height="46" rx="4" fill="#CBB0B4"/>
-      <rect x="40" y="0" width="38" height="9" rx="4.5" fill="#BB9CA1"/>
-      <rect x="34" y="48" width="50" height="14" rx="5" fill="#EEDCD9"/>
-      <rect x="38" y="58" width="42" height="150" rx="7" fill="#FEFAF9" stroke="#D3B9BC" stroke-width="1.5"/>
+      <!-- 밀대: 통째로 아래로 내려감 -->
+      <g id="plungerG">
+        <rect x="40" y="0" width="38" height="9" rx="4.5" fill="#9E9E9E"/>
+        <rect x="52" y="7" width="14" height="54" rx="4" fill="#BFBFBF"/>
+      </g>
+      <!-- 플랜지 · 배럴이 밀대를 덮음 -->
+      <rect x="34" y="48" width="50" height="14" rx="5" fill="#E4E4E4"/>
+      <rect x="38" y="58" width="42" height="150" rx="7" fill="#fff" stroke="#C8C8C8" stroke-width="1.5"/>
       <clipPath id="bar"><rect x="39" y="59" width="40" height="148" rx="6"/></clipPath>
       <g clip-path="url(#bar)">
-        <rect id="serum" x="39" y="207" width="40" height="0" fill="#1BAE8B"/>
-        <rect id="serumTop" x="39" y="207" width="40" height="0" fill="#6FE3C4"/>
+        <rect id="serum" x="39" y="207" width="40" height="0" fill="#EE8A11"/>
+        <rect id="serumTop" x="39" y="207" width="40" height="0" fill="#FFC168"/>
+        <!-- 배럴 안 고무 마개 -->
+        <rect id="stopper" x="39" y="55" width="40" height="9" fill="#8C8C8C"/>
       </g>
-      <g stroke="#D3B9BC" stroke-width="1.4" stroke-linecap="round">
+      <g stroke="#CFCFCF" stroke-width="1.4" stroke-linecap="round">
         <line x1="66" y1="86" x2="76" y2="86"/><line x1="70" y1="110" x2="76" y2="110"/>
         <line x1="66" y1="134" x2="76" y2="134"/><line x1="70" y1="158" x2="76" y2="158"/>
         <line x1="66" y1="182" x2="76" y2="182"/>
       </g>
-      <path d="M40 206 L78 206 L64 224 L54 224 Z" fill="#EEDCD9"/>
-      <rect x="57" y="222" width="4" height="24" rx="2" fill="#C7ADB1"/>
-      <path d="M57 246 L61 246 L59 252 Z" fill="#A98C91"/>
+      <path d="M40 206 L78 206 L64 224 L54 224 Z" fill="#E4E4E4"/>
+      <rect x="57" y="222" width="4" height="24" rx="2" fill="#BFBFBF"/>
+      <path d="M57 246 L61 246 L59 252 Z" fill="#8C8C8C"/>
     </svg>
   </div>
 </section>
@@ -288,7 +290,8 @@
   const $=id=>document.getElementById(id);
   const act1=$('act1'),act2=$('act2'),act3=$('act3');
   const amp=$('amp'),btnOpen=$('btnOpen'),guide=$('guide'),skin=$('skin');
-  const rig=$('rig'),serum=$('serum'),serumTop=$('serumTop'),plunger=$('plunger');
+  const rig=$('rig'),serum=$('serum'),serumTop=$('serumTop');
+  const plungerG=$('plungerG'),stopper=$('stopper');
   const mgEl=$('mg'),fill=$('fill'),btnInject=$('btnInject'),logline=$('logline');
   const h2=$('h2'),warm=$('warm'),note=$('note'),serial=$('serial'),btnAgain=$('btnAgain');
   const muteBtn=$('mute'),cv=$('spark'),cx2=cv.getContext('2d');
@@ -305,7 +308,6 @@
     for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
     return b;
   }
-  /* 앰플 목 딱 부러지는 소리 */
   function sndSnap(){
     const c=AC(); if(!c||muted)return; const t=c.currentTime;
     const b=noise(c,.2),d=b.getChannelData(0);
@@ -321,7 +323,6 @@
       o.connect(og).connect(c.destination);o.start(t+.004);o.stop(t+.4);
     });
   }
-  /* 약물 들어가는 소리 */
   let inj=null;
   function sndInjStart(){
     const c=AC(); if(!c||muted)return; const t=c.currentTime;
@@ -344,7 +345,6 @@
     r.g.gain.setTargetAtTime(0,t,.07);r.og.gain.setTargetAtTime(0,t,.07);
     setTimeout(()=>{try{r.s.stop();r.o.stop()}catch(e){}},420);
   }
-  /* 오토인젝터 래칫 틱 */
   function sndTick(){
     const c=AC(); if(!c||muted)return; const t=c.currentTime;
     const o=c.createOscillator();o.type='square';o.frequency.setValueAtTime(1750,t);
@@ -369,7 +369,7 @@
   });
 
   /* ============ 픽셀 파티클 ============ */
-  const PX=3, COLORS=['#1BAE8B','#6FE3C4','#B9F5E5','#FFFFFF'];
+  const PX=3, COLORS=['#EE8A11','#FFC168','#FFE0B0','#FFFFFF'];
   let parts=[],W=0,H=0,dpr=1,anim=null;
   function fitCanvas(){
     dpr=Math.min(2,window.devicePixelRatio||1);
@@ -379,16 +379,13 @@
     cx2.imageSmoothingEnabled=false;
   }
   window.addEventListener('resize',fitCanvas);
-
   function spawn(n,power){
     for(let i=0;i<n;i++){
       parts.push({
-        x:W/2+(Math.random()*10-5),
-        y:H-1,
+        x:W/2+(Math.random()*10-5), y:H-1,
         vx:(Math.random()*2-1)*1.7*power,
         vy:-(0.9+Math.random()*2.4)*power,
-        life:1,
-        decay:.012+Math.random()*.016,
+        life:1, decay:.012+Math.random()*.016,
         c:COLORS[(Math.random()*COLORS.length)|0]
       });
     }
@@ -399,17 +396,20 @@
       const p=parts[i];
       p.x+=p.vx;p.y+=p.vy;p.vy+=.055;p.life-=p.decay;
       if(p.life<=0||p.y>H+8){parts.splice(i,1);continue;}
-      cx2.globalAlpha=Math.ceil(p.life*4)/4;      /* 알파도 4단계로 계단화 */
+      cx2.globalAlpha=Math.ceil(p.life*4)/4;
       cx2.fillStyle=p.c;
       cx2.fillRect(Math.round(p.x/PX)*PX,Math.round(p.y/PX)*PX,PX,PX);
     }
     cx2.globalAlpha=1;
     anim=parts.length?requestAnimationFrame(drawParts):null;
   }
-  function kick(){if(!anim)anim=requestAnimationFrame(drawParts);}
+  const kick=()=>{if(!anim)anim=requestAnimationFrame(drawParts)};
 
   /* ============ 진행 ============ */
-  const DOSE=5.5, DUR=4200, TOP=59, BOT=207, SPAN=BOT-TOP;
+  const DOSE=5.5, DUR=4200;
+  const TOP=59, BOT=207, SPAN=BOT-TOP;   // 배럴 내부
+  const PUSH=38;                          // 밀대 이동 거리
+  const STOP_TOP=55, STOP_TRAVEL=(BOT-9)-STOP_TOP; // 고무 마개 이동
   const LOG=[
     [.00,'001 · 효과 지속시간 3초'],
     [.16,'019 · 기분은 좋은데 이유를 모름'],
@@ -429,17 +429,17 @@
   let prog=0,raf=null,last=0,count=0,ticked=0;
   const show=a=>[act1,act2,act3].forEach(x=>x.classList.toggle('on',x===a));
 
-  function level(p){
+  function level(p){                        // p = 남은 약물 비율
     const h=SPAN*p;
     serum.setAttribute('y',BOT-h);serum.setAttribute('height',h);
     serumTop.setAttribute('y',BOT-h);serumTop.setAttribute('height',h>3?3:0);
+    stopper.setAttribute('y',BOT-h-9);      // 마개는 항상 액면 바로 위
+    plungerG.setAttribute('transform','translate(0,'+(PUSH*(1-p)).toFixed(2)+')');
   }
   function paint(){
     mgEl.textContent=(DOSE*prog).toFixed(1);
     fill.style.width=(prog*100)+'%';
     level(1-prog);
-    plunger.setAttribute('y',6+prog*42);
-    plunger.setAttribute('height',Math.max(6,46-prog*42));
     warm.style.opacity=(prog*.5).toFixed(3);
     let cur=LOG[0];
     for(const l of LOG) if(prog>=l[0]) cur=l;
@@ -449,14 +449,13 @@
 
   /* 1막 */
   btnOpen.addEventListener('click',()=>{
-    btnOpen.disabled=true;
-    AC();
+    btnOpen.disabled=true; AC();
     amp.classList.add('shake');
     setTimeout(()=>{amp.classList.remove('shake');amp.classList.add('open');sndSnap()},380);
     setTimeout(()=>{show(act2);fitCanvas();draw()},1150);
   });
 
-  /* 2막 */
+  /* 2막 — 충전 */
   function draw(){
     let t0=null;
     const step=t=>{
@@ -478,11 +477,10 @@
   function tick(t){
     if(!last)last=t;
     prog=Math.min(1,prog+(t-last)/DUR);last=t;
-    paint();
-    sndInjMove(prog);
+    paint();sndInjMove(prog);
     spawn(prog>.8?4:3,.8+prog*.7);kick();
-    const step=Math.floor(prog*12);
-    if(step>ticked){ticked=step;sndTick()}
+    const s=Math.floor(prog*12);
+    if(s>ticked){ticked=s;sndTick()}
     if(prog>=1){finish();return;}
     raf=requestAnimationFrame(tick);
   }
@@ -507,7 +505,7 @@
     spawn(46,1.9);kick();
     if(navigator.vibrate)navigator.vibrate([18,60,18]);
     count++;
-    warm.style.opacity='.34';
+    warm.style.opacity='.32';
     h2.textContent='주입 완료';btnInject.textContent='주입 완료';
     serial.textContent=String(count).padStart(4,'0');
     note.textContent=NOTES[(Math.random()*NOTES.length)|0];
