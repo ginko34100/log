@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>winter</title>
+<meta name="theme-color" content="#0C1524">
+<meta property="og:title" content="2025 겨울, 산속">
+<meta property="og:description" content="모모 · 송이 · 열매 그리고 유지">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden;background:#0C1524}
+  body{font-family:'Gowun Dodum',sans-serif;color:#EAF2F8}
+  canvas{position:fixed;inset:0;width:100%;height:100%;
+    image-rendering:pixelated;image-rendering:crisp-edges;display:block}
+
+  #lyrics{
+    position:fixed;left:0;right:0;
+    bottom:max(4.6rem,calc(env(safe-area-inset-bottom) + 4rem));
+    text-align:center;z-index:3;pointer-events:none;padding:0 1.4rem;
+  }
+  #lyCur{
+    font-size:clamp(1.15rem,5vw,1.75rem);line-height:1.7;min-height:1.7em;
+    color:#FFF3DF;text-shadow:0 2px 14px rgba(0,0,0,.85),0 0 32px rgba(255,160,70,.32);
+    opacity:0;transform:translateY(9px);
+    transition:opacity .65s ease,transform .65s ease;
+  }
+  #lyNxt{
+    font-size:clamp(.78rem,3.3vw,.98rem);margin-top:.65rem;min-height:1.5em;
+    color:rgba(234,242,248,.32);text-shadow:0 1px 8px rgba(0,0,0,.8);
+    opacity:0;transition:opacity .65s ease;
+  }
+  #lyCur.on,#lyNxt.on{opacity:1;transform:none}
+
+  #caption{
+    position:fixed;left:0;right:0;
+    bottom:max(1.4rem,env(safe-area-inset-bottom));
+    text-align:center;z-index:3;pointer-events:none;
+    font-size:.72rem;letter-spacing:.3em;color:rgba(255,228,190,.55);
+    text-shadow:0 1px 8px rgba(0,0,0,.7);
+  }
+
+  #bar{
+    position:fixed;top:0;right:0;z-index:5;
+    padding:max(.9rem,env(safe-area-inset-top)) 1rem .8rem;
+    opacity:1;transition:opacity .6s;
+  }
+  #bar.idle{opacity:.16}
+  .btn{
+    font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.16em;
+    background:rgba(12,21,36,.6);color:#D8E4EF;
+    border:1px solid rgba(200,220,240,.22);border-radius:999px;
+    padding:.55rem 1.05rem;cursor:pointer;backdrop-filter:blur(6px);
+  }
+  .btn:hover{background:rgba(255,160,70,.2);border-color:rgba(255,180,110,.45)}
+  .btn:focus-visible{outline:2px solid #FFC07A;outline-offset:3px}
+
+  /* 시작 화면 */
+  #gate{
+    position:fixed;inset:0;z-index:20;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:2rem;cursor:pointer;
+    background:radial-gradient(ellipse at 50% 55%,rgba(8,16,30,.55),rgba(6,12,22,.88));
+    transition:opacity .9s ease;
+  }
+  #gate.gone{opacity:0;pointer-events:none}
+  #gate .t{
+    font-size:clamp(1.6rem,7vw,2.4rem);letter-spacing:.14em;
+    text-shadow:0 0 40px rgba(255,160,70,.35);
+  }
+  #gate .s{
+    font-family:'IBM Plex Mono',monospace;font-size:.7rem;letter-spacing:.34em;
+    color:#E8A33D;margin-bottom:1.4rem;
+  }
+  #gate .h{
+    font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.28em;
+    color:rgba(234,242,248,.4);margin-top:2.6rem;
+    animation:pulse 2.6s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:.35}50%{opacity:.9}}
+
+  @media (prefers-reduced-motion:reduce){
+    #lyCur,#lyNxt{transition:none}
+    #gate .h{animation:none}
+  }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="lyrics">
+  <div id="lyCur"></div>
+  <div id="lyNxt"></div>
+</div>
+<div id="caption">2025 겨울 · 산속</div>
+
+<div id="bar"><button class="btn" id="soundBtn">❚❚</button></div>
+
+<div id="gate">
+  <div class="s">2025 WINTER</div>
+  <div class="t">깊은 산의 밤</div>
+  <div class="h">TAP TO PLAY</div>
+</div>
+
+<script>
+(function(){
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ===================== 씬 ===================== */
+const cv=document.getElementById('c'), ctx=cv.getContext('2d');
+ctx.imageSmoothingEnabled=false;
+
+const P={
+  skyTop:'#0E1A2E', skyMid:'#1B2C46', skyLow:'#2E4262',
+  star:'#E9F2FF', moon:'#F4EBCF',
+  ridge:'#22344F', ridgeSnow:'#4A6183',
+  ridge2:'#1A283D', ridge2Snow:'#35486A',
+  pine:'#16283A', pineSnow:'#9FB8CE',
+  snow:'#DCE8F4', snowSh:'#B7C9DD', snowDk:'#8FA6BE',
+  tent:'#C4553F', tentSh:'#933E2F', tentLit:'#E88A5E', tentPole:'#6B5B4A',
+  log:'#5A4030', logSh:'#432E22', ember:'#FF8A3C',
+  flame1:'#FFE9A8', flame2:'#FFB84C', flame3:'#F2702A', flame4:'#C8341A',
+  smoke:'#3A4A60',
+  skin:'#F0C9A8', beanie:'#D8536B', coat:'#3E6E8C', coatSh:'#2E5468',
+  blanket:'#C98F4E', boot:'#3A332C',
+  dog:'#F6F0E6', dogSh:'#D5C9B8', cream:'#E8CFA2', nose:'#2E2825',
+  potato:'#8B5A3C', foil:'#C9CFD6', steam:'#B7C9DD'
+};
+
+let SC=3,W=0,H=0,GY=0,K=1;
+function resize(){
+  const vw=innerWidth, vh=innerHeight;
+  SC=Math.max(2,Math.min(6,Math.round(vw/360)));
+  W=Math.ceil(vw/SC); H=Math.ceil(vh/SC);
+  cv.width=W; cv.height=H;
+  cv.style.width=vw+'px'; cv.style.height=vh+'px';
+  ctx.imageSmoothingEnabled=false;
+  GY=Math.round(H*0.74); K=Math.min(1,W/230);
+}
+resize(); addEventListener('resize',resize);
+addEventListener('orientationchange',()=>setTimeout(resize,120));
+
+function px(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h));}
+function rnd(s){const x=Math.sin(s*127.1)*43758.5453;return x-Math.floor(x);}
+
+function sky(t){
+  const g=ctx.createLinearGradient(0,0,0,GY);
+  g.addColorStop(0,P.skyTop); g.addColorStop(.6,P.skyMid); g.addColorStop(1,P.skyLow);
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,GY+2);
+  for(let i=0;i<70;i++){
+    const x=Math.floor(rnd(i*1.7)*W), y=Math.floor(rnd(i*3.3)*GY*0.8);
+    ctx.globalAlpha=(0.35+0.65*(0.5+0.5*Math.sin(t*1.6+i)))*0.9; px(x,y,1,1,P.star);
+  }
+  ctx.globalAlpha=1;
+  const mx=Math.round(W*0.80), my=Math.round(GY*0.20), r=Math.max(6,Math.round(H*0.028));
+  ctx.fillStyle=P.moon; ctx.beginPath(); ctx.arc(mx,my,r,0,7); ctx.fill();
+  ctx.fillStyle=P.skyTop; ctx.beginPath(); ctx.arc(mx-r*0.45,my-r*0.35,r*0.92,0,7); ctx.fill();
+  ctx.globalAlpha=.10; ctx.fillStyle=P.moon;
+  ctx.beginPath(); ctx.arc(mx,my,r*2.6,0,7); ctx.fill(); ctx.globalAlpha=1;
+}
+function ridge(baseY,amp,period,phase,col,snowCol){
+  ctx.fillStyle=col; ctx.beginPath(); ctx.moveTo(0,H);
+  const pts=[];
+  for(let x=0;x<=W+1;x++){
+    const u=(x+phase)/period;
+    const y=baseY-(Math.sin(u*6.283)*0.5+0.5)*amp-(Math.sin(u*17.2+2.1)*0.5+0.5)*amp*0.4;
+    pts.push(y); ctx.lineTo(x,Math.round(y));
+  }
+  ctx.lineTo(W,H); ctx.closePath(); ctx.fill();
+  ctx.fillStyle=snowCol;
+  for(let x=0;x<W;x++) ctx.fillRect(x,Math.round(pts[x]),1,2);
+}
+function pine(x,y,s){
+  px(x-1,y-s*1.2,2,s*1.2,'#3A2A1E');
+  for(let i=0;i<4;i++){
+    const w=s*(0.95-i*0.20), yy=y-s*1.0-i*s*0.55;
+    px(x-w/2,yy,w,s*0.62,P.pine);
+    ctx.globalAlpha=.55; px(x-w/2,yy,w,1,P.pineSnow); ctx.globalAlpha=1;
+  }
+}
+function forest(){
+  for(let i=0;i<26;i++) pine(Math.floor(rnd(i*5.1)*(W+40))-20, GY-2+rnd(i*8.8)*3, 7+rnd(i*2.6)*7);
+}
+function ground(){
+  px(0,GY,W,H-GY,P.snow);
+  ctx.fillStyle=P.snowSh;
+  for(let i=0;i<14;i++){
+    const x=rnd(i*4.4)*W, w=14+rnd(i*7.7)*30, y=GY+4+rnd(i*3.1)*(H-GY-6);
+    ctx.beginPath(); ctx.ellipse(x,y,w/2,2,0,0,7); ctx.fill();
+  }
+  ctx.globalAlpha=.5; px(0,GY,W,1,P.snowDk); ctx.globalAlpha=1;
+}
+function tent(x,y,flick){
+  const w=44,h=26;
+  ctx.globalAlpha=.35; ctx.fillStyle=P.snowDk;
+  ctx.beginPath(); ctx.ellipse(x,y+1,w*0.55,3,0,0,7); ctx.fill(); ctx.globalAlpha=1;
+  ctx.fillStyle=P.tent; ctx.beginPath();
+  ctx.moveTo(x-w/2,y); ctx.lineTo(x,y-h); ctx.lineTo(x+w/2,y); ctx.closePath(); ctx.fill();
+  ctx.fillStyle=P.tentSh; ctx.beginPath();
+  ctx.moveTo(x,y-h); ctx.lineTo(x+w/2,y); ctx.lineTo(x+w*0.16,y); ctx.closePath(); ctx.fill();
+  ctx.fillStyle=P.tentLit; ctx.globalAlpha=.75+flick*.25; ctx.beginPath();
+  ctx.moveTo(x-9,y); ctx.lineTo(x-1,y-15); ctx.lineTo(x+7,y); ctx.closePath(); ctx.fill();
+  ctx.globalAlpha=1; px(x-1,y-h-3,1,4,P.tentPole);
+  ctx.globalAlpha=.6; ctx.fillStyle=P.snow; ctx.beginPath();
+  ctx.moveTo(x-w/2,y); ctx.lineTo(x,y-h); ctx.lineTo(x-w/2+7,y); ctx.closePath(); ctx.fill();
+  ctx.globalAlpha=1;
+  ctx.strokeStyle='rgba(200,215,230,.5)'; ctx.lineWidth=1; ctx.beginPath();
+  ctx.moveTo(x-w/2,y-1); ctx.lineTo(x-w/2-9,y+3);
+  ctx.moveTo(x+w/2,y-1); ctx.lineTo(x+w/2+9,y+3); ctx.stroke();
+}
+function fire(x,y,t,boost){
+  const hgt=(13+(Math.sin(t*9.1)*0.5+Math.sin(t*13.7+1.2)*0.3+Math.sin(t*6.3+2.4)*0.2)*4)*(1+boost*0.35);
+  px(x-11,y-3,22,3,P.log); px(x-11,y-1,22,2,P.logSh);
+  ctx.save(); ctx.translate(x,y-2); ctx.rotate(-0.25); px(-10,-2,20,3,P.log); ctx.restore();
+  ctx.save(); ctx.translate(x,y-2); ctx.rotate(0.25); px(-10,-2,20,3,P.logSh); ctx.restore();
+  for(let i=0;i<6;i++){
+    ctx.globalAlpha=0.4+0.6*(0.5+0.5*Math.sin(t*5+i*1.7));
+    px(x-8+i*3.2,y-3,2,2,P.ember); ctx.globalAlpha=1;
+  }
+  const layers=[[P.flame4,1,1],[P.flame3,.74,.86],[P.flame2,.48,.66],[P.flame1,.24,.42]];
+  for(const [col,wr,hr] of layers){
+    ctx.fillStyle=col;
+    const lh=hgt*hr, lw=9*wr*(1+boost*0.2);
+    ctx.beginPath(); ctx.moveTo(x-lw,y-3);
+    for(let i=0;i<=10;i++){
+      const p=i/10, wob=Math.sin(t*11+p*5+wr*3)*1.6*p;
+      ctx.lineTo(x-lw+(lw*2)*p+wob, y-3-Math.sin(p*Math.PI)*lh-(1-Math.abs(p-0.5)*2)*2);
+    }
+    ctx.lineTo(x+lw,y-3); ctx.closePath(); ctx.fill();
+  }
+}
+const sparks=[];
+function updateSparks(x,y,dt,t,boost){
+  if(sparks.length<40 && Math.random()<dt*(26+boost*40)){
+    sparks.push({x:x+(Math.random()-.5)*10,y:y-6,vx:(Math.random()-.5)*7,
+                 vy:-(12+Math.random()*20),life:1+Math.random()*0.9});
+  }
+  for(const s of sparks){ s.x+=s.vx*dt+Math.sin(t*4+s.y)*0.25; s.y+=s.vy*dt; s.vy*=0.985; s.life-=dt*0.5; }
+  for(let i=sparks.length-1;i>=0;i--) if(sparks[i].life<=0) sparks.splice(i,1);
+}
+function drawSparks(){
+  for(const s of sparks){ ctx.globalAlpha=Math.max(0,Math.min(1,s.life));
+    px(s.x,s.y,1,1,s.life>0.6?P.flame1:P.flame3); }
+  ctx.globalAlpha=1;
+}
+function smoke(x,y,t){
+  ctx.globalAlpha=.10; ctx.fillStyle=P.smoke;
+  for(let i=0;i<7;i++){
+    const p=(t*0.22+i/7)%1;
+    ctx.beginPath(); ctx.arc(x+Math.sin(t*0.9+i*1.4)*6*p, y-18-p*46, 2+p*7, 0,7); ctx.fill();
+  }
+  ctx.globalAlpha=1;
+}
+function glow(x,y,flick,boost){
+  const r=Math.max(60,H*0.42)*(0.94+flick*0.10+boost*0.18);
+  const g=ctx.createRadialGradient(x,y-6,0,x,y-6,r);
+  g.addColorStop(0,`rgba(255,170,80,${.30+boost*.14})`);
+  g.addColorStop(.45,'rgba(255,140,60,.13)');
+  g.addColorStop(1,'rgba(255,120,40,0)');
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+}
+function potatoes(x,y,t){
+  px(x-4,y+1,6,3,P.foil); px(x-4,y+1,6,1,'#E4E9EE');
+  px(x+3,y+2,5,3,P.potato); px(x+3,y+2,5,1,'#A56B48');
+  ctx.globalAlpha=.28;
+  for(let i=0;i<3;i++){ const p=(t*0.5+i/3)%1; px(x+5+Math.sin(t*2+i)*2, y-1-p*12,1,2,P.steam); }
+  ctx.globalAlpha=1;
+}
+function sitter(x,y,t){
+  const yy=y+Math.sin(t*1.5)*0.5;
+  px(x-2,yy-1,16,5,P.log); px(x-2,yy+2,16,2,P.logSh);
+  px(x-5,yy-3,8,3,P.coatSh); px(x-7,yy-1,4,3,P.boot);
+  px(x-2,yy-15,12,13,P.blanket); px(x-2,yy-5,12,3,'#B07C40');
+  px(x-3,yy-14,3,11,P.coat);
+  px(x-6,yy-11,4,3,P.coat); px(x-8,yy-11,2,2,P.skin);
+  px(x+1,yy-22,7,7,P.skin);
+  px(x,yy-24,9,4,P.beanie); px(x,yy-21,2,3,P.beanie); px(x+3,yy-26,3,2,P.beanie);
+  px(x+2,yy-19,1,1,P.nose); px(x+6,yy-19,1,1,P.nose);
+  ctx.globalAlpha=.22; const p=(t*0.4)%1; px(x-2-p*7, yy-19-p*4,2,2,P.steam); ctx.globalAlpha=1;
+}
+function dogSit(x,y,t,seed,type,patch){
+  const yy=y+Math.sin(t*2.1+seed)*0.5, tail=Math.sin(t*3.4+seed)*1.4;
+  if(type===2){
+    px(x,yy-4,13,4,P.dog); px(x,yy-1,13,1,P.dogSh);
+    px(x+10,yy-8,6,5,P.dog); px(x+9,yy-7,2,3,P.dog); px(x+15,yy-7,2,3,P.dog);
+    px(x+11,yy-6,1,1,P.nose); px(x+14,yy-6,1,1,P.nose); px(x+13,yy-4,1,1,P.nose);
+    px(x-2+tail*0.5,yy-5,3,2,P.dog);
+    if(patch) px(x+3,yy-4,4,2,P.cream);
+    return;
+  }
+  const puff=type===1?2:0;
+  px(x+1-puff/2,yy-8-puff/2,9+puff,8+puff,P.dog);
+  px(x+1-puff/2,yy-2,9+puff,2,P.dogSh);
+  if(patch) px(x+3,yy-8,4,3,P.cream);
+  if(type===1) px(x-2,yy-11+tail,4,4,P.dog); else px(x-1,yy-10+tail,2,4,P.dog);
+  px(x+3,yy-2,2,2,P.dogSh); px(x+7,yy-2,2,2,P.dogSh);
+  const hw=type===1?7:6;
+  px(x+6,yy-14,hw,6,P.dog); px(x+5,yy-13,2,3,P.dog); px(x+5+hw,yy-13,2,3,P.dog);
+  px(x+7,yy-12,1,1,P.nose); px(x+9,yy-12,1,1,P.nose); px(x+8,yy-10,1,1,P.nose);
+}
+let flakes=[];
+function initFlakes(){
+  flakes=[];
+  for(let i=0;i<120;i++) flakes.push({x:Math.random()*W,y:Math.random()*H,
+    s:0.4+Math.random()*1.0, sw:Math.random()*6.283});
+}
+initFlakes(); addEventListener('resize',initFlakes);
+function snowfall(dt,t){
+  for(const f of flakes){
+    f.y+=(7+f.s*16)*dt; f.x+=Math.sin(t*0.8+f.sw)*0.25+3*dt;
+    if(f.y>H){f.y=-2;f.x=Math.random()*W;}
+    if(f.x>W) f.x=0;
+    ctx.globalAlpha=0.35+f.s*0.45;
+    px(f.x,f.y,f.s>1?2:1,f.s>1?2:1,'#F2F8FF');
+  }
+  ctx.globalAlpha=1;
+}
+
+/* ===================== 오디오 ===================== */
+const audio=new Audio('winter.mp3');
+audio.loop=true; audio.preload='auto';
+let actx=null, analyser=null, freq=null, boost=0;
+
+function hookAnalyser(){
+  if(actx) return;
+  try{
+    actx=new (window.AudioContext||window.webkitAudioContext)();
+    const src=actx.createMediaElementSource(audio);
+    analyser=actx.createAnalyser();
+    analyser.fftSize=64; analyser.smoothingTimeConstant=0.8;
+    src.connect(analyser); analyser.connect(actx.destination);
+    freq=new Uint8Array(analyser.frequencyBinCount);
+  }catch(e){ analyser=null; }
+}
+function level(){
+  if(!analyser) return 0;
+  analyser.getByteFrequencyData(freq);
+  let s=0; for(let i=0;i<6;i++) s+=freq[i];
+  return Math.min(1,(s/6)/210);
+}
+
+/* ===================== 가사 ===================== */
+let cues=[];               // {t, text, end}
+const lyCur=document.getElementById('lyCur'), lyNxt=document.getElementById('lyNxt');
+let shown=-2;
+
+const TIME=/^\s*\[(\d{1,2}):(\d{1,2}(?:\.\d{1,3})?)\]\s*(.*)$/;
+const JUNK=/^-{2,}|LRCgenerator/i;
+
+function parseLRC(raw){
+  const out=[];
+  raw.split(/\r?\n/).forEach(l=>{
+    const m=l.match(TIME);
+    if(!m) return;                                   // [ti:] 같은 메타 태그는 건너뜀
+    const t=parseInt(m[1],10)*60+parseFloat(m[2]);
+    let text=m[3].trim();
+    if(JUNK.test(text)) text='';                     // 생성기 워터마크는 빈 줄 처리
+    out.push({t,text});
+  });
+  out.sort((a,b)=>a.t-b.t);
+  // 간주가 길면 가사를 먼저 지운다
+  out.forEach((c,i)=>{
+    const nx=out[i+1];
+    c.end = nx ? Math.min(nx.t, c.t+7.5) : c.t+7.5;
+  });
+  return out;
+}
+
+// winter.lrc 를 못 읽는 환경(로컬 file://)을 위한 예비본
+const FALLBACK=`
+[00:28.69]깊은 산의 밤, 아무 소리 없이
+[00:40.44]하얀 눈이 내려와
+[00:46.11]가지 끝에 머문 작은 빛
+[00:53.64]바람 따라 흔들리고
+[00:59.37]멀리 떠난 세상은 잠들고
+[01:05.97]희미한 온기만 남아서
+[01:11.87]창밖에 번지는 하얀 밤
+[01:18.92]조용히 깊어져 가
+[01:22.24]이대로 머물고 싶어
+[01:28.64]아무것도 묻지 않은 채
+[01:34.50]눈은 아직 내리고 있으니까
+[01:41.78]오늘은 여기 있고 싶어
+[02:13.92]하얗게 번지는 밤
+[02:22.17]발자국 하나 사라지고
+[02:28.27]나뭇가지에 내려앉은 눈
+[02:34.45]아무 말 없이 쌓여가
+[02:47.86]눈이 내리고
+[02:54.22]밤은 깊어지고
+[03:02.86]멀리서 부는 바람만
+[03:09.53]하얀 숲을 지나가
+[03:31.94]
+`;
+
+fetch('winter.lrc')
+  .then(r=>{ if(!r.ok) throw 0; return r.text(); })
+  .then(txt=>{ cues=parseLRC(txt); })
+  .catch(()=>{ cues=parseLRC(FALLBACK); });
+
+function nextText(i){
+  for(let k=i+1;k<cues.length;k++) if(cues[k].text) return cues[k].text;
+  return '';
+}
+function updateLyric(){
+  if(!cues.length) return;
+  const now=audio.currentTime;
+  let idx=-1;
+  for(let i=0;i<cues.length;i++){ if(cues[i].t<=now+0.04) idx=i; else break; }
+  if(idx>=0 && now>cues[idx].end) idx=-1;
+  if(idx===shown) return;
+  shown=idx;
+  lyCur.classList.remove('on'); lyNxt.classList.remove('on');
+  if(idx<0 || !cues[idx].text) return;
+  const cur=cues[idx].text, nx=nextText(idx);
+  setTimeout(()=>{
+    if(shown!==idx) return;
+    lyCur.textContent=cur; lyNxt.textContent=nx;
+    lyCur.classList.add('on'); if(nx) lyNxt.classList.add('on');
+  },300);
+}
+
+/* ===================== 컨트롤 ===================== */
+const gate=document.getElementById('gate'), soundBtn=document.getElementById('soundBtn');
+const bar=document.getElementById('bar');
+
+async function start(){
+  hookAnalyser();
+  if(actx && actx.state==='suspended'){ try{ await actx.resume(); }catch(e){} }
+  try{ await audio.play(); }catch(e){}
+  gate.classList.add('gone');
+  soundBtn.textContent='❚❚';
+  setTimeout(()=>gate.remove(),1000);
+}
+gate.addEventListener('click', start);
+addEventListener('keydown', e=>{ if(e.code==='Space'||e.code==='Enter'){ e.preventDefault(); if(document.body.contains(gate)) start(); else toggle(); } });
+
+async function toggle(){
+  if(audio.paused){ try{ await audio.play(); }catch(e){} soundBtn.textContent='❚❚'; }
+  else { audio.pause(); soundBtn.textContent='▶'; }
+}
+soundBtn.onclick=toggle;
+
+let idleT;
+function wake(){ bar.classList.remove('idle'); clearTimeout(idleT); idleT=setTimeout(()=>bar.classList.add('idle'),3200); }
+['pointermove','pointerdown','keydown'].forEach(ev=>addEventListener(ev,wake));
+wake();
+
+/* ===================== 루프 ===================== */
+let t=0,last=performance.now();
+function frame(now){
+  const dt=Math.min((now-last)/1000,.05); last=now;
+  if(!reduce) t+=dt;
+
+  boost += ((audio.paused?0:level())-boost)*Math.min(1,dt*8);
+
+  const cx=Math.round(W*0.5);
+  const fx=cx, fy=GY+Math.round((H-GY)*0.30);
+  const flick=0.5+0.5*Math.sin(t*9.1)*0.6+0.4*Math.sin(t*13.7+1.2)*0.4;
+
+  sky(t);
+  ridge(GY-Math.max(14,H*0.10), Math.max(9,H*0.09), 210, 40, P.ridge2, P.ridge2Snow);
+  ridge(GY-Math.max(6,H*0.04),  Math.max(7,H*0.06), 130, 90, P.ridge,  P.ridgeSnow);
+  forest(); ground();
+  tent(cx-Math.round(74*K), fy-2, flick);
+  smoke(fx,fy,t);
+  fire(fx,fy,t,boost);
+  potatoes(fx+Math.round(15*K), fy-2, t);
+  dogSit(cx-Math.round(40*K), fy+2, t, 1.0, 0, false);   // 모모
+  dogSit(cx+Math.round(46*K), fy+3, t, 2.3, 1, true);    // 송이
+  dogSit(cx-Math.round(22*K), fy+5, t, 3.7, 2, false);   // 열매
+  sitter(cx+Math.round(24*K), fy-1, t);                  // 유지
+  updateSparks(fx,fy,dt,t,boost); drawSparks();
+  glow(fx,fy,flick,boost);
+  snowfall(reduce?0:dt,t);
+
+  const v=ctx.createRadialGradient(W/2,H*0.55,Math.min(W,H)*0.25,W/2,H*0.55,Math.max(W,H)*0.75);
+  v.addColorStop(0,'rgba(0,0,0,0)'); v.addColorStop(1,'rgba(6,12,24,.55)');
+  ctx.fillStyle=v; ctx.fillRect(0,0,W,H);
+
+  updateLyric();
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
