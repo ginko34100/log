@@ -109,6 +109,28 @@
   }
   #outro.on #replay{opacity:1}
 
+  /* ---- 사진 갤러리 ---- */
+  #gallery{
+    position:fixed;inset:0;z-index:8;display:none;
+    align-items:center;justify-content:center;
+    background:rgba(6,12,22,.62);
+    opacity:0;transition:opacity 1.4s ease;
+  }
+  #gallery.show{display:flex}
+  #gallery.on{opacity:1}
+  #gallery img{
+    position:absolute;
+    max-width:82vw;max-height:68vh;
+    border:7px solid rgba(246,242,232,.94);
+    box-shadow:0 20px 54px rgba(0,0,0,.6);
+    opacity:0;transform:scale(1.06) rotate(var(--r,0deg));
+    transition:opacity 1.4s ease;
+  }
+  #gallery img.on{
+    opacity:1;transform:scale(1) rotate(var(--r,0deg));
+    transition:opacity 1.4s ease,transform 7s linear;
+  }
+
   #bar{
     position:fixed;right:0;z-index:5;
     bottom:max(1rem,calc(env(safe-area-inset-bottom) + .4rem));
@@ -170,12 +192,13 @@
   <div class="h" id="hint">TAP TO PLAY</div>
 </div>
 
+<div id="gallery"></div>
+
 <div id="outro">
   <div class="polaroid">
     <img src="f46762f8599d89345e9c93eb60e9c394e716afff.jpeg" alt="가족 사진">
-    <div class="cap">2025 겨울, 산속</div>
+    <div class="cap">나의 전부</div>
   </div>
-  <div class="line">모모 · 송이 · 열매 그리고 유지</div>
   <button class="btn" id="replay">다시 보기</button>
 </div>
 
@@ -503,6 +526,82 @@ function deer(x,y,t,flip,s){
   if(flip) mirror(x+7,draw); else draw();
 }
 
+function snowman(x,y,g){
+  if(g<=0.02) return;
+  const S='#F4F9FF', D='#C9D9E8';
+  const rB=7*Math.min(1,g/0.45);
+  ctx.fillStyle=S; ctx.beginPath(); ctx.arc(x,y-rB,rB,0,7); ctx.fill();
+  ctx.fillStyle=D; ctx.fillRect(x-rB,y-2,rB*2,2);
+  if(g>0.45){
+    const rM=5*Math.min(1,(g-0.45)/0.3);
+    ctx.fillStyle=S; ctx.beginPath(); ctx.arc(x,y-rB*2-rM+2,rM,0,7); ctx.fill();
+  }
+  if(g>0.75){
+    const rH=4*Math.min(1,(g-0.75)/0.25);
+    const hy=y-rB*2-10-rH+3;
+    ctx.fillStyle=S; ctx.beginPath(); ctx.arc(x,hy,rH,0,7); ctx.fill();
+    if(g>0.93){
+      px(x-2,hy-1,1,1,'#2E2825'); px(x+1,hy-1,1,1,'#2E2825');
+      px(x,hy+1,2,1,'#E8722A');
+      px(x-5,hy-5,10,2,'#3A2A22');
+      px(x-3,hy-8,6,3,'#3A2A22');
+      px(x-9,y-rB*2-4,5,1,'#6B4A2F');
+      px(x+5,y-rB*2-6,5,1,'#6B4A2F');
+    }
+  }
+}
+
+function wolf(x,y,t,howl){
+  const C='#0F1B2A';
+  const lift=howl?-3:0;
+  px(x, y-8, 14, 6, C);
+  px(x+1, y-2, 2, 3, C); px(x+5, y-2, 2, 3, C);
+  px(x+9, y-2, 2, 3, C); px(x+12, y-2, 2, 3, C);
+  px(x-4, y-12, 5, 5, C);
+  px(x+12, y-13+lift, 6, 6, C);
+  px(x+13, y-16+lift, 2, 3, C); px(x+16, y-16+lift, 2, 3, C);
+  if(howl) px(x+17, y-15+lift, 4, 3, C);
+  else px(x+17, y-10, 4, 3, C);
+}
+
+function sleigh(x,y,t){
+  const C='#101C2C';
+  for(let i=0;i<2;i++){
+    const dx=i*13, bob=Math.sin(t*9+i)*1;
+    px(x+dx, y-6+bob, 9, 4, C);
+    px(x+dx+1, y-2+bob, 2, 3, C); px(x+dx+6, y-2+bob, 2, 3, C);
+    px(x+dx+8, y-10+bob, 4, 4, C);
+    px(x+dx+8, y-13+bob, 1, 3, C); px(x+dx+11, y-13+bob, 1, 3, C);
+  }
+  px(x-13, y-8, 12, 6, C);
+  px(x-13, y-12, 3, 5, C);
+  px(x-14, y-1, 14, 1, C);
+  px(x-9, y-13, 5, 5, '#B0212B');
+  ctx.globalAlpha=.7;
+  for(let i=0;i<8;i++){
+    const q=i/8;
+    px(x-20-q*38+Math.sin(t*4+i)*2, y-6+Math.sin(t*3+i*2)*4, 2,2, i%2?'#FFE9A8':'#FFF6E0');
+  }
+  ctx.globalAlpha=1;
+}
+
+function rabbit(x,y,t,flip){
+  const draw=()=>{
+    const f=Math.floor(t*13)%2;
+    const yy=y-(f?2:0);
+    px(x, yy-6, 9, 5, '#F4F9FF');
+    px(x, yy-2, 9, 1, '#CFDDEA');
+    px(x+7, yy-9, 5, 4, '#F4F9FF');
+    px(x+8, yy-14, 2, 5, '#F4F9FF');
+    px(x+11, yy-13, 2, 4, '#F4F9FF');
+    px(x+10, yy-8, 1, 1, '#C4566B');
+    px(x-2, yy-6, 3, 3, '#FFFFFF');
+    px(x+1, yy-1, 2, 2+(f?1:0), '#CFDDEA');
+    px(x+5, yy-1, 2, 2+(f?0:1), '#CFDDEA');
+  };
+  if(flip) mirror(x+5,draw); else draw();
+}
+
 function mark(x,y,kind,alpha){
   ctx.globalAlpha=clamp(alpha,0,1);
   if(kind==='!'){ px(x,y,1,4,P.mark); px(x,y+5,1,1,P.mark); }
@@ -739,11 +838,89 @@ const EPISODES=[
       const x=lerp(-34,W+34,p);
       ov.extras.push(()=>{ deer(x,GY+2,e,false,1); deer(x-24,GY+3,e+0.4,false,0.8); });
       if(p>0.3&&p<0.6) ov.marks.push([S.yeolmaeX+15,S.fy-10,'!',1]);
+    }},
+
+  { name:'눈사람 만들기', dur:12, fn:(p,ov,e,S)=>{
+      const sx=S.fx-Math.round(58*K);
+      if(p<0.72){
+        ov.yuji.armUp=true;
+        ov.extras.push(()=>snowman(sx,S.fy+4,Math.min(1,p/0.62)));
+        if(p>0.62) ov.marks.push([S.yujiX+11,S.fy-34,'h',1]);
+      }else if(p<0.80){
+        ov.extras.push(()=>snowman(sx,S.fy+4,1));
+        ov.yeolmae.x=lerp(S.yeolmaeX,sx+8,ease((p-0.72)/0.08));
+        ov.yeolmae.run=true; ov.yeolmae.flip=true;
+      }else{
+        if(!S.boomed[1]){ S.boomed[1]=true; puff(sx,S.fy-4,26); }
+        ov.yeolmae.x=lerp(sx+8,S.yeolmaeX,ease((p-0.80)/0.20));
+        ov.yeolmae.run=p<0.97; ov.yeolmae.wag=true;
+        ov.yuji.armUp=true;
+        if(p<0.92) ov.marks.push([S.yujiX+11,S.fy-32,'!',1]);
+      }
+    }},
+
+  { name:'늑대 합창', dur:11, fn:(p,ov,e,S)=>{
+      const wx=W*0.70, wy=GY-Math.max(6,H*0.04)-2;
+      const howl = p>0.22 && p<0.72 && Math.sin(e*1.6)>-0.3;
+      ov.extras.push(()=>wolf(wx,wy,e,howl));
+      if(p>0.28&&p<0.85){
+        ov.momo.dy=-2; ov.songi.dy=-2;
+        for(let i=0;i<2;i++){
+          const q=((e*0.5)+i/2)%1;
+          ov.marks.push([wx+22+q*14, wy-14-q*10,'*',(1-q)*0.7]);
+        }
+        ov.marks.push([S.momoX+13,S.fy-20,'*',0.8]);
+      }
+      if(p>0.4&&p<0.8) ov.yuji.eyesClosed=true;
+    }},
+
+  { name:'썰매', dur:9, fn:(p,ov,e,S)=>{
+      const x=lerp(W+50,-60,ease(p));
+      const y=GY*0.30+Math.sin(p*7)*8;
+      ov.extras.push(()=>sleigh(x,y,e));
+      if(p>0.2&&p<0.8){
+        ov.momo.dy=-1; ov.songi.dy=-1; ov.yeolmae.dy=-1;
+        ov.marks.push([S.yujiX+4,S.fy-38,'*',1]);
+        ov.momo.wag=true; ov.songi.wag=true;
+      }
+    }},
+
+  { name:'장작 무너짐', dur:7, fn:(p,ov,e,S)=>{
+      if(p<0.18) return;
+      if(!S.boomed[2]){ S.boomed[2]=true;
+        puff(S.fx,S.fy-6,30,'#FFB84C');
+        for(let i=0;i<26;i++){
+          sparks.push({x:S.fx+(Math.random()-.5)*16,y:S.fy-8,
+            vx:(Math.random()-.5)*46,vy:-(30+Math.random()*54),life:1.4+Math.random()});
+        }
+      }
+      const k=Math.max(0,1-(p-0.18)/0.55);
+      ov.fireBoost=k*1.5;
+      ov.momo.dy=-Math.abs(Math.sin((p-0.18)*20))*3*k;
+      ov.songi.dy=-Math.abs(Math.sin((p-0.18)*17))*3*k;
+      ov.yuji.armUp=true;
+      if(p<0.55) ov.marks.push([S.yujiX+11,S.fy-32,'!',1]);
+    }},
+
+  { name:'토끼 추격 열매', dur:9, fn:(p,ov,e,S)=>{
+      const rx=lerp(-24, W+24, p);
+      ov.extras.push(()=>rabbit(rx,S.fy+8,e,false));
+      const base=S.yeolmaeX, END=0.74;
+      if(p<END){
+        ov.yeolmae.x=lerp(base, rx-20, ease(Math.min(1,p/0.5)));
+        ov.yeolmae.run=true; ov.yeolmae.flip=false;
+      }else{
+        const rxAt=lerp(-24,W+24,END);
+        ov.yeolmae.x=lerp(rxAt-20, base, ease((p-END)/(1-END)));
+        ov.yeolmae.run=true; ov.yeolmae.flip=true;
+      }
+      if(p>0.06&&p<0.3) ov.marks.push([ov.yeolmae.x+14,S.fy-16,'!',1]);
+      if(p>0.5&&p<0.7) ov.marks.push([S.momoX+13,S.fy-18,'*',0.8]);
     }}
 ];
 
 let epIdx=-1, epT=0, epOn=false, cycleT=EPISODE_EVERY-3;
-const boomed=[false];
+const boomed=[false,false,false];
 
 /* ===== 오디오 ===== */
 const audio=new Audio('winter.mp3');
@@ -846,6 +1023,7 @@ const loadEl=document.getElementById('load'), loadBar=document.getElementById('l
       loadPct=document.getElementById('loadPct'), dedi=document.getElementById('dedi'),
       hint=document.getElementById('hint');
 
+let imgTotal=0, imgDone=0, imgForce=false;
 let bufPct=0, ready=false, shownPct=0, revealed=false;
 function readBuffered(){
   try{
@@ -858,7 +1036,7 @@ audio.addEventListener('progress', readBuffered);
 audio.addEventListener('loadedmetadata', readBuffered);
 audio.addEventListener('canplaythrough', ()=>{ ready=true; });
 audio.addEventListener('error', ()=>{ ready=true; });   // 파일이 없어도 페이지는 열리게
-setTimeout(()=>{ ready=true; }, 9000);                   // 안전장치
+setTimeout(()=>{ ready=true; imgForce=true; }, 12000);   // 안전장치
 audio.load();
 
 function reveal(){
@@ -874,7 +1052,10 @@ function reveal(){
 (function tickLoad(){
   if(!revealed){
     readBuffered();
-    const target = ready ? 100 : Math.min(bufPct, 94);
+    const aFrac = ready ? 1 : Math.min(bufPct/100, 0.94);
+    const iFrac = imgTotal ? imgDone/imgTotal : 0;
+    const allReady = ready && (imgForce || (imgTotal>0 && imgDone>=imgTotal));
+    const target = allReady ? 100 : Math.min(96, (aFrac*0.55 + iFrac*0.45)*100);
     shownPct += (target-shownPct)*0.10;
     if(target===100 && shownPct>99.2) shownPct=100;
     loadBar.style.width=shownPct.toFixed(1)+'%';
@@ -899,11 +1080,90 @@ async function toggle(){
 }
 soundBtn.onclick=toggle;
 
+/* ===== 사진 갤러리 (마지막 가사 이후) ===== */
+/* winter.html 과 같은 폴더에 있는 사진들. 순서를 바꾸려면 이 배열 순서를 바꾸세요. */
+const GALLERY_FILES = [
+  'IMG_0009.jpeg','IMG_0014.jpeg','IMG_0103.jpeg','IMG_0329.jpeg',
+  'IMG_0778.jpeg','IMG_1905.jpeg','IMG_1984.jpeg','IMG_1985.jpeg',
+  'IMG_1986.jpeg','IMG_2586.jpeg','IMG_3624.jpeg','IMG_3687.jpeg',
+  'IMG_3770.jpeg','IMG_3829.jpeg','IMG_4485.jpeg','IMG_4892.jpeg',
+  'IMG_5429.jpeg','IMG_5766.jpeg'
+];
+const FINAL_PHOTO = 'f46762f8599d89345e9c93eb60e9c394e716afff.jpeg';
+
+const galEl=document.getElementById('gallery');
+let gallery=[], galleryStarted=false, galTimer=null;
+
+function buildGallery(){
+  galEl.innerHTML='';
+  gallery.forEach((url,i)=>{
+    const im=document.createElement('img');
+    im.src=url; im.alt='';
+    im.style.setProperty('--r', ((i%2?1:-1)*(1+(i%3)*0.6)).toFixed(1)+'deg');
+    galEl.appendChild(im);
+  });
+}
+
+/* 사진도 미리 받아두고, 로딩바에 진행률을 함께 반영 */
+(function preloadPhotos(){
+  const all=GALLERY_FILES.concat([FINAL_PHOTO]);
+  imgTotal=all.length;
+  const ok=[];
+  all.forEach(url=>{
+    const im=new Image();
+    const done=(good)=>{
+      imgDone++;
+      if(good && url!==FINAL_PHOTO) ok.push(url);
+      if(imgDone>=imgTotal){
+        gallery=GALLERY_FILES.filter(f=>ok.indexOf(f)>=0);
+        buildGallery();
+      }
+    };
+    im.onload=()=>done(true);
+    im.onerror=()=>done(false);
+    im.src=url;
+  });
+})();
+
+function startGallery(){
+  if(galleryStarted || !gallery.length) return;
+  galleryStarted=true;
+  galEl.classList.add('show');
+  requestAnimationFrame(()=>galEl.classList.add('on'));
+  const remain=Math.max(6,(audio.duration||0)-audio.currentTime-1.5);
+  const per=Math.max(2.4, Math.min(6, remain/gallery.length));
+  const imgs=galEl.querySelectorAll('img');
+  let gi=0;
+  const show=()=>{
+    imgs.forEach((im,k)=>im.classList.toggle('on', k===gi));
+  };
+  show();
+  galTimer=setInterval(()=>{
+    gi++;
+    if(gi>=imgs.length){ clearInterval(galTimer); galTimer=null; return; }
+    show();
+  }, per*1000);
+}
+function resetGallery(){
+  if(galTimer){ clearInterval(galTimer); galTimer=null; }
+  galleryStarted=false;
+  galEl.classList.remove('on');
+  setTimeout(()=>{ galEl.classList.remove('show');
+    galEl.querySelectorAll('img').forEach(im=>im.classList.remove('on')); },1400);
+}
+function lyricsEndTime(){
+  let last=0;
+  cues.forEach(c=>{ if(c.text) last=Math.max(last,c.end); });
+  return last;
+}
+
 /* ===== 엔딩 ===== */
 const outro=document.getElementById('outro'), replayBtn=document.getElementById('replay');
 audio.addEventListener('ended', ()=>{
   document.getElementById('lyrics').style.opacity=0;
   bar.style.opacity=0; bar.style.pointerEvents='none';
+  galEl.classList.remove('on');
+  setTimeout(()=>galEl.classList.remove('show'),1400);
   outro.classList.add('show');
   requestAnimationFrame(()=>outro.classList.add('on'));
 });
@@ -913,6 +1173,7 @@ replayBtn.addEventListener('click', async ()=>{
   document.getElementById('lyrics').style.opacity='';
   bar.style.opacity=''; bar.style.pointerEvents='';
   shown=-2;
+  resetGallery();
   audio.currentTime=0;
   try{ await audio.play(); }catch(e){}
   soundBtn.textContent='❚❚';
@@ -946,11 +1207,11 @@ function frame(now){
   if(!reduce){
     cycleT+=dt;
     if(!epOn && cycleT>=EPISODE_EVERY){
-      cycleT=0; epIdx=(epIdx+1)%EPISODES.length; epT=0; epOn=true; boomed[0]=false;
+      cycleT=0; epIdx=(epIdx+1)%EPISODES.length; epT=0; epOn=true; boomed[0]=boomed[1]=boomed[2]=false;
     }
     if(epOn){ epT+=dt; if(epT>=EPISODES[epIdx].dur) epOn=false; }
   }
-  const ov={momo:{},songi:{},yeolmae:{},yuji:{},extras:[],marks:[],hidePotato:false,tentLit:0};
+  const ov={momo:{},songi:{},yeolmae:{},yuji:{},extras:[],marks:[],hidePotato:false,tentLit:0,fireBoost:0};
   if(epOn) EPISODES[epIdx].fn(epT/EPISODES[epIdx].dur, ov, epT, S);
 
   sky(t);
@@ -959,7 +1220,7 @@ function frame(now){
   forest(); ground();
   tent(S.tentX, S.fy-2, flick, ov.tentLit);
   smoke(S.fx,S.fy,t);
-  fire(S.fx,S.fy,t,boost);
+  fire(S.fx,S.fy,t,boost+(ov.fireBoost||0));
   potatoPile(S.fx+Math.round(15*K), S.fy-2, t, ov.hidePotato);
 
   // 모모 (말티)
@@ -982,7 +1243,7 @@ function frame(now){
 
   updateSparks(S.fx,S.fy,dt,t,boost); drawSparks();
   updatePuffs(dt); drawPuffs();
-  glow(S.fx,S.fy,flick,boost);
+  glow(S.fx,S.fy,flick,boost+(ov.fireBoost||0)*0.6);
   snowfall(reduce?0:dt,t);
 
   const v=ctx.createRadialGradient(W/2,H*0.55,Math.min(W,H)*0.25,W/2,H*0.55,Math.max(W,H)*0.75);
@@ -990,6 +1251,10 @@ function frame(now){
   ctx.fillStyle=v; ctx.fillRect(0,0,W,H);
 
   updateLyric();
+  if(!galleryStarted && cues.length && !audio.paused){
+    const le=lyricsEndTime();
+    if(le>0 && audio.currentTime > le + 0.8) startGallery();
+  }
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
