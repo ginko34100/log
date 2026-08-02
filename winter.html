@@ -442,7 +442,8 @@ function dogRun(x,y,t,type,patch,flip,carry){
     px(x+11, yy-12, 1,1, P.nose);
     px(x+14, yy-12, 1,1, P.nose);
     px(x+15, yy-10, 1,1, P.nose);
-    if(carry){ px(x+16, yy-10, 4,3, P.potato); px(x+16, yy-10, 4,1, P.potatoLt); }
+    if(carry==='ball'){ px(x+15, yy-12, 5,5, '#D8536B'); px(x+16, yy-11, 2,1, '#F4A6B4'); }
+    else if(carry){ px(x+16, yy-10, 4,3, P.potato); px(x+16, yy-10, 4,1, P.potatoLt); }
   };
   if(flip) mirror(x+8, draw); else draw();
 }
@@ -565,6 +566,9 @@ function wolf(x,y,t,howl){
 }
 
 function sleigh(x,y,t){
+  mirror(x+4, ()=>drawSleigh(x,y,t));
+}
+function drawSleigh(x,y,t){
   const C='#101C2C';
   for(let i=0;i<2;i++){
     const dx=i*13, bob=Math.sin(t*9+i)*1;
@@ -600,6 +604,73 @@ function rabbit(x,y,t,flip){
     px(x+5, yy-1, 2, 2+(f?0:1), '#CFDDEA');
   };
   if(flip) mirror(x+5,draw); else draw();
+}
+
+function ball(x,y){
+  px(x,y,5,5,'#D8536B'); px(x+1,y+1,2,1,'#F4A6B4'); px(x,y+4,5,1,'#A83A50');
+}
+
+function fox(x,y,t,flip){
+  const O='#C4763A', D='#A55E28', W2='#F6F0E6', B='#241C18';
+  const draw=()=>{
+    const f=Math.floor(t*9)%2, yy=y-(f?1:0);
+    px(x, yy-9, 15, 6, O);
+    px(x, yy-4, 15, 1, D);
+    px(x+1, yy-3, 2,3, B); px(x+5, yy-3, 2,3, B);
+    px(x+9, yy-3, 2,3, B); px(x+12, yy-3, 2,3, B);
+    px(x-6, yy-12, 7,5, O); px(x-8, yy-12, 3,4, W2);
+    px(x+13, yy-15, 6,5, O);
+    px(x+13, yy-18, 2,3, O); px(x+17, yy-18, 2,3, O);
+    px(x+19, yy-12, 3,2, W2);
+    px(x+15, yy-14, 1,1, B); px(x+18, yy-14, 1,1, B);
+  };
+  if(flip) mirror(x+7,draw); else draw();
+}
+
+function dogRoll(x,y,t,seed,type,patch){
+  const w=Math.sin(t*7+seed);
+  const puff=type===1?2:0;
+  px(x, y-7-puff/2, 13+puff, 6+puff, P.dog);
+  px(x, y-2, 13+puff, 1, P.dogSh);
+  if(patch) px(x+4, y-7, 4,2, P.cream);
+  for(let i=0;i<4;i++){
+    const lx=x+2+i*3, sw=Math.sin(t*9+seed+i*1.4)*2;
+    px(lx+sw, y-12, 2, 5, P.dogSh);
+    px(lx+sw, y-13, 2, 2, P.dog);
+  }
+  px(x+11, y-11, 5,5, P.dog);
+  px(x+10, y-13, 2,3, P.dog); px(x+14, y-13, 2,3, P.dog);
+  px(x+12, y-9, 1,1, P.nose); px(x+14, y-9, 1,1, P.nose);
+  px(x-2+w, y-6, 3,2, P.dog);
+}
+
+function marshmallow(x,y,t,brown){
+  ctx.strokeStyle='#6B4A2F'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x-16,y+6); ctx.stroke();
+  const c = brown>0.66 ? '#B4793F' : brown>0.33 ? '#E0C28E' : '#FBF7EF';
+  px(x-3, y-3, 5,5, c);
+  px(x-3, y-3, 5,1, '#FFFFFF');
+  if(brown>0.2){
+    ctx.globalAlpha=.3;
+    for(let i=0;i<3;i++){ const q=(t*0.6+i/3)%1; px(x-1+Math.sin(t*3+i)*2, y-5-q*10, 1,2, P.steam); }
+    ctx.globalAlpha=1;
+  }
+}
+
+function constellation(cxp,cyp,a,t){
+  const pts=[[0,0],[9,-4],[18,-2],[24,-9],[30,-3],[26,6],[16,8],[6,7],[2,3]];
+  ctx.globalAlpha=a*0.55; ctx.strokeStyle='#CDE8FF'; ctx.lineWidth=1;
+  ctx.beginPath();
+  pts.forEach((q,i)=>{ const X=cxp+q[0]*1.8, Y=cyp+q[1]*1.8;
+    i?ctx.lineTo(X,Y):ctx.moveTo(X,Y); });
+  ctx.stroke();
+  ctx.globalAlpha=1;
+  pts.forEach((q,i)=>{
+    const tw=0.6+0.4*Math.sin(t*3+i);
+    ctx.globalAlpha=a*tw;
+    px(cxp+q[0]*1.8-1, cyp+q[1]*1.8-1, 2,2, '#F2FAFF');
+  });
+  ctx.globalAlpha=1;
 }
 
 function mark(x,y,kind,alpha){
@@ -695,7 +766,11 @@ const EPISODES=[
       const base=S.yeolmaeX, tentX=S.tentX+6;
       if(p<0.32){ ov.yeolmae.x=lerp(base,tentX,ease(p/0.32)); ov.yeolmae.run=true; ov.yeolmae.flip=true; }
       else if(p<0.62){ ov.yeolmae.hidden=true; ov.tentLit=Math.sin((p-0.32)/0.30*Math.PI)*0.8; }
-      else { ov.yeolmae.x=lerp(tentX,base,ease((p-0.62)/0.38)); ov.yeolmae.run=true; }
+      else {
+        ov.yeolmae.x=lerp(tentX,base,ease((p-0.62)/0.38));
+        ov.yeolmae.run=true; ov.yeolmae.carry='ball';
+        if(p>0.72&&p<0.9) ov.marks.push([ov.yeolmae.x+16,S.fy-18,'h',0.8]);
+      }
     }},
 
   { name:'별똥별', dur:6, fn:(p,ov,e,S)=>{
@@ -916,6 +991,74 @@ const EPISODES=[
       }
       if(p>0.06&&p<0.3) ov.marks.push([ov.yeolmae.x+14,S.fy-16,'!',1]);
       if(p>0.5&&p<0.7) ov.marks.push([S.momoX+13,S.fy-18,'*',0.8]);
+    }},
+
+  { name:'공 던지기', dur:12, fn:(p,ov,e,S)=>{
+      const fromX=S.yujiX-12, fromY=S.fy-20;
+      const land=Math.max(10, S.tentX-14), landY=S.fy+2;
+      if(p<0.16){ ov.yuji.armUp=true; ov.yuji.holdBall=true; }
+      else if(p<0.34){
+        const q=(p-0.16)/0.18;
+        ov.yuji.armUp=true;
+        const bx=lerp(fromX,land,q), by=lerp(fromY,landY,q)-Math.sin(q*Math.PI)*30;
+        ov.extras.push(()=>ball(bx,by));
+        ov.momo.x=lerp(S.momoX,land+22,ease(q)); ov.momo.run=true; ov.momo.flip=true;
+        ov.songi.x=lerp(S.songiX,land+40,ease(q)); ov.songi.run=true; ov.songi.flip=true;
+        ov.yeolmae.x=lerp(S.yeolmaeX,land+32,ease(q)); ov.yeolmae.run=true; ov.yeolmae.flip=true;
+      }
+      else if(p<0.5){
+        ov.extras.push(()=>ball(land,landY-3));
+        ov.momo.x=land+22; ov.songi.x=land+40; ov.yeolmae.x=land+32;
+        ov.momo.wag=true; ov.songi.wag=true; ov.yeolmae.wag=true;
+        ov.marks.push([land+26,S.fy-18,'!',1]);
+      }
+      else{
+        const q=ease((p-0.5)/0.5);
+        ov.momo.x=lerp(land+22,S.momoX,q); ov.momo.run=q<0.94; ov.momo.carry='ball'; ov.momo.wag=true;
+        ov.songi.x=lerp(land+40,S.songiX,q); ov.songi.run=q<0.94;
+        ov.yeolmae.x=lerp(land+32,S.yeolmaeX,q); ov.yeolmae.run=q<0.94;
+        ov.yuji.armUp=true;
+        if(q>0.9) ov.marks.push([S.yujiX+11,S.fy-34,'h',1]);
+      }
+    }},
+
+  { name:'눈밭 뒹굴기', dur:10, fn:(p,ov,e,S)=>{
+      if(p<0.14||p>0.9) return;
+      ov.rollAll=true;
+      if(Math.random()<0.14) puff(S.momoX+6+Math.random()*40, S.fy+2, 2);
+      ov.marks.push([S.momoX+13, S.fy-20,'h',Math.min(1,(p-0.14)*4)*Math.min(1,(0.9-p)*4)]);
+      ov.yuji.eyesClosed=true;
+    }},
+
+  { name:'마시멜로', dur:11, fn:(p,ov,e,S)=>{
+      ov.yuji.armUp=true;
+      const brown=Math.min(1,p/0.75);
+      ov.extras.push(()=>marshmallow(S.fx+4, S.fy-16, e, brown));
+      const g=p<0.3?ease(p/0.3):(p<0.85?1:1-ease((p-0.85)/0.15));
+      ov.momo.x=lerp(S.momoX,S.fx-24,g);
+      ov.yeolmae.x=lerp(S.yeolmaeX,S.fx-12,g);
+      ov.songi.x=lerp(S.songiX,S.fx+22,g);
+      if(brown>0.8){ ov.momo.wag=true; ov.songi.wag=true; ov.yeolmae.wag=true;
+        ov.marks.push([S.fx+2,S.fy-34,'h',1]); }
+    }},
+
+  { name:'별자리', dur:12, fn:(p,ov,e,S)=>{
+      const a=Math.sin(p*Math.PI);
+      ov.extras.push(()=>constellation(W*0.20, GY*0.26, a, e));
+      if(p>0.25&&p<0.85){
+        ov.momo.dy=-2; ov.songi.dy=-2; ov.yeolmae.dy=-1;
+        ov.marks.push([S.yujiX+4,S.fy-38,'*',a]);
+      }
+    }},
+
+  { name:'여우', dur:9, fn:(p,ov,e,S)=>{
+      const x=lerp(W+28,-32,p);
+      ov.extras.push(()=>fox(x,S.fy+6,e,true));
+      if(p>0.2&&p<0.55){
+        ov.marks.push([S.songiX+6,S.fy-18,'!',1]);
+        ov.songi.dy=-Math.abs(Math.sin(e*12))*2;
+      }
+      if(p>0.6){ ov.momo.wag=true; ov.songi.wag=true; }
     }}
 ];
 
@@ -1223,18 +1366,24 @@ function frame(now){
   fire(S.fx,S.fy,t,boost+(ov.fireBoost||0));
   potatoPile(S.fx+Math.round(15*K), S.fy-2, t, ov.hidePotato);
 
+  if(ov.rollAll){
+    dogRoll(S.momoX, S.fy+2, t, 1.0, 0, false);
+    dogRoll(S.yeolmaeX, S.fy+5, t, 3.7, 0, false);
+    dogRoll(S.songiX, S.fy+3, t, 2.3, 1, true);
+  } else {
   // 모모 (말티)
   if(ov.momo.run) dogRun(ov.momo.x, S.fy+2+(ov.momo.dy||0), t, 0, false, ov.momo.flip, false);
   else dogSit(ov.momo.x!==undefined?ov.momo.x:S.momoX, S.fy+2, t, 1.0, 0, false, ov.momo);
   // 열매 (말티)
   if(!ov.yeolmae.hidden){
-    if(ov.yeolmae.run) dogRun(ov.yeolmae.x, S.fy+3+(ov.yeolmae.dy||0), t, 0, false, ov.yeolmae.flip, false);
+    if(ov.yeolmae.run) dogRun(ov.yeolmae.x, S.fy+3+(ov.yeolmae.dy||0), t, 0, false, ov.yeolmae.flip, ov.yeolmae.carry);
     else dogSit(ov.yeolmae.x!==undefined?ov.yeolmae.x:S.yeolmaeX, S.fy+5, t, 3.7,
                 ov.yeolmae.x!==undefined?0:2, false, ov.yeolmae);
   }
   // 송이 (포메)
   if(ov.songi.run) dogRun(ov.songi.x, S.fy+3+(ov.songi.dy||0), t, 1, true, ov.songi.flip, ov.songi.carry);
   else dogSit(ov.songi.x!==undefined?ov.songi.x:S.songiX, S.fy+3, t, 2.3, 1, true, ov.songi);
+  }
   // 유지
   sitter(S.yujiX, S.fy-1, t, ov.yuji);
 
