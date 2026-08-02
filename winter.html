@@ -17,20 +17,21 @@
   canvas{position:fixed;inset:0;width:100%;height:100%;
     image-rendering:pixelated;image-rendering:crisp-edges;display:block}
 
+  /* 가사 — 상단 */
   #lyrics{
     position:fixed;left:0;right:0;
-    bottom:max(4.6rem,calc(env(safe-area-inset-bottom) + 4rem));
+    top:max(3rem,calc(env(safe-area-inset-top) + 2.4rem));
     text-align:center;z-index:3;pointer-events:none;padding:0 1.4rem;
   }
   #lyCur{
     font-size:clamp(1.15rem,5vw,1.75rem);line-height:1.7;min-height:1.7em;
-    color:#FFF3DF;text-shadow:0 2px 14px rgba(0,0,0,.85),0 0 32px rgba(255,160,70,.32);
-    opacity:0;transform:translateY(9px);
+    color:#FFF3DF;text-shadow:0 2px 16px rgba(6,12,24,.95),0 0 34px rgba(255,160,70,.30);
+    opacity:0;transform:translateY(-9px);
     transition:opacity .65s ease,transform .65s ease;
   }
   #lyNxt{
-    font-size:clamp(.78rem,3.3vw,.98rem);margin-top:.65rem;min-height:1.5em;
-    color:rgba(234,242,248,.32);text-shadow:0 1px 8px rgba(0,0,0,.8);
+    font-size:clamp(.78rem,3.3vw,.98rem);margin-top:.6rem;min-height:1.5em;
+    color:rgba(234,242,248,.3);text-shadow:0 1px 10px rgba(6,12,24,.95);
     opacity:0;transition:opacity .65s ease;
   }
   #lyCur.on,#lyNxt.on{opacity:1;transform:none}
@@ -39,26 +40,25 @@
     position:fixed;left:0;right:0;
     bottom:max(1.4rem,env(safe-area-inset-bottom));
     text-align:center;z-index:3;pointer-events:none;
-    font-size:.72rem;letter-spacing:.3em;color:rgba(255,228,190,.55);
+    font-size:.72rem;letter-spacing:.3em;color:rgba(255,228,190,.5);
     text-shadow:0 1px 8px rgba(0,0,0,.7);
   }
 
   #bar{
-    position:fixed;top:0;right:0;z-index:5;
-    padding:max(.9rem,env(safe-area-inset-top)) 1rem .8rem;
-    opacity:1;transition:opacity .6s;
+    position:fixed;right:0;z-index:5;
+    bottom:max(1rem,calc(env(safe-area-inset-bottom) + .4rem));
+    padding:0 1rem;opacity:1;transition:opacity .6s;
   }
-  #bar.idle{opacity:.16}
+  #bar.idle{opacity:.14}
   .btn{
     font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.16em;
     background:rgba(12,21,36,.6);color:#D8E4EF;
     border:1px solid rgba(200,220,240,.22);border-radius:999px;
-    padding:.55rem 1.05rem;cursor:pointer;backdrop-filter:blur(6px);
+    padding:.5rem 1rem;cursor:pointer;backdrop-filter:blur(6px);
   }
   .btn:hover{background:rgba(255,160,70,.2);border-color:rgba(255,180,110,.45)}
   .btn:focus-visible{outline:2px solid #FFC07A;outline-offset:3px}
 
-  /* 시작 화면 */
   #gate{
     position:fixed;inset:0;z-index:20;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -67,19 +67,12 @@
     transition:opacity .9s ease;
   }
   #gate.gone{opacity:0;pointer-events:none}
-  #gate .t{
-    font-size:clamp(1.6rem,7vw,2.4rem);letter-spacing:.14em;
-    text-shadow:0 0 40px rgba(255,160,70,.35);
-  }
-  #gate .s{
-    font-family:'IBM Plex Mono',monospace;font-size:.7rem;letter-spacing:.34em;
-    color:#E8A33D;margin-bottom:1.4rem;
-  }
-  #gate .h{
-    font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.28em;
-    color:rgba(234,242,248,.4);margin-top:2.6rem;
-    animation:pulse 2.6s ease-in-out infinite;
-  }
+  #gate .t{font-size:clamp(1.6rem,7vw,2.4rem);letter-spacing:.14em;
+    text-shadow:0 0 40px rgba(255,160,70,.35)}
+  #gate .s{font-family:'IBM Plex Mono',monospace;font-size:.7rem;letter-spacing:.34em;
+    color:#E8A33D;margin-bottom:1.4rem}
+  #gate .h{font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.28em;
+    color:rgba(234,242,248,.4);margin-top:2.6rem;animation:pulse 2.6s ease-in-out infinite}
   @keyframes pulse{0%,100%{opacity:.35}50%{opacity:.9}}
 
   @media (prefers-reduced-motion:reduce){
@@ -96,7 +89,6 @@
   <div id="lyNxt"></div>
 </div>
 <div id="caption">2025 겨울 · 산속</div>
-
 <div id="bar"><button class="btn" id="soundBtn">❚❚</button></div>
 
 <div id="gate">
@@ -109,7 +101,10 @@
 (function(){
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* ===================== 씬 ===================== */
+/* ===== 설정 ===== */
+const FIRST_LINE_OFFSET = -0.5;   // 첫 가사만 0.5초 먼저
+const EPISODE_EVERY     = 10;     // 초마다 새 에피소드
+
 const cv=document.getElementById('c'), ctx=cv.getContext('2d');
 ctx.imageSmoothingEnabled=false;
 
@@ -127,7 +122,9 @@ const P={
   skin:'#F0C9A8', beanie:'#D8536B', coat:'#3E6E8C', coatSh:'#2E5468',
   blanket:'#C98F4E', boot:'#3A332C',
   dog:'#F6F0E6', dogSh:'#D5C9B8', cream:'#E8CFA2', nose:'#2E2825',
-  potato:'#8B5A3C', foil:'#C9CFD6', steam:'#B7C9DD'
+  potato:'#8B5A3C', potatoLt:'#A56B48', foil:'#C9CFD6', steam:'#B7C9DD',
+  squirrel:'#9A6640', squirrelLt:'#B9855C',
+  mark:'#FFE9A8'
 };
 
 let SC=3,W=0,H=0,GY=0,K=1;
@@ -143,9 +140,14 @@ function resize(){
 resize(); addEventListener('resize',resize);
 addEventListener('orientationchange',()=>setTimeout(resize,120));
 
-function px(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h));}
-function rnd(s){const x=Math.sin(s*127.1)*43758.5453;return x-Math.floor(x);}
+const px=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h));};
+const rnd=s=>{const x=Math.sin(s*127.1)*43758.5453;return x-Math.floor(x);};
+const lerp=(a,b,p)=>a+(b-a)*p;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const ease=p=>p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;
+function mirror(x,fn){ ctx.save(); ctx.translate(x,0); ctx.scale(-1,1); ctx.translate(-x,0); fn(); ctx.restore(); }
 
+/* ===== 배경 ===== */
 function sky(t){
   const g=ctx.createLinearGradient(0,0,0,GY);
   g.addColorStop(0,P.skyTop); g.addColorStop(.6,P.skyMid); g.addColorStop(1,P.skyLow);
@@ -193,7 +195,7 @@ function ground(){
   }
   ctx.globalAlpha=.5; px(0,GY,W,1,P.snowDk); ctx.globalAlpha=1;
 }
-function tent(x,y,flick){
+function tent(x,y,flick,extraLit){
   const w=44,h=26;
   ctx.globalAlpha=.35; ctx.fillStyle=P.snowDk;
   ctx.beginPath(); ctx.ellipse(x,y+1,w*0.55,3,0,0,7); ctx.fill(); ctx.globalAlpha=1;
@@ -201,7 +203,7 @@ function tent(x,y,flick){
   ctx.moveTo(x-w/2,y); ctx.lineTo(x,y-h); ctx.lineTo(x+w/2,y); ctx.closePath(); ctx.fill();
   ctx.fillStyle=P.tentSh; ctx.beginPath();
   ctx.moveTo(x,y-h); ctx.lineTo(x+w/2,y); ctx.lineTo(x+w*0.16,y); ctx.closePath(); ctx.fill();
-  ctx.fillStyle=P.tentLit; ctx.globalAlpha=.75+flick*.25; ctx.beginPath();
+  ctx.fillStyle=P.tentLit; ctx.globalAlpha=Math.min(1,.75+flick*.25+extraLit*.5); ctx.beginPath();
   ctx.moveTo(x-9,y); ctx.lineTo(x-1,y-15); ctx.lineTo(x+7,y); ctx.closePath(); ctx.fill();
   ctx.globalAlpha=1; px(x-1,y-h-3,1,4,P.tentPole);
   ctx.globalAlpha=.6; ctx.fillStyle=P.snow; ctx.beginPath();
@@ -262,27 +264,41 @@ function glow(x,y,flick,boost){
   g.addColorStop(1,'rgba(255,120,40,0)');
   ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
 }
-function potatoes(x,y,t){
+function potatoPile(x,y,t,hidden){
+  if(hidden) return;
   px(x-4,y+1,6,3,P.foil); px(x-4,y+1,6,1,'#E4E9EE');
-  px(x+3,y+2,5,3,P.potato); px(x+3,y+2,5,1,'#A56B48');
+  px(x+3,y+2,5,3,P.potato); px(x+3,y+2,5,1,P.potatoLt);
   ctx.globalAlpha=.28;
   for(let i=0;i<3;i++){ const p=(t*0.5+i/3)%1; px(x+5+Math.sin(t*2+i)*2, y-1-p*12,1,2,P.steam); }
   ctx.globalAlpha=1;
 }
-function sitter(x,y,t){
-  const yy=y+Math.sin(t*1.5)*0.5;
+
+/* ===== 캐릭터 ===== */
+function sitter(x,y,t,o){
+  o=o||{};
+  const nod = o.nod ? Math.sin(t*1.1)*1.2 : 0;
+  const yy=y+Math.sin(t*1.5)*0.5+(o.dy||0);
   px(x-2,yy-1,16,5,P.log); px(x-2,yy+2,16,2,P.logSh);
   px(x-5,yy-3,8,3,P.coatSh); px(x-7,yy-1,4,3,P.boot);
   px(x-2,yy-15,12,13,P.blanket); px(x-2,yy-5,12,3,'#B07C40');
   px(x-3,yy-14,3,11,P.coat);
-  px(x-6,yy-11,4,3,P.coat); px(x-8,yy-11,2,2,P.skin);
-  px(x+1,yy-22,7,7,P.skin);
-  px(x,yy-24,9,4,P.beanie); px(x,yy-21,2,3,P.beanie); px(x+3,yy-26,3,2,P.beanie);
-  px(x+2,yy-19,1,1,P.nose); px(x+6,yy-19,1,1,P.nose);
+  const armY = o.armUp ? -17 : -11;
+  const armX = -6;
+  px(x+armX,yy+armY,4,3,P.coat);
+  px(x+armX-2,yy+armY,2,2,P.skin);
+  if(o.holdPotato){ px(x+armX-6,yy+armY-1,4,3,P.potato); px(x+armX-6,yy+armY-1,4,1,P.potatoLt); }
+  if(o.holdBall){ px(x+armX-6,yy+armY-2,4,4,'#F2F8FF'); }
+  px(x+1,yy-22+nod,7,7,P.skin);
+  px(x,yy-24+nod,9,4,P.beanie); px(x,yy-21+nod,2,3,P.beanie); px(x+3,yy-26+nod,3,2,P.beanie);
+  if(o.eyesClosed){ px(x+2,yy-19+nod,2,1,P.nose); px(x+6,yy-19+nod,2,1,P.nose); }
+  else { px(x+2,yy-19+nod,1,1,P.nose); px(x+6,yy-19+nod,1,1,P.nose); }
   ctx.globalAlpha=.22; const p=(t*0.4)%1; px(x-2-p*7, yy-19-p*4,2,2,P.steam); ctx.globalAlpha=1;
 }
-function dogSit(x,y,t,seed,type,patch){
-  const yy=y+Math.sin(t*2.1+seed)*0.5, tail=Math.sin(t*3.4+seed)*1.4;
+
+function dogSit(x,y,t,seed,type,patch,o){
+  o=o||{};
+  const yy=y+Math.sin(t*2.1+seed)*0.5+(o.dy||0);
+  const tail=Math.sin(t*(o.wag?10:3.4)+seed)*(o.wag?2.4:1.4);
   if(type===2){
     px(x,yy-4,13,4,P.dog); px(x,yy-1,13,1,P.dogSh);
     px(x+10,yy-8,6,5,P.dog); px(x+9,yy-7,2,3,P.dog); px(x+15,yy-7,2,3,P.dog);
@@ -301,6 +317,56 @@ function dogSit(x,y,t,seed,type,patch){
   px(x+6,yy-14,hw,6,P.dog); px(x+5,yy-13,2,3,P.dog); px(x+5+hw,yy-13,2,3,P.dog);
   px(x+7,yy-12,1,1,P.nose); px(x+9,yy-12,1,1,P.nose); px(x+8,yy-10,1,1,P.nose);
 }
+
+function dogRun(x,y,t,type,patch,flip,carry){
+  const draw=()=>{
+    const f=Math.floor(t*12)%4;
+    const yy=y+((f===1||f===3)?0:-1);
+    const puff=type===1?2:0;
+    const l=[[-2,2],[1,-1],[2,-2],[-1,1]][f];
+    px(x+1+l[0], yy-2, 2,3, P.dogSh);
+    px(x+3+l[1], yy-2, 2,3, P.dogSh);
+    px(x+7-l[0], yy-2, 2,3, P.dogSh);
+    px(x+9-l[1], yy-2, 2,3, P.dogSh);
+    px(x, yy-8-puff/2, 12+puff, 6+puff, P.dog);
+    px(x, yy-3, 12+puff, 1, P.dogSh);
+    if(patch) px(x+4, yy-8, 4,2, P.cream);
+    px(x-3, yy-11+Math.sin(t*16)*1.5, 4,2, P.dog);
+    px(x+10, yy-13, 6,5, P.dog);
+    px(x+9, yy-14, 2,3, P.dog);
+    px(x+11, yy-12, 1,1, P.nose);
+    px(x+14, yy-12, 1,1, P.nose);
+    px(x+15, yy-10, 1,1, P.nose);
+    if(carry){ px(x+16, yy-10, 4,3, P.potato); px(x+16, yy-10, 4,1, P.potatoLt); }
+  };
+  if(flip) mirror(x+8, draw); else draw();
+}
+
+function squirrel(x,y,t,flip){
+  const draw=()=>{
+    const yy=y-(Math.floor(t*14)%2?1:0);
+    px(x, yy-4, 7,4, P.squirrel);
+    px(x, yy-4, 7,1, P.squirrelLt);
+    px(x+6, yy-7, 4,4, P.squirrel);
+    px(x+6, yy-9, 2,2, P.squirrel);
+    px(x+9, yy-6, 1,1, P.nose);
+    px(x-4, yy-9, 3,7, P.squirrelLt);
+    px(x-3, yy-11, 3,3, P.squirrelLt);
+    px(x+1, yy-1, 2,2, P.squirrel);
+    px(x+5, yy-1, 2,2, P.squirrel);
+  };
+  if(flip) mirror(x+4, draw); else draw();
+}
+
+function mark(x,y,kind,alpha){
+  ctx.globalAlpha=clamp(alpha,0,1);
+  if(kind==='!'){ px(x,y,1,4,P.mark); px(x,y+5,1,1,P.mark); }
+  if(kind==='z'){ px(x,y,4,1,P.mark); px(x+2,y+1,1,1,P.mark); px(x+1,y+2,1,1,P.mark); px(x,y+3,4,1,P.mark); }
+  if(kind==='*'){ px(x,y-2,1,5,P.mark); px(x-2,y,5,1,P.mark); }
+  if(kind==='h'){ px(x,y,1,1,'#E86A80'); px(x+2,y,1,1,'#E86A80'); px(x-1,y+1,5,1,'#E86A80'); px(x,y+2,3,1,'#E86A80'); px(x+1,y+3,1,1,'#E86A80'); }
+  ctx.globalAlpha=1;
+}
+
 let flakes=[];
 function initFlakes(){
   flakes=[];
@@ -318,12 +384,120 @@ function snowfall(dt,t){
   }
   ctx.globalAlpha=1;
 }
+const puffs=[];
+function puff(x,y,n,col){
+  for(let i=0;i<n;i++){
+    const a=Math.random()*Math.PI*2, s=8+Math.random()*26;
+    puffs.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-14,life:1,col:col||'#F2F8FF'});
+  }
+}
+function updatePuffs(dt){
+  for(const p of puffs){ p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=40*dt; p.life-=dt*1.3; }
+  for(let i=puffs.length-1;i>=0;i--) if(puffs[i].life<=0) puffs.splice(i,1);
+}
+function drawPuffs(){
+  for(const p of puffs){ ctx.globalAlpha=Math.max(0,p.life); px(p.x,p.y,2,2,p.col); }
+  ctx.globalAlpha=1;
+}
 
-/* ===================== 오디오 ===================== */
+/* ===== 에피소드 ===== */
+const EPISODES=[
+  { name:'다람쥐 추격', dur:8, fn:(p,ov,e,S)=>{
+      const sx = W+12 - (W+50)*p;
+      ov.extras.push(()=>squirrel(sx, S.fy+7, e, true));
+      const base=S.momoX, END=0.72;
+      if(p<END){
+        ov.momo.x = lerp(base, sx+18, ease(Math.min(1,p/0.5)));
+        ov.momo.run=true; ov.momo.flip=true;
+      }else{
+        const sxAt = W+12-(W+50)*END;
+        ov.momo.x = lerp(sxAt+18, base, ease((p-END)/(1-END)));
+        ov.momo.run=true; ov.momo.flip=false;
+      }
+      if(p>0.04&&p<0.28) ov.marks.push([ov.momo.x+16, S.fy-16,'!',1]);
+    }},
+
+  { name:'고구마 도둑 송이', dur:8, fn:(p,ov,e,S)=>{
+      const fireX=S.fx+15*K, base=S.songiX, away=Math.min(W-26, base+36);
+      if(p<0.30){ ov.songi.x=lerp(base,fireX,ease(p/0.30)); ov.songi.run=true; ov.songi.flip=true; }
+      else if(p<0.62){
+        ov.songi.x=lerp(fireX,away,ease((p-0.30)/0.32));
+        ov.songi.run=true; ov.songi.carry=true; ov.hidePotato=true;
+        ov.yuji.armUp=true;
+        ov.marks.push([S.yujiX+11,S.fy-32,'!',1]);
+      }else{
+        ov.songi.x=lerp(away,base,ease((p-0.62)/0.38));
+        ov.songi.run=true; ov.songi.flip=true; ov.songi.carry=true; ov.hidePotato=true;
+      }
+    }},
+
+  { name:'눈싸움', dur:8, fn:(p,ov,e,S)=>{
+      const fx0=S.yujiX-12, fy0=S.fy-18, tx=S.momoX+6, ty=S.fy-2;
+      if(p<0.22){ ov.yuji.armUp=true; ov.yuji.holdBall=true; }
+      else if(p<0.5){
+        const q=(p-0.22)/0.28;
+        const bx=lerp(fx0,tx,q), by=lerp(fy0,ty,q)-Math.sin(q*Math.PI)*22;
+        ov.yuji.armUp=true;
+        ov.extras.push(()=>px(bx,by,4,4,'#F2F8FF'));
+      }else{
+        if(!S.boomed[0]){ S.boomed[0]=true; puff(tx,ty,18); }
+        ov.momo.dy=-Math.abs(Math.sin((p-0.5)*16))*4*Math.max(0,1-(p-0.5)*3);
+        ov.momo.wag=true; ov.songi.wag=true;
+        if(p<0.72) ov.marks.push([S.momoX+13,S.fy-18,'*',1]);
+      }
+    }},
+
+  { name:'텐트 순찰 열매', dur:9, fn:(p,ov,e,S)=>{
+      const base=S.yeolmaeX, tentX=S.tentX+6;
+      if(p<0.32){ ov.yeolmae.x=lerp(base,tentX,ease(p/0.32)); ov.yeolmae.run=true; ov.yeolmae.flip=true; }
+      else if(p<0.62){ ov.yeolmae.hidden=true; ov.tentLit=Math.sin((p-0.32)/0.30*Math.PI)*0.8; }
+      else { ov.yeolmae.x=lerp(tentX,base,ease((p-0.62)/0.38)); ov.yeolmae.run=true; }
+    }},
+
+  { name:'별똥별', dur:6, fn:(p,ov,e,S)=>{
+      if(p<0.55){
+        const q=p/0.55;
+        const x=lerp(W*0.15,W*0.85,q), y=lerp(GY*0.18,GY*0.42,q);
+        ov.extras.push(()=>{
+          ctx.strokeStyle='rgba(255,245,220,.9)'; ctx.lineWidth=1;
+          ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x-9,y-4); ctx.stroke();
+          px(x,y,2,2,'#FFF6E0');
+        });
+      }
+      if(p>0.15&&p<0.8){
+        ov.marks.push([S.yujiX+4,S.fy-38,'*',clamp((p-0.15)*3,0,1)*clamp((0.8-p)*3,0,1)]);
+        ov.momo.dy=-1; ov.songi.dy=-1;
+      }
+    }},
+
+  { name:'꾸벅꾸벅', dur:9, fn:(p,ov,e,S)=>{
+      ov.yuji.nod=true; ov.yuji.eyesClosed=true;
+      for(let i=0;i<3;i++){
+        const q=((e*0.32)+i/3)%1;
+        ov.marks.push([S.yeolmaeX+15+Math.sin(q*5)*3, S.fy-8-q*22,'z',(1-q)*0.9]);
+      }
+      const q2=((e*0.26)+0.4)%1;
+      ov.marks.push([S.yujiX+11+Math.sin(q2*4)*3, S.fy-32-q2*20,'z',(1-q2)*0.8]);
+    }},
+
+  { name:'고구마 나눠먹기', dur:9, fn:(p,ov,e,S)=>{
+      ov.yuji.holdPotato=true; ov.yuji.armUp=true;
+      const g = p<0.35 ? ease(p/0.35) : (p<0.72 ? 1 : 1-ease((p-0.72)/0.28));
+      ov.momo.x=lerp(S.momoX, S.yujiX-30, g);
+      ov.yeolmae.x=lerp(S.yeolmaeX, S.yujiX-16, g);
+      ov.songi.x=lerp(S.songiX, S.yujiX+18, g);
+      if(g>0.85){ ov.momo.wag=true; ov.songi.wag=true; ov.yeolmae.wag=true;
+        ov.marks.push([S.yujiX+4,S.fy-36,'h',0.9]); }
+    }}
+];
+
+let epIdx=-1, epT=0, epOn=false, cycleT=EPISODE_EVERY-3;
+const boomed=[false];
+
+/* ===== 오디오 ===== */
 const audio=new Audio('winter.mp3');
 audio.loop=true; audio.preload='auto';
 let actx=null, analyser=null, freq=null, boost=0;
-
 function hookAnalyser(){
   if(actx) return;
   try{
@@ -342,34 +516,28 @@ function level(){
   return Math.min(1,(s/6)/210);
 }
 
-/* ===================== 가사 ===================== */
-let cues=[];               // {t, text, end}
+/* ===== 가사 ===== */
+let cues=[];
 const lyCur=document.getElementById('lyCur'), lyNxt=document.getElementById('lyNxt');
 let shown=-2;
-
 const TIME=/^\s*\[(\d{1,2}):(\d{1,2}(?:\.\d{1,3})?)\]\s*(.*)$/;
 const JUNK=/^-{2,}|LRCgenerator/i;
 
 function parseLRC(raw){
   const out=[];
   raw.split(/\r?\n/).forEach(l=>{
-    const m=l.match(TIME);
-    if(!m) return;                                   // [ti:] 같은 메타 태그는 건너뜀
+    const m=l.match(TIME); if(!m) return;
     const t=parseInt(m[1],10)*60+parseFloat(m[2]);
     let text=m[3].trim();
-    if(JUNK.test(text)) text='';                     // 생성기 워터마크는 빈 줄 처리
+    if(JUNK.test(text)) text='';
     out.push({t,text});
   });
   out.sort((a,b)=>a.t-b.t);
-  // 간주가 길면 가사를 먼저 지운다
-  out.forEach((c,i)=>{
-    const nx=out[i+1];
-    c.end = nx ? Math.min(nx.t, c.t+7.5) : c.t+7.5;
-  });
+  const first=out.findIndex(c=>c.text);
+  if(first>=0) out[first].t=Math.max(0,out[first].t+FIRST_LINE_OFFSET);
+  out.forEach((c,i)=>{ const nx=out[i+1]; c.end = nx ? Math.min(nx.t, c.t+7.5) : c.t+7.5; });
   return out;
 }
-
-// winter.lrc 를 못 읽는 환경(로컬 file://)을 위한 예비본
 const FALLBACK=`
 [00:28.69]깊은 산의 밤, 아무 소리 없이
 [00:40.44]하얀 눈이 내려와
@@ -393,16 +561,11 @@ const FALLBACK=`
 [03:09.53]하얀 숲을 지나가
 [03:31.94]
 `;
-
-fetch('winter.lrc')
-  .then(r=>{ if(!r.ok) throw 0; return r.text(); })
+fetch('winter.lrc').then(r=>{ if(!r.ok) throw 0; return r.text(); })
   .then(txt=>{ cues=parseLRC(txt); })
   .catch(()=>{ cues=parseLRC(FALLBACK); });
 
-function nextText(i){
-  for(let k=i+1;k<cues.length;k++) if(cues[k].text) return cues[k].text;
-  return '';
-}
+function nextText(i){ for(let k=i+1;k<cues.length;k++) if(cues[k].text) return cues[k].text; return ''; }
 function updateLyric(){
   if(!cues.length) return;
   const now=audio.currentTime;
@@ -421,33 +584,31 @@ function updateLyric(){
   },300);
 }
 
-/* ===================== 컨트롤 ===================== */
-const gate=document.getElementById('gate'), soundBtn=document.getElementById('soundBtn');
-const bar=document.getElementById('bar');
-
+/* ===== 컨트롤 ===== */
+const gate=document.getElementById('gate'), soundBtn=document.getElementById('soundBtn'), bar=document.getElementById('bar');
 async function start(){
   hookAnalyser();
   if(actx && actx.state==='suspended'){ try{ await actx.resume(); }catch(e){} }
   try{ await audio.play(); }catch(e){}
-  gate.classList.add('gone');
-  soundBtn.textContent='❚❚';
-  setTimeout(()=>gate.remove(),1000);
+  gate.classList.add('gone'); soundBtn.textContent='❚❚';
+  setTimeout(()=>{ if(gate.parentNode) gate.remove(); },1000);
 }
 gate.addEventListener('click', start);
-addEventListener('keydown', e=>{ if(e.code==='Space'||e.code==='Enter'){ e.preventDefault(); if(document.body.contains(gate)) start(); else toggle(); } });
-
 async function toggle(){
   if(audio.paused){ try{ await audio.play(); }catch(e){} soundBtn.textContent='❚❚'; }
   else { audio.pause(); soundBtn.textContent='▶'; }
 }
 soundBtn.onclick=toggle;
-
+addEventListener('keydown', e=>{
+  if(e.code==='Space'||e.code==='Enter'){ e.preventDefault();
+    if(gate.parentNode) start(); else toggle(); }
+});
 let idleT;
 function wake(){ bar.classList.remove('idle'); clearTimeout(idleT); idleT=setTimeout(()=>bar.classList.add('idle'),3200); }
 ['pointermove','pointerdown','keydown'].forEach(ev=>addEventListener(ev,wake));
 wake();
 
-/* ===================== 루프 ===================== */
+/* ===== 루프 ===== */
 let t=0,last=performance.now();
 function frame(now){
   const dt=Math.min((now-last)/1000,.05); last=now;
@@ -456,23 +617,54 @@ function frame(now){
   boost += ((audio.paused?0:level())-boost)*Math.min(1,dt*8);
 
   const cx=Math.round(W*0.5);
-  const fx=cx, fy=GY+Math.round((H-GY)*0.30);
+  const S={
+    fx:cx, fy:GY+Math.round((H-GY)*0.30),
+    momoX:cx-Math.round(40*K), songiX:cx+Math.round(46*K),
+    yeolmaeX:cx-Math.round(22*K), yujiX:cx+Math.round(24*K),
+    tentX:cx-Math.round(74*K), boomed
+  };
   const flick=0.5+0.5*Math.sin(t*9.1)*0.6+0.4*Math.sin(t*13.7+1.2)*0.4;
+
+  if(!reduce){
+    cycleT+=dt;
+    if(!epOn && cycleT>=EPISODE_EVERY){
+      cycleT=0; epIdx=(epIdx+1)%EPISODES.length; epT=0; epOn=true; boomed[0]=false;
+    }
+    if(epOn){ epT+=dt; if(epT>=EPISODES[epIdx].dur) epOn=false; }
+  }
+  const ov={momo:{},songi:{},yeolmae:{},yuji:{},extras:[],marks:[],hidePotato:false,tentLit:0};
+  if(epOn) EPISODES[epIdx].fn(epT/EPISODES[epIdx].dur, ov, epT, S);
 
   sky(t);
   ridge(GY-Math.max(14,H*0.10), Math.max(9,H*0.09), 210, 40, P.ridge2, P.ridge2Snow);
   ridge(GY-Math.max(6,H*0.04),  Math.max(7,H*0.06), 130, 90, P.ridge,  P.ridgeSnow);
   forest(); ground();
-  tent(cx-Math.round(74*K), fy-2, flick);
-  smoke(fx,fy,t);
-  fire(fx,fy,t,boost);
-  potatoes(fx+Math.round(15*K), fy-2, t);
-  dogSit(cx-Math.round(40*K), fy+2, t, 1.0, 0, false);   // 모모
-  dogSit(cx+Math.round(46*K), fy+3, t, 2.3, 1, true);    // 송이
-  dogSit(cx-Math.round(22*K), fy+5, t, 3.7, 2, false);   // 열매
-  sitter(cx+Math.round(24*K), fy-1, t);                  // 유지
-  updateSparks(fx,fy,dt,t,boost); drawSparks();
-  glow(fx,fy,flick,boost);
+  tent(S.tentX, S.fy-2, flick, ov.tentLit);
+  smoke(S.fx,S.fy,t);
+  fire(S.fx,S.fy,t,boost);
+  potatoPile(S.fx+Math.round(15*K), S.fy-2, t, ov.hidePotato);
+
+  // 모모 (말티)
+  if(ov.momo.run) dogRun(ov.momo.x, S.fy+2+(ov.momo.dy||0), t, 0, false, ov.momo.flip, false);
+  else dogSit(ov.momo.x!==undefined?ov.momo.x:S.momoX, S.fy+2, t, 1.0, 0, false, ov.momo);
+  // 열매 (말티)
+  if(!ov.yeolmae.hidden){
+    if(ov.yeolmae.run) dogRun(ov.yeolmae.x, S.fy+3+(ov.yeolmae.dy||0), t, 0, false, ov.yeolmae.flip, false);
+    else dogSit(ov.yeolmae.x!==undefined?ov.yeolmae.x:S.yeolmaeX, S.fy+5, t, 3.7,
+                ov.yeolmae.x!==undefined?0:2, false, ov.yeolmae);
+  }
+  // 송이 (포메)
+  if(ov.songi.run) dogRun(ov.songi.x, S.fy+3+(ov.songi.dy||0), t, 1, true, ov.songi.flip, ov.songi.carry);
+  else dogSit(ov.songi.x!==undefined?ov.songi.x:S.songiX, S.fy+3, t, 2.3, 1, true, ov.songi);
+  // 유지
+  sitter(S.yujiX, S.fy-1, t, ov.yuji);
+
+  ov.extras.forEach(fn=>fn());
+  ov.marks.forEach(m=>mark(m[0],m[1],m[2],m[3]));
+
+  updateSparks(S.fx,S.fy,dt,t,boost); drawSparks();
+  updatePuffs(dt); drawPuffs();
+  glow(S.fx,S.fy,flick,boost);
   snowfall(reduce?0:dt,t);
 
   const v=ctx.createRadialGradient(W/2,H*0.55,Math.min(W,H)*0.25,W/2,H*0.55,Math.max(W,H)*0.75);
