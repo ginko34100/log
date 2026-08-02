@@ -20,7 +20,7 @@
   /* 가사 — 상단 */
   #lyrics{
     position:fixed;left:0;right:0;
-    top:max(3rem,calc(env(safe-area-inset-top) + 2.4rem));
+    top:max(21vh,calc(env(safe-area-inset-top) + 5rem));
     text-align:center;z-index:3;pointer-events:none;padding:0 1.4rem;
   }
   #lyCur{
@@ -358,6 +358,69 @@ function squirrel(x,y,t,flip){
   if(flip) mirror(x+4, draw); else draw();
 }
 
+function bear(x,y,t,flip,rear){
+  const B='#5C4330', D='#46331F', E='#1E1712';
+  const draw=()=>{
+    if(rear){
+      const sway=Math.sin(t*3)*1;
+      px(x+4, y-30, 16, 27, B);
+      px(x+4, y-6, 16, 3, D);
+      px(x+1, y-24+sway, 4, 10, B);
+      px(x+19, y-24-sway, 4, 10, B);
+      px(x+5, y-3, 5, 4, D); px(x+14, y-3, 5, 4, D);
+      px(x+6, y-40, 12, 10, B);
+      px(x+5, y-42, 3,3,B); px(x+16, y-42, 3,3,B);
+      px(x+9, y-35, 6, 4, D);
+      px(x+11, y-34, 2, 1, E);
+      px(x+8, y-38, 1,1,E); px(x+14, y-38, 1,1,E);
+    } else {
+      const f=Math.floor(t*6)%2;
+      const yy=y-(f?1:0);
+      px(x, yy-16, 26, 13, B);
+      px(x, yy-5, 26, 2, D);
+      px(x+2, yy-3, 4, 4+(f?0:1), D);
+      px(x+9, yy-3, 4, 4+(f?1:0), D);
+      px(x+15, yy-3, 4, 4+(f?0:1), D);
+      px(x+21, yy-3, 4, 4+(f?1:0), D);
+      px(x+22, yy-25, 10, 10, B);
+      px(x+21, yy-27, 3,3,B); px(x+29, yy-27, 3,3,B);
+      px(x+30, yy-21, 4, 4, D);
+      px(x+33, yy-20, 1, 1, E);
+      px(x+27, yy-23, 1,1,E);
+    }
+  };
+  if(flip) mirror(x+13,draw); else draw();
+}
+
+function owl(x,y,t,carry){
+  const f=Math.floor(t*9)%2;
+  px(x, y-5, 10, 6, '#7A6650');
+  px(x+8, y-8, 6, 6, '#8A755C');
+  px(x+9, y-7, 1,1,'#F2C75B'); px(x+12, y-7, 1,1,'#F2C75B');
+  px(x+13, y-5, 2,1,'#E8A33D');
+  if(f) px(x-1, y-10, 10, 4, '#6B583F');
+  else  px(x-1, y+1, 10, 4, '#6B583F');
+  if(carry){ px(x+3, y+2, 4,3, P.potato); px(x+3, y+2, 4,1, P.potatoLt); }
+}
+
+function deer(x,y,t,flip,s){
+  s=s||1;
+  const draw=()=>{
+    const f=Math.floor(t*8)%2;
+    px(x, y-12*s, 14, 7*s, '#8A6B4C');
+    px(x+1, y-5*s, 2, 5*s+(f?1:0), '#74583C');
+    px(x+5, y-5*s, 2, 5*s+(f?0:1), '#74583C');
+    px(x+9, y-5*s, 2, 5*s+(f?1:0), '#74583C');
+    px(x+12, y-5*s, 2, 5*s+(f?0:1), '#74583C');
+    px(x+12, y-18*s, 5, 8*s, '#8A6B4C');
+    px(x+14, y-20*s, 5, 4, '#8A6B4C');
+    px(x+16, y-24*s, 1, 4, '#5E4426');
+    px(x+18, y-23*s, 1, 3, '#5E4426');
+    px(x+18, y-18*s, 1, 1, '#1E1712');
+  };
+  if(flip) mirror(x+7,draw); else draw();
+}
+
 function mark(x,y,kind,alpha){
   ctx.globalAlpha=clamp(alpha,0,1);
   if(kind==='!'){ px(x,y,1,4,P.mark); px(x,y+5,1,1,P.mark); }
@@ -488,6 +551,103 @@ const EPISODES=[
       ov.songi.x=lerp(S.songiX, S.yujiX+18, g);
       if(g>0.85){ ov.momo.wag=true; ov.songi.wag=true; ov.yeolmae.wag=true;
         ov.marks.push([S.yujiX+4,S.fy-36,'h',0.9]); }
+    }},
+
+  { name:'곰 출현', dur:13, fn:(p,ov,e,S)=>{
+      const farL=-46, nearX=Math.max(4, S.tentX-40);
+      if(p<0.25){
+        const bx=lerp(farL,nearX,ease(p/0.25));
+        ov.extras.push(()=>bear(bx,S.fy+4,e,false,false));
+        if(p>0.07){
+          ov.marks.push([S.momoX+6,S.fy-18,'!',1]);
+          ov.marks.push([S.yujiX+11,S.fy-32,'!',1]);
+        }
+        const g=ease(Math.min(1,p/0.22));
+        ov.momo.x=lerp(S.momoX,S.yujiX+34,g);
+        ov.yeolmae.x=lerp(S.yeolmaeX,S.yujiX+22,g);
+        ov.songi.x=lerp(S.songiX,S.yujiX+48,g);
+      }
+      else if(p<0.5){
+        ov.extras.push(()=>bear(nearX,S.fy+4,e,false,true));
+        ov.momo.x=S.yujiX+34; ov.yeolmae.x=S.yujiX+22; ov.songi.x=S.yujiX+48;
+        ov.marks.push([nearX+16,S.fy-48,'!',1]);
+        ov.songi.dy=-Math.abs(Math.sin(e*14))*2;
+      }
+      else if(p<0.66){
+        ov.extras.push(()=>bear(nearX,S.fy+4,e,false,true));
+        ov.momo.x=lerp(S.yujiX+34,nearX+40,ease((p-0.5)/0.16));
+        ov.momo.run=true; ov.momo.flip=true;
+        ov.yeolmae.x=S.yujiX+22; ov.songi.x=S.yujiX+48;
+        ov.marks.push([ov.momo.x+16,S.fy-16,'*',1]);
+      }
+      else{
+        const q=ease((p-0.66)/0.34);
+        const bx=lerp(nearX,farL-24,q);
+        ov.extras.push(()=>bear(bx,S.fy+4,e*2,true,false));
+        ov.momo.x=lerp(nearX+40,S.momoX,q); ov.momo.run=q<0.92; ov.momo.wag=true;
+        ov.yeolmae.x=lerp(S.yujiX+22,S.yeolmaeX,q); ov.yeolmae.wag=true;
+        ov.songi.x=lerp(S.yujiX+48,S.songiX,q); ov.songi.wag=true;
+      }
+    }},
+
+  { name:'부엉이 도둑', dur:8, fn:(p,ov,e,S)=>{
+      const potX=S.fx+15*K, potY=S.fy-4;
+      if(p<0.4){
+        const q=ease(p/0.4);
+        ov.extras.push(()=>owl(lerp(W+14,potX,q), lerp(GY*0.15,potY,q*q), e, false));
+        if(p>0.24) ov.marks.push([S.yujiX+11,S.fy-32,'!',1]);
+      }else{
+        const q=ease((p-0.4)/0.6);
+        ov.hidePotato=true;
+        ov.extras.push(()=>owl(lerp(potX,-24,q), lerp(potY,GY*0.08,q), e, true));
+        ov.yuji.armUp=true;
+        ov.songi.dy=-Math.abs(Math.sin((p-0.4)*18))*3;
+        if(p<0.72) ov.marks.push([S.songiX+6,S.fy-18,'!',1]);
+      }
+    }},
+
+  { name:'오로라', dur:11, fn:(p,ov,e,S)=>{
+      const a=Math.sin(p*Math.PI);
+      ov.extras.push(()=>{
+        for(let b=0;b<3;b++){
+          ctx.globalAlpha=0.11*a*(1-b*0.2);
+          ctx.fillStyle=b===1?'#7BE8B8':'#69D2E7';
+          ctx.beginPath();
+          const base=GY*0.08+b*11;
+          ctx.moveTo(0,base);
+          for(let x=0;x<=W;x+=8) ctx.lineTo(x, base+Math.sin(x*0.05+e*0.9+b)*7);
+          for(let x=W;x>=0;x-=8) ctx.lineTo(x, base+24+Math.sin(x*0.04+e*0.7+b)*10);
+          ctx.closePath(); ctx.fill();
+        }
+        ctx.globalAlpha=1;
+      });
+      if(a>0.5){
+        ov.momo.dy=-1; ov.songi.dy=-1;
+        ov.marks.push([S.yujiX+4,S.fy-38,'*',a]);
+      }
+    }},
+
+  { name:'눈보라', dur:9, fn:(p,ov,e,S)=>{
+      const a=Math.sin(p*Math.PI);
+      ov.extras.push(()=>{
+        ctx.globalAlpha=0.5*a;
+        for(let i=0;i<26;i++){
+          const y=rnd(i*7.7)*H;
+          const x=W-((e*260+i*97)%(W+80))+40;
+          px(x,y,10+rnd(i)*14,1,'#EAF4FF');
+        }
+        ctx.globalAlpha=1;
+      });
+      const g=Math.min(1,p*3)*(p<0.8?1:1-((p-0.8)/0.2));
+      ov.momo.x=lerp(S.momoX,S.yujiX-26,g);
+      ov.yeolmae.x=lerp(S.yeolmaeX,S.yujiX-14,g);
+      ov.songi.x=lerp(S.songiX,S.yujiX+16,g);
+    }},
+
+  { name:'사슴 가족', dur:10, fn:(p,ov,e,S)=>{
+      const x=lerp(-34,W+34,p);
+      ov.extras.push(()=>{ deer(x,GY+2,e,false,1); deer(x-24,GY+3,e+0.4,false,0.8); });
+      if(p>0.3&&p<0.6) ov.marks.push([S.yeolmaeX+15,S.fy-10,'!',1]);
     }}
 ];
 
