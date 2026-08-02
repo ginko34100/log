@@ -695,7 +695,12 @@ function parseLRC(raw){
   out.sort((a,b)=>a.t-b.t);
   const first=out.findIndex(c=>c.text);
   if(first>=0) out[first].t=Math.max(0,out[first].t+FIRST_LINE_OFFSET);
-  out.forEach((c,i)=>{ const nx=out[i+1]; c.end = nx ? Math.min(nx.t, c.t+7.5) : c.t+7.5; });
+  out.forEach((c,i)=>{
+    const nx=out[i+1];
+    // 간격이 15초 이내면 다음 줄까지 그대로 유지 (중간에 사라지지 않음)
+    // 그보다 길면 진짜 간주로 보고 8초 뒤 페이드아웃
+    c.end = nx ? (nx.t - c.t <= 15 ? nx.t : c.t + 8) : c.t + 8;
+  });
   return out;
 }
 const FALLBACK=`
