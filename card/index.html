@@ -283,6 +283,58 @@ header.masthead{text-align:center;flex:0 0 auto}
 .gbtns button:disabled{opacity:.4;cursor:default}
 .who .out{opacity:.7}
 .who .souls{color:var(--gold);letter-spacing:.08em}
+/* 말 걸기 */
+.taunt-btn{position:fixed;right:14px;bottom:calc(var(--sab) + 92px);z-index:19;
+  width:46px;height:46px;border-radius:50%;appearance:none;cursor:pointer;
+  background:radial-gradient(circle at 38% 32%,#221d16,#0c0a08);
+  border:1px solid rgba(168,145,63,.45);color:var(--paper-dim);
+  display:grid;place-content:center;
+  box-shadow:0 8px 22px rgba(0,0,0,.55);
+  transition:color .25s,border-color .25s,transform .1s}
+.taunt-btn svg{width:21px;height:21px}
+.taunt-btn:active{transform:scale(.93)}
+.taunt-btn:hover{color:var(--paper);border-color:var(--gold)}
+.taunt-sheet{position:fixed;inset:0;z-index:21;display:none;align-items:flex-end;
+  background:rgba(4,5,4,.72);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+.taunt-sheet.on{display:flex}
+.ts-box{width:100%;max-width:640px;margin:0 auto;
+  background:linear-gradient(180deg,#161310,#0a0908);
+  border:1px solid var(--edge);border-bottom:0;border-radius:8px 8px 0 0;
+  padding:14px 16px calc(var(--sab) + 14px);
+  box-shadow:0 -20px 60px rgba(0,0,0,.7)}
+.ts-head{display:flex;align-items:center;justify-content:space-between;
+  padding-bottom:10px;border-bottom:1px solid var(--edge)}
+.ts-seal{font-family:"Song Myung",serif;font-size:12px;letter-spacing:.5em;
+  color:var(--cinnabar);text-indent:.5em}
+.ts-close{appearance:none;background:none;border:1px solid var(--edge);
+  color:var(--paper-dim);cursor:pointer;font-family:inherit;font-size:12px;
+  letter-spacing:.12em;padding:6px 11px}
+.ts-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 0}
+.ts-list button{appearance:none;cursor:pointer;text-align:left;
+  background:linear-gradient(180deg,#1a1712,#0e0d0a);
+  border:1px solid var(--edge);color:var(--paper);
+  font-family:"Gowun Batang",serif;font-size:13.5px;letter-spacing:.02em;
+  padding:12px 12px;line-height:1.4;transition:border-color .2s,color .2s}
+.ts-list button:hover{border-color:rgba(168,145,63,.6)}
+.ts-list button:disabled{opacity:.35;cursor:default}
+.ts-mute{display:flex;align-items:center;gap:8px;color:var(--paper-dim);
+  font-size:12px;letter-spacing:.06em;padding-top:4px}
+.ts-mute input{accent-color:var(--cinnabar)}
+/* 말풍선 */
+.bubble{position:fixed;left:50%;top:calc(var(--sat) + 74px);transform:translateX(-50%) translateY(-8px);
+  z-index:22;max-width:min(86vw,420px);opacity:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(24,20,16,.97),rgba(10,9,8,.97));
+  border:1px solid rgba(168,145,63,.45);padding:11px 16px;
+  box-shadow:0 10px 34px rgba(0,0,0,.65);
+  transition:opacity .3s ease,transform .3s cubic-bezier(.2,.9,.3,1)}
+.bubble.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.bubble .who{display:block;font-family:"Song Myung",serif;font-size:10.5px;
+  letter-spacing:.16em;color:var(--gold);margin-bottom:3px}
+.bubble .txt{display:block;font-family:"Nanum Brush Script",cursive;
+  font-size:23px;line-height:1.25;color:var(--paper)}
+.bubble.mine{border-color:rgba(138,150,143,.4)}
+.bubble.mine .who{color:var(--moss)}
+
 /* 카드 상세 */
 .cardsheet{position:fixed;inset:0;z-index:18;display:none;place-content:center;
   padding:24px;background:rgba(4,5,4,.88);
@@ -689,6 +741,26 @@ button.chg.out{margin:18px auto 4px;border-color:var(--edge);color:var(--paper-d
   <div class="glyph" id="cutGlyph">禁</div>
   <div class="label" id="cutLabel">금 기</div>
 </div>
+
+<button class="taunt-btn" id="tauntBtn" style="display:none" aria-label="말 걸기">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round">
+    <path d="M4 6.5 C4 5 5 4 6.5 4 L17.5 4 C19 4 20 5 20 6.5 L20 13.5 C20 15 19 16 17.5 16 L10 16 L6 19.5 L6 16 C4.9 16 4 15.1 4 14 Z"/>
+    <path d="M8 8.5 L16 8.5"/><path d="M8 11.5 L13 11.5"/>
+  </svg>
+</button>
+
+<div class="taunt-sheet" id="tauntSheet">
+  <div class="ts-box">
+    <div class="ts-head">
+      <span class="ts-seal">傳 言</span>
+      <button class="ts-close" id="tsClose">닫는다</button>
+    </div>
+    <div class="ts-list" id="tsList"></div>
+    <label class="ts-mute"><input type="checkbox" id="tsMute"> 상대의 말을 받지 않는다</label>
+  </div>
+</div>
+
+<div class="bubble" id="bubble"><span class="who" id="bubWho"></span><span class="txt" id="bubTxt"></span></div>
 
 <div class="cardsheet" id="cardsheet">
   <div class="cs-box">
@@ -3043,6 +3115,7 @@ async function runMatch(deckA, deckB, seed, opts){
     summonSolo(champion, null, true);
   }
   busy=false; setControls(true);
+  setOpponent(null);
   if(opts.online) openLobbyView();
 }
 
@@ -3080,6 +3153,8 @@ function kickOut(msg){
   lobby=null; inLobby=false;
   busy=false; setControls(true);
   battle=null; match=null;
+  setOpponent(null);
+  closeTauntSheet();
   clearTimeout(pkTimer); clearInterval(pkCountId); clearInterval(acceptResendId);
   busyReset();
   el('picker').classList.remove('on','waiting');
@@ -3194,6 +3269,11 @@ async function connectLobby(){
     }
   });
 
+  lobby.on('broadcast', { event:'taunt' }, ({ payload })=>{
+    if(payload.to!==me) return;
+    onTaunt(payload);
+  });
+
   lobby.on('broadcast', { event:'needpick' }, ({ payload })=>{
     if(payload.to!==me) return;
     const rec=sentDecks.get(payload.match);
@@ -3217,6 +3297,7 @@ async function connectLobby(){
     busyOff();
     el('picker').classList.remove('on','waiting');
     el('pkWait').classList.remove('on');
+    setOpponent(null);
     trackMe('idle');
     showBattleMsg('겨룸이 깨졌다', `${nm}이(가) 물러났다.`);
     busy=false; setControls(true);
@@ -3426,6 +3507,89 @@ function acceptChallenge(){
   openPicker({ matchId, seed, role:'b', oppId:p.from, oppName:p.name });
 }
 
+/* ═══ 정형 문구 — 자유 채팅 대신 정해진 말만 오간다 ═══ */
+const TAUNTS = [
+  { k:'t1', s:'겨뤄 볼 만하겠군.' },
+  { k:'t2', s:'그 정도로 되겠는가.' },
+  { k:'t3', s:'손이 떨리는가?' },
+  { k:'t4', s:'봐줄 생각은 없다.' },
+  { k:'t5', s:'재미있군.' },
+  { k:'t6', s:'끝이 보인다.' },
+  { k:'t7', s:'운이 좋았을 뿐.' },
+  { k:'t8', s:'이만 물러가라.' },
+  { k:'t9', s:'잘 싸웠다.' },
+  { k:'t10', s:'훌륭하다.' },
+  { k:'t11', s:'다시 겨루자.' },
+  { k:'t12', s:'미안하군.' },
+];
+const TAUNT_BY_KEY = Object.fromEntries(TAUNTS.map(t=>[t.k,t.s]));
+let currentOpp=null;          // { id, name } — 지금 겨루는 상대
+let lastTauntAt=0;
+let tauntMuted=false;
+const tauntSeen=new Map();    // 상대별 최근 수신 시각 (도배 차단)
+
+function setOpponent(o){
+  currentOpp=o;
+  el('tauntBtn').style.display = o ? 'grid' : 'none';
+  if(!o) closeTauntSheet();
+}
+function openTauntSheet(){
+  if(!currentOpp) return;
+  const list=el('tsList');
+  if(!list.children.length){
+    TAUNTS.forEach(t=>{
+      const b=document.createElement('button');
+      b.type='button'; b.dataset.k=t.k; b.textContent=t.s;
+      b.addEventListener('click', ()=>sendTaunt(t.k));
+      list.appendChild(b);
+    });
+  }
+  el('tsMute').checked=tauntMuted;
+  el('tauntSheet').classList.add('on');
+  SFX.open();
+}
+function closeTauntSheet(){ el('tauntSheet').classList.remove('on'); }
+
+function sendTaunt(k){
+  if(!currentOpp || !TAUNT_BY_KEY[k]) return;
+  const now=Date.now();
+  if(now-lastTauntAt < 4000){          // 도배 방지
+    el('tsList').querySelectorAll('button').forEach(b=>b.disabled=true);
+    setTimeout(()=>el('tsList').querySelectorAll('button').forEach(b=>b.disabled=false), 4000-(now-lastTauntAt));
+    return;
+  }
+  lastTauntAt=now;
+  sendMatch('taunt', { to:currentOpp.id, name:myProfile.nickname, k });
+  showBubble(myProfile.nickname, TAUNT_BY_KEY[k], true);
+  closeTauntSheet();
+  SFX.tap();
+}
+let bubbleId=null;
+function showBubble(who, text, mine){
+  const b=el('bubble');
+  el('bubWho').textContent=who;
+  el('bubTxt').textContent=text;
+  b.classList.toggle('mine', !!mine);
+  b.classList.remove('on'); void b.offsetWidth; b.classList.add('on');
+  clearTimeout(bubbleId);
+  bubbleId=setTimeout(()=>b.classList.remove('on'), 3400);
+}
+function onTaunt(payload){
+  if(tauntMuted) return;
+  if(!currentOpp || payload.from!==currentOpp.id) return;   // 겨루는 상대의 말만 받는다
+  const last=tauntSeen.get(payload.from)||0;
+  if(Date.now()-last < 3000) return;
+  tauntSeen.set(payload.from, Date.now());
+  const line=TAUNT_BY_KEY[payload.k];
+  if(!line) return;
+  showBubble(payload.name||'상대', line, false);
+  SFX.challenge();
+}
+el('tauntBtn').addEventListener('click', openTauntSheet);
+el('tsClose').addEventListener('click', closeTauntSheet);
+el('tauntSheet').addEventListener('click', e=>{ if(e.target.id==='tauntSheet') closeTauntSheet(); });
+el('tsMute').addEventListener('change', e=>{ tauntMuted=e.target.checked; });
+
 /* ═══ 카드 상세 · 강화 ═══ */
 let sheetCard=null;
 function openCardSheet(card){
@@ -3482,6 +3646,7 @@ const sentDecks=new Map();    // 내가 보낸 덱 — 재요청에 답하기 �
 const DECK_SIZE=3;
 function openPicker(m){
   match={ ...m, myDeck:[], oppDeck:null, sent:false };
+  setOpponent({ id:m.oppId, name:m.oppName });
   busy=true; setControls(false);
   showSeeking(false);
   el('pkTitle').textContent='세 잔혼을 고르라';
@@ -3637,6 +3802,7 @@ function tryStartMatch(){
 function abortMatch(reason){
   if(!match) return;
   const m=match; match=null;
+  setOpponent(null);
   clearTimeout(pkTimer); clearInterval(pkCountId); clearInterval(acceptResendId);
   busyOff();
   el('picker').classList.remove('on','waiting');
