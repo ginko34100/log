@@ -301,7 +301,7 @@ header.masthead{text-align:center;flex:0 0 auto}
   transition:transform .25s ease,box-shadow .25s ease,border-color .25s}
 .slot .locked{position:absolute;inset:0;display:grid;place-content:center;opacity:.32;
   color:var(--paper);font-family:"Song Myung",serif;font-size:22px}
-.slot img{width:100%;height:100%;object-fit:cover;display:block}
+.slot img,.slot canvas.thumb{width:100%;height:100%;object-fit:cover;display:block}
 .slot.found{cursor:pointer;border-color:color-mix(in srgb,var(--tier) 45%,transparent);
   box-shadow:0 0 16px -6px var(--tier)}
 .slot .dupes{position:absolute;right:3px;bottom:3px;font-family:"Song Myung",serif;
@@ -476,6 +476,15 @@ button.chg.out{margin:18px auto 4px;border-color:var(--edge);color:var(--paper-d
    └────────────────────────────────────────────┘ */
 const SUPABASE_URL      = 'https://mizfqdwuzwjkxgarzcyq.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_92DJY8GATx51qt6kqbC8xg_LNVo0z7m';
+
+/* ┌─ 일러스트 ─────────────────────────────────┐
+   │ 카드 id → 그림 파일. 넣은 카드만 그림으로   │
+   │ 바뀌고, 없는 카드는 픽셀 도안이 유지됩니다. │
+   │ 같은 폴더의 파일명이든 전체 URL 이든 됩니다.│
+   └────────────────────────────────────────────┘ */
+const ART = {
+  lastflame: 'art/Serpentine_eastern_dragon_exhali__2K_202608101147.jpeg',
+};
 
 const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -745,7 +754,7 @@ el('nameBtn').addEventListener('click', async ()=>{
 
 /* ═══ 카드 아트 ══════════════════════════════ */
 const W=384, H=576;
-const faceCache=new Map(), thumbCache=new Map();
+const faceCache=new Map(), texCache=new Map();
 function hexA(hex,a){
   const h=hex.replace('#','');
   return `rgba(${parseInt(h.slice(0,2),16)},${parseInt(h.slice(2,4),16)},${parseInt(h.slice(4,6),16)},${a})`;
@@ -1033,30 +1042,77 @@ function seal(x, cx, cy, ss, glyph, gold){
   x.restore();
 }
 
-function drawFace(card){
+/* 일러스트를 카드에 꽉 채우고(cover) 위·아래를 어둠으로 녹인다 */
+function paintArtwork(x, img, card, rnd){
+  const iw=img.width||img.naturalWidth, ih=img.height||img.naturalHeight;
+  const sc=Math.max(W/iw, H/ih);
+  const dw=iw*sc, dh=ih*sc;
+  x.save();
+  x.drawImage(img, (W-dw)/2, (H-dh)/2 - dh*0.02, dw, dh);
+
+  // 위: 스탯 줄이 읽히도록
+  const tg=x.createLinearGradient(0,0,0,H*0.20);
+  tg.addColorStop(0,'rgba(4,4,3,.90)'); tg.addColorStop(0.55,'rgba(4,4,3,.35)');
+  tg.addColorStop(1,'rgba(4,4,3,0)');
+  x.fillStyle=tg; x.fillRect(0,0,W,H*0.20);
+
+  // 아래: 기록·명판이 앉을 자리
+  const bgd=x.createLinearGradient(0,H*0.52,0,H);
+  bgd.addColorStop(0,'rgba(3,3,2,0)');
+  bgd.addColorStop(0.42,'rgba(3,3,2,.62)');
+  bgd.addColorStop(0.70,'rgba(3,3,2,.93)');
+  bgd.addColorStop(1,'rgba(3,3,2,.99)');
+  x.fillStyle=bgd; x.fillRect(0,H*0.52,W,H*0.48);
+
+  // 좌우 가장자리 어둠 — 테두리가 어둠 위에 앉도록
+  const sg=x.createLinearGradient(0,0,W,0);
+  sg.addColorStop(0,'rgba(3,3,2,.85)'); sg.addColorStop(0.14,'rgba(3,3,2,0)');
+  sg.addColorStop(0.86,'rgba(3,3,2,0)'); sg.addColorStop(1,'rgba(3,3,2,.85)');
+  x.fillStyle=sg; x.fillRect(0,0,W,H);
+
+  // 화선지 결을 아주 옅게 얹어 프레임과 붙인다
+  x.globalAlpha=0.35;
+  for(let i=0;i<70;i++){
+    const px=rnd()*W;
+    x.strokeStyle=`rgba(217,205,180,${0.010+rnd()*0.020})`;
+    x.lineWidth=rnd()<0.15?1.1:0.5;
+    x.beginPath(); x.moveTo(px, rnd()*H*0.3);
+    x.lineTo(px+(rnd()-0.5)*7, H*(0.55+rnd()*0.45)); x.stroke();
+  }
+  for(let i=0;i<900;i++){ x.fillStyle=`rgba(217,205,180,${rnd()*0.030})`; x.fillRect(rnd()*W,rnd()*H,1,1); }
+  x.globalAlpha=1;
+  x.restore();
+}
+
+function renderFace(card, img, target){
   const T=TYPES[card.type], G=TIERS[card.tier];
   const rnd=mulberry32(hashStr(card.id+card.name));
-  const c=document.createElement('canvas'); c.width=W; c.height=H;
+  const c=(target&&target.face) || document.createElement('canvas');
+  c.width=W; c.height=H;
   const x=c.getContext('2d');
+  x.clearRect(0,0,W,H);
 
   const tone = card.tier==='taboo' ? ['#1c1510','#0e0a07','#050302']
              : card.tier==='omen'  ? ['#181320','#0d0a11','#050404']
              : ['#171310','#0d0b09','#050403'];
-  paperTexture(x, rnd, tone);
 
-  // 원상(圓相)
-  x.save(); x.translate(W/2,H*0.385);
-  x.strokeStyle=hexA(T.glow,0.30); x.shadowColor=T.glow; x.shadowBlur=9;
-  x.lineWidth=5; x.lineCap='round';
-  x.beginPath(); x.arc(0,0,W*0.315,-Math.PI*0.42,Math.PI*1.44); x.stroke();
-  if(card.tier==='taboo'||card.tier==='omen'){
-    x.lineWidth=1.2; x.globalAlpha=0.5;
-    x.beginPath(); x.arc(0,0,W*0.345,-Math.PI*0.36,Math.PI*1.30); x.stroke();
-    x.globalAlpha=1;
+  if(img){
+    paintArtwork(x, img, card, rnd);
+  }else{
+    paperTexture(x, rnd, tone);
+    // 원상(圓相)
+    x.save(); x.translate(W/2,H*0.385);
+    x.strokeStyle=hexA(T.glow,0.30); x.shadowColor=T.glow; x.shadowBlur=9;
+    x.lineWidth=5; x.lineCap='round';
+    x.beginPath(); x.arc(0,0,W*0.315,-Math.PI*0.42,Math.PI*1.44); x.stroke();
+    if(card.tier==='taboo'||card.tier==='omen'){
+      x.lineWidth=1.2; x.globalAlpha=0.5;
+      x.beginPath(); x.arc(0,0,W*0.345,-Math.PI*0.36,Math.PI*1.30); x.stroke();
+      x.globalAlpha=1;
+    }
+    x.restore();
+    drawCreature(x, W/2, H*0.385, W*0.56, card, rnd);
   }
-  x.restore();
-
-  drawCreature(x, W/2, H*0.385, W*0.56, card, rnd);
   x.shadowBlur=0;
 
   drawFrame(x, card, false);
@@ -1105,7 +1161,8 @@ function drawFace(card){
   seal(x, W-62, H-252, card.tier==='taboo'?42:36, T.hanja, card.tier==='taboo');
 
   // 금박 마스크
-  const mc=document.createElement('canvas'); mc.width=W; mc.height=H;
+  const mc=(target&&target.mask) || document.createElement('canvas');
+  mc.width=W; mc.height=H;
   const mx=mc.getContext('2d');
   mx.fillStyle='#000'; mx.fillRect(0,0,W,H);
   drawFrame(mx, card, true);
@@ -1116,6 +1173,7 @@ function drawFace(card){
     mx.beginPath(); mx.arc(0,0,W*0.315,-Math.PI*0.42,Math.PI*1.44); mx.stroke();
     mx.restore();
   }
+  if(target){ target.face=c; target.mask=mc; return target; }
   return { face:c, mask:mc };
 }
 
@@ -1151,18 +1209,45 @@ function drawBack(){
   return { face:c, mask:mc };
 }
 
+/* 일러스트 로딩 — 도착하면 그 카드만 제자리에서 다시 그린다 */
+const artImgs=new Map();      // id -> HTMLImageElement (로드 완료)
+const artPending=new Set();
+function ensureArt(card){
+  const src=ART[card.id];
+  if(!src || artImgs.has(card.id) || artPending.has(card.id)) return;
+  artPending.add(card.id);
+  const im=new Image();
+  im.crossOrigin='anonymous';
+  im.onload=()=>{
+    artPending.delete(card.id);
+    artImgs.set(card.id, im);
+    refreshCard(card);
+  };
+  im.onerror=()=>{ artPending.delete(card.id); console.warn('그림을 불러오지 못했다:', src); };
+  im.src=src;
+}
+function refreshCard(card){
+  const cv=faceCache.get(card.id);
+  if(!cv) return;
+  renderFace(card, artImgs.get(card.id)||null, cv);   // 같은 캔버스에 덮어 그린다
+  const tx=texCache.get(card.id);
+  if(tx){ tx.t.needsUpdate=true; tx.m.needsUpdate=true; }
+  paintThumb(card);
+}
 function faceCanvas(card){
-  if(!faceCache.has(card.id)) faceCache.set(card.id, drawFace(card));
+  if(!faceCache.has(card.id)){
+    faceCache.set(card.id, renderFace(card, artImgs.get(card.id)||null, null));
+    ensureArt(card);
+  }
   return faceCache.get(card.id);          // { face, mask }
 }
-function thumbURL(card){
-  if(!thumbCache.has(card.id)){
-    const src=faceCanvas(card).face;
-    const t=document.createElement('canvas'); t.width=128; t.height=192;
-    t.getContext('2d').drawImage(src,0,0,128,192);
-    thumbCache.set(card.id, t.toDataURL('image/png'));
-  }
-  return thumbCache.get(card.id);
+/* 서고 축소판 — dataURL 대신 캔버스를 직접 넣어 CORS 오염을 피한다 */
+function paintThumb(card){
+  const b=slotEls.get(card.id);
+  if(!b) return;
+  const cv=b.querySelector('canvas.thumb');
+  if(!cv) return;
+  cv.getContext('2d').drawImage(faceCanvas(card).face,0,0,128,192);
 }
 
 /* ═══ three.js ═══════════════════════════════ */
@@ -1232,7 +1317,6 @@ function makeUnit(){
   g.add(front,back); g.visible=false; scene.add(g);
   return { group:g, front, back, home:{x:0,y:0,s:1,ry:0} };
 }
-const texCache=new Map();
 function cardTextures(card){
   if(!texCache.has(card.id)){
     const cv=faceCanvas(card);
@@ -2094,7 +2178,8 @@ function renderSlot(card,isNew,quiet){
     b.classList.add('found');
     b.disabled=false;
     b.setAttribute('aria-label',`${card.name} · ${TYPES[card.type].name} · ${TIERS[card.tier].name}`);
-    b.innerHTML=`<img alt="${card.name}" src="${thumbURL(card)}">`;
+    b.innerHTML='<canvas class="thumb" width="128" height="192"></canvas>';
+    paintThumb(card);
   }
   if(n>1){
     let d=b.querySelector('.dupes');
