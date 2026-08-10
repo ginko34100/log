@@ -99,6 +99,20 @@ button.working::after{content:"";position:absolute;left:50%;top:50%;
 @keyframes shakeS{0%,100%{transform:translate(0,0)}
   20%{transform:translate(-5px,3px)}40%{transform:translate(4px,-4px)}
   60%{transform:translate(-3px,-2px)}80%{transform:translate(2px,3px)}}
+/* 빨려들 때의 지속 진동 — 뒤로 갈수록 세진다 */
+.app.rumble{animation:rumble 1.05s cubic-bezier(.3,0,.7,1)}
+@keyframes rumble{
+  0%{transform:translate(0,0)}
+  10%{transform:translate(-1px,1px)}
+  20%{transform:translate(2px,-1px)}
+  30%{transform:translate(-2px,2px)}
+  40%{transform:translate(3px,-2px)}
+  50%{transform:translate(-4px,2px)}
+  60%{transform:translate(4px,-3px)}
+  70%{transform:translate(-6px,3px)}
+  80%{transform:translate(6px,-4px)}
+  90%{transform:translate(-3px,2px)}
+  100%{transform:translate(0,0)}}
 @keyframes shakeB{0%,100%{transform:translate(0,0)}
   15%{transform:translate(-10px,6px) rotate(-.4deg)}30%{transform:translate(9px,-7px) rotate(.4deg)}
   45%{transform:translate(-7px,-5px)}60%{transform:translate(6px,6px)}
@@ -212,9 +226,16 @@ header.masthead{text-align:center;flex:0 0 auto}
 .gbtns .gno{color:var(--paper-dim)}
 .gbtns button:disabled{opacity:.4;cursor:default}
 .who .out{opacity:.7}
-/* 영혼이 서고로 */
-.soul{position:fixed;z-index:14;pointer-events:none;width:26px;height:26px;
-  border-radius:50%;will-change:transform,opacity}
+/* 개봉 연출 중에는 UI 를 전부 걷는다 */
+.app.cine .masthead,
+.app.cine .dossier,
+.app.cine .bar{opacity:0;pointer-events:none}
+.app .masthead,.app .dossier,.app .bar{transition:opacity .4s ease}
+.app.cine .stage{transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+
+/* 카드가 픽셀로 부서져 서고로 */
+#suck{position:fixed;inset:0;z-index:15;pointer-events:none;display:none}
+#suck.on{display:block}
 .tabpulse{animation:tabPulse .85s ease-out}
 @keyframes tabPulse{
   0%{box-shadow:0 0 0 0 rgba(168,145,63,.75);border-color:rgba(168,145,63,.9)}
@@ -281,21 +302,21 @@ header.masthead{text-align:center;flex:0 0 auto}
   18%{opacity:1;transform:translate(-50%,-55%) scale(1.1)}
   100%{opacity:0;transform:translate(-50%,-140%) scale(1)}}
 
-.dossier{flex:0 0 auto;text-align:center;padding:2px 6px;min-height:96px;
-  display:flex;flex-direction:column;justify-content:center;gap:3px;transition:opacity .45s ease}
+.dossier{flex:0 0 auto;text-align:center;padding:2px 6px 20px;min-height:104px;
+  display:flex;flex-direction:column;justify-content:center;gap:5px;transition:opacity .45s ease}
 .dossier.hidden{opacity:0}
 .dossier .tierline{display:inline-flex;align-items:center;gap:8px;justify-content:center;
-  font-family:"Song Myung",serif;font-size:12px;letter-spacing:.3em;color:var(--tier,#87796a)}
+  font-family:"Song Myung",serif;font-size:13px;letter-spacing:.3em;color:var(--tier,#87796a)}
 .dossier .tierline i{width:22px;height:1px;background:currentColor;opacity:.5;display:block}
 .dossier h2{font-family:"Nanum Brush Script",cursive;font-weight:400;
   font-size:clamp(25px,6.4vw,33px);letter-spacing:.06em;line-height:1.05}
-.dossier .stats{font-size:11.5px;letter-spacing:.08em;color:var(--paper-dim)}
+.dossier .stats{font-size:13.5px;letter-spacing:.06em;color:var(--paper-dim)}
 .dossier .stats b{color:var(--paper);font-weight:700}
 .dossier .stats .adv{color:#96c08a}
 .dossier .stats .dis{color:#cf7a6c}
-.dossier .record{max-width:40ch;margin:0 auto;color:var(--paper-dim);
-  font-size:12px;line-height:1.65;word-break:keep-all}
-.dossier .echo{font-size:11px;letter-spacing:.14em;color:var(--gold);opacity:.95}
+.dossier .record{max-width:38ch;margin:0 auto;color:#b9ae99;
+  font-size:14.5px;line-height:1.75;word-break:keep-all}
+.dossier .echo{font-size:12.5px;letter-spacing:.12em;color:var(--gold);opacity:.95}
 
 .bar{flex:0 0 auto;display:flex;gap:9px;align-items:stretch;padding-top:9px}
 .seal-btn{position:relative;appearance:none;cursor:pointer;flex:1 1 auto;
@@ -415,6 +436,7 @@ button.chg.out{margin:18px auto 4px;border-color:var(--edge);color:var(--paper-d
 <div class="vignette" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
 <div class="flash" id="flash" aria-hidden="true"></div>
+<canvas id="suck" aria-hidden="true"></canvas>
 <div class="loadbar" id="loadbar"><i id="loadfill"></i></div>
 <div class="busychip" id="busychip"><span class="bspin"></span><span id="busytxt">기다리는 중</span></div>
 
@@ -654,8 +676,19 @@ const SFX = (()=>{
       tone(105,t+0.01,1.1,'triangle',0.16,80);
       hiss(t,0.7,2400,180,0.16,0.8);
     },
-    soul(){ const t=now();
-      for(let i=0;i<4;i++) tone(680+i*190, t+i*0.06, 0.35, 'sine', 0.06, 1500+i*200);
+    book(){ const t=now();
+      hiss(t,0.35,220,1100,0.13,1.1);         // 책장이 펼쳐진다
+      tone(150,t,0.3,'triangle',0.12,240);
+    },
+    suck(){ const t=now();
+      hiss(t,0.95,2600,140,0.20,0.9);          // 빨려드는 바람
+      tone(420,t,0.9,'sawtooth',0.10,70);      // 내려앉는 음
+      tone(140,t+0.1,0.8,'sine',0.16,48);
+    },
+    absorb(){ const t=now();
+      tone(180,t,0.28,'sine',0.22,90);
+      tone(540,t,0.14,'triangle',0.10,260);
+      hiss(t,0.16,1200,260,0.10,1.6);
     },
     clash(crit){ const t=now();
       hiss(t,0.16,4200,700,crit?0.34:0.22,1.4);
@@ -1851,38 +1884,6 @@ function splitCard(unit){
   });
 }
 
-/* 카드를 접어 서고 쪽으로 빨아들인다 */
-function foldIntoArchive(){
-  return new Promise(res=>{
-    if(!glOK || REDUCED){ myUnit.group.visible=false; res(); return; }
-    const g=myUnit.group;
-    const sx=g.scale.x;
-    SFX.soul();
-    // 1) 접힌다 — 세로축으로 닫히며 살짝 기운다
-    tween(0.34, p=>{
-      g.scale.x = sx*(1-p*0.94);
-      g.rotation.z = p*0.30;
-      g.rotation.y = p*0.55;
-      g.position.y = -p*0.25;
-    }, ()=>{
-      // 2) 서고 탭 쪽(오른쪽 아래)으로 빨려간다
-      tween(0.42, p=>{
-        const e=p*p;
-        g.position.x = e*2.1;
-        g.position.y = -0.25 - e*3.1;
-        g.scale.setScalar(sx*(1-p*0.92));
-        g.rotation.z = 0.30 + p*1.5;
-      }, ()=>{
-        g.visible=false;
-        g.scale.setScalar(1);
-        g.rotation.set(0,0,0);
-        g.position.set(0,0,0);
-        res();
-      }, t=>t);
-    }, t=>1-Math.pow(1-t,2));
-  });
-}
-
 function summonSolo(card, then, quiet){
   if(!glOK){ if(then) then(); return; }
   foeUnit.group.visible=false;
@@ -2010,12 +2011,13 @@ async function doDraw100(){
   showDossier(best, `백연(百連) · 새로 ${newCount}종`);
   el('dRecord').textContent =
     `잔재 ${tally.scrap} · 유물 ${tally.relic} · 흉조 ${tally.omen} · 금기 ${tally.taboo}`;
+  cineOn();
   summonSolo(best, async ()=>{
     SFX.reveal(best.tier);
-    await sleep(1100);
-    await foldIntoArchive();
-    flySoul(TYPES[best.type].glow);
-    await sleep(760);
+    await sleep(1250);
+    await suckIntoArchive(best);
+    cineOff();
+    await sleep(260);
     if(champion){
       showDossier(champion, `백연(百連) · 서고에 들었다`);
       summonSolo(champion, null, true);
@@ -2097,33 +2099,236 @@ function busyOff(){
     setTimeout(()=>{ if(busyDepth===0) el('loadfill').style.width='0%'; }, 260);
   }, 200);
 }
-/* 뽑은 잔혼이 서고 탭으로 빨려 들어간다 */
-function flySoul(color){
-  if(REDUCED) return;
+/* ═══ 개봉 연출 — 화면을 비우고, 카드가 픽셀로 부서져 서책으로 ═══ */
+const suckCv = el('suck');
+const suckCtx = suckCv ? suckCv.getContext('2d') : null;
+function fitSuck(){
+  if(!suckCv) return;
+  const d=Math.min(devicePixelRatio||1,2);
+  suckCv.width=innerWidth*d; suckCv.height=innerHeight*d;
+  suckCv.style.width=innerWidth+'px'; suckCv.style.height=innerHeight+'px';
+  suckCtx.setTransform(d,0,0,d,0,0);
+  suckCtx.imageSmoothingEnabled=false;
+}
+addEventListener('resize', fitSuck);
+
+function cineOn(){ appEl.classList.add('cine'); }
+function cineOff(){ appEl.classList.remove('cine'); }
+
+/* 무대의 3D 카드가 화면에서 차지하는 사각형 */
+function cardScreenRect(){
   const st=stageEl.getBoundingClientRect();
-  const bt=el('openArchive').getBoundingClientRect();
-  const x0=st.left+st.width/2, y0=st.top+st.height*0.46;
-  const x1=bt.left+bt.width/2, y1=bt.top+bt.height/2;
-  const dx=x1-x0, dy=y1-y0;
-  for(let i=0;i<6;i++){
-    const d=document.createElement('div');
-    d.className='soul';
-    d.style.left=(x0-13)+'px'; d.style.top=(y0-13)+'px';
-    d.style.background=`radial-gradient(circle,#fff 0%,${color} 36%,transparent 72%)`;
-    document.body.appendChild(d);
-    const jx=(Math.random()-0.5)*90, jy=(Math.random()-0.5)*60;
-    const a=d.animate([
-      { transform:'translate(0,0) scale(.5)', opacity:0 },
-      { transform:`translate(${dx*0.32+jx}px,${dy*0.28+jy}px) scale(1.3)`, opacity:1, offset:0.34 },
-      { transform:`translate(${dx*0.72+jx*0.3}px,${dy*0.7}px) scale(.9)`, opacity:.85, offset:0.72 },
-      { transform:`translate(${dx}px,${dy}px) scale(.18)`, opacity:0 }
-    ], { duration:880+i*70, delay:i*55, easing:'cubic-bezier(.4,0,.25,1)' });
-    a.onfinish=()=>d.remove();
+  let h=st.height*0.62, w=h*(CARD_W/CARD_H), ox=0, oy=0;
+  if(glOK && camera){
+    const visH=2*Math.tan(camera.fov*Math.PI/360)*camera.position.z;
+    const px=st.height/visH;
+    const g=myUnit.group, sc=g.scale.x||1;
+    h=CARD_H*px*sc; w=CARD_W*px*sc;
+    ox=g.position.x*px; oy=-g.position.y*px;
   }
-  setTimeout(()=>{
-    const b=el('openArchive');
-    b.classList.remove('tabpulse'); void b.offsetWidth; b.classList.add('tabpulse');
-  }, 980);
+  return { x:st.left+st.width/2+ox-w/2, y:st.top+st.height/2+oy-h/2, w, h };
+}
+
+/* 펼쳐진 서책 — 픽셀로 그린다. 바깥이 들리고 책등이 낮은 형태 */
+function drawBook(g, cx, baseY, width, rise, flare){
+  const u=Math.max(3, Math.round(width/40));
+  const halfW=Math.round(width/2/u);
+  const lift=Math.round((1-rise)*u*12);
+  const cy=Math.round(baseY+lift);
+
+  const PAGE   ='#e8dec7';
+  const PAGE_LO='#bdb298';
+  const PAGE_LN='#cfc4ab';
+  const EDGE   ='#8e8471';
+  const COVER  ='#5a3126';
+  const COVER_LO='#331913';
+
+  g.save();
+  g.globalAlpha=Math.min(1,rise);
+
+  if(flare>0){
+    const gr=g.createRadialGradient(cx, cy-u*9, u, cx, cy-u*9, width*0.95);
+    gr.addColorStop(0, `rgba(255,238,196,${0.60*flare})`);
+    gr.addColorStop(0.35, `rgba(206,166,74,${0.24*flare})`);
+    gr.addColorStop(1,'rgba(0,0,0,0)');
+    g.fillStyle=gr;
+    g.fillRect(cx-width, cy-u*3-width, width*2, width*2);
+  }
+
+  for(let side=-1;side<=1;side+=2){
+    for(let c=0;c<halfW;c++){
+      // 바깥이 살짝 들리되, 끝은 평평하게 눌러 모서리를 둥글린다
+      const tip=Math.max(0, c-(halfW-3));
+      const riseU=Math.max(0, Math.round(c*0.16 + c*c*0.006) - tip*2);
+      const face=7+Math.round(c*0.16);               // 바깥일수록 지면이 넓게 보인다
+      const stack=2+Math.round(c*0.13);              // 종이 더미
+      const x=cx+(side<0 ? -(c+1)*u : c*u);
+      // 표지 밑단을 바닥선에 맞춘다 (아래로 넘치지 않게)
+      const yTop=cy-riseU*u-(face+stack+3)*u;
+
+      // 지면 — 넓은 면
+      for(let k=0;k<face;k++){
+        let col=PAGE;
+        if(k===0) col='#f4ecd8';                     // 위 모서리 광
+        else if(k===face-1) col=PAGE_LO;             // 안쪽 그늘
+        else if(c<2) col=PAGE_LO;                    // 책등 그늘
+        else if((k===2||k===4||k===6) && c%9>1 && c<halfW-2) col=PAGE_LN;  // 글줄
+        g.fillStyle=col;
+        g.fillRect(x, yTop+k*u, u, u);
+      }
+      // 종이 더미(단면)
+      for(let k=0;k<stack;k++){
+        g.fillStyle = k===stack-1 ? EDGE : (k%2 ? PAGE_LO : '#d6cbb2');
+        g.fillRect(x, yTop+(face+k)*u, u, u);
+      }
+      // 표지
+      for(let k=0;k<3;k++){
+        g.fillStyle = k===0 ? COVER : COVER_LO;
+        g.fillRect(x, yTop+(face+stack+k)*u, u, u);
+      }
+      // 표지 금선
+      g.fillStyle='#a8913f';
+      g.fillRect(x, yTop+(face+stack+1)*u, u, Math.max(1,Math.round(u/2)));
+    }
+  }
+
+  // 책등 — 가운데 골
+  const spineTop=cy-(7+2+3)*u;
+  g.fillStyle='#241310';
+  g.fillRect(cx-Math.round(u/2), spineTop, u, u*9);
+  if(flare>0){
+    g.fillStyle=`rgba(255,235,186,${Math.min(1,flare)})`;
+    const hh=Math.round(u*4*flare);
+    g.fillRect(cx-Math.round(u/2), spineTop-hh, u, u*5+hh);
+    // 솟아오르는 빛기둥
+    g.globalAlpha=Math.min(1,rise)*0.45*flare;
+    g.fillRect(cx-Math.round(u/2), spineTop-hh-u*10, u, u*10);
+    g.globalAlpha=Math.min(1,rise);
+  }
+  g.restore();
+  return { x:cx, y:cy-(7+2+3)*u + u*2 };
+}
+
+function suckIntoArchive(card){
+  return new Promise(res=>{
+    if(!suckCtx){ res(); return; }
+    const face=faceCanvas(card).face;
+    const rect=cardScreenRect();
+    const glow=TYPES[card.type].glow;
+    const bookW=Math.min(innerWidth*0.55, 300);
+    const bookBase=innerHeight - Math.max(90, innerHeight*0.14);
+    const bx=innerWidth/2;
+
+    if(REDUCED){ SFX.absorb(); res(); return; }
+
+    fitSuck();
+    suckCv.classList.add('on');
+    myUnit.group.visible=false;
+
+    const COLS=16, ROWS=24;
+    const sw=face.width/COLS, sh=face.height/ROWS;
+    const tw=rect.w/COLS, th=rect.h/ROWS;
+    const cx=rect.x+rect.w/2;
+    const tiles=[];
+    for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+      const x0=rect.x+c*tw, y0=rect.y+r*th;
+      const dx=(c+0.5)/COLS-0.5, dy=(r+0.5)/ROWS-0.5;
+      const edge=Math.max(Math.abs(dx)*2, Math.abs(dy)*2);
+      tiles.push({ sx:c*sw, sy:r*sh, x0, y0,
+        foldX:cx-(x0+tw/2),
+        delay:(1-edge)*0.26 + Math.random()*0.12,
+        arc:(Math.random()-0.5)*230,
+        spin:(Math.random()-0.5)*2.2 });
+    }
+    const sparks=[];
+    for(let i=0;i<140;i++) sparks.push({
+      x:rect.x+Math.random()*rect.w, y:rect.y+Math.random()*rect.h,
+      s:(1+Math.floor(Math.random()*3))*2,
+      delay:Math.random()*0.5, arc:(Math.random()-0.5)*320 });
+
+    const BOOK_IN=0.45, FOLD=0.34, FLY=0.80;
+    const TOTAL=BOOK_IN+FOLD+FLY+0.55;
+    const ease=t=>t<0?0:t>1?1:1-Math.pow(1-t,3);
+    const easeIn=t=>t<0?0:t>1?1:t*t;
+    const t0=performance.now();
+    let rumbled=false, flared=false;
+    SFX.book();
+
+    function frame(now){
+      const t=(now-t0)/1000;
+      suckCtx.clearRect(0,0,innerWidth,innerHeight);
+      suckCtx.imageSmoothingEnabled=false;
+
+      const rise=ease(Math.min(t/BOOK_IN,1));
+      const flyT=t-BOOK_IN-FOLD;
+      const flare=flyT>0 ? Math.min(1, flyT/FLY)*0.9 + (flyT>FLY?0.6:0) : 0;
+      const anchor=drawBook(suckCtx, bx, bookBase, bookW, rise, flare);
+
+      if(t>BOOK_IN && !rumbled){
+        rumbled=true;
+        appEl.classList.remove('rumble'); void appEl.offsetWidth; appEl.classList.add('rumble');
+        SFX.suck();
+      }
+
+      const fp=Math.min(Math.max((t-BOOK_IN)/FOLD,0),1);
+      const fe=ease(fp);
+      let alive=false;
+
+      for(const p of tiles){
+        const ft=(t-BOOK_IN-FOLD-p.delay)/FLY;
+        if(ft>=1) continue;
+        alive=true;
+        let x,y,scale,alpha,rot;
+        if(ft<=0){
+          x=p.x0+p.foldX*fe*0.6;
+          y=p.y0;
+          scale=1-fe*0.30; alpha=1; rot=0;
+        }else{
+          const e=easeIn(ft), sm=ease(ft);
+          const bxx=p.x0+p.foldX*0.6;
+          x=bxx+(anchor.x-bxx)*e;
+          y=p.y0+(anchor.y-p.y0)*e + Math.sin(ft*Math.PI)*p.arc*(1-ft*0.5);
+          scale=0.70*(1-sm*0.95);
+          alpha=1-Math.pow(ft,3.2);
+          rot=p.spin*ft;
+        }
+        const w=Math.max(1,Math.round(tw*scale)), h=Math.max(1,Math.round(th*scale));
+        suckCtx.save();
+        suckCtx.globalAlpha=alpha;
+        suckCtx.translate(Math.round(x+tw*scale/2), Math.round(y+th*scale/2));
+        if(rot) suckCtx.rotate(rot);
+        suckCtx.drawImage(face, p.sx, p.sy, sw, sh, -(w>>1), -(h>>1), w, h);
+        suckCtx.restore();
+      }
+
+      suckCtx.fillStyle=glow;
+      for(const q of sparks){
+        const ft=(t-BOOK_IN-FOLD*0.5-q.delay)/(FLY*0.95);
+        if(ft<=0||ft>=1) continue;
+        alive=true;
+        const e=easeIn(ft);
+        const x=q.x+(anchor.x-q.x)*e + Math.sin(ft*Math.PI)*q.arc*0.55;
+        const y=q.y+(anchor.y-q.y)*e;
+        suckCtx.globalAlpha=1-ft;
+        suckCtx.fillRect(Math.round(x), Math.round(y), q.s, q.s);
+      }
+      suckCtx.globalAlpha=1;
+
+      if(!alive && !flared && t>BOOK_IN+FOLD){
+        flared=true; SFX.absorb();
+        appEl.classList.remove('rumble'); void appEl.offsetWidth; appEl.classList.add('shkB');
+      }
+
+      if(t<TOTAL){ requestAnimationFrame(frame); }
+      else{
+        suckCtx.clearRect(0,0,innerWidth,innerHeight);
+        suckCv.classList.remove('on');
+        appEl.classList.remove('shkB');
+        res();
+      }
+    }
+    requestAnimationFrame(frame);
+  });
 }
 
 function playCutin(glyph, label, color, dur){
@@ -2148,12 +2353,13 @@ async function doDraw(rewardMode){
     : (res.isNew?'서고에 새로 기록되었다':`이미 기록된 잔혼 · 잔향 ×${res.count}`);
   showDossier(card, echo);
   SFX.draw();
+  cineOn();
   summonSolo(card, async ()=>{
     SFX.reveal(card.tier);
-    await sleep(1100);                 // 카드를 잠시 보여준다
-    await foldIntoArchive();           // 접히며
-    flySoul(TYPES[card.type].glow);    // 서고로 빨려든다
-    await sleep(760);
+    await sleep(1250);                 // 카드만 보여준다
+    await suckIntoArchive(card);       // 픽셀로 부서져 서책으로
+    cineOff();
+    await sleep(260);
     if(champion){                      // 무대는 대표 잔혼으로 돌아온다
       showDossier(champion, `${card.name} · 서고에 들었다`);
       summonSolo(champion, null, true);
@@ -2684,19 +2890,13 @@ function buildGrid(){
     b.innerHTML='<span class="locked">封</span>';
     b.addEventListener('click',()=>{
       if(!found.has(card.id)) return;
-      if(pickMode){
-        setChampion(card, true);
-        closeDrawer();
-        busy=true; setControls(false);
-        showDossier(card, `${card.name}을(를) 대표로 삼았다`);
-        summonSolo(card, ()=>{ busy=false; setControls(true); });
-        if(!glOK){ busy=false; setControls(true); }
-        return;
-      }
       if(busy) return;
-      busy=true; setControls(false);
+      // 어느 탭에서 고르든 곧바로 대표가 되고 로비로 돌아간다
+      SFX.tap();
+      setChampion(card, true);
       closeDrawer();
-      showDossier(card,'서고에서 다시 불러냈다');
+      busy=true; setControls(false);
+      showDossier(card, `${card.name}을(를) 대표로 삼았다`);
       summonSolo(card, ()=>{ busy=false; setControls(true); });
       if(!glOK){ busy=false; setControls(true); }
     });
