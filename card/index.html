@@ -22,11 +22,15 @@
   --sat:env(safe-area-inset-top,0px);
   --sab:env(safe-area-inset-bottom,0px);
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;
+  -webkit-touch-callout:none}
+body,button,.slot,.rank,canvas{-webkit-user-select:none;user-select:none}
+input,textarea{-webkit-user-select:text;user-select:text}
 html,body{height:100%;overflow:hidden;overscroll-behavior:none}
 body{background:var(--ink);color:var(--paper);
   font-family:"Gowun Batang",Georgia,serif;-webkit-font-smoothing:antialiased;
-  position:fixed;inset:0;touch-action:manipulation}
+  position:fixed;inset:0;touch-action:manipulation;
+  text-size-adjust:100%;-webkit-text-size-adjust:100%}
 
 .veil{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
 .veil .haze{position:absolute;border-radius:50%;filter:blur(90px);opacity:.5;will-change:transform}
@@ -154,6 +158,37 @@ header.masthead{text-align:center;flex:0 0 auto}
 .chbtns .yes{border-color:rgba(158,43,32,.7)}
 .chbtns .yes:hover{border-color:var(--cinnabar);color:#ffd9cf}
 .chbtns .no{color:var(--paper-dim)}
+
+/* 입문 관문 */
+.gate{position:fixed;inset:0;z-index:20;display:none;place-content:center;
+  padding:26px;background:radial-gradient(ellipse at 50% 40%,#0d100e,#040505 70%)}
+.gate.on{display:grid}
+.gatebox{width:100%;max-width:330px;text-align:center;margin:0 auto}
+.gseal{font-family:"Song Myung",serif;font-size:12px;letter-spacing:.55em;
+  color:var(--moss);text-indent:.55em}
+.gatebox h2{font-family:"Nanum Brush Script",cursive;font-weight:400;
+  font-size:52px;line-height:1.1;margin:6px 0 4px;
+  text-shadow:0 0 30px rgba(107,122,86,.4)}
+.ghint{font-size:12px;color:var(--paper-dim);letter-spacing:.14em;margin-bottom:20px}
+.gate input{width:100%;margin-bottom:10px;padding:14px;
+  background:rgba(10,12,10,.75);border:1px solid var(--edge);color:var(--paper);
+  font-family:"Gowun Batang",serif;font-size:16px;letter-spacing:.06em;
+  outline:none;transition:border-color .25s}
+.gate input:focus{border-color:rgba(168,145,63,.7)}
+.gate input::placeholder{color:#5d5a52}
+.gerr{min-height:18px;font-size:12px;color:#cf7a6c;letter-spacing:.06em;margin:2px 0 10px}
+.gbtns{display:flex;gap:9px}
+.gbtns button{flex:1 1 0;appearance:none;cursor:pointer;
+  font-family:"Gowun Batang",serif;font-weight:700;font-size:14px;letter-spacing:.16em;
+  padding:14px 6px;background:linear-gradient(180deg,#1a1712,#0e0d0a);
+  color:var(--paper);border:1px solid var(--edge);transition:border-color .25s,color .25s,opacity .25s}
+.gbtns .gyes{border-color:rgba(168,145,63,.6)}
+.gbtns .gyes:hover{border-color:var(--gold);color:#f0e0b4}
+.gbtns .gno{color:var(--paper-dim)}
+.gbtns button:disabled{opacity:.4;cursor:default}
+.who .out{opacity:.7}
+.side-btn.admin{border-color:rgba(107,122,86,.6);color:var(--paper)}
+.side-btn.admin small{color:var(--moss)}
 
 /* 등급 컷인 */
 .cutin{position:fixed;inset:0;z-index:11;display:none;place-content:center;
@@ -357,6 +392,7 @@ button.chg.out{margin:18px auto 4px;border-color:var(--edge);color:var(--paper-d
       <button id="nameBtn">접속 중…</button>
       <span class="rec" id="recTxt"></span>
       <span class="pres" id="presTxt"></span>
+      <button class="out" id="outBtn" style="display:none">나가기</button>
     </div>
   </header>
 
@@ -405,6 +441,7 @@ button.chg.out{margin:18px auto 4px;border-color:var(--edge);color:var(--paper-d
     <button class="seal-btn" id="drawOne">봉인 해제</button>
     <button class="side-btn war" id="battleBtn">대전<small id="warCount">對戰</small></button>
     <button class="side-btn" id="openArchive">서고<small><span id="tallyFound">0</span>/<span id="tallyTotal">24</span></small></button>
+    <button class="side-btn admin" id="bulkBtn" style="display:none">백연<small>百</small></button>
   </div>
 </div>
 
@@ -435,6 +472,22 @@ button.chg.out{margin:18px auto 4px;border-color:var(--edge);color:var(--paper-d
     <div class="board" id="lobbyPane"><div class="hint">대전청에 들지 않았습니다.</div></div>
   </div>
 </aside>
+
+<div class="gate" id="gate">
+  <div class="gatebox">
+    <div class="gseal">入 門</div>
+    <h2>잔혼록</h2>
+    <p class="ghint" id="gateHint">이름과 표식을 대라</p>
+    <input id="gateId" type="text" inputmode="latin" autocomplete="username"
+           autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="아이디">
+    <input id="gatePw" type="password" autocomplete="current-password" placeholder="비밀번호">
+    <div class="gerr" id="gateErr"></div>
+    <div class="gbtns">
+      <button class="gyes" id="gateIn">들어간다</button>
+      <button class="gno" id="gateUp">새로 짓는다</button>
+    </div>
+  </div>
+</div>
 
 <div class="cutin" id="cutin" aria-hidden="true">
   <div class="band b1"></div><div class="band b2"></div>
@@ -638,8 +691,18 @@ let currentCard=null, busy=false, pickMode=false, battle=null;
 /* ═══ Supabase ═══════════════════════════════ */
 let sb=null, me=null, myProfile={nickname:'무명객', wins:0, losses:0, champion:null};
 let champion=null;
+let myLoginId='';
+const isAdmin = ()=> !!myProfile.is_admin || ADMIN_IDS.includes(myLoginId);
 let lobby=null;
 const online = ()=> !!(sb && me);
+
+/* 아이디를 계정 주소로 바꾼다. 표식(비밀번호)에는 고정 소금을 덧붙여
+   Supabase 의 최소 길이 제한을 넘긴다 — 사용자는 짧은 비번을 그대로 쓴다. */
+const ID_DOMAIN='jonhonrok.local';
+const PW_SALT='::殘魂錄';
+const ADMIN_IDS=['momo'];
+const idToEmail = id => `${String(id).trim().toLowerCase()}@${ID_DOMAIN}`;
+const pwToSecret = pw => `${pw}${PW_SALT}`;
 
 async function initSupabase(){
   if(!window.supabase){ netStatus(false, '라이브러리 없음 · 오프라인'); return; }
@@ -647,29 +710,100 @@ async function initSupabase(){
   if(!SUPABASE_URL){ netStatus(false, 'URL 미입력 · 오프라인'); return; }
   try{
     sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    let { data:{ session } } = await sb.auth.getSession();
-    if(!session){
-      const { data, error } = await sb.auth.signInAnonymously();
-      if(error) throw error;
-      session = data.session;
-    }
-    me = session.user.id;
-    await loadProfile();
-    await loadCollection();
-    netStatus(true);
-    connectLobby();
+    const { data:{ session } } = await sb.auth.getSession();
+    if(session){ await afterAuth(session); }
+    else{ showGate(true); netStatus(false, '들어오지 않음'); }
   }catch(e){
     console.error('Supabase 연결 실패', e);
     sb=null; me=null;
     netStatus(false, '연결 실패 · 오프라인');
   }
 }
+async function afterAuth(session){
+  me = session.user.id;
+  myLoginId = (session.user.email||'').split('@')[0];
+  showGate(false);
+  await loadProfile();
+  await loadCollection();
+  netStatus(true);
+  renderAdminUI();
+  connectLobby();
+}
+
+/* ── 입문 관문 ── */
+function showGate(on){
+  el('gate').classList.toggle('on', !!on);
+  if(on) setTimeout(()=>el('gateId').focus(), 120);
+}
+function gateBusy(on){
+  el('gateIn').disabled=on; el('gateUp').disabled=on;
+}
+function gateErr(msg){ el('gateErr').textContent=msg||''; }
+
+async function doAuth(isSignup){
+  const id=el('gateId').value.trim().toLowerCase();
+  const pw=el('gatePw').value;
+  gateErr('');
+  if(!/^[a-z0-9_]{2,20}$/.test(id)){ gateErr('아이디는 영문·숫자 2~20자로.'); return; }
+  if(pw.length<2){ gateErr('비밀번호가 너무 짧다.'); return; }
+  gateBusy(true);
+  try{
+    if(isSignup){
+      const { data, error } = await sb.auth.signUp({
+        email: idToEmail(id), password: pwToSecret(pw)
+      });
+      if(error) throw error;
+      if(!data.session){
+        gateErr('가입은 됐지만 바로 들어갈 수 없다. Supabase 의 Confirm email 을 꺼라.');
+        gateBusy(false); return;
+      }
+      await insertProfile(data.session.user.id, id);
+      await afterAuth(data.session);
+    }else{
+      const { data, error } = await sb.auth.signInWithPassword({
+        email: idToEmail(id), password: pwToSecret(pw)
+      });
+      if(error) throw error;
+      await afterAuth(data.session);
+    }
+  }catch(e){
+    const m=(e&&e.message)||'';
+    if(/already registered|already exists/i.test(m)) gateErr('이미 있는 이름이다.');
+    else if(/Invalid login/i.test(m)) gateErr('이름이나 표식이 다르다.');
+    else gateErr(m||'들어갈 수 없다.');
+  }
+  gateBusy(false);
+}
+el('gateIn').addEventListener('click', ()=>doAuth(false));
+el('gateUp').addEventListener('click', ()=>doAuth(true));
+el('gatePw').addEventListener('keydown', e=>{ if(e.key==='Enter') doAuth(false); });
+el('gateId').addEventListener('keydown', e=>{ if(e.key==='Enter') el('gatePw').focus(); });
+
+async function doLogout(){
+  try{ if(lobby){ await lobby.unsubscribe(); lobby=null; } }catch(e){}
+  try{ await sb.auth.signOut(); }catch(e){}
+  location.reload();
+}
+async function insertProfile(uid, nickname){
+  const base={ id:uid, nickname, wins:0, losses:0 };
+  let { error } = await sb.from('profiles').insert({ ...base, is_admin: ADMIN_IDS.includes(nickname) });
+  if(error){                       // is_admin 컬럼이 아직 없는 경우
+    const r=await sb.from('profiles').insert(base);
+    if(r.error) console.warn('프로필 생성 실패', r.error);
+  }
+}
 async function loadProfile(){
-  const { data } = await sb.from('profiles').select('nickname,wins,losses,champion').eq('id',me).maybeSingle();
+  let { data, error } = await sb.from('profiles')
+    .select('nickname,wins,losses,champion,is_admin').eq('id',me).maybeSingle();
+  if(error){
+    const r=await sb.from('profiles').select('nickname,wins,losses,champion').eq('id',me).maybeSingle();
+    data=r.data;
+  }
   if(data){ myProfile=data; }
   else{
-    myProfile={ nickname:'무명객 '+String(hashStr(me)%10000).padStart(4,'0'), wins:0, losses:0, champion:null };
-    await sb.from('profiles').insert({ id:me, ...myProfile });
+    myProfile={ nickname:myLoginId||'무명객', wins:0, losses:0, champion:null,
+                is_admin: ADMIN_IDS.includes(myLoginId) };
+    await insertProfile(me, myLoginId||'무명객');
   }
 }
 async function loadCollection(){
@@ -741,7 +875,9 @@ function netStatus(on, txt){
 function renderWho(){
   el('nameBtn').textContent = myProfile.nickname;
   el('recTxt').textContent = `${myProfile.wins}승 ${myProfile.losses}패`;
+  el('outBtn').style.display = online() ? '' : 'none';
 }
+el('outBtn').addEventListener('click', ()=>{ if(online()) doLogout(); });
 el('nameBtn').addEventListener('click', async ()=>{
   if(!online()) return;
   const v = prompt('이름을 바꾸시겠습니까?', myProfile.nickname);
@@ -1582,8 +1718,46 @@ function drawCard(weights){
   return pool[Math.floor(Math.random()*pool.length)];
 }
 const dossier=el('dossier');
+function renderAdminUI(){
+  el('bulkBtn').style.display = isAdmin() ? '' : 'none';
+}
+/* 어드민 전용 — 100장을 한 번에 연다 */
+async function doDraw100(){
+  if(busy || !isAdmin()) return;
+  busy=true; setControls(false);
+  const N=100;
+  const tally={ scrap:0, relic:0, omen:0, taboo:0 };
+  const touched=new Map();
+  let best=null, newCount=0;
+  for(let i=0;i<N;i++){
+    const c=drawCard();
+    tally[c.tier]++;
+    const isNew=!found.has(c.id);
+    if(isNew) newCount++;
+    const n=(found.get(c.id)||0)+1;
+    found.set(c.id,n);
+    touched.set(c.id,n);
+    renderSlot(c, isNew, true);
+    if(!best || TIER_ORDER.indexOf(c.tier)>TIER_ORDER.indexOf(best.tier)) best=c;
+  }
+  updateTally();
+  if(!champion && best) setChampion(best, true);
+  // 한 번에 저장
+  if(online()){
+    try{
+      const rows=[...touched].map(([card_id,count])=>({ user_id:me, card_id, count }));
+      await sb.from('cards_owned').upsert(rows);
+    }catch(e){ console.warn('일괄 저장 실패', e); }
+  }
+  showDossier(best, `백연(百連) · 새로 ${newCount}종`);
+  el('dRecord').textContent =
+    `잔재 ${tally.scrap} · 유물 ${tally.relic} · 흉조 ${tally.omen} · 금기 ${tally.taboo}`;
+  summonSolo(best, ()=>{ busy=false; setControls(true); });
+  if(!glOK){ busy=false; setControls(true); }
+}
 function setControls(on){
   el('drawOne').disabled=!on;
+  el('bulkBtn').disabled=!on;
   el('battleBtn').disabled=!on;
   el('openArchive').disabled=!on;
 }
@@ -2191,7 +2365,35 @@ function renderSlot(card,isNew,quiet){
 
 /* ── 시작 ──────────────────────────────────── */
 el('drawOne').addEventListener('click', ()=>doDraw(false));
+el('bulkBtn').addEventListener('click', doDraw100);
 addEventListener('beforeunload', ()=>{ if(lobby) lobby.unsubscribe(); });
+
+/* ── 더블탭 확대·핀치·길게눌러 선택 막기 ── */
+(function noZoom(){
+  let lastTouch=0;
+  document.addEventListener('touchend', e=>{
+    const now=Date.now();
+    if(now-lastTouch<=320){ e.preventDefault(); }   // 더블탭 확대
+    lastTouch=now;
+  }, { passive:false });
+  document.addEventListener('dblclick', e=>e.preventDefault(), { passive:false });
+  // iOS 사파리 핀치
+  ['gesturestart','gesturechange','gestureend'].forEach(ev=>
+    document.addEventListener(ev, e=>e.preventDefault(), { passive:false }));
+  // 두 손가락 확대
+  document.addEventListener('touchmove', e=>{
+    if(e.touches.length>1) e.preventDefault();
+  }, { passive:false });
+  // Ctrl/⌘ + 휠 확대
+  document.addEventListener('wheel', e=>{
+    if(e.ctrlKey||e.metaKey) e.preventDefault();
+  }, { passive:false });
+  // 길게 눌러 뜨는 메뉴 (입력창은 예외)
+  document.addEventListener('contextmenu', e=>{
+    if(e.target.closest('input,textarea')) return;
+    e.preventDefault();
+  });
+})();
 
 async function boot(){
   buildGrid();
