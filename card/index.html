@@ -3343,6 +3343,12 @@ async function connectLobby(){
     }
   });
 
+  lobby.on('broadcast', { event:'needpick' }, ({ payload })=>{
+    if(payload.to!==me) return;
+    const rec=sentDecks.get(payload.match);
+    if(rec) sendMatch('pick', { match:payload.match, to:rec.to, deck:rec.deck });
+  });
+
   lobby.on('broadcast', { event:'pick' }, ({ payload })=>{
     if(payload.to!==me) return;
     if(!match || match.matchId!==payload.match){
@@ -3620,6 +3626,7 @@ let match=null;   // { matchId, seed, role, oppId, oppName, myCard, oppCard, sen
 let pkTimer=null, pkCountId=null, acceptResendId=null;
 const earlyPicks=new Map();   // 선택창보다 먼저 온 상대의 선택
 const joinedMatches=new Set();
+const sentDecks=new Map();    // 내가 보낸 덱 — 재요청에 답하기 위해 남긴다
 
 const DECK_SIZE=3;
 function openPicker(m){
@@ -3727,12 +3734,15 @@ function confirmPick(){
   busyOn('상대가 고르는 중');
   SFX.tap();
   const deck=match.myDeck.map(c=>({ id:c.id, lv:lv(c.id) }));
-  sendMatch('pick', { match:match.matchId, to:match.oppId, deck });
+  const mid=match.matchId, oppId=match.oppId;
+  sentDecks.set(mid, { deck, to:oppId });
+  sendMatch('pick', { match:mid, to:oppId, deck });
   let n=0;
   const rid=setInterval(()=>{
-    if(!match || match.oppDeck || n++>4){ clearInterval(rid); return; }
-    sendMatch('pick', { match:match.matchId, to:match.oppId, deck });
-  }, 1800);
+    if(!match || match.oppDeck || n++>6){ clearInterval(rid); return; }
+    sendMatch('pick', { match:mid, to:oppId, deck });
+    if(n>2) sendMatch('needpick', { match:mid, to:oppId });   // 상대에게 다시 보내달라 청한다
+  }, 1500);
   tryStartMatch();
 }
 function onOpponentPick(payload){
@@ -3748,7 +3758,8 @@ function onOpponentPick(payload){
   tryStartMatch();
 }
 function tryStartMatch(){
-  if(!match || match.myDeck.length!==DECK_SIZE || !match.oppDeck) return;
+  if(!match || !match.sent) return;                 // 완료를 누르지 않았으면 시작하지 않는다
+  if(match.myDeck.length!==DECK_SIZE || !match.oppDeck) return;
   const m=match;
   match=null;
   clearTimeout(pkTimer); clearInterval(pkCountId); clearInterval(acceptResendId);
