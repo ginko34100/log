@@ -345,13 +345,19 @@ header.masthead{text-align:center;flex:0 0 auto}
    ═══════════════════════════════════════════════
 
    ┌─ 설정 ─────────────────────────────────────┐
-   │ Supabase 대시보드 → Project Settings →     │
-   │ Data API 에서 두 값을 복사해 넣으세요.      │
-   │ anon key 는 공개돼도 되는 값입니다          │
-   │ (RLS 로 보호). DB 비밀번호는 절대 넣지 마세요│
+   │ URL 은 이미 넣어두었습니다.                 │
+   │ 아래 KEY 한 줄만 채우면 온라인이 켜집니다.  │
+   │                                            │
+   │ Supabase 대시보드 → Settings → API Keys    │
+   │  · Publishable key (sb_publishable_...)    │
+   │    없으면 Legacy API Keys 탭의 anon key    │
+   │                                            │
+   │ 이 키는 공개돼도 되는 값입니다 (RLS 로 보호).│
+   │ secret / service_role 키와 DB 비밀번호는    │
+   │ 절대 여기에 넣지 마세요.                    │
    └────────────────────────────────────────────┘ */
-const SUPABASE_URL      = '';   // 예: https://abcdefgh.supabase.co
-const SUPABASE_ANON_KEY = '';   // 예: eyJhbGciOi...
+const SUPABASE_URL      = 'https://mizfqdwuzwjkxgarzcyq.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_92DJY8GATx51qt6kqbC8xg_LNVo0z7m';
 
 const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -453,8 +459,9 @@ let lobby=null, seeking=false, matched=false, seekTimer=null;
 const online = ()=> !!(sb && me);
 
 async function initSupabase(){
-  const cfgOK = SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase;
-  if(!cfgOK){ netStatus(false, '홀로 수련 중 (오프라인)'); return; }
+  if(!window.supabase){ netStatus(false, '라이브러리 없음 · 오프라인'); return; }
+  if(!SUPABASE_ANON_KEY){ netStatus(false, 'API 키 미입력 · 오프라인'); return; }
+  if(!SUPABASE_URL){ netStatus(false, 'URL 미입력 · 오프라인'); return; }
   try{
     sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let { data:{ session } } = await sb.auth.getSession();
