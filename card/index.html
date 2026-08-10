@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>잔혼록 · Codex of Remnants</title>
+<meta name="description" content="봉인된 잔혼을 해제하고 서고에 기록하는 다크 판타지 카드 수집록.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@300;500;700&family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --obsidian:#0a0908;
+  --ash:#15120f;
+  --smoke:#241f1a;
+  --bone:#ddd3c0;
+  --bone-dim:#8c8375;
+  --brass:#c9a227;
+  --blood:#a32b22;
+  --tier-1:#7d8286;
+  --tier-2:#4a7c6f;
+  --tier-3:#7b4fa3;
+  --tier-4:#a32b22;
+  --accent:var(--brass);
+  --edge:rgba(221,211,192,.14);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--obsidian);
+  color:var(--bone);
+  font-family:"Nanum Myeongjo",Georgia,serif;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── atmosphere ─────────────────────────────── */
+.veil{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.veil .haze{
+  position:absolute;border-radius:50%;filter:blur(90px);opacity:.5;
+  will-change:transform;
+}
+.veil .h1{width:70vmax;height:70vmax;left:-25vmax;top:-25vmax;
+  background:radial-gradient(circle,rgba(163,43,34,.20),transparent 65%);
+  animation:drift1 34s ease-in-out infinite alternate}
+.veil .h2{width:60vmax;height:60vmax;right:-22vmax;top:15vmax;
+  background:radial-gradient(circle,rgba(74,124,111,.16),transparent 65%);
+  animation:drift2 41s ease-in-out infinite alternate}
+.veil .h3{width:80vmax;height:50vmax;left:10vmax;bottom:-25vmax;
+  background:radial-gradient(circle,rgba(201,162,39,.10),transparent 65%);
+  animation:drift1 47s ease-in-out infinite alternate-reverse}
+@keyframes drift1{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(6vmax,4vmax,0) scale(1.15)}}
+@keyframes drift2{from{transform:translate3d(0,0,0) scale(1.1)}to{transform:translate3d(-7vmax,-5vmax,0) scale(1)}}
+.vignette{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 38%,transparent 30%,rgba(5,4,3,.72) 78%,#050403 100%)}
+.grain{position:fixed;inset:-50%;z-index:2;pointer-events:none;opacity:.16;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='.5'/></svg>");
+  animation:grain 1.1s steps(3) infinite}
+@keyframes grain{0%{transform:translate(0,0)}33%{transform:translate(-3%,2%)}66%{transform:translate(2%,-3%)}100%{transform:translate(0,0)}}
+
+/* ── shell ──────────────────────────────────── */
+.shell{position:relative;z-index:3;max-width:1120px;margin:0 auto;padding:0 20px 72px}
+
+header.masthead{padding:26px 0 14px;text-align:center}
+.sigil-rule{display:flex;align-items:center;gap:14px;justify-content:center;color:var(--bone-dim)}
+.sigil-rule i{display:block;height:1px;width:min(120px,18vw);background:linear-gradient(90deg,transparent,var(--edge),transparent)}
+.sigil-rule svg{width:15px;height:15px;opacity:.75}
+.masthead h1{
+  font-family:"Nanum Myeongjo",serif;font-weight:800;
+  font-size:clamp(30px,7.5vw,52px);letter-spacing:.22em;
+  margin:12px 0 6px;text-indent:.22em;
+  color:var(--bone);
+  text-shadow:0 0 26px rgba(201,162,39,.20);
+}
+.masthead .latin{
+  font-family:"Grenze Gotisch",serif;font-weight:300;
+  font-size:clamp(11px,2.8vw,14px);letter-spacing:.42em;
+  text-transform:uppercase;color:var(--bone-dim);text-indent:.42em;
+}
+
+/* ── stage ──────────────────────────────────── */
+.stage{
+  position:relative;margin-top:18px;
+  height:clamp(360px,54vh,540px);
+  touch-action:pan-y;
+}
+.stage canvas{display:block;width:100%;height:100%}
+.stage-empty{
+  position:absolute;inset:0;display:grid;place-content:center;text-align:center;
+  gap:10px;pointer-events:none;transition:opacity .6s ease;
+}
+.stage-empty.gone{opacity:0}
+.stage-empty p{color:var(--bone-dim);font-size:14px;letter-spacing:.12em;line-height:2}
+.stage-empty .mark{font-family:"Grenze Gotisch",serif;font-size:64px;color:rgba(221,211,192,.10);line-height:1}
+
+/* ── dossier ────────────────────────────────── */
+.dossier{
+  min-height:118px;text-align:center;padding:4px 6px 0;
+  transition:opacity .45s ease;
+}
+.dossier.hidden{opacity:0}
+.dossier .tierline{
+  display:inline-flex;align-items:center;gap:9px;
+  font-family:"Grenze Gotisch",serif;font-size:13px;letter-spacing:.34em;
+  text-transform:uppercase;color:var(--tier);
+}
+.dossier .tierline b{font-family:"Nanum Myeongjo",serif;font-weight:700;letter-spacing:.24em;font-size:12px}
+.dossier .tierline i{width:26px;height:1px;background:currentColor;opacity:.5;display:block}
+.dossier h2{
+  font-weight:800;font-size:clamp(23px,5.6vw,34px);letter-spacing:.06em;
+  margin:9px 0 8px;color:var(--bone);
+}
+.dossier .record{
+  max-width:42ch;margin:0 auto;color:var(--bone-dim);
+  font-size:14px;line-height:1.95;word-break:keep-all;
+}
+.dossier .echo{
+  display:inline-block;margin-top:11px;font-size:12px;letter-spacing:.2em;
+  color:var(--brass);opacity:.9;
+}
+
+/* ── controls ───────────────────────────────── */
+.controls{display:flex;flex-direction:column;align-items:center;gap:15px;margin:24px 0 8px}
+.seal-btn{
+  position:relative;appearance:none;cursor:pointer;
+  background:linear-gradient(180deg,#1c1712,#100d0a);
+  border:1px solid rgba(201,162,39,.42);
+  color:var(--bone);
+  font-family:"Nanum Myeongjo",serif;font-weight:700;
+  font-size:16px;letter-spacing:.3em;text-indent:.3em;
+  padding:17px 40px;border-radius:2px;
+  box-shadow:0 0 0 1px rgba(0,0,0,.6),0 14px 40px rgba(0,0,0,.55),inset 0 1px 0 rgba(221,211,192,.07);
+  transition:border-color .3s,box-shadow .3s,transform .12s,color .3s;
+}
+.seal-btn::before,.seal-btn::after{
+  content:"";position:absolute;width:7px;height:7px;border:1px solid rgba(201,162,39,.5);
+}
+.seal-btn::before{left:6px;top:6px;border-right:0;border-bottom:0}
+.seal-btn::after{right:6px;bottom:6px;border-left:0;border-top:0}
+.seal-btn:hover:not(:disabled){
+  border-color:rgba(201,162,39,.95);color:#fff3d6;
+  box-shadow:0 0 0 1px rgba(0,0,0,.6),0 0 34px rgba(201,162,39,.28),inset 0 1px 0 rgba(221,211,192,.12);
+}
+.seal-btn:active:not(:disabled){transform:translateY(1px)}
+.seal-btn:disabled{opacity:.34;cursor:default}
+.seal-btn:focus-visible,.ghost-btn:focus-visible,.slot:focus-visible{outline:1px solid var(--brass);outline-offset:3px}
+.ghost-btn{
+  appearance:none;background:none;border:0;cursor:pointer;
+  color:var(--bone-dim);font-family:"Nanum Myeongjo",serif;font-size:13px;
+  letter-spacing:.2em;padding:6px 10px;
+  border-bottom:1px solid var(--edge);transition:color .3s,border-color .3s;
+}
+.ghost-btn:hover:not(:disabled){color:var(--bone);border-color:rgba(201,162,39,.6)}
+.ghost-btn:disabled{opacity:.3;cursor:default}
+
+/* ── archive ────────────────────────────────── */
+.archive{margin-top:56px}
+.archive-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;
+  border-bottom:1px solid var(--edge);padding-bottom:11px;margin-bottom:22px}
+.archive-head h3{font-weight:700;font-size:17px;letter-spacing:.3em;text-indent:.3em}
+.archive-head .tally{font-family:"Grenze Gotisch",serif;font-size:15px;letter-spacing:.2em;color:var(--bone-dim)}
+.archive-head .tally b{color:var(--brass);font-weight:500}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:12px}
+.slot{
+  position:relative;aspect-ratio:2/3;border:1px solid var(--edge);
+  background:linear-gradient(180deg,#12100d,#0b0a08);
+  border-radius:2px;overflow:hidden;cursor:default;padding:0;appearance:none;
+}
+.slot .locked{position:absolute;inset:0;display:grid;place-content:center;opacity:.3}
+.slot .locked svg{width:26px;height:26px}
+.slot img{width:100%;height:100%;object-fit:cover;display:block}
+.slot.found{cursor:pointer;border-color:color-mix(in srgb,var(--tier) 45%,transparent);
+  box-shadow:0 0 18px -6px var(--tier)}
+.slot.found:hover{transform:translateY(-3px);box-shadow:0 0 26px -4px var(--tier)}
+.slot{transition:transform .25s ease,box-shadow .25s ease,border-color .25s}
+.slot .dupes{
+  position:absolute;right:4px;bottom:4px;font-family:"Grenze Gotisch",serif;
+  font-size:11px;letter-spacing:.08em;color:var(--bone);
+  background:rgba(6,5,4,.82);border:1px solid var(--edge);padding:1px 5px;border-radius:1px;
+}
+.slot.fresh{animation:ignite .9s ease-out}
+@keyframes ignite{0%{box-shadow:0 0 0 0 var(--tier)}40%{box-shadow:0 0 40px 4px var(--tier)}100%{box-shadow:0 0 18px -6px var(--tier)}}
+
+footer.colophon{margin-top:54px;text-align:center;color:var(--bone-dim);font-size:11.5px;letter-spacing:.24em;opacity:.6}
+
+@media (min-width:900px){
+  .stage{height:520px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:16px}
+}
+@media (prefers-reduced-motion:reduce){
+  .grain,.veil .haze{animation:none}
+  .slot.fresh{animation:none}
+}
+</style>
+</head>
+<body>
+
+<div class="veil" aria-hidden="true">
+  <div class="haze h1"></div><div class="haze h2"></div><div class="haze h3"></div>
+</div>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<div class="shell">
+  <header class="masthead">
+    <div class="sigil-rule" aria-hidden="true">
+      <i></i>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18M6 6l12 12M18 6L6 18"/></svg>
+      <i></i>
+    </div>
+    <h1>잔혼록</h1>
+    <div class="latin">Codex of Remnants</div>
+  </header>
+
+  <section class="stage" id="stage">
+    <canvas id="gl"></canvas>
+    <div class="stage-empty" id="stageEmpty">
+      <div class="mark">✶</div>
+      <p>봉인을 해제하면 잔혼이 떠오릅니다</p>
+    </div>
+  </section>
+
+  <section class="dossier hidden" id="dossier" style="--tier:var(--tier-1)">
+    <div class="tierline"><i></i><span id="dTierNum">Ⅰ</span><b id="dTierName">잔재</b><i></i></div>
+    <h2 id="dName">—</h2>
+    <p class="record" id="dRecord"></p>
+    <span class="echo" id="dEcho"></span>
+  </section>
+
+  <div class="controls">
+    <button class="seal-btn" id="drawOne">봉인 해제</button>
+    <button class="ghost-btn" id="drawFive">다섯 번 연달아 해제</button>
+  </div>
+
+  <section class="archive">
+    <div class="archive-head">
+      <h3>서고</h3>
+      <div class="tally"><b id="tallyFound">0</b> / <span id="tallyTotal">24</span> 기록됨</div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <footer class="colophon">기록은 이 세션 동안만 유지됩니다</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three/r128/three.min.js"></script>
+<script>
+/* ═══════════════════════════════════════════════
+   잔혼록 — 다크 판타지 카드 수집
+   ═══════════════════════════════════════════════ */
+
+const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ── 등급 ───────────────────────────────────── */
+const TIERS = {
+  scrap: { name:'잔재', numeral:'Ⅰ', color:'#7d8286', glow:'#9aa0a4', weight:55, foil:0.0, spikes:0 },
+  relic: { name:'유물', numeral:'Ⅱ', color:'#4a7c6f', glow:'#63b39c', weight:30, foil:0.25, spikes:6 },
+  omen:  { name:'흉조', numeral:'Ⅲ', color:'#7b4fa3', glow:'#a874dd', weight:12, foil:0.6, spikes:12 },
+  taboo: { name:'금기', numeral:'Ⅳ', color:'#a32b22', glow:'#e8773a', weight:3,  foil:1.0, spikes:20 },
+};
+const TIER_ORDER = ['scrap','relic','omen','taboo'];
+
+/* ── 카드 ───────────────────────────────────── */
+const CARDS = [
+  // Ⅳ 금기
+  { id:'crown',   name:'무명의 왕관',       tier:'taboo', record:'이름을 지운 자가 마지막으로 썼다. 쓴 자의 이름도 함께 지워졌다.' },
+  { id:'silence', name:'첫 번째 침묵',      tier:'taboo', record:'세상이 말을 배우기 전, 단 한 번 있었던 고요의 조각.' },
+  { id:'stars',   name:'뒤집힌 성좌',       tier:'taboo', record:'하늘을 올려다본 자들이 대신 발밑을 보게 된 밤.' },
+  { id:'serpent', name:'스스로를 삼킨 뱀',  tier:'taboo', record:'끝을 먹어 시작으로 삼았다. 그래서 아직 끝나지 않았다.' },
+  // Ⅲ 흉조
+  { id:'choir',   name:'재의 성가대',       tier:'omen', record:'불탄 성당에서 아직도 노래한다. 입이 남지 않았는데도.' },
+  { id:'watcher', name:'눈꺼풀 없는 감시자', tier:'omen', record:'감을 수 없어 잠들지 못하고, 잠들지 못해 자비를 잊었다.' },
+  { id:'bell',    name:'열두 번째 종',      tier:'omen', record:'열한 번까지만 세도록 정해진 종. 열두 번째는 누군가 대신 친다.' },
+  { id:'pact',    name:'피로 쓴 계약서',    tier:'omen', record:'서명한 손은 남았지만 서명한 사람은 남지 않았다.' },
+  { id:'dawn',    name:'사산된 새벽',       tier:'omen', record:'해가 뜨려다 만 날. 그날의 그림자는 아직 걷히지 않았다.' },
+  // Ⅱ 유물
+  { id:'nail',    name:'녹슨 순례자의 못',  tier:'relic', record:'천 개의 문을 두드린 손이 마지막 문에 박아 넣었다.' },
+  { id:'lantern', name:'물에 잠긴 등불',    tier:'relic', record:'꺼지지 않은 채 가라앉았다. 아직도 바닥에서 누군가를 부른다.' },
+  { id:'compass', name:'거짓말하는 나침반', tier:'relic', record:'언제나 북쪽이 아닌, 돌아갈 수 없는 곳을 가리킨다.' },
+  { id:'tag',     name:'매장된 이름표',     tier:'relic', record:'무덤보다 오래 남은 것은 결국 이름 세 글자뿐이었다.' },
+  { id:'sword',   name:'세 번 부러진 검',   tier:'relic', record:'세 번 부러지고 세 번 이어 붙였다. 주인은 두 번째에서 멈췄다.' },
+  { id:'heart',   name:'밀랍 심장',        tier:'relic', record:'따뜻한 곳에 두지 마라. 녹으면 기억까지 흘러내린다.' },
+  { id:'doll',    name:'잿빛 아이의 인형',  tier:'relic', record:'재 속에서 인형만 온전했다. 그편이 더 나빴다.' },
+  // Ⅰ 잔재
+  { id:'glass',   name:'깨진 유리 조각',    tier:'scrap', record:'비추던 얼굴을 잃고도 여전히 무언가를 비춘다.' },
+  { id:'ash',     name:'식은 재',          tier:'scrap', record:'무엇이 탔는지는 아무도 묻지 않았다.' },
+  { id:'bone',    name:'마른 뼛조각',       tier:'scrap', record:'짐승의 것이라고들 했다. 그렇게 믿는 편이 편했다.' },
+  { id:'map',     name:'곰팡이 핀 지도',    tier:'scrap', record:'길은 남았으나 도착지가 지워졌다.' },
+  { id:'feather', name:'벌레 먹은 깃털',    tier:'scrap', record:'날았던 흔적보다 갉힌 흔적이 더 선명하다.' },
+  { id:'wax',     name:'굳은 촛농',        tier:'scrap', record:'누군가 밤새 무언가를 기다린 자리에 남았다.' },
+  { id:'rope',    name:'삭은 밧줄',        tier:'scrap', record:'묶기 위한 것이었는지 매달기 위한 것이었는지 모른다.' },
+  { id:'coin',    name:'흐려진 동전',       tier:'scrap', record:'뱃삯으로 쓰이기엔 너무 닳았다. 그래서 강을 건너지 못했다.' },
+];
+
+/* ── 상태 ───────────────────────────────────── */
+const found = new Map();   // id -> count
+let currentCard = null;
+let busy = false;
+
+/* ── 시드 난수 ─────────────────────────────── */
+function hashStr(s){ let h=2166136261; for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);} return h>>>0; }
+function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+
+/* ── 카드 페이스 텍스처 (절차 생성) ─────────── */
+const W = 384, H = 576;
+const faceCache = new Map();
+const thumbCache = new Map();
+
+function drawFace(card){
+  const t = TIERS[card.tier];
+  const rnd = mulberry32(hashStr(card.id + card.name));
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const x = c.getContext('2d');
+
+  // 바탕: 그을린 석판
+  const bg = x.createLinearGradient(0,0,W*0.6,H);
+  bg.addColorStop(0,'#191512'); bg.addColorStop(0.55,'#0e0c0a'); bg.addColorStop(1,'#050404');
+  x.fillStyle = bg; x.fillRect(0,0,W,H);
+
+  // 얼룩
+  for(let i=0;i<26;i++){
+    const r = 26+rnd()*90, px=rnd()*W, py=rnd()*H;
+    const g = x.createRadialGradient(px,py,0,px,py,r);
+    g.addColorStop(0,`rgba(${20+rnd()*30|0},${16+rnd()*20|0},${12+rnd()*14|0},${0.10+rnd()*0.14})`);
+    g.addColorStop(1,'rgba(0,0,0,0)');
+    x.fillStyle=g; x.beginPath(); x.arc(px,py,r,0,7); x.fill();
+  }
+  // 입자
+  for(let i=0;i<2600;i++){
+    x.fillStyle = `rgba(221,211,192,${rnd()*0.045})`;
+    x.fillRect(rnd()*W, rnd()*H, 1, 1);
+  }
+
+  // 등급 후광
+  const halo = x.createRadialGradient(W/2,H*0.44,10,W/2,H*0.44,W*0.62);
+  halo.addColorStop(0, hexA(t.glow, 0.20));
+  halo.addColorStop(0.5, hexA(t.color, 0.07));
+  halo.addColorStop(1,'rgba(0,0,0,0)');
+  x.fillStyle=halo; x.fillRect(0,0,W,H);
+
+  // 인장
+  x.save();
+  x.translate(W/2, H*0.44);
+  x.shadowColor = t.glow; x.shadowBlur = 16;
+  x.strokeStyle = hexA(t.glow, 0.92); x.lineWidth = 1.4;
+
+  const R = W*0.31;
+  ring(x, R, 1.4);
+  ring(x, R*0.86, 0.7);
+  // 눈금
+  const ticks = 24 + Math.floor(rnd()*24);
+  for(let i=0;i<ticks;i++){
+    const a = (i/ticks)*Math.PI*2, len = i%4===0 ? 15 : 7;
+    x.beginPath();
+    x.moveTo(Math.cos(a)*R, Math.sin(a)*R);
+    x.lineTo(Math.cos(a)*(R+len), Math.sin(a)*(R+len));
+    x.stroke();
+  }
+  // 성형 다각형
+  const n = 5 + Math.floor(rnd()*4);
+  const step = 1 + Math.floor(rnd()*Math.max(1,(n-1)/2));
+  const rot = rnd()*Math.PI*2;
+  x.lineWidth = 1.7; x.beginPath();
+  for(let i=0;i<=n;i++){
+    const a = rot + ((i*step)%n)/n*Math.PI*2;
+    const px=Math.cos(a)*R*0.78, py=Math.sin(a)*R*0.78;
+    i===0 ? x.moveTo(px,py) : x.lineTo(px,py);
+  }
+  x.closePath(); x.stroke();
+  // 내부 코어
+  x.lineWidth=1.1; ring(x, R*0.34, 1.1); ring(x, R*0.20, 2.2);
+  // 방사 가시 (상위 등급)
+  x.lineWidth=1;
+  for(let i=0;i<t.spikes;i++){
+    const a = rot + (i/Math.max(1,t.spikes))*Math.PI*2;
+    const i0 = R*0.42 + rnd()*R*0.15, i1 = R*0.62 + rnd()*R*0.34;
+    x.beginPath(); x.moveTo(Math.cos(a)*i0, Math.sin(a)*i0);
+    x.lineTo(Math.cos(a)*i1, Math.sin(a)*i1); x.stroke();
+  }
+  // 균열 룬
+  x.lineWidth=0.9; x.strokeStyle = hexA(t.glow, 0.55);
+  for(let i=0;i<7;i++){
+    const a = rnd()*Math.PI*2; let r0 = R*0.22+rnd()*R*0.5;
+    let px=Math.cos(a)*r0, py=Math.sin(a)*r0;
+    x.beginPath(); x.moveTo(px,py);
+    for(let k=0;k<3;k++){ px += (rnd()-0.5)*44; py += (rnd()-0.5)*44; x.lineTo(px,py); }
+    x.stroke();
+  }
+  x.restore();
+
+  // 프레임
+  x.shadowBlur = 0;
+  x.strokeStyle = hexA(t.color, 0.75); x.lineWidth = 2;
+  x.strokeRect(11,11,W-22,H-22);
+  x.strokeStyle = hexA('#ddd3c0', 0.14); x.lineWidth = 1;
+  x.strokeRect(19,19,W-38,H-38);
+  // 모서리 표식
+  x.strokeStyle = hexA(t.glow,0.85); x.lineWidth=2;
+  const cs=22, m=11;
+  corner(x,m,m,cs,1,1); corner(x,W-m,m,cs,-1,1); corner(x,m,H-m,cs,1,-1); corner(x,W-m,H-m,cs,-1,-1);
+
+  // 등급 숫자
+  x.fillStyle = hexA(t.glow, 0.9);
+  x.font = '600 30px "Grenze Gotisch", serif';
+  x.textAlign='center'; x.textBaseline='middle';
+  x.fillText(t.numeral, W/2, 47);
+
+  // 명판
+  const plateY = H-118;
+  const pg = x.createLinearGradient(0,plateY,0,H-24);
+  pg.addColorStop(0,'rgba(0,0,0,0)'); pg.addColorStop(0.35,'rgba(4,3,3,.86)'); pg.addColorStop(1,'rgba(4,3,3,.95)');
+  x.fillStyle=pg; x.fillRect(20,plateY,W-40,H-plateY-20);
+  x.strokeStyle = hexA(t.color,0.5); x.lineWidth=1;
+  x.beginPath(); x.moveTo(56,plateY+26); x.lineTo(W-56,plateY+26); x.stroke();
+
+  x.fillStyle = '#e6dcc8';
+  x.font = '800 30px "Nanum Myeongjo", serif';
+  fitText(x, card.name, W/2, plateY+66, W-64, 30);
+
+  x.fillStyle = hexA(t.glow,0.85);
+  x.font = '400 15px "Nanum Myeongjo", serif';
+  x.fillText(t.name, W/2, plateY+98);
+
+  return c;
+}
+
+function ring(x,r,w){ x.lineWidth=w; x.beginPath(); x.arc(0,0,r,0,Math.PI*2); x.stroke(); }
+function corner(x,px,py,s,dx,dy){
+  x.beginPath(); x.moveTo(px+dx*s,py); x.lineTo(px,py); x.lineTo(px,py+dy*s); x.stroke();
+}
+function fitText(x,text,cx,cy,maxW,size){
+  let s=size;
+  while(x.measureText(text).width>maxW && s>16){ s-=1; x.font=`800 ${s}px "Nanum Myeongjo", serif`; }
+  x.fillText(text,cx,cy);
+}
+function hexA(hex,a){
+  const h=hex.replace('#','');
+  const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+function drawBack(){
+  const c=document.createElement('canvas'); c.width=W; c.height=H;
+  const x=c.getContext('2d');
+  const bg=x.createLinearGradient(0,0,W,H);
+  bg.addColorStop(0,'#120f0d'); bg.addColorStop(1,'#060505');
+  x.fillStyle=bg; x.fillRect(0,0,W,H);
+  const rnd=mulberry32(7);
+  for(let i=0;i<2200;i++){ x.fillStyle=`rgba(221,211,192,${rnd()*0.035})`; x.fillRect(rnd()*W,rnd()*H,1,1); }
+  x.save(); x.translate(W/2,H/2);
+  x.strokeStyle='rgba(201,162,39,.42)'; x.shadowColor='rgba(201,162,39,.5)'; x.shadowBlur=12;
+  ring(x,W*0.30,1.6); ring(x,W*0.24,0.8); ring(x,W*0.09,1.4);
+  for(let i=0;i<48;i++){
+    const a=(i/48)*Math.PI*2, l=i%6===0?14:6;
+    x.lineWidth=1; x.beginPath();
+    x.moveTo(Math.cos(a)*W*0.30,Math.sin(a)*W*0.30);
+    x.lineTo(Math.cos(a)*(W*0.30+l),Math.sin(a)*(W*0.30+l)); x.stroke();
+  }
+  x.lineWidth=1.2;
+  for(let i=0;i<6;i++){
+    const a=(i/6)*Math.PI*2;
+    x.beginPath(); x.moveTo(Math.cos(a)*W*0.09,Math.sin(a)*W*0.09);
+    x.lineTo(Math.cos(a)*W*0.24,Math.sin(a)*W*0.24); x.stroke();
+  }
+  x.restore();
+  x.shadowBlur=0;
+  x.strokeStyle='rgba(201,162,39,.35)'; x.lineWidth=2; x.strokeRect(11,11,W-22,H-22);
+  x.strokeStyle='rgba(221,211,192,.10)'; x.lineWidth=1; x.strokeRect(19,19,W-38,H-38);
+  return c;
+}
+
+function faceCanvas(card){
+  if(!faceCache.has(card.id)) faceCache.set(card.id, drawFace(card));
+  return faceCache.get(card.id);
+}
+function thumbURL(card){
+  if(!thumbCache.has(card.id)){
+    const src = faceCanvas(card);
+    const t=document.createElement('canvas'); t.width=128; t.height=192;
+    t.getContext('2d').drawImage(src,0,0,128,192);
+    thumbCache.set(card.id, t.toDataURL('image/png'));
+  }
+  return thumbCache.get(card.id);
+}
+
+/* ═══ three.js 무대 ═══════════════════════════ */
+const stageEl = document.getElementById('stage');
+const renderer = new THREE.WebGLRenderer({ canvas:document.getElementById('gl'), alpha:true, antialias:true });
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
+camera.position.set(0,0,6.4);
+
+const CARD_W = 2.55, CARD_H = 3.82;
+
+const cardVert = `
+varying vec2 vUv; varying vec3 vView;
+void main(){
+  vUv = uv;
+  vec4 mv = modelViewMatrix * vec4(position,1.0);
+  vView = normalize(-mv.xyz);
+  gl_Position = projectionMatrix * mv;
+}`;
+
+const cardFrag = `
+uniform sampler2D map; uniform float uTime; uniform float uReveal;
+uniform vec3 uGlow; uniform float uFoil;
+varying vec2 vUv; varying vec3 vView;
+
+float hash(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
+float noise(vec2 p){
+  vec2 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f);
+  return mix(mix(hash(i),hash(i+vec2(1,0)),f.x), mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x), f.y);
+}
+float fbm(vec2 p){ float v=0.0,a=0.5; for(int i=0;i<4;i++){ v+=a*noise(p); p*=2.03; a*=0.5; } return v; }
+
+void main(){
+  float n = fbm(vUv*5.5 + 3.0);
+  float edge = uReveal*1.35 - 0.18;
+  if(n > edge) discard;
+
+  vec4 tex = texture2D(map, vUv);
+  vec3 col = tex.rgb;
+
+  // 타오르는 경계
+  float burn = smoothstep(edge-0.14, edge, n);
+  col = mix(col, uGlow*2.6, burn*burn);
+
+  // 포일 광택
+  float f = sin((vUv.x*3.0 + vUv.y*5.0)*3.4 - uTime*1.2 + vView.x*6.0)*0.5+0.5;
+  float f2 = sin((vUv.x - vUv.y)*11.0 + uTime*0.7)*0.5+0.5;
+  col += uGlow * pow(f,3.0) * uFoil * 0.55;
+  col += vec3(1.0) * pow(f2,8.0) * uFoil * 0.16;
+
+  // 가장자리 발광
+  vec2 d = abs(vUv-0.5);
+  float rim = smoothstep(0.44,0.5,max(d.x,d.y));
+  col += uGlow * rim * 0.5;
+
+  gl_FragColor = vec4(col, 1.0);
+}`;
+
+function makeCardMat(tex, glow, foil){
+  return new THREE.ShaderMaterial({
+    uniforms:{
+      map:{value:tex}, uTime:{value:0}, uReveal:{value:1},
+      uGlow:{value:new THREE.Color(glow)}, uFoil:{value:foil}
+    },
+    vertexShader:cardVert, fragmentShader:cardFrag, side:THREE.FrontSide
+  });
+}
+
+const backTex = new THREE.CanvasTexture(drawBack());
+backTex.anisotropy = 4;
+
+const cardGroup = new THREE.Group();
+scene.add(cardGroup);
+
+const frontMesh = new THREE.Mesh(new THREE.PlaneGeometry(CARD_W,CARD_H,1,1), makeCardMat(backTex,'#c9a227',0));
+const backMesh  = new THREE.Mesh(new THREE.PlaneGeometry(CARD_W,CARD_H,1,1), makeCardMat(backTex,'#c9a227',0));
+backMesh.rotation.y = Math.PI;
+frontMesh.position.z = 0.012; backMesh.position.z = -0.012;
+cardGroup.add(frontMesh, backMesh);
+cardGroup.visible = false;
+
+/* 후광 */
+function radialTex(){
+  const c=document.createElement('canvas'); c.width=c.height=256;
+  const x=c.getContext('2d');
+  const g=x.createRadialGradient(128,128,0,128,128,128);
+  g.addColorStop(0,'rgba(255,255,255,1)');
+  g.addColorStop(0.28,'rgba(255,255,255,.45)');
+  g.addColorStop(1,'rgba(255,255,255,0)');
+  x.fillStyle=g; x.fillRect(0,0,256,256);
+  return new THREE.CanvasTexture(c);
+}
+const softTex = radialTex();
+const auraMat = new THREE.MeshBasicMaterial({ map:softTex, transparent:true, blending:THREE.AdditiveBlending, depthWrite:false, opacity:0 });
+const aura = new THREE.Mesh(new THREE.PlaneGeometry(7.6,7.6), auraMat);
+aura.position.z = -1.1;
+scene.add(aura);
+
+/* 입자 */
+function makePoints(count, size, opacity){
+  const geo = new THREE.BufferGeometry();
+  const pos = new Float32Array(count*3);
+  geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  const mat = new THREE.PointsMaterial({
+    size, map:softTex, transparent:true, blending:THREE.AdditiveBlending,
+    depthWrite:false, opacity, color:new THREE.Color('#c9a227'), sizeAttenuation:true
+  });
+  const pts = new THREE.Points(geo, mat);
+  scene.add(pts);
+  return { pts, geo, mat, vel:new Float32Array(count*3), life:new Float32Array(count), count };
+}
+const dust = makePoints(220, 0.075, 0.5);
+const burst = makePoints(320, 0.16, 0.9);
+
+for(let i=0;i<dust.count;i++){
+  const p=dust.geo.attributes.position.array;
+  p[i*3]=(Math.random()-0.5)*11; p[i*3+1]=(Math.random()-0.5)*8; p[i*3+2]=(Math.random()-0.5)*3-0.5;
+  dust.vel[i*3+1]=0.08+Math.random()*0.22;
+  dust.vel[i*3]=(Math.random()-0.5)*0.05;
+}
+for(let i=0;i<burst.count;i++) burst.life[i]=0;
+burst.geo.attributes.position.array.fill(999);
+
+function fireBurst(color){
+  burst.mat.color.set(color);
+  const p=burst.geo.attributes.position.array;
+  for(let i=0;i<burst.count;i++){
+    const a=Math.random()*Math.PI*2, r=Math.random()*1.1;
+    p[i*3]=Math.cos(a)*r*1.0; p[i*3+1]=Math.sin(a)*r*1.5; p[i*3+2]=Math.random()*0.6;
+    const sp=1.4+Math.random()*3.0;
+    burst.vel[i*3]=Math.cos(a)*sp*0.42;
+    burst.vel[i*3+1]=Math.sin(a)*sp*0.5+0.9;
+    burst.vel[i*3+2]=(Math.random()-0.5)*0.9;
+    burst.life[i]=0.75+Math.random()*0.75;
+  }
+  burst.geo.attributes.position.needsUpdate=true;
+}
+
+/* 리사이즈 */
+function resize(){
+  const w=stageEl.clientWidth, h=stageEl.clientHeight;
+  renderer.setSize(w,h,false);
+  camera.aspect=w/h;
+  camera.position.z = h<420 ? 7.4 : (w<600 ? 6.9 : 6.4);
+  camera.updateProjectionMatrix();
+}
+addEventListener('resize', resize);
+
+/* 포인터 기울임 */
+let tiltX=0, tiltY=0, tTiltX=0, tTiltY=0;
+function onPointer(e){
+  const r=stageEl.getBoundingClientRect();
+  const px=(e.clientX-r.left)/r.width-0.5, py=(e.clientY-r.top)/r.height-0.5;
+  tTiltY=px*0.62; tTiltX=py*0.42;
+}
+stageEl.addEventListener('pointermove', onPointer);
+stageEl.addEventListener('pointerleave', ()=>{ tTiltX=0; tTiltY=0; });
+
+/* 소환 애니메이션 */
+let anim=null;
+const easeOut=t=>1-Math.pow(1-t,3);
+const easeIn =t=>t*t*t;
+
+function summon(card){
+  const t=TIERS[card.tier];
+  const tex=new THREE.CanvasTexture(faceCanvas(card));
+  tex.anisotropy=4;
+  frontMesh.material.uniforms.map.value=tex;
+  frontMesh.material.uniforms.uGlow.value.set(t.glow);
+  frontMesh.material.uniforms.uFoil.value=t.foil;
+  frontMesh.material.uniforms.uReveal.value=0;
+  backMesh.material.uniforms.uGlow.value.set('#c9a227');
+  backMesh.material.uniforms.uReveal.value=1;
+  auraMat.color.set(t.glow);
+  cardGroup.visible=true;
+
+  if(REDUCED){
+    frontMesh.material.uniforms.uReveal.value=1;
+    cardGroup.rotation.y=0; cardGroup.position.y=0; cardGroup.scale.setScalar(1);
+    auraMat.opacity=0.34; anim=null; onRevealDone(card); return;
+  }
+  anim={ t:0, dur:2.0, tier:t, card, burstFired:false };
+}
+
+function onRevealDone(card){
+  busy=false;
+  setControls(true);
+}
+
+/* ── 렌더 루프 ─────────────────────────────── */
+const clock=new THREE.Clock();
+function loop(){
+  requestAnimationFrame(loop);
+  const dt=Math.min(clock.getDelta(),0.05);
+  const et=clock.elapsedTime;
+
+  frontMesh.material.uniforms.uTime.value=et;
+  backMesh.material.uniforms.uTime.value=et;
+
+  if(anim){
+    anim.t+=dt;
+    const p=Math.min(anim.t/anim.dur,1);
+    const rise=easeOut(Math.min(p/0.6,1));
+    cardGroup.position.y = -3.0 + rise*3.0;
+    cardGroup.rotation.y = Math.PI*(1-easeOut(Math.min(p/0.66,1)));
+    const s=0.55+0.45*easeOut(Math.min(p/0.5,1));
+    cardGroup.scale.setScalar(s);
+
+    const rp=Math.max(0,Math.min((anim.t-0.85)/0.75,1));
+    frontMesh.material.uniforms.uReveal.value=easeIn(rp)*0.35+rp*0.65;
+    auraMat.opacity = Math.min(rp*0.75, 0.75) * (0.55+0.45*Math.sin(et*1.6));
+
+    if(!anim.burstFired && anim.t>0.92){ anim.burstFired=true; fireBurst(anim.tier.glow); }
+    if(p>=1){ const c=anim.card; anim=null; onRevealDone(c); }
+  } else if(cardGroup.visible){
+    cardGroup.position.y = REDUCED ? 0 : Math.sin(et*0.85)*0.07;
+    cardGroup.scale.setScalar(1);
+    tiltX+=(tTiltX-tiltX)*0.07; tiltY+=(tTiltY-tiltY)*0.07;
+    cardGroup.rotation.y = tiltY + (REDUCED?0:Math.sin(et*0.5)*0.05);
+    cardGroup.rotation.x = tiltX;
+    if(currentCard){
+      const g=TIERS[currentCard.tier];
+      auraMat.opacity = (0.26 + 0.10*Math.sin(et*1.4)) * (0.6 + g.foil*0.8);
+    }
+  }
+
+  // dust
+  const dp=dust.geo.attributes.position.array;
+  for(let i=0;i<dust.count;i++){
+    dp[i*3+1]+=dust.vel[i*3+1]*dt;
+    dp[i*3]+=Math.sin(et*0.4+i)*0.004;
+    if(dp[i*3+1]>4.5){ dp[i*3+1]=-4.5; dp[i*3]=(Math.random()-0.5)*11; }
+  }
+  dust.geo.attributes.position.needsUpdate=true;
+
+  // burst
+  const bp=burst.geo.attributes.position.array;
+  let alive=false;
+  for(let i=0;i<burst.count;i++){
+    if(burst.life[i]<=0) continue;
+    alive=true;
+    burst.life[i]-=dt;
+    burst.vel[i*3+1]-=2.4*dt;
+    bp[i*3]+=burst.vel[i*3]*dt;
+    bp[i*3+1]+=burst.vel[i*3+1]*dt;
+    bp[i*3+2]+=burst.vel[i*3+2]*dt;
+    if(burst.life[i]<=0) bp[i*3+1]=999;
+  }
+  if(alive) burst.geo.attributes.position.needsUpdate=true;
+  burst.mat.opacity = alive?0.9:0;
+
+  aura.rotation.z += dt*0.05;
+  renderer.render(scene,camera);
+}
+
+/* ═══ 게임 로직 ═══════════════════════════════ */
+function rollTier(){
+  const total=TIER_ORDER.reduce((s,k)=>s+TIERS[k].weight,0);
+  let r=Math.random()*total;
+  for(const k of TIER_ORDER){ r-=TIERS[k].weight; if(r<=0) return k; }
+  return 'scrap';
+}
+function drawCard(){
+  const tier=rollTier();
+  const pool=CARDS.filter(c=>c.tier===tier);
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+
+const el = id => document.getElementById(id);
+const dossier=el('dossier');
+
+function setControls(on){
+  el('drawOne').disabled=!on;
+  el('drawFive').disabled=!on;
+}
+
+function reveal(card, isNew, count, extraNote){
+  currentCard=card;
+  const t=TIERS[card.tier];
+  dossier.style.setProperty('--tier', t.color);
+  el('dTierNum').textContent=t.numeral;
+  el('dTierName').textContent=t.name;
+  el('dName').textContent=card.name;
+  el('dRecord').textContent=card.record;
+  el('dEcho').textContent = extraNote ? extraNote
+    : (isNew ? '서고에 새로 기록되었습니다' : `이미 기록된 잔혼 · 잔향 ×${count}`);
+  dossier.classList.remove('hidden');
+  el('stageEmpty').classList.add('gone');
+}
+
+function record(card){
+  const isNew=!found.has(card.id);
+  found.set(card.id,(found.get(card.id)||0)+1);
+  renderSlot(card, isNew);
+  el('tallyFound').textContent=found.size;
+  return { isNew, count:found.get(card.id) };
+}
+
+function doDraw(){
+  if(busy) return;
+  busy=true; setControls(false);
+  const card=drawCard();
+  const res=record(card);
+  reveal(card,res.isNew,res.count);
+  summon(card);
+}
+
+function doDrawFive(){
+  if(busy) return;
+  busy=true; setControls(false);
+  const drawn=[];
+  for(let i=0;i<5;i++){ const c=drawCard(); drawn.push({c, res:record(c)}); }
+  drawn.sort((a,b)=>TIER_ORDER.indexOf(b.c.tier)-TIER_ORDER.indexOf(a.c.tier));
+  const best=drawn[0];
+  const newCount=drawn.filter(d=>d.res.isNew).length;
+  const note = newCount>0
+    ? `다섯 번 중 ${newCount}개가 새로 기록되었습니다 · 최상위 잔혼 표시 중`
+    : '다섯 번 모두 이미 기록된 잔혼이었습니다';
+  reveal(best.c, best.res.isNew, best.res.count, note);
+  summon(best.c);
+}
+
+/* 서고 */
+const grid=el('grid');
+const slotEls=new Map();
+function buildGrid(){
+  const ordered=[...CARDS].sort((a,b)=>TIER_ORDER.indexOf(b.tier)-TIER_ORDER.indexOf(a.tier));
+  ordered.forEach(card=>{
+    const b=document.createElement('button');
+    b.className='slot'; b.type='button';
+    b.style.setProperty('--tier', TIERS[card.tier].color);
+    b.setAttribute('aria-label','미발견 봉인');
+    b.disabled=true;
+    b.innerHTML=`<span class="locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="12" r="7"/><path d="M12 5v14M5 12h14"/></svg></span>`;
+    b.addEventListener('click',()=>{
+      if(busy || !found.has(card.id)) return;
+      busy=true; setControls(false);
+      reveal(card,false,found.get(card.id),'서고에서 다시 불러냈습니다');
+      summon(card);
+    });
+    grid.appendChild(b);
+    slotEls.set(card.id,b);
+  });
+  el('tallyTotal').textContent=CARDS.length;
+}
+function renderSlot(card,isNew){
+  const b=slotEls.get(card.id);
+  const n=found.get(card.id);
+  if(isNew){
+    b.classList.add('found');
+    b.disabled=false;
+    b.setAttribute('aria-label',`${card.name} · ${TIERS[card.tier].name}`);
+    b.innerHTML=`<img alt="${card.name}" src="${thumbURL(card)}">`;
+  }
+  if(n>1){
+    let d=b.querySelector('.dupes');
+    if(!d){ d=document.createElement('span'); d.className='dupes'; b.appendChild(d); }
+    d.textContent='×'+n;
+  }
+  b.classList.remove('fresh'); void b.offsetWidth; b.classList.add('fresh');
+}
+
+/* ── 시작 ──────────────────────────────────── */
+el('drawOne').addEventListener('click', doDraw);
+el('drawFive').addEventListener('click', doDrawFive);
+
+function boot(){
+  buildGrid();
+  resize();
+  loop();
+}
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(boot).catch(boot);
+else boot();
+</script>
+</body>
+</html>
