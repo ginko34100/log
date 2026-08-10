@@ -1795,16 +1795,41 @@ function flash(crit){
   flashEl.classList.remove('hit','crit'); void flashEl.offsetWidth;
   flashEl.classList.add(crit?'crit':'hit');
 }
+/* 혼자 있을 때는 바짝, 대전 중에는 두 장이 들어오게 */
+function camDistance(){
+  const tan=2*Math.tan(camera.fov*Math.PI/360);
+  const a=camera.aspect;
+  const solo = Math.max((CARD_H*1.10)/tan, (CARD_W*1.30)/(tan*a));
+  const duo  = Math.max((CARD_H*1.40)/tan, (CARD_W*2.40)/(tan*a));
+  return Math.min(Math.max(battle?duo:solo, 4.2), 10.5);
+}
+function fitAura(){
+  if(!aura||!camera) return;
+  const visH=2*Math.tan(camera.fov*Math.PI/360)*camera.position.z;
+  const visW=visH*camera.aspect;
+  // 광원이 화면 밖으로 잘리지 않게 가시 영역 안에 맞춘다
+  aura.scale.setScalar(Math.min(visW, visH)*0.98/7.6);
+}
 function resize(){
   if(!glOK) return;
   const w=stageEl.clientWidth, h=stageEl.clientHeight;
   if(!w||!h) return;
   renderer.setSize(w,h,false);
   camera.aspect=w/h;
-  const tan=2*Math.tan(camera.fov*Math.PI/360);
-  const fit=Math.max((CARD_H*1.4)/tan, (CARD_W*2.4)/(tan*camera.aspect));
-  camera.position.z=Math.min(Math.max(fit,5.6),10.5);
+  camera.position.z=camDistance();
   camera.updateProjectionMatrix();
+  fitAura();
+}
+/* 대전 시작·종료 때 부드럽게 당겼다 물러난다 */
+function camTo(){
+  if(!glOK) return;
+  const from=camera.position.z, to=camDistance();
+  if(Math.abs(from-to)<0.01) return;
+  tween(0.45, p=>{
+    camera.position.z=from+(to-from)*p;
+    camera.updateProjectionMatrix();
+    fitAura();
+  });
 }
 addEventListener('resize', resize);
 addEventListener('orientationchange', ()=>setTimeout(resize,250));
@@ -1885,6 +1910,12 @@ function splitCard(unit){
 }
 
 function summonSolo(card, then, quiet){
+  if(ART[card.id] && !artImgs.has(card.id)){
+    busyOn('그림을 불러오는 중');
+    const done=()=>busyOff();
+    const iv=setInterval(()=>{ if(artImgs.has(card.id)||!artPending.has(card.id)){ clearInterval(iv); done(); } }, 120);
+    setTimeout(()=>{ clearInterval(iv); done(); }, 6000);
+  }
   if(!glOK){ if(then) then(); return; }
   foeUnit.group.visible=false;
   setUnitCard(myUnit, card);
@@ -1984,11 +2015,13 @@ function renderAdminUI(){
 async function doDraw100(){
   if(busy || !isAdmin()) return;
   busy=true; setControls(false);
+  busyOn('백 장을 여는 중', true);
   const N=100;
   const tally={ scrap:0, relic:0, omen:0, taboo:0 };
   const touched=new Map();
   let best=null, newCount=0;
   for(let i=0;i<N;i++){
+    if(i%10===9){ busyStep(i/N); await new Promise(r=>requestAnimationFrame(()=>r())); }
     const c=drawCard();
     tally[c.tier]++;
     const isNew=!found.has(c.id);
@@ -2000,6 +2033,7 @@ async function doDraw100(){
     if(!best || TIER_ORDER.indexOf(c.tier)>TIER_ORDER.indexOf(best.tier)) best=c;
   }
   updateTally();
+  busyStep(1);
   if(!champion && best) setChampion(best, true);
   // 한 번에 저장
   if(online()){
@@ -2008,6 +2042,7 @@ async function doDraw100(){
       await sb.from('cards_owned').upsert(rows);
     }catch(e){ console.warn('일괄 저장 실패', e); }
   }
+  busyOff();
   showDossier(best, `백연(百連) · 새로 ${newCount}종`);
   el('dRecord').textContent =
     `잔재 ${tally.scrap} · 유물 ${tally.relic} · 흉조 ${tally.omen} · 금기 ${tally.taboo}`;
@@ -2129,84 +2164,114 @@ function cardScreenRect(){
   return { x:st.left+st.width/2+ox-w/2, y:st.top+st.height/2+oy-h/2, w, h };
 }
 
-/* 펼쳐진 서책 — 픽셀로 그린다. 바깥이 들리고 책등이 낮은 형태 */
-function drawBook(g, cx, baseY, width, rise, flare){
-  const u=Math.max(3, Math.round(width/40));
-  const halfW=Math.round(width/2/u);
-  const lift=Math.round((1-rise)*u*12);
-  const cy=Math.round(baseY+lift);
+/* ── 호리병 — SVG 로 그려 매끈하게 쓴다 ── */
+const GOURD_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="300" viewBox="0 0 200 300">
+  <defs>
+    <radialGradient id="body" cx="38%" cy="30%" r="78%">
+      <stop offset="0%" stop-color="#7c8f6e"/>
+      <stop offset="42%" stop-color="#4a5a44"/>
+      <stop offset="100%" stop-color="#1b241c"/>
+    </radialGradient>
+    <linearGradient id="glaze" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity=".42"/>
+      <stop offset="45%" stop-color="#ffffff" stop-opacity=".06"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="cordg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#a8913f"/>
+      <stop offset="100%" stop-color="#6b5a24"/>
+    </linearGradient>
+    <radialGradient id="mouthg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#0b0f0c"/>
+      <stop offset="100%" stop-color="#2c3a2c"/>
+    </radialGradient>
+  </defs>
+  <!-- 몸통: 아래 큰 배, 잘록한 허리, 위 작은 배 -->
+  <path d="M100 44
+           C 128 44 142 62 142 80
+           C 142 96 126 106 122 118
+           C 118 130 132 138 146 152
+           C 166 172 176 198 176 222
+           C 176 264 143 292 100 292
+           C 57 292 24 264 24 222
+           C 24 198 34 172 54 152
+           C 68 138 82 130 78 118
+           C 74 106 58 96 58 80
+           C 58 62 72 44 100 44 Z"
+        fill="url(#body)" stroke="#141b16" stroke-width="3"/>
+  <!-- 유약 광택 -->
+  <ellipse cx="72" cy="212" rx="34" ry="52" fill="url(#glaze)" transform="rotate(-18 72 212)"/>
+  <ellipse cx="86" cy="68" rx="16" ry="20" fill="url(#glaze)" transform="rotate(-18 86 68)"/>
+  <!-- 허리 끈 -->
+  <path d="M62 122 C 80 132 120 132 138 122" fill="none" stroke="url(#cordg)" stroke-width="7" stroke-linecap="round"/>
+  <path d="M62 130 C 80 140 120 140 138 130" fill="none" stroke="#4a3c18" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+  <!-- 목과 아가리 -->
+  <path d="M86 46 L86 26 C 86 18 92 14 100 14 C 108 14 114 18 114 26 L114 46 Z"
+        fill="#3a4838" stroke="#141b16" stroke-width="3"/>
+  <ellipse cx="100" cy="15" rx="15" ry="6" fill="url(#mouthg)" stroke="#141b16" stroke-width="2.5"/>
+  <ellipse cx="100" cy="15" rx="9" ry="3.2" fill="#080b09"/>
+</svg>`;
+let gourdImg=null;
+function initGourd(){
+  const im=new Image();
+  im.onload=()=>{ gourdImg=im; };
+  im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(GOURD_SVG);
+}
 
-  const PAGE   ='#e8dec7';
-  const PAGE_LO='#bdb298';
-  const PAGE_LN='#cfc4ab';
-  const EDGE   ='#8e8471';
-  const COVER  ='#5a3126';
-  const COVER_LO='#331913';
+/* 호리병을 그리고, 빨려드는 지점(아가리)을 돌려준다 */
+function drawGourd(g, cx, baseY, height, rise, flare){
+  const h=height, w=height*(200/300);
+  const lift=(1-rise)*h*0.35;
+  const y=baseY-h+lift;
+  const mouth={ x:cx, y:y+h*(15/300) };
 
   g.save();
   g.globalAlpha=Math.min(1,rise);
 
+  // 아가리에서 번지는 빛
   if(flare>0){
-    const gr=g.createRadialGradient(cx, cy-u*9, u, cx, cy-u*9, width*0.95);
-    gr.addColorStop(0, `rgba(255,238,196,${0.60*flare})`);
-    gr.addColorStop(0.35, `rgba(206,166,74,${0.24*flare})`);
+    const gr=g.createRadialGradient(mouth.x, mouth.y, 2, mouth.x, mouth.y, h*0.75);
+    gr.addColorStop(0, `rgba(214,238,190,${0.55*flare})`);
+    gr.addColorStop(0.35, `rgba(120,170,110,${0.20*flare})`);
     gr.addColorStop(1,'rgba(0,0,0,0)');
     g.fillStyle=gr;
-    g.fillRect(cx-width, cy-u*3-width, width*2, width*2);
+    g.fillRect(mouth.x-h, mouth.y-h, h*2, h*2);
   }
 
-  for(let side=-1;side<=1;side+=2){
-    for(let c=0;c<halfW;c++){
-      // 바깥이 살짝 들리되, 끝은 평평하게 눌러 모서리를 둥글린다
-      const tip=Math.max(0, c-(halfW-3));
-      const riseU=Math.max(0, Math.round(c*0.16 + c*c*0.006) - tip*2);
-      const face=7+Math.round(c*0.16);               // 바깥일수록 지면이 넓게 보인다
-      const stack=2+Math.round(c*0.13);              // 종이 더미
-      const x=cx+(side<0 ? -(c+1)*u : c*u);
-      // 표지 밑단을 바닥선에 맞춘다 (아래로 넘치지 않게)
-      const yTop=cy-riseU*u-(face+stack+3)*u;
+  // 바닥 그림자
+  const sh=g.createRadialGradient(cx, baseY, 2, cx, baseY, w*0.7);
+  sh.addColorStop(0,'rgba(0,0,0,.55)'); sh.addColorStop(1,'rgba(0,0,0,0)');
+  g.fillStyle=sh;
+  g.beginPath(); g.ellipse(cx, baseY, w*0.62, h*0.06, 0, 0, 7); g.fill();
 
-      // 지면 — 넓은 면
-      for(let k=0;k<face;k++){
-        let col=PAGE;
-        if(k===0) col='#f4ecd8';                     // 위 모서리 광
-        else if(k===face-1) col=PAGE_LO;             // 안쪽 그늘
-        else if(c<2) col=PAGE_LO;                    // 책등 그늘
-        else if((k===2||k===4||k===6) && c%9>1 && c<halfW-2) col=PAGE_LN;  // 글줄
-        g.fillStyle=col;
-        g.fillRect(x, yTop+k*u, u, u);
-      }
-      // 종이 더미(단면)
-      for(let k=0;k<stack;k++){
-        g.fillStyle = k===stack-1 ? EDGE : (k%2 ? PAGE_LO : '#d6cbb2');
-        g.fillRect(x, yTop+(face+k)*u, u, u);
-      }
-      // 표지
-      for(let k=0;k<3;k++){
-        g.fillStyle = k===0 ? COVER : COVER_LO;
-        g.fillRect(x, yTop+(face+stack+k)*u, u, u);
-      }
-      // 표지 금선
-      g.fillStyle='#a8913f';
-      g.fillRect(x, yTop+(face+stack+1)*u, u, Math.max(1,Math.round(u/2)));
-    }
+  if(gourdImg){
+    g.imageSmoothingEnabled=true;
+    g.drawImage(gourdImg, cx-w/2, y, w, h);
+  }else{
+    g.fillStyle='#3f4d3c';
+    g.beginPath(); g.ellipse(cx, y+h*0.75, w*0.44, h*0.24, 0,0,7); g.fill();
+    g.beginPath(); g.ellipse(cx, y+h*0.28, w*0.24, h*0.13, 0,0,7); g.fill();
   }
 
-  // 책등 — 가운데 골
-  const spineTop=cy-(7+2+3)*u;
-  g.fillStyle='#241310';
-  g.fillRect(cx-Math.round(u/2), spineTop, u, u*9);
+  // 아가리 속 빛
   if(flare>0){
-    g.fillStyle=`rgba(255,235,186,${Math.min(1,flare)})`;
-    const hh=Math.round(u*4*flare);
-    g.fillRect(cx-Math.round(u/2), spineTop-hh, u, u*5+hh);
-    // 솟아오르는 빛기둥
-    g.globalAlpha=Math.min(1,rise)*0.45*flare;
-    g.fillRect(cx-Math.round(u/2), spineTop-hh-u*10, u, u*10);
-    g.globalAlpha=Math.min(1,rise);
+    g.globalCompositeOperation='lighter';
+    const mg=g.createRadialGradient(mouth.x, mouth.y, 0, mouth.x, mouth.y, w*0.22);
+    mg.addColorStop(0, `rgba(226,246,200,${0.9*flare})`);
+    mg.addColorStop(1,'rgba(0,0,0,0)');
+    g.fillStyle=mg;
+    g.beginPath(); g.ellipse(mouth.x, mouth.y, w*0.16, h*0.035, 0,0,7); g.fill();
+    // 솟는 김
+    g.globalAlpha=Math.min(1,rise)*0.35*flare;
+    const vg=g.createLinearGradient(0, mouth.y-h*0.5, 0, mouth.y);
+    vg.addColorStop(0,'rgba(200,230,180,0)');
+    vg.addColorStop(1,`rgba(200,230,180,${0.5*flare})`);
+    g.fillStyle=vg;
+    g.fillRect(mouth.x-w*0.10, mouth.y-h*0.5, w*0.20, h*0.5);
+    g.globalCompositeOperation='source-over';
   }
   g.restore();
-  return { x:cx, y:cy-(7+2+3)*u + u*2 };
+  return mouth;
 }
 
 function suckIntoArchive(card){
@@ -2215,107 +2280,117 @@ function suckIntoArchive(card){
     const face=faceCanvas(card).face;
     const rect=cardScreenRect();
     const glow=TYPES[card.type].glow;
-    const bookW=Math.min(innerWidth*0.55, 300);
-    const bookBase=innerHeight - Math.max(90, innerHeight*0.14);
-    const bx=innerWidth/2;
+    const gH=Math.min(innerHeight*0.30, 250);
+    const gBase=innerHeight - Math.max(70, innerHeight*0.10);
+    const gx=innerWidth/2;
 
     if(REDUCED){ SFX.absorb(); res(); return; }
 
     fitSuck();
     suckCv.classList.add('on');
-    myUnit.group.visible=false;
 
-    const COLS=16, ROWS=24;
+    const COLS=20, ROWS=30;
     const sw=face.width/COLS, sh=face.height/ROWS;
     const tw=rect.w/COLS, th=rect.h/ROWS;
-    const cx=rect.x+rect.w/2;
-    const tiles=[];
+    const ccx=rect.x+rect.w/2, ccy=rect.y+rect.h/2;
+    const bits=[];
     for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
       const x0=rect.x+c*tw, y0=rect.y+r*th;
-      const dx=(c+0.5)/COLS-0.5, dy=(r+0.5)/ROWS-0.5;
-      const edge=Math.max(Math.abs(dx)*2, Math.abs(dy)*2);
-      tiles.push({ sx:c*sw, sy:r*sh, x0, y0,
-        foldX:cx-(x0+tw/2),
-        delay:(1-edge)*0.26 + Math.random()*0.12,
-        arc:(Math.random()-0.5)*230,
-        spin:(Math.random()-0.5)*2.2 });
+      const ang=Math.atan2((y0+th/2)-ccy, (x0+tw/2)-ccx);
+      bits.push({
+        sx:c*sw, sy:r*sh, x0, y0,
+        bx:Math.cos(ang)*(60+Math.random()*150),   // 터져 나가는 방향
+        by:Math.sin(ang)*(40+Math.random()*110)-40,
+        delay:Math.random()*0.16,
+        spin:(Math.random()-0.5)*7,
+        swirl:(Math.random()-0.5)*180
+      });
     }
     const sparks=[];
-    for(let i=0;i<140;i++) sparks.push({
-      x:rect.x+Math.random()*rect.w, y:rect.y+Math.random()*rect.h,
-      s:(1+Math.floor(Math.random()*3))*2,
-      delay:Math.random()*0.5, arc:(Math.random()-0.5)*320 });
+    for(let i=0;i<240;i++){
+      const a=Math.random()*Math.PI*2;
+      sparks.push({
+        x:rect.x+Math.random()*rect.w, y:rect.y+Math.random()*rect.h,
+        bx:Math.cos(a)*(80+Math.random()*220), by:Math.sin(a)*(60+Math.random()*180)-50,
+        s:(1+Math.floor(Math.random()*3))*2,
+        delay:Math.random()*0.22, swirl:(Math.random()-0.5)*240
+      });
+    }
 
-    const BOOK_IN=0.45, FOLD=0.34, FLY=0.80;
-    const TOTAL=BOOK_IN+FOLD+FLY+0.55;
+    const RISE=0.42, FLY=0.95, TOTAL=RISE+FLY+0.55;
     const ease=t=>t<0?0:t>1?1:1-Math.pow(1-t,3);
-    const easeIn=t=>t<0?0:t>1?1:t*t;
     const t0=performance.now();
-    let rumbled=false, flared=false;
+    let rumbled=false, boomed=false;
     SFX.book();
+
+    // 조각의 t 시점 위치 — 터져 나갔다가 아가리로 빨려든다
+    function posAt(p, t, mouth){
+      const k=Math.max(0,Math.min(1,t));
+      const out=Math.sin(Math.min(k,0.30)/0.30*Math.PI*0.5);   // 초반 폭발
+      const pull=Math.pow(k,2.6);                              // 후반 가속 흡입
+      const sx0=p.x0+p.bx*out*(1-pull);
+      const sy0=p.y0+p.by*out*(1-pull);
+      const swirl=Math.sin(k*Math.PI)*p.swirl*(1-pull);
+      return {
+        x: sx0+(mouth.x-sx0)*pull + swirl,
+        y: sy0+(mouth.y-sy0)*pull,
+        s: Math.max(0.10, (1-k*0.92))*(1-out*0.30)
+      };
+    }
 
     function frame(now){
       const t=(now-t0)/1000;
       suckCtx.clearRect(0,0,innerWidth,innerHeight);
-      suckCtx.imageSmoothingEnabled=false;
 
-      const rise=ease(Math.min(t/BOOK_IN,1));
-      const flyT=t-BOOK_IN-FOLD;
-      const flare=flyT>0 ? Math.min(1, flyT/FLY)*0.9 + (flyT>FLY?0.6:0) : 0;
-      const anchor=drawBook(suckCtx, bx, bookBase, bookW, rise, flare);
+      const rise=ease(Math.min(t/RISE,1));
+      const ft=(t-RISE)/FLY;
+      const flare=ft>0 ? Math.min(1.4, 0.25+ft*1.15) : 0;
+      const mouth=drawGourd(suckCtx, gx, gBase, gH, rise, flare);
 
-      if(t>BOOK_IN && !rumbled){
+      if(t>RISE && !rumbled){
         rumbled=true;
         appEl.classList.remove('rumble'); void appEl.offsetWidth; appEl.classList.add('rumble');
         SFX.suck();
+        myUnit.group.visible=false;         // 카드는 이 순간 사라진다
       }
 
-      const fp=Math.min(Math.max((t-BOOK_IN)/FOLD,0),1);
-      const fe=ease(fp);
       let alive=false;
-
-      for(const p of tiles){
-        const ft=(t-BOOK_IN-FOLD-p.delay)/FLY;
-        if(ft>=1) continue;
+      suckCtx.imageSmoothingEnabled=false;
+      for(const p of bits){
+        const k=(t-RISE-p.delay)/FLY;
+        if(k<=0||k>=1) { if(k<=0 && t>RISE) alive=true; continue; }
         alive=true;
-        let x,y,scale,alpha,rot;
-        if(ft<=0){
-          x=p.x0+p.foldX*fe*0.6;
-          y=p.y0;
-          scale=1-fe*0.30; alpha=1; rot=0;
-        }else{
-          const e=easeIn(ft), sm=ease(ft);
-          const bxx=p.x0+p.foldX*0.6;
-          x=bxx+(anchor.x-bxx)*e;
-          y=p.y0+(anchor.y-p.y0)*e + Math.sin(ft*Math.PI)*p.arc*(1-ft*0.5);
-          scale=0.70*(1-sm*0.95);
-          alpha=1-Math.pow(ft,3.2);
-          rot=p.spin*ft;
+        const a=posAt(p,k,mouth);
+        const w=Math.max(1,Math.round(tw*a.s)), h=Math.max(1,Math.round(th*a.s));
+        // 잔상
+        for(let g2=2;g2>=1;g2--){
+          const b=posAt(p, k-g2*0.045, mouth);
+          if(b.s<=0) continue;
+          suckCtx.globalAlpha=(1-k)*0.16*(3-g2)/2;
+          suckCtx.drawImage(face, p.sx,p.sy,sw,sh,
+            Math.round(b.x), Math.round(b.y), Math.max(1,Math.round(tw*b.s)), Math.max(1,Math.round(th*b.s)));
         }
-        const w=Math.max(1,Math.round(tw*scale)), h=Math.max(1,Math.round(th*scale));
         suckCtx.save();
-        suckCtx.globalAlpha=alpha;
-        suckCtx.translate(Math.round(x+tw*scale/2), Math.round(y+th*scale/2));
-        if(rot) suckCtx.rotate(rot);
-        suckCtx.drawImage(face, p.sx, p.sy, sw, sh, -(w>>1), -(h>>1), w, h);
+        suckCtx.globalAlpha=1-Math.pow(k,3.4);
+        suckCtx.translate(Math.round(a.x+w/2), Math.round(a.y+h/2));
+        suckCtx.rotate(p.spin*k);
+        suckCtx.drawImage(face, p.sx,p.sy,sw,sh, -(w>>1), -(h>>1), w, h);
         suckCtx.restore();
       }
 
       suckCtx.fillStyle=glow;
       for(const q of sparks){
-        const ft=(t-BOOK_IN-FOLD*0.5-q.delay)/(FLY*0.95);
-        if(ft<=0||ft>=1) continue;
+        const k=(t-RISE-q.delay)/(FLY*0.9);
+        if(k<=0||k>=1) continue;
         alive=true;
-        const e=easeIn(ft);
-        const x=q.x+(anchor.x-q.x)*e + Math.sin(ft*Math.PI)*q.arc*0.55;
-        const y=q.y+(anchor.y-q.y)*e;
-        suckCtx.globalAlpha=1-ft;
-        suckCtx.fillRect(Math.round(x), Math.round(y), q.s, q.s);
+        const a=posAt(q,k,mouth);
+        suckCtx.globalAlpha=(1-k)*0.95;
+        suckCtx.fillRect(Math.round(a.x), Math.round(a.y), q.s, q.s);
       }
       suckCtx.globalAlpha=1;
 
-      if(!alive && !flared && t>BOOK_IN+FOLD){
-        flared=true; SFX.absorb();
+      if(!alive && !boomed && t>RISE+0.2){
+        boomed=true; SFX.absorb();
         appEl.classList.remove('rumble'); void appEl.offsetWidth; appEl.classList.add('shkB');
       }
 
@@ -2471,6 +2546,7 @@ async function runBattle(cardA, cardB, seed, opts){
   const won = (sim.winner==='a') === iAmA;
 
   battle=true; busy=true; setControls(false); summonAnim=null;
+  camTo();
   setUnitCard(myUnit,myCard); setUnitCard(foeUnit,foeCard);
   const SC=0.74, X=1.55;
   myUnit.home={x:-X,y:0,s:SC,ry:0.24};
@@ -2519,6 +2595,7 @@ async function runBattle(cardA, cardB, seed, opts){
   });
   winner.home={x:0,y:0,s:1,ry:0};
   battle=null;
+  camTo();
 
   if(won) SFX.win(); else SFX.lose();
   if(opts.online){ saveResult(won); trackMe('idle'); }
@@ -2563,8 +2640,37 @@ el('cancelSeek').addEventListener('click', ()=>{
 });
 
 /* ── 채널: 접속 즉시 붙어 있는다 (대전 탭을 열지 않아도) ── */
+let netDown=false, rejoinTimer=null;
+function netTrouble(msg){
+  if(netDown) return;
+  netDown=true;
+  busyOn(msg||'다시 잇는 중');
+  el('netDot').classList.remove('on');
+}
+function netOk(){
+  if(!netDown) return;
+  netDown=false;
+  busyOff();
+  el('netDot').classList.add('on');
+}
+function scheduleRejoin(){
+  clearTimeout(rejoinTimer);
+  rejoinTimer=setTimeout(async ()=>{
+    if(!online()) return;
+    try{ if(lobby){ await lobby.unsubscribe(); } }catch(e){}
+    lobby=null;
+    connectLobby();
+  }, 2500);
+}
+addEventListener('offline', ()=>netTrouble('연결이 끊겼다'));
+addEventListener('online', ()=>{ netTrouble('다시 잇는 중'); scheduleRejoin(); });
+addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState==='visible' && online() && !lobby) { netTrouble('다시 잇는 중'); scheduleRejoin(); }
+});
+
 async function connectLobby(){
   if(!online() || lobby) return;
+  netTrouble('대전청에 드는 중');
 
   lobby = sb.channel('lobby:jonhonrok', {
     config:{ presence:{ key:me }, broadcast:{ self:false } }
@@ -2615,7 +2721,14 @@ async function connectLobby(){
   });
 
   await lobby.subscribe(async status=>{
-    if(status==='SUBSCRIBED'){ inLobby=true; await trackMe('idle'); renderLobby(); }
+    if(status==='SUBSCRIBED'){
+      inLobby=true; netOk();
+      await trackMe('idle'); renderLobby(); renderPresence();
+    }else if(status==='CHANNEL_ERROR' || status==='TIMED_OUT' || status==='CLOSED'){
+      inLobby=false;
+      netTrouble('다시 잇는 중');
+      scheduleRejoin();
+    }
   });
 }
 async function trackMe(status){
@@ -2754,6 +2867,8 @@ function declineChallenge(){
 }
 function acceptChallenge(){
   if(!pendingIn || !champion) return;
+  busyOn('맞서는 중');
+  setTimeout(busyOff, 900);
   const p=pendingIn;
   closeChallenge();
   const matchId=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random());
@@ -2839,6 +2954,7 @@ async function loadBoard(){
   const pane=el('boardPane');
   if(!online()){ pane.innerHTML='<div class="hint">순위는 접속 상태에서만 볼 수 있습니다.</div>'; return; }
   pane.innerHTML='<div class="hint">불러오는 중…</div>';
+  busyOn('순위를 세는 중');
   try{
     const { data, error } = await sb.from('profiles')
       .select('id,nickname,wins,losses').order('wins',{ascending:false}).limit(30);
@@ -2852,6 +2968,7 @@ async function loadBoard(){
   }catch(e){
     pane.innerHTML='<div class="hint">순위를 불러오지 못했습니다.</div>';
   }
+  busyOff();
 }
 function escapeHTML(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
@@ -2957,6 +3074,8 @@ addEventListener('beforeunload', ()=>{ if(lobby) lobby.unsubscribe(); });
 })();
 
 async function boot(){
+  initGourd();
+  fitSuck();
   buildGrid();
   glOK=initGL();
   if(!glOK){
