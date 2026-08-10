@@ -86,7 +86,7 @@ header.masthead{text-align:center;flex:0 0 auto}
 .gl-error{position:absolute;inset:0;display:none;place-content:center;text-align:center;
   color:var(--paper-dim);font-size:13px;line-height:2;padding:0 24px}
 
-/* 매칭 대기 */
+/* 응답 대기 */
 .seeking{position:absolute;inset:0;display:none;place-content:center;text-align:center;gap:10px}
 .seeking.on{display:grid}
 .seeking .sp{width:46px;height:46px;margin:0 auto;border:1px solid rgba(158,43,32,.5);
@@ -96,6 +96,33 @@ header.masthead{text-align:center;flex:0 0 auto}
 .seeking small{font-family:"Song Myung",serif;font-size:11px;letter-spacing:.16em;color:var(--paper-dim)}
 .seeking button{margin-top:6px;appearance:none;background:none;border:1px solid var(--edge);
   color:var(--paper-dim);font:inherit;font-size:12px;padding:7px 14px;cursor:pointer}
+
+/* 도전장 */
+.challenge{position:fixed;inset:0;z-index:12;display:none;place-content:center;
+  background:rgba(4,3,2,.78);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);padding:24px}
+.challenge.on{display:grid}
+.chbox{max-width:340px;width:100%;text-align:center;padding:26px 22px 20px;
+  background:linear-gradient(180deg,#1a1310,#0c0a08);
+  border:1px solid rgba(158,43,32,.6);
+  box-shadow:0 0 60px rgba(158,43,32,.25),0 20px 60px rgba(0,0,0,.7);
+  animation:chIn .35s cubic-bezier(.2,.9,.3,1)}
+@keyframes chIn{from{opacity:0;transform:scale(.9) translateY(14px)}to{opacity:1;transform:none}}
+.chbox .seal{font-family:"Song Myung",serif;font-size:12px;letter-spacing:.5em;
+  color:var(--cinnabar);text-indent:.5em}
+.chbox h4{font-family:"Nanum Brush Script",cursive;font-weight:400;font-size:30px;
+  margin:8px 0 4px;line-height:1.15}
+.chbox .sub{font-size:12.5px;color:var(--paper-dim);line-height:1.8}
+.chbox .sub b{color:var(--type,var(--gold));font-weight:400;font-family:"Song Myung",serif}
+.chbox .timer{font-family:"Song Myung",serif;font-size:11px;letter-spacing:.2em;
+  color:var(--paper-dim);margin-top:10px}
+.chbtns{display:flex;gap:9px;margin-top:16px}
+.chbtns button{flex:1 1 0;appearance:none;cursor:pointer;font-family:"Gowun Batang",serif;
+  font-weight:700;font-size:14px;letter-spacing:.18em;padding:13px 6px;
+  background:linear-gradient(180deg,#1a1410,#0f0c09);color:var(--paper);
+  border:1px solid var(--edge);transition:border-color .25s,color .25s}
+.chbtns .yes{border-color:rgba(158,43,32,.7)}
+.chbtns .yes:hover{border-color:var(--cinnabar);color:#ffd9cf}
+.chbtns .no{color:var(--paper-dim)}
 
 .combat{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;
   gap:10px;padding:4px 2px;pointer-events:none;opacity:0;transition:opacity .35s ease}
@@ -235,6 +262,15 @@ header.masthead{text-align:center;flex:0 0 auto}
 .rank .nm{flex:1 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rank .wl{font-family:"Song Myung",serif;font-size:12px;color:var(--paper-dim);flex:0 0 auto}
 .rank.me{color:var(--gold)}
+.rank .nm small{display:block;margin-top:2px}
+button.chg{appearance:none;cursor:pointer;flex:0 0 auto;
+  background:linear-gradient(180deg,#241511,#140d0a);
+  border:1px solid rgba(158,43,32,.6);color:var(--paper);
+  font-family:"Gowun Batang",serif;font-weight:700;font-size:12.5px;
+  letter-spacing:.14em;padding:9px 15px;transition:border-color .25s,color .25s}
+button.chg:hover{border-color:var(--cinnabar);color:#ffd9cf}
+button.chg.out{margin:18px auto 4px;border-color:var(--edge);color:var(--paper-dim);
+  background:none;letter-spacing:.2em}
 .hint{color:var(--paper-dim);font-size:12px;line-height:1.9;text-align:center;padding:22px 10px}
 
 @media (prefers-reduced-motion:reduce){
@@ -318,6 +354,7 @@ header.masthead{text-align:center;flex:0 0 auto}
     <h3 id="drawerTitle">서고</h3>
     <div class="drawer-tabs" id="tabs">
       <button data-tab="grid" class="sel">書庫</button>
+      <button data-tab="lobby">戰</button>
       <button data-tab="board">榜</button>
     </div>
     <button class="drawer-close" id="closeArchive">닫기</button>
@@ -334,8 +371,22 @@ header.masthead{text-align:center;flex:0 0 auto}
       <div class="grid" id="grid"></div>
     </div>
     <div class="board" id="boardPane"><div class="hint">불러오는 중…</div></div>
+    <div class="board" id="lobbyPane"><div class="hint">대전청에 들지 않았습니다.</div></div>
   </div>
 </aside>
+
+<div class="challenge" id="challenge">
+  <div class="chbox" id="chbox">
+    <div class="seal">戰 書</div>
+    <h4 id="chTitle">—</h4>
+    <p class="sub" id="chSub"></p>
+    <div class="timer" id="chTimer"></div>
+    <div class="chbtns">
+      <button class="yes" id="chYes">받는다</button>
+      <button class="no" id="chNo">피한다</button>
+    </div>
+  </div>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -455,7 +506,7 @@ let currentCard=null, busy=false, pickMode=false, battle=null;
 
 /* ═══ Supabase ═══════════════════════════════ */
 let sb=null, me=null, myProfile={nickname:'무명객', wins:0, losses:0};
-let lobby=null, seeking=false, matched=false, seekTimer=null;
+let lobby=null;
 const online = ()=> !!(sb && me);
 
 async function initSupabase(){
@@ -1148,7 +1199,7 @@ async function runBattle(cardA, cardB, seed, opts){
   winner.home={x:0,y:0,s:1,ry:0};
   battle=null;
 
-  if(opts.online) saveResult(won);
+  if(opts.online){ saveResult(won); trackMe('idle'); }
   if(opts.online && opts.role==='a'){
     logMatch({ id:opts.matchId, player_a:opts.idA, player_b:opts.idB,
       card_a:cardA.id, card_b:cardB.id, seed, winner: sim.winner==='a'?opts.idA:opts.idB });
@@ -1170,92 +1221,236 @@ async function runBattle(cardA, cardB, seed, opts){
   }
 }
 
-/* ═══ 온라인 매칭 (Realtime Presence) ════════ */
+/* ═══ 대전청 — 접속자 목록 · 도전 · 수락 ══════ */
+let myPickCard=null;          // 내가 들고 들어간 잔혼
+let inLobby=false;            // 대전청 입장 여부
+let pendingOut=null;          // 내가 보낸 도전 {to, name, at}
+let pendingIn=null;           // 내가 받은 도전 {from, name, card}
+let chTimerId=null, outTimerId=null;
+
 function showSeeking(on, sub){
   el('seeking').classList.toggle('on', on);
   if(sub) el('seekSub').textContent=sub;
-  el('stageEmpty').classList.add('gone');
+  if(on) el('stageEmpty').classList.add('gone');
 }
-async function leaveLobby(){
-  seeking=false;
-  clearTimeout(seekTimer);
-  showSeeking(false);
-  if(lobby){ try{ await lobby.unsubscribe(); }catch(e){} lobby=null; }
-}
-el('cancelSeek').addEventListener('click', async ()=>{
-  await leaveLobby();
+el('cancelSeek').addEventListener('click', ()=>{
+  cancelOutgoing();
+  showBattleMsg('청을 거두었다','다시 고를 수 있다.');
   busy=false; setControls(true);
-  showBattleMsg('물러났다','다음 기회에 겨루자.');
+  if(inLobby) openLobbyView();
 });
 
-async function findMatch(myCard){
-  busy=true; setControls(false);
+/* ── 채널 ── */
+async function enterLobby(card){
   if(!online()){
-    showSeeking(false);
-    await runBattle(myCard, drawCard(), (Math.random()*2**31)|0, { myName:'나', foeName:'떠도는 잔혼' });
+    showBattleMsg('접속되지 않았다','대전은 접속 상태에서만 열린다.');
     return;
   }
-  matched=false; seeking=true;
-  showSeeking(true, '다른 술사가 들어오길 기다립니다');
+  myPickCard=card;
+  if(lobby){ await trackMe('idle'); openLobbyView(); return; }
 
   lobby = sb.channel('lobby:jonhonrok', {
     config:{ presence:{ key:me }, broadcast:{ self:false } }
   });
 
-  lobby.on('presence', { event:'sync' }, tryPair);
-  lobby.on('broadcast', { event:'pair' }, ({ payload })=>{
-    if(matched || payload.b!==me) return;
-    matched=true;
+  lobby.on('presence', { event:'sync' }, renderLobby);
+  lobby.on('presence', { event:'leave' }, ({ leftPresences })=>{
+    // 도전 상대가 나가버린 경우
+    const gone=(leftPresences||[]).some(p=>p.id===(pendingOut&&pendingOut.to) || p.id===(pendingIn&&pendingIn.from));
+    if(gone){ cancelOutgoing(); closeChallenge(); }
+    renderLobby();
+  });
+
+  lobby.on('broadcast', { event:'challenge' }, ({ payload })=>{
+    if(payload.to!==me || busy) return;
+    // 서로 동시에 청한 경우: id 가 작은 쪽이 도전자
+    if(pendingOut && pendingOut.to===payload.from){
+      if(me < payload.from) return;      // 내 청이 유효 — 상대 것은 무시
+      cancelOutgoing();                  // 상대 청을 받는다
+    }
+    if(pendingIn) return;                // 이미 다른 청을 검토 중
+    openChallenge(payload);
+  });
+
+  lobby.on('broadcast', { event:'accept' }, ({ payload })=>{
+    if(payload.to!==me) return;
+    if(!pendingOut || pendingOut.to!==payload.from) return;
+    clearTimeout(outTimerId); pendingOut=null;
+    showSeeking(false); closeDrawer();
     const A=CARD_BY_ID[payload.aCard], B=CARD_BY_ID[payload.bCard];
     if(!A||!B) return;
-    leaveLobby();
+    trackMe('busy');
     runBattle(A, B, payload.seed, {
-      online:true, role:'b', matchId:payload.matchId,
-      idA:payload.a, idB:payload.b,
-      myName:payload.bName, foeName:payload.aName
+      online:true, role:'a', matchId:payload.matchId,
+      idA:me, idB:payload.from,
+      myName:myProfile.nickname, foeName:payload.fromName
     });
+  });
+
+  lobby.on('broadcast', { event:'decline' }, ({ payload })=>{
+    if(payload.to!==me) return;
+    if(!pendingOut || pendingOut.to!==payload.from) return;
+    const nm=pendingOut.name;
+    cancelOutgoing();
+    showBattleMsg('거절당했다', `${nm}이(가) 청을 피했다.`);
+    busy=false; setControls(true);
+    openLobbyView();
   });
 
   await lobby.subscribe(async status=>{
-    if(status==='SUBSCRIBED'){
-      await lobby.track({ id:me, name:myProfile.nickname, card:myCard.id, waiting:true, ts:Date.now() });
-    }
+    if(status==='SUBSCRIBED'){ inLobby=true; await trackMe('idle'); renderLobby(); }
   });
-
-  function tryPair(){
-    if(matched || !lobby) return;
-    const state=lobby.presenceState();
-    const players=Object.values(state).flat().filter(p=>p && p.waiting && p.id && CARD_BY_ID[p.card]);
-    if(players.length<2) return;
-    players.sort((x,y)=> x.id<y.id?-1:1);
-    if(players[0].id!==me) return;              // 가장 작은 id 만 짝을 짓는다
-    const opp=players[1];
-    matched=true;
-    const matchId=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random());
-    const seed=(Math.random()*2**31)|0;
-    lobby.send({ type:'broadcast', event:'pair', payload:{
-      a:me, b:opp.id, matchId, seed,
-      aCard:myCard.id, bCard:opp.card,
-      aName:myProfile.nickname, bName:opp.name
-    }});
-    const A=CARD_BY_ID[myCard.id], B=CARD_BY_ID[opp.card];
-    leaveLobby();
-    runBattle(A, B, seed, {
-      online:true, role:'a', matchId,
-      idA:me, idB:opp.id,
-      myName:myProfile.nickname, foeName:opp.name
-    });
-  }
-
-  seekTimer=setTimeout(async ()=>{
-    if(matched) return;
-    await leaveLobby();
-    showBattleMsg('상대가 없다','떠도는 잔혼이 대신 나선다.');
-    await sleep(700);
-    runBattle(myCard, drawCard(), (Math.random()*2**31)|0,
-      { myName:myProfile.nickname, foeName:'떠도는 잔혼' });
-  }, 15000);
+  openLobbyView();
 }
+async function trackMe(status){
+  if(!lobby || !myPickCard) return;
+  try{
+    await lobby.track({
+      id:me, name:myProfile.nickname, card:myPickCard.id,
+      wins:myProfile.wins, losses:myProfile.losses,
+      status, ts:Date.now()
+    });
+  }catch(e){}
+}
+async function leaveLobby(){
+  inLobby=false;
+  cancelOutgoing(); closeChallenge();
+  if(lobby){ try{ await lobby.unsubscribe(); }catch(e){} lobby=null; }
+}
+addEventListener('beforeunload', ()=>{ if(lobby) lobby.unsubscribe(); });
+
+/* ── 접속자 목록 ── */
+function lobbyPlayers(){
+  if(!lobby) return [];
+  const state=lobby.presenceState();
+  return Object.values(state).flat()
+    .filter(p=>p && p.id && CARD_BY_ID[p.card])
+    .sort((a,b)=>(b.wins||0)-(a.wins||0));
+}
+function openLobbyView(){
+  drawer.classList.add('open'); scrim.classList.add('open');
+  pickMode=false; drawer.classList.remove('pick');
+  el('drawerTitle').textContent='대전청';
+  switchTab('lobby');
+}
+function renderLobby(){
+  const pane=el('lobbyPane');
+  if(!el('lobbyPane').classList.contains('on')) { /* 갱신은 계속 */ }
+  if(!inLobby){ pane.innerHTML='<div class="hint">대전청에 들지 않았습니다.</div>'; return; }
+  const all=lobbyPlayers();
+  const others=all.filter(p=>p.id!==me);
+  const mine=`<div class="rank me"><span class="no">我</span>`+
+    `<span class="nm">${escapeHTML(myProfile.nickname)} <small style="color:var(--paper-dim)">· ${escapeHTML(myPickCard?myPickCard.name:'')}</small></span>`+
+    `<span class="wl">${myProfile.wins}승 ${myProfile.losses}패</span></div>`;
+  if(!others.length){
+    pane.innerHTML = mine +
+      '<div class="hint">지금 대전청에 다른 술사가 없습니다.<br>' +
+      '이 화면을 열어두면 누가 들어올 때 바로 나타납니다.</div>' +
+      '<div style="text-align:center"><button class="chg out" id="leaveLobbyBtn">물러나기</button></div>';
+  }else{
+    pane.innerHTML = mine + others.map(p=>{
+      const c=CARD_BY_ID[p.card], T=TYPES[c.type];
+      const busyP = p.status==='busy';
+      return `<div class="rank">`+
+        `<span class="no" style="color:${T.color}">${T.hanja}</span>`+
+        `<span class="nm">${escapeHTML(p.name||'무명객')}<br>`+
+        `<small style="color:var(--paper-dim);font-size:11px">${escapeHTML(c.name)} · ${p.wins||0}승 ${p.losses||0}패</small></span>`+
+        (busyP
+          ? `<span class="wl">대전 중</span>`
+          : `<button class="chg" data-id="${p.id}" data-name="${escapeHTML(p.name||'무명객')}">도전</button>`)+
+      `</div>`;
+    }).join('') + '<div style="text-align:center"><button class="chg out" id="leaveLobbyBtn">물러나기</button></div>';
+  }
+}
+el('lobbyPane').addEventListener('click', async e=>{
+  if(e.target.id==='leaveLobbyBtn'){
+    await leaveLobby(); closeDrawer();
+    busy=false; setControls(true);
+    showBattleMsg('대전청에서 물러났다','언제든 다시 들 수 있다.');
+    return;
+  }
+  const b=e.target.closest('button.chg');
+  if(!b || !b.dataset.id) return;
+  sendChallenge(b.dataset.id, b.dataset.name);
+});
+
+/* ── 도전 보내기 ── */
+function sendChallenge(toId, toName){
+  if(!lobby || !myPickCard || pendingOut || busy) return;
+  pendingOut={ to:toId, name:toName, at:Date.now() };
+  busy=true; setControls(false);
+  closeDrawer();
+  showSeeking(true, `${toName}의 응답을 기다립니다`);
+  lobby.send({ type:'broadcast', event:'challenge', payload:{
+    from:me, to:toId, fromName:myProfile.nickname, fromCard:myPickCard.id
+  }});
+  outTimerId=setTimeout(()=>{
+    if(!pendingOut) return;
+    const nm=pendingOut.name;
+    cancelOutgoing();
+    showBattleMsg('응답이 없다', `${nm}이(가) 답하지 않았다.`);
+    busy=false; setControls(true);
+    openLobbyView();
+  }, 25000);
+}
+function cancelOutgoing(){
+  clearTimeout(outTimerId); outTimerId=null;
+  pendingOut=null;
+  showSeeking(false);
+}
+
+/* ── 도전 받기 ── */
+function openChallenge(payload){
+  const c=CARD_BY_ID[payload.fromCard];
+  pendingIn={ from:payload.from, name:payload.fromName, card:payload.fromCard };
+  const T=TYPES[c.type];
+  el('chbox').style.setProperty('--type', T.color);
+  el('chTitle').textContent=`${payload.fromName}이(가) 청한다`;
+  el('chSub').innerHTML=`<b>${T.hanja} ${escapeHTML(c.name)}</b> 을(를) 앞세웠다.<br>`+
+    `그대의 <b>${escapeHTML(myPickCard?myPickCard.name:'잔혼')}</b> 로 맞선다.`;
+  el('challenge').classList.add('on');
+  let left=20;
+  el('chTimer').textContent=`${left}초 안에 답하라`;
+  clearInterval(chTimerId);
+  chTimerId=setInterval(()=>{
+    left--;
+    el('chTimer').textContent=`${left}초 안에 답하라`;
+    if(left<=0) declineChallenge();
+  },1000);
+}
+function closeChallenge(){
+  clearInterval(chTimerId); chTimerId=null;
+  pendingIn=null;
+  el('challenge').classList.remove('on');
+}
+function declineChallenge(){
+  if(!pendingIn) return;
+  const from=pendingIn.from;
+  closeChallenge();
+  if(lobby) lobby.send({ type:'broadcast', event:'decline', payload:{ from:me, to:from }});
+}
+function acceptChallenge(){
+  if(!pendingIn || !myPickCard) return;
+  const p=pendingIn;
+  closeChallenge();
+  const matchId=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random());
+  const seed=(Math.random()*2**31)|0;
+  lobby.send({ type:'broadcast', event:'accept', payload:{
+    from:me, to:p.from, matchId, seed,
+    aCard:p.card, bCard:myPickCard.id,
+    fromName:myProfile.nickname
+  }});
+  closeDrawer();
+  trackMe('busy');
+  const A=CARD_BY_ID[p.card], B=CARD_BY_ID[myPickCard.id];
+  runBattle(A, B, seed, {
+    online:true, role:'b', matchId,
+    idA:p.from, idB:me,
+    myName:myProfile.nickname, foeName:p.name
+  });
+}
+el('chYes').addEventListener('click', acceptChallenge);
+el('chNo').addEventListener('click', declineChallenge);
 
 /* ═══ 서고 · 순위 ════════════════════════════ */
 const drawer=el('drawer'), scrim=el('scrim');
@@ -1279,6 +1474,8 @@ function switchTab(name){
   [...el('tabs').children].forEach(b=>b.classList.toggle('sel', b.dataset.tab===name));
   el('gridPane').style.display = name==='grid'?'':'none';
   el('boardPane').classList.toggle('on', name==='board');
+  el('lobbyPane').classList.toggle('on', name==='lobby');
+  if(name==='lobby') renderLobby();
   if(name==='board') loadBoard();
 }
 el('tabs').addEventListener('click', e=>{
@@ -1307,10 +1504,15 @@ function escapeHTML(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<'
 
 el('battleBtn').addEventListener('click', ()=>{
   if(busy) return;
+  if(!online()){
+    showBattleMsg('접속되지 않았다','대전은 접속 상태에서만 열린다.');
+    return;
+  }
   if(found.size===0){
     showBattleMsg('잔혼이 없다','먼저 봉인을 해제해 대전할 잔혼을 얻으라.');
     return;
   }
+  if(inLobby && myPickCard){ openLobbyView(); return; }
   openDrawer(true);
 });
 
@@ -1330,7 +1532,7 @@ function buildGrid(){
     b.innerHTML='<span class="locked">封</span>';
     b.addEventListener('click',()=>{
       if(!found.has(card.id)) return;
-      if(pickMode){ closeDrawer(); findMatch(card); return; }
+      if(pickMode){ enterLobby(card); return; }
       if(busy) return;
       busy=true; setControls(false);
       closeDrawer();
