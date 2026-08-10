@@ -539,6 +539,7 @@ const ART = {
   lastflame: 'art/Serpentine_eastern_dragon_exhali__2K_202608101147.jpeg',
 };
 
+const el = id => document.getElementById(id);
 const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ═══ 광충(光蟲) — 화면 전체를 느리게 떠도는 빛 ═══ */
@@ -866,7 +867,6 @@ async function logMatch(m){
   try{ await sb.from('matches').insert(m); }catch(e){ console.warn('대전 기록 실패', e); }
 }
 
-const el = id => document.getElementById(id);
 function netStatus(on, txt){
   el('netDot').classList.toggle('on', !!on);
   if(!on){ el('nameBtn').textContent = txt||'오프라인'; el('recTxt').textContent=''; }
