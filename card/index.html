@@ -18,6 +18,7 @@
   --moss:#6b7a56;
   --mist:#8a968f;
   --damp:#3d453c;
+  --atmo:#6b7a56;
   --edge:rgba(217,205,180,.15);
   --sat:env(safe-area-inset-top,0px);
   --sab:env(safe-area-inset-bottom,0px);
@@ -38,7 +39,8 @@ body{background:var(--ink);color:var(--paper);
   background:radial-gradient(circle,rgba(107,122,86,.20),transparent 64%);
   animation:drift1 58s ease-in-out infinite alternate}
 .veil .h2{width:66vmax;height:66vmax;right:-24vmax;top:12vmax;
-  background:radial-gradient(circle,rgba(138,150,143,.14),transparent 66%);
+  background:radial-gradient(circle,color-mix(in srgb,var(--atmo) 16%,transparent),transparent 66%);
+  transition:background 1.2s ease;
   animation:drift2 71s ease-in-out infinite alternate}
 .veil .h3{width:90vmax;height:56vmax;left:6vmax;bottom:-28vmax;
   background:radial-gradient(circle,rgba(143,49,40,.13),transparent 66%);
@@ -140,12 +142,7 @@ header.masthead{text-align:center;flex:0 0 auto}
   color:var(--moss);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:34%}
 .slot.champ{border-color:var(--gold);box-shadow:0 0 20px -4px rgba(168,145,63,.8)}
 .slot.champ{outline:1px solid rgba(168,145,63,.5);outline-offset:-3px}
-.side-btn{position:relative}
-.side-btn.war.alive{border-color:rgba(143,49,40,.95);color:var(--paper)}
-.side-btn.war.alive small{color:#e0a08c}
-.side-btn.war.alive::before{content:"";position:absolute;top:5px;right:5px;
-  width:6px;height:6px;border-radius:50%;background:#8fbf72;
-  box-shadow:0 0 9px #8fbf72;animation:pulseDot 1.9s ease-in-out infinite}
+
 @keyframes pulseDot{0%,100%{opacity:.4}50%{opacity:1}}
 
 .stage{position:relative;flex:1 1 auto;min-height:0;touch-action:none}
@@ -345,8 +342,7 @@ header.masthead{text-align:center;flex:0 0 auto}
 @keyframes tabPulse{
   0%{box-shadow:0 0 0 0 rgba(168,145,63,.75);border-color:rgba(168,145,63,.9)}
   100%{box-shadow:0 0 26px 8px rgba(168,145,63,0)}}
-.side-btn.admin{border-color:rgba(107,122,86,.6);color:var(--paper)}
-.side-btn.admin small{color:var(--moss)}
+
 
 /* 등급 컷인 */
 .cutin{position:fixed;inset:0;z-index:11;display:none;place-content:center;
@@ -425,37 +421,60 @@ header.masthead{text-align:center;flex:0 0 auto}
   font-size:14.5px;line-height:1.75;word-break:keep-all}
 .dossier .echo{font-size:12.5px;letter-spacing:.12em;color:var(--gold);opacity:.95}
 
-.bar{flex:0 0 auto;display:flex;gap:9px;align-items:stretch;padding-top:9px}
+.bar{flex:0 0 auto;display:flex;gap:10px;align-items:stretch;padding-top:9px}
+/* 큰 낙관 — 봉인 해제 */
 .seal-btn{position:relative;appearance:none;cursor:pointer;flex:1 1 auto;
-  background:linear-gradient(180deg,#1a1410,#0f0c09);
-  border:1px solid rgba(180,144,58,.45);color:var(--paper);
-  font-family:"Gowun Batang",serif;font-weight:700;
-  font-size:15px;letter-spacing:.22em;text-indent:.22em;padding:15px 6px;
-  box-shadow:0 0 0 1px rgba(0,0,0,.6),0 10px 30px rgba(0,0,0,.5),inset 0 1px 0 rgba(217,205,180,.07);
-  transition:border-color .3s,box-shadow .3s,transform .12s,color .3s,opacity .3s}
-.seal-btn::before,.seal-btn::after{content:"";position:absolute;width:6px;height:6px;border:1px solid rgba(180,144,58,.55)}
+  min-height:64px;overflow:hidden;
+  background:linear-gradient(180deg,#5c1c16,#33100c);
+  border:2px solid rgba(214,168,84,.55);
+  color:#f7e6cd;font-family:"Nanum Brush Script",cursive;font-weight:400;
+  box-shadow:0 0 0 1px rgba(0,0,0,.7),0 12px 34px rgba(0,0,0,.55),
+             inset 0 1px 0 rgba(255,220,180,.16), inset 0 -14px 26px rgba(0,0,0,.35);
+  transition:transform .1s,box-shadow .3s,filter .35s,opacity .3s}
+.seal-btn .gauge{position:absolute;left:0;bottom:0;height:100%;width:0%;
+  background:linear-gradient(180deg,rgba(255,170,120,.30),rgba(158,43,32,.55));
+  border-right:1px solid rgba(255,200,150,.35);
+  transition:width .5s cubic-bezier(.3,.9,.3,1);pointer-events:none}
+.seal-btn .lab{position:relative;display:block;font-size:27px;line-height:1;
+  letter-spacing:.14em;text-indent:.14em;text-shadow:0 2px 0 rgba(0,0,0,.5)}
+.seal-btn .cost{position:relative;display:block;margin-top:3px;
+  font-family:"Song Myung",serif;font-size:11px;letter-spacing:.18em;
+  color:rgba(255,222,190,.78)}
+.seal-btn::before,.seal-btn::after{content:"";position:absolute;width:9px;height:9px;
+  border:1px solid rgba(240,200,140,.6);pointer-events:none}
 .seal-btn::before{left:5px;top:5px;border-right:0;border-bottom:0}
 .seal-btn::after{right:5px;bottom:5px;border-left:0;border-top:0}
-.seal-btn:active:not(:disabled){transform:translateY(1px)}
-.seal-btn:disabled{opacity:.34;cursor:default}
-.side-btn{appearance:none;cursor:pointer;flex:0 0 auto;
-  background:linear-gradient(180deg,#131009,#0c0a07);
-  border:1px solid var(--edge);color:var(--paper-dim);
-  font-family:"Gowun Batang",serif;font-weight:700;font-size:12.5px;
-  letter-spacing:.08em;padding:0 15px;
+.seal-btn:active:not(:disabled){transform:translateY(2px) scale(.985);
+  box-shadow:0 0 0 1px rgba(0,0,0,.8),0 4px 12px rgba(0,0,0,.6),inset 0 -6px 18px rgba(0,0,0,.5)}
+.seal-btn.poor{filter:saturate(.22) brightness(.6)}
+.seal-btn:disabled{opacity:.4;cursor:default}
+.seal-btn.stamp{animation:stamp .4s cubic-bezier(.2,1.2,.4,1)}
+@keyframes stamp{0%{transform:translateY(-3px) scale(1.03)}45%{transform:translateY(3px) scale(.96)}100%{transform:none}}
+/* 작은 원형 인장 */
+.orb{position:relative;appearance:none;cursor:pointer;flex:0 0 auto;
+  width:64px;min-height:64px;border-radius:50%;
+  background:radial-gradient(circle at 38% 32%,#1d1a15,#0b0a08);
+  border:1px solid rgba(217,205,180,.22);color:var(--paper-dim);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
-  transition:color .3s,border-color .3s,opacity .3s}
-.side-btn small{font-family:"Song Myung",serif;font-size:11px;letter-spacing:.1em;color:var(--gold)}
-.side-btn:disabled{opacity:.34;cursor:default}
-.side-btn.war{border-color:rgba(158,43,32,.55);color:var(--paper)}
-.side-btn.war small{color:#cf7a6c}
-.seal-btn:focus-visible,.side-btn:focus-visible,.slot:focus-visible,.drawer-close:focus-visible{
-  outline:1px solid var(--gold);outline-offset:2px}
+  transition:color .25s,border-color .25s,transform .1s,box-shadow .3s,opacity .3s}
+.orb svg{width:22px;height:22px}
+.orb b{font-family:"Song Myung",serif;font-size:10px;font-weight:400;letter-spacing:.06em}
+.orb:active:not(:disabled){transform:translateY(2px) scale(.96)}
+.orb:disabled{opacity:.35;cursor:default}
+.orb.war{border-color:rgba(158,43,32,.55);color:#d8b6ad}
+.orb.war.alive{border-color:rgba(200,70,55,.95);color:#ffd9cf;
+  box-shadow:0 0 18px -2px rgba(200,70,55,.6)}
+.orb.war.alive::before{content:"";position:absolute;top:6px;right:6px;
+  width:7px;height:7px;border-radius:50%;background:#8fbf72;
+  box-shadow:0 0 9px #8fbf72;animation:pulseDot 1.9s ease-in-out infinite}
+.orb.admin{border-color:rgba(107,122,86,.6);color:var(--moss)}
+.orb.tabpulse{animation:tabPulse .85s ease-out}
+.seal-btn:focus-visible,.orb:focus-visible,.slot:focus-visible,.drawer-close:focus-visible{
+  outline:1px solid var(--gold);outline-offset:3px}
 @media (hover:hover){
-  .seal-btn:hover:not(:disabled){border-color:rgba(180,144,58,.95);color:#ffedc9;
-    box-shadow:0 0 0 1px rgba(0,0,0,.6),0 0 30px rgba(180,144,58,.28),inset 0 1px 0 rgba(217,205,180,.12)}
-  .side-btn:hover:not(:disabled){color:var(--paper);border-color:rgba(180,144,58,.5)}
-  .side-btn.war:hover:not(:disabled){border-color:rgba(158,43,32,.95)}
+  .seal-btn:hover:not(:disabled){border-color:rgba(240,200,140,.9);
+    box-shadow:0 0 0 1px rgba(0,0,0,.6),0 0 34px rgba(200,80,60,.35),inset 0 1px 0 rgba(255,220,180,.22)}
+  .orb:hover:not(:disabled){color:var(--paper);border-color:rgba(180,144,58,.6)}
 }
 
 .scrim{position:fixed;inset:0;z-index:8;background:rgba(4,3,2,.6);
@@ -598,10 +617,26 @@ button.chg.out{margin:18px auto 4px;border-color:var(--edge);color:var(--paper-d
   </section>
 
   <div class="bar">
-    <button class="seal-btn" id="drawOne">봉인 해제</button>
-    <button class="side-btn war" id="battleBtn">대전<small id="warCount">對戰</small></button>
-    <button class="side-btn" id="openArchive">서고<small><span id="tallyFound">0</span>/<span id="tallyTotal">24</span></small></button>
-    <button class="side-btn admin" id="bulkBtn" style="display:none">백연<small>百</small></button>
+    <button class="seal-btn" id="drawOne">
+      <i class="gauge" id="soulGauge"></i>
+      <span class="lab">봉인 해제</span>
+      <span class="cost" id="drawCost">魂 20</span>
+    </button>
+    <button class="orb war" id="battleBtn" aria-label="대전">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round">
+        <path d="M4 20 L16 8"/><path d="M20 4 L16 8 L18 10 L20 4Z"/>
+        <path d="M20 20 L8 8"/><path d="M4 4 L8 8 L6 10 L4 4Z"/>
+      </svg>
+      <b id="warCount">對戰</b>
+    </button>
+    <button class="orb" id="openArchive" aria-label="서고">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round">
+        <path d="M4 5.5 C7 4 10 4 12 5.5 C14 4 17 4 20 5.5 L20 19 C17 17.5 14 17.5 12 19 C10 17.5 7 17.5 4 19 Z"/>
+        <path d="M12 5.5 L12 19"/>
+      </svg>
+      <b><span id="tallyFound">0</span>/<span id="tallyTotal">24</span></b>
+    </button>
+    <button class="orb admin" id="bulkBtn" style="display:none" aria-label="백연"><b>百</b></button>
   </div>
 </div>
 
@@ -1056,8 +1091,13 @@ function souls(){ return myProfile.souls||0; }
 function renderSouls(){
   const e=el('soulTxt');
   if(e) e.textContent=`혼백 ${souls()}`;
+  const g=el('soulGauge');
+  if(g) g.style.width=Math.min(100, souls()/SOUL_CAP*100)+'%';
+  const c=el('drawCost');
+  const enough=souls()>=DRAW_COST;
+  if(c) c.textContent = enough ? `魂 ${souls()} / ${DRAW_COST}` : `魂 ${souls()} — ${DRAW_COST} 필요`;
   const b=el('drawOne');
-  if(b) b.textContent = souls()>=DRAW_COST ? `봉인 해제 · ${DRAW_COST}` : `혼백 부족 · ${DRAW_COST}`;
+  if(b) b.classList.toggle('poor', !enough);
 }
 /* 마지막 접속 이후 시간만큼 혼백을 채운다 */
 function accrueSouls(){
@@ -1898,7 +1938,7 @@ function cardTextures(card){
 }
 function setUnitCard(unit, card){
   const T=TYPES[card.type], G=TIERS[card.tier];
-  if(unit===myUnit) setMotes(card.type);
+  if(unit===myUnit){ setMotes(card.type); tintStage(card.type); }
   const { t:tex, m:mask }=cardTextures(card);
   unit.front.material.uniforms.uMask.value=mask;
   unit.front.material.uniforms.map.value=tex;
@@ -1926,6 +1966,142 @@ function makePoints(count,size,opacity){
   scene.add(new THREE.Points(geo,mat));
   return { geo, mat, vel:new Float32Array(count*3), life:new Float32Array(count), count };
 }
+/* ── 무대 장치 ── */
+let altar=null, altarMat=null, shadowMesh=null, shadowMat=null;
+let ridges=[], fogBand=null, fogMat=null;
+
+function altarTexture(){
+  const W2=512,H2=256;
+  const c=document.createElement('canvas'); c.width=W2; c.height=H2;
+  const x=c.getContext('2d');
+  const cx=W2/2, ty=104, rx=206, ry=50, side=44;
+  // 옆면
+  const sg=x.createLinearGradient(0,ty,0,ty+side+ry);
+  sg.addColorStop(0,'#3a3a36'); sg.addColorStop(0.55,'#22221f'); sg.addColorStop(1,'#0d0d0c');
+  x.fillStyle=sg;
+  x.beginPath();
+  x.ellipse(cx,ty,rx,ry,0,0,Math.PI);
+  x.lineTo(cx-rx,ty); x.lineTo(cx-rx,ty+side);
+  x.ellipse(cx,ty+side,rx,ry,0,Math.PI,0,true);
+  x.lineTo(cx+rx,ty); x.closePath(); x.fill();
+  // 윗면
+  const tg=x.createRadialGradient(cx-40,ty-18,10,cx,ty,rx);
+  tg.addColorStop(0,'#5a5a53'); tg.addColorStop(0.5,'#3c3c37'); tg.addColorStop(1,'#1b1b19');
+  x.fillStyle=tg;
+  x.beginPath(); x.ellipse(cx,ty,rx,ry,0,0,7); x.fill();
+  // 새겨진 원과 눈금
+  x.strokeStyle='rgba(168,145,63,.30)'; x.lineWidth=2;
+  x.beginPath(); x.ellipse(cx,ty,rx*0.78,ry*0.78,0,0,7); x.stroke();
+  x.strokeStyle='rgba(168,145,63,.18)'; x.lineWidth=1.4;
+  x.beginPath(); x.ellipse(cx,ty,rx*0.52,ry*0.52,0,0,7); x.stroke();
+  for(let i=0;i<32;i++){
+    const a=(i/32)*Math.PI*2;
+    const x1=cx+Math.cos(a)*rx*0.86, y1=ty+Math.sin(a)*ry*0.86;
+    const x2=cx+Math.cos(a)*rx*0.94, y2=ty+Math.sin(a)*ry*0.94;
+    x.strokeStyle='rgba(168,145,63,'+(i%4===0?0.34:0.16)+')';
+    x.beginPath(); x.moveTo(x1,y1); x.lineTo(x2,y2); x.stroke();
+  }
+  // 돌 결
+  const rnd=mulberry32(99);
+  for(let i=0;i<900;i++){
+    const a=rnd()*Math.PI*2, r=Math.sqrt(rnd());
+    const px=cx+Math.cos(a)*rx*r, py=ty+Math.sin(a)*ry*r;
+    x.fillStyle=`rgba(${rnd()<0.5?'0,0,0':'200,200,190'},${rnd()*0.07})`;
+    x.fillRect(px,py,2,1);
+  }
+  // 가장자리를 어둠에 녹인다
+  const vg=x.createRadialGradient(cx,ty+20,rx*0.5,cx,ty+20,rx*1.25);
+  vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(5,6,5,1)');
+  x.globalCompositeOperation='destination-out';
+  x.fillStyle=vg; x.fillRect(0,0,W2,H2);
+  x.globalCompositeOperation='source-over';
+  return new THREE.CanvasTexture(c);
+}
+function ridgeTexture(seed, rough, alpha){
+  const W2=1024,H2=256;
+  const c=document.createElement('canvas'); c.width=W2; c.height=H2;
+  const x=c.getContext('2d');
+  const rnd=mulberry32(seed);
+  const base=H2*0.72;
+  const pts=[];
+  let y=base;
+  for(let i=0;i<=48;i++){
+    y += (rnd()-0.5)*rough;
+    y = Math.max(H2*0.28, Math.min(H2*0.88, y));
+    pts.push([i/48*W2, y]);
+  }
+  const g=x.createLinearGradient(0,H2*0.2,0,H2);
+  g.addColorStop(0,`rgba(255,255,255,${alpha})`);
+  g.addColorStop(1,`rgba(255,255,255,${alpha*0.25})`);
+  x.fillStyle=g;
+  x.beginPath(); x.moveTo(0,H2);
+  pts.forEach(([px,py],i)=> i?x.lineTo(px,py):x.lineTo(px,py));
+  x.lineTo(W2,H2); x.closePath(); x.fill();
+  // 능선 위 안개
+  const fg=x.createLinearGradient(0,0,0,H2);
+  fg.addColorStop(0,'rgba(255,255,255,0)');
+  fg.addColorStop(0.55,`rgba(255,255,255,${alpha*0.10})`);
+  fg.addColorStop(1,'rgba(255,255,255,0)');
+  x.fillStyle=fg; x.fillRect(0,0,W2,H2);
+  return new THREE.CanvasTexture(c);
+}
+function bandTexture(){
+  const c=document.createElement('canvas'); c.width=8; c.height=128;
+  const x=c.getContext('2d');
+  const g=x.createLinearGradient(0,0,0,128);
+  g.addColorStop(0,'rgba(255,255,255,0)');
+  g.addColorStop(0.5,'rgba(255,255,255,.5)');
+  g.addColorStop(1,'rgba(255,255,255,0)');
+  x.fillStyle=g; x.fillRect(0,0,8,128);
+  return new THREE.CanvasTexture(c);
+}
+function buildStage(){
+  // 먼 산 세 겹
+  const specs=[
+    { z:-9.0, w:34, h:8.0, y:-1.2, seed:11, rough:26, a:0.16, spd:0.006 },
+    { z:-6.5, w:26, h:6.4, y:-1.7, seed:23, rough:38, a:0.20, spd:0.011 },
+    { z:-4.4, w:20, h:5.0, y:-2.1, seed:37, rough:52, a:0.26, spd:0.018 },
+  ];
+  ridges=specs.map(sp=>{
+    const t=ridgeTexture(sp.seed, sp.rough, sp.a);
+    t.wrapS=THREE.RepeatWrapping; t.repeat.x=2;
+    const m=new THREE.MeshBasicMaterial({ map:t, transparent:true, depthWrite:false,
+      color:new THREE.Color('#7d8c82'), opacity:0.9 });
+    const mesh=new THREE.Mesh(new THREE.PlaneGeometry(sp.w, sp.h), m);
+    mesh.position.set(0, sp.y, sp.z);
+    mesh.renderOrder=-40;
+    scene.add(mesh);
+    return { mesh, mat:m, tex:t, spd:sp.spd };
+  });
+  // 지평선 안개
+  fogMat=new THREE.MeshBasicMaterial({ map:bandTexture(), transparent:true, depthWrite:false,
+    color:new THREE.Color('#9aa89e'), opacity:0.16, blending:THREE.AdditiveBlending });
+  fogBand=new THREE.Mesh(new THREE.PlaneGeometry(30, 3.2), fogMat);
+  fogBand.position.set(0,-1.9,-3.6); fogBand.renderOrder=-30;
+  scene.add(fogBand);
+  // 석대
+  altarMat=new THREE.MeshBasicMaterial({ map:altarTexture(), transparent:true, depthWrite:false });
+  altar=new THREE.Mesh(new THREE.PlaneGeometry(6.4, 3.2), altarMat);
+  altar.position.set(0,-2.55,-0.35); altar.renderOrder=-20;
+  scene.add(altar);
+  // 카드 그림자
+  shadowMat=new THREE.MeshBasicMaterial({ map:softTex, transparent:true, depthWrite:false,
+    color:new THREE.Color('#000000'), opacity:0.55 });
+  shadowMesh=new THREE.Mesh(new THREE.PlaneGeometry(2.6,0.9), shadowMat);
+  shadowMesh.position.set(0,-2.12,-0.3); shadowMesh.renderOrder=-15;
+  scene.add(shadowMesh);
+}
+/* 속성에 따라 무대가 물든다 */
+const ATMO_BASE='#7d8c82';
+let atmoTarget=null;            // three.js 가 없어도 스크립트가 죽지 않게 늦게 만든다
+function tintStage(type){
+  const T=TYPES[type];
+  if(!T) return;
+  document.documentElement.style.setProperty('--atmo', T.color);
+  if(typeof THREE==='undefined') return;
+  atmoTarget=new THREE.Color(T.color).lerp(new THREE.Color(ATMO_BASE), 0.45);
+}
+
 function initGL(){
   if(typeof THREE==='undefined') return false;
   try{ renderer=new THREE.WebGLRenderer({ canvas:el('gl'), alpha:true, antialias:true }); }
@@ -1943,6 +2119,7 @@ function initGL(){
     blending:THREE.AdditiveBlending, depthWrite:false, opacity:0 });
   aura=new THREE.Mesh(new THREE.PlaneGeometry(7.6,7.6), auraMat);
   aura.position.z=-1.1; scene.add(aura);
+  buildStage();
   dust=makePoints(200,0.075,0.5);
   burst=makePoints(280,0.16,0.9);
   sparks=makePoints(160,0.09,1.0);
@@ -2232,6 +2409,29 @@ function loop(){
     if(dp[i*3+1]>4.5){ dp[i*3+1]=-4.5; dp[i*3]=(Math.random()-0.5)*11; }
   }
   dust.geo.attributes.position.needsUpdate=true;
+  // 먼 산 시차
+  if(atmoTarget){
+    for(const r of ridges){
+      r.tex.offset.x = (r.tex.offset.x + r.spd*dt*0.1) % 1;
+      r.mat.color.lerp(atmoTarget, dt*0.6);
+    }
+    if(fogMat) fogMat.color.lerp(atmoTarget, dt*0.6);
+  }else{
+    for(const r of ridges) r.tex.offset.x = (r.tex.offset.x + r.spd*dt*0.1) % 1;
+  }
+  // 카드 그림자 — 카드가 뜰수록 옅고 넓게
+  if(shadowMesh){
+    const vis = myUnit.group.visible && !battle;
+    shadowMat.opacity = vis ? 0.42 + 0.10*Math.sin(et*0.85+Math.PI) : (battle?0.25:0);
+    if(battle){
+      shadowMesh.position.x = 0;
+      shadowMesh.scale.set(2.0, 1, 1);
+    }else{
+      const lift = myUnit.group.position.y;
+      shadowMesh.position.x = myUnit.group.position.x;
+      shadowMesh.scale.set(1+lift*0.35, 1-lift*0.2, 1);
+    }
+  }
   stepPoints(burst,dt); stepPoints(sparks,dt);
   stepMotes(dt, et, myUnit.group.visible || (foeUnit && foeUnit.group.visible));
   aura.rotation.z+=dt*0.05;
@@ -3786,7 +3986,11 @@ function renderSlot(card,isNew,quiet){
 }
 
 /* ── 시작 ──────────────────────────────────── */
-el('drawOne').addEventListener('click', ()=>{ SFX.tap(); doDraw(false); });
+el('drawOne').addEventListener('click', ()=>{
+  const b=el('drawOne');
+  b.classList.remove('stamp'); void b.offsetWidth; b.classList.add('stamp');
+  SFX.tap(); doDraw(false);
+});
 el('bulkBtn').addEventListener('click', doDraw100);
 addEventListener('beforeunload', ()=>{ if(lobby) lobby.unsubscribe(); });
 
