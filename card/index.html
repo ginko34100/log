@@ -158,16 +158,79 @@ header.masthead{text-align:center;flex:0 0 auto}
 .gl-error{position:absolute;inset:0;display:none;place-content:center;text-align:center;
   color:var(--paper-dim);font-size:13px;line-height:2;padding:0 24px}
 
-/* 응답 대기 */
-.seeking{position:absolute;inset:0;display:none;place-content:center;text-align:center;gap:10px}
-.seeking.on{display:grid}
-.seeking .sp{width:46px;height:46px;margin:0 auto;border:1px solid rgba(158,43,32,.5);
-  border-top-color:var(--cinnabar);border-radius:50%;animation:spin 1.1s linear infinite}
+/* 대전 카드 선택창 */
+.picker{position:fixed;inset:0;z-index:17;display:none;flex-direction:column;
+  background:linear-gradient(180deg,#0d100e,#050605);
+  padding:calc(var(--sat) + 14px) 14px calc(var(--sab) + 14px);
+  max-width:640px;margin:0 auto}
+.picker.on{display:flex}
+.pk-head{flex:0 0 auto;display:flex;align-items:flex-end;justify-content:space-between;
+  gap:12px;padding-bottom:12px;border-bottom:1px solid var(--edge)}
+.pk-seal{font-family:"Song Myung",serif;font-size:11px;letter-spacing:.5em;
+  color:var(--cinnabar);text-indent:.5em}
+.pk-head h3{font-family:"Nanum Brush Script",cursive;font-weight:400;
+  font-size:32px;line-height:1.1;margin-top:2px}
+.pk-opp{font-family:"Song Myung",serif;font-size:12px;letter-spacing:.1em;
+  color:var(--paper-dim);text-align:right;line-height:1.7;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;max-width:45%}
+.pk-opp b{color:var(--paper);font-weight:400;display:block;font-size:14px}
+.pk-body{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;padding:14px 2px}
+.pk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:12px}
+.pk-card{position:relative;aspect-ratio:2/3;border:1px solid var(--edge);
+  background:#0b0a08;overflow:hidden;padding:0;appearance:none;cursor:pointer;
+  transition:transform .2s,box-shadow .2s,border-color .2s}
+.pk-card canvas{width:100%;height:100%;display:block;object-fit:cover}
+.pk-card.sel{border-color:var(--gold);transform:translateY(-4px);
+  box-shadow:0 0 26px -4px rgba(168,145,63,.9)}
+.pk-card.sel::after{content:"";position:absolute;inset:0;
+  border:2px solid rgba(168,145,63,.85)}
+.pk-foot{flex:0 0 auto;padding-top:12px;border-top:1px solid var(--edge)}
+.pk-sel{text-align:center;font-size:13.5px;color:var(--paper-dim);
+  letter-spacing:.06em;margin-bottom:10px;min-height:20px}
+.pk-sel b{color:var(--paper);font-weight:700}
+.pk-btns{display:flex;gap:9px}
+.pk-btns button{flex:1 1 0;appearance:none;cursor:pointer;
+  font-family:"Gowun Batang",serif;font-weight:700;font-size:15px;letter-spacing:.2em;
+  padding:15px 6px;background:linear-gradient(180deg,#1a1712,#0e0d0a);
+  color:var(--paper);border:1px solid var(--edge);
+  transition:border-color .25s,color .25s,opacity .25s}
+.pk-btns .pk-yes{border-color:rgba(168,145,63,.65);flex:2 1 0}
+.pk-btns .pk-yes:hover:not(:disabled){border-color:var(--gold);color:#f0e0b4}
+.pk-btns .pk-no{color:var(--paper-dim)}
+.pk-btns button:disabled{opacity:.35;cursor:default}
+.pk-wait{display:none;text-align:center;padding-top:4px}
+.pk-wait.on{display:block}
+.pk-wait span{display:block;margin-top:9px;font-family:"Song Myung",serif;
+  font-size:12.5px;letter-spacing:.16em;color:var(--gold)}
+.picker.waiting .pk-body{opacity:.35;pointer-events:none;transition:opacity .3s}
+.picker.waiting .pk-btns{display:none}
+
+/* 응답 대기 — 화면 전체를 덮어 한눈에 보이게 */
 @keyframes spin{to{transform:rotate(360deg)}}
-.seeking p{font-family:"Nanum Brush Script",cursive;font-size:26px;color:var(--paper)}
-.seeking small{font-family:"Song Myung",serif;font-size:11px;letter-spacing:.16em;color:var(--paper-dim)}
-.seeking button{margin-top:6px;appearance:none;background:none;border:1px solid var(--edge);
-  color:var(--paper-dim);font:inherit;font-size:12px;padding:7px 14px;cursor:pointer}
+.seeking{position:fixed;inset:0;z-index:16;display:none;place-content:center;
+  text-align:center;gap:16px;padding:30px;
+  background:radial-gradient(ellipse at 50% 45%,rgba(12,14,12,.94),rgba(4,5,4,.98))}
+.seeking.on{display:grid}
+.seeking .sp{width:74px;height:74px;margin:0 auto;position:relative}
+.seeking .sp::before,.seeking .sp::after{content:"";position:absolute;inset:0;
+  border-radius:50%;border:2px solid transparent}
+.seeking .sp::before{border-top-color:var(--cinnabar);animation:spin 1.15s linear infinite}
+.seeking .sp::after{inset:12px;border-bottom-color:var(--gold);animation:spin 1.7s linear infinite reverse}
+.seeking p{font-family:"Nanum Brush Script",cursive;font-size:clamp(30px,8vw,42px);
+  color:var(--paper);line-height:1.2;text-shadow:0 0 26px rgba(158,43,32,.4)}
+.seeking small{font-family:"Song Myung",serif;font-size:13px;letter-spacing:.2em;
+  color:var(--paper-dim);display:block}
+.seeking .wbar{width:min(260px,70vw);height:3px;margin:4px auto 0;
+  background:rgba(217,205,180,.10);overflow:hidden}
+.seeking .wbar i{display:block;height:100%;width:36%;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  animation:wslide 1.2s ease-in-out infinite}
+@keyframes wslide{0%{margin-left:-36%}100%{margin-left:100%}}
+.seeking button{margin-top:10px;appearance:none;background:none;border:1px solid var(--edge);
+  color:var(--paper-dim);font-family:"Gowun Batang",serif;font-size:13px;
+  letter-spacing:.16em;padding:11px 22px;cursor:pointer}
+.seeking button:hover{color:var(--paper);border-color:rgba(168,145,63,.6)}
 
 /* 도전장 */
 .challenge{position:fixed;inset:0;z-index:12;display:none;place-content:center;
@@ -462,12 +525,7 @@ button.chg.out{margin:18px auto 4px;border-color:var(--edge);color:var(--paper-d
     <div class="gl-error" id="glError">
       <p>3D를 불러오지 못했습니다.<br>네트워크 연결을 확인한 뒤 새로고침해 주세요.</p>
     </div>
-    <div class="seeking" id="seeking">
-      <div class="sp"></div>
-      <p>상대를 찾는 중</p>
-      <small id="seekSub">다른 술사가 들어오길 기다립니다</small>
-      <div><button id="cancelSeek">물러나기</button></div>
-    </div>
+
     <div class="combat" id="combat">
       <div class="unit left" id="unitL">
         <div class="uname"><span id="nameL"></span><small id="typeL"></small></div>
@@ -550,6 +608,38 @@ button.chg.out{margin:18px auto 4px;border-color:var(--edge);color:var(--paper-d
   <div class="band b1"></div><div class="band b2"></div>
   <div class="glyph" id="cutGlyph">禁</div>
   <div class="label" id="cutLabel">금 기</div>
+</div>
+
+<div class="picker" id="picker">
+  <div class="pk-head">
+    <div>
+      <div class="pk-seal">對 戰</div>
+      <h3 id="pkTitle">잔혼을 고르라</h3>
+    </div>
+    <div class="pk-opp" id="pkOpp"></div>
+  </div>
+  <div class="pk-body"><div class="pk-grid" id="pkGrid"></div></div>
+  <div class="pk-foot">
+    <div class="pk-sel" id="pkSel">아직 고르지 않았다</div>
+    <div class="pk-btns">
+      <button class="pk-no" id="pkCancel">물러난다</button>
+      <button class="pk-yes" id="pkDone" disabled>완료</button>
+    </div>
+    <div class="pk-wait" id="pkWait">
+      <div class="wbar"><i></i></div>
+      <span id="pkWaitTxt">상대가 고르는 중…</span>
+    </div>
+  </div>
+</div>
+
+<div class="seeking" id="seeking">
+  <div>
+    <div class="sp"></div>
+    <p id="seekTitle">상대를 찾는 중</p>
+    <small id="seekSub">다른 술사가 들어오길 기다립니다</small>
+    <div class="wbar"><i></i></div>
+    <div><button id="cancelSeek">물러나기</button></div>
+  </div>
 </div>
 
 <div class="challenge" id="challenge">
@@ -2143,6 +2233,7 @@ function record(card){
   updateTally();
   saveCard(card.id,n);
   if(!champion) setChampion(card, true);
+  if(isNew && lobby) trackMe('idle');
   return { isNew, count:n };
 }
 /* ── 진행 표시 ── */
@@ -2736,9 +2827,10 @@ let pendingOut=null;          // 내가 보낸 도전 {to, name, at}
 let pendingIn=null;           // 내가 받은 도전 {from, name, card}
 let chTimerId=null, outTimerId=null;
 
-function showSeeking(on, sub){
-  el('seeking').classList.toggle('on', on);
-  if(sub) el('seekSub').textContent=sub;
+function showSeeking(on, title, sub){
+  el('seeking').classList.toggle('on', !!on);
+  if(title) el('seekTitle').textContent=title;
+  if(sub!==undefined) el('seekSub').textContent=sub;
   if(on) el('stageEmpty').classList.add('gone');
 }
 el('cancelSeek').addEventListener('click', ()=>{
@@ -2794,8 +2886,11 @@ async function connectLobby(){
   lobby.on('presence', { event:'sync' }, ()=>{ renderLobby(); renderPresence(); });
   lobby.on('presence', { event:'leave' }, ({ leftPresences })=>{
     // 도전 상대가 나가버린 경우
-    const gone=(leftPresences||[]).some(p=>p.id===(pendingOut&&pendingOut.to) || p.id===(pendingIn&&pendingIn.from));
-    if(gone){ cancelOutgoing(); closeChallenge(); }
+    const ids=(leftPresences||[]).map(p=>p.id);
+    if(ids.includes(pendingOut&&pendingOut.to) || ids.includes(pendingIn&&pendingIn.from)){
+      cancelOutgoing(); closeChallenge();
+    }
+    if(match && ids.includes(match.oppId)) abortMatch('상대가 자리를 떴다');
     renderLobby(); renderPresence();
   });
 
@@ -2815,14 +2910,28 @@ async function connectLobby(){
     if(!pendingOut || pendingOut.to!==payload.from) return;
     clearTimeout(outTimerId); pendingOut=null;
     showSeeking(false); closeDrawer();
-    const A=CARD_BY_ID[payload.aCard], B=CARD_BY_ID[payload.bCard];
-    if(!A||!B) return;
     trackMe('busy');
-    runBattle(A, B, payload.seed, {
-      online:true, role:'a', matchId:payload.matchId,
-      idA:me, idB:payload.from,
-      myName:myProfile.nickname, foeName:payload.fromName
-    });
+    openPicker({ matchId:payload.matchId, seed:payload.seed, role:'a',
+                 oppId:payload.from, oppName:payload.fromName });
+  });
+
+  lobby.on('broadcast', { event:'pick' }, ({ payload })=>{
+    if(payload.to!==me) return;
+    onOpponentPick(payload);
+  });
+
+  lobby.on('broadcast', { event:'abort' }, ({ payload })=>{
+    if(payload.to!==me || !match || payload.match!==match.matchId) return;
+    const nm=match.oppName;
+    match=null;
+    clearTimeout(pkTimer);
+    busyOff();
+    el('picker').classList.remove('on','waiting');
+    el('pkWait').classList.remove('on');
+    trackMe('idle');
+    showBattleMsg('겨룸이 깨졌다', `${nm}이(가) 물러났다.`);
+    busy=false; setControls(true);
+    openLobbyView();
   });
 
   lobby.on('broadcast', { event:'decline' }, ({ payload })=>{
@@ -2859,7 +2968,7 @@ async function trackMe(status){
   if(!lobby) return;
   try{
     await lobby.track({
-      id:me, name:myProfile.nickname, card:champion?champion.id:null,
+      id:me, name:myProfile.nickname, has:found.size>0, owned:found.size,
       wins:myProfile.wins, losses:myProfile.losses,
       status, ts:Date.now()
     });
@@ -2884,7 +2993,7 @@ function lobbyPlayers(){
 }
 function renderPresence(){
   const others=lobbyPlayers().filter(p=>p.id!==me);
-  const ready=others.filter(p=>CARD_BY_ID[p.card] && p.status!=='busy').length;
+  const ready=others.filter(p=>p.has && p.status!=='busy').length;
   const tag=el('warCount');
   if(tag) tag.textContent = others.length ? `${others.length}인` : '對戰';
   const btn=el('battleBtn');
@@ -2905,7 +3014,7 @@ function renderLobby(){
   const all=lobbyPlayers();
   const others=all.filter(p=>p.id!==me);
   const mine=`<div class="rank me"><span class="no">我</span>`+
-    `<span class="nm">${escapeHTML(myProfile.nickname)} <small style="color:var(--paper-dim)">· ${escapeHTML(champion?champion.name:'대표 미정')}</small></span>`+
+    `<span class="nm">${escapeHTML(myProfile.nickname)} <small style="color:var(--paper-dim)">· 잔혼 ${found.size}종</small></span>`+
     `<span class="wl">${myProfile.wins}승 ${myProfile.losses}패</span></div>`;
   if(!others.length){
     pane.innerHTML = mine +
@@ -2914,15 +3023,13 @@ function renderLobby(){
       '<div style="text-align:center"><button class="chg out" id="leaveLobbyBtn">닫기</button></div>';
   }else{
     pane.innerHTML = mine + others.map(p=>{
-      const c=CARD_BY_ID[p.card];
-      const T=c?TYPES[c.type]:null;
       const busyP = p.status==='busy';
       return `<div class="rank">`+
-        `<span class="no" style="color:${T?T.color:'var(--paper-dim)'}">${T?T.hanja:'―'}</span>`+
+        `<span class="no" style="color:${p.has?'var(--moss)':'var(--paper-dim)'}">${p.has?'士':'―'}</span>`+
         `<span class="nm">${escapeHTML(p.name||'무명객')}<br>`+
-        `<small style="color:var(--paper-dim);font-size:11px">${c?escapeHTML(c.name):'대표 미정'} · ${p.wins||0}승 ${p.losses||0}패</small></span>`+
+        `<small style="color:var(--paper-dim);font-size:11px">잔혼 ${p.owned||0}종 · ${p.wins||0}승 ${p.losses||0}패</small></span>`+
         (busyP ? `<span class="wl">대전 중</span>`
-         : !c   ? `<span class="wl">준비 안 됨</span>`
+         : !p.has ? `<span class="wl">준비 안 됨</span>`
          : `<button class="chg" data-id="${p.id}" data-name="${escapeHTML(p.name||'무명객')}">도전</button>`)+
       `</div>`;
     }).join('') + '<div style="text-align:center"><button class="chg out" id="leaveLobbyBtn">닫기</button></div>';
@@ -2937,13 +3044,14 @@ el('lobbyPane').addEventListener('click', async e=>{
 
 /* ── 도전 보내기 ── */
 function sendChallenge(toId, toName){
-  if(!lobby || !champion || pendingOut || busy) return;
+  if(!lobby || pendingOut || busy) return;
+  if(found.size===0){ showBattleMsg('잔혼이 없다','먼저 봉인을 풀어야 한다.'); return; }
   pendingOut={ to:toId, name:toName, at:Date.now() };
   busy=true; setControls(false);
   closeDrawer();
-  showSeeking(true, `${toName}의 응답을 기다립니다`);
+  showSeeking(true, '청을 보냈다', `${toName}의 응답을 기다립니다`);
   lobby.send({ type:'broadcast', event:'challenge', payload:{
-    from:me, to:toId, fromName:myProfile.nickname, fromCard:champion.id
+    from:me, to:toId, fromName:myProfile.nickname
   }});
   outTimerId=setTimeout(()=>{
     if(!pendingOut) return;
@@ -2963,13 +3071,10 @@ function cancelOutgoing(){
 /* ── 도전 받기 ── */
 function openChallenge(payload){
   SFX.challenge();
-  const c=CARD_BY_ID[payload.fromCard];
-  pendingIn={ from:payload.from, name:payload.fromName, card:payload.fromCard };
-  const T=TYPES[c.type];
-  el('chbox').style.setProperty('--type', T.color);
+  pendingIn={ from:payload.from, name:payload.fromName };
+  el('chbox').style.setProperty('--type', 'var(--cinnabar)');
   el('chTitle').textContent=`${payload.fromName}이(가) 청한다`;
-  el('chSub').innerHTML=`<b>${T.hanja} ${escapeHTML(c.name)}</b> 을(를) 앞세웠다.<br>`+
-    `그대의 <b>${escapeHTML(champion?champion.name:'잔혼')}</b> 로 맞선다.`;
+  el('chSub').innerHTML='받으면 각자 잔혼을 고른 뒤 겨룬다.';
   el('challenge').classList.add('on');
   let left=20;
   el('chTimer').textContent=`${left}초 안에 답하라`;
@@ -2992,27 +3097,128 @@ function declineChallenge(){
   if(lobby) lobby.send({ type:'broadcast', event:'decline', payload:{ from:me, to:from }});
 }
 function acceptChallenge(){
-  if(!pendingIn || !champion) return;
-  busyOn('맞서는 중');
-  setTimeout(busyOff, 900);
+  if(!pendingIn) return;
   const p=pendingIn;
   closeChallenge();
   const matchId=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random());
   const seed=(Math.random()*2**31)|0;
   lobby.send({ type:'broadcast', event:'accept', payload:{
-    from:me, to:p.from, matchId, seed,
-    aCard:p.card, bCard:champion.id,
-    fromName:myProfile.nickname
+    from:me, to:p.from, matchId, seed, fromName:myProfile.nickname
   }});
   closeDrawer();
   trackMe('busy');
-  const A=CARD_BY_ID[p.card], B=CARD_BY_ID[champion.id];
-  runBattle(A, B, seed, {
-    online:true, role:'b', matchId,
-    idA:p.from, idB:me,
-    myName:myProfile.nickname, foeName:p.name
+  openPicker({ matchId, seed, role:'b', oppId:p.from, oppName:p.name });
+}
+
+/* ═══ 카드 선택 단계 — 둘 다 완료해야 시작한다 ═══ */
+let match=null;   // { matchId, seed, role, oppId, oppName, myCard, oppCard, sent }
+let pkTimer=null;
+
+function openPicker(m){
+  match={ ...m, myCard:null, oppCard:null, sent:false };
+  busy=true; setControls(false);
+  showSeeking(false);
+  el('pkTitle').textContent='잔혼을 고르라';
+  el('pkOpp').innerHTML=`맞설 상대<b>${escapeHTML(m.oppName)}</b>`;
+  el('pkSel').textContent='아직 고르지 않았다';
+  el('pkDone').disabled=true;
+  el('pkWait').classList.remove('on');
+  el('picker').classList.remove('waiting');
+  buildPickerGrid();
+  el('picker').classList.add('on');
+  SFX.open();
+  clearTimeout(pkTimer);
+  pkTimer=setTimeout(()=>{ if(match) abortMatch('시간이 다했다'); }, 75000);
+}
+function buildPickerGrid(){
+  const g=el('pkGrid');
+  g.innerHTML='';
+  const owned=CARDS.filter(c=>found.has(c.id))
+    .sort((a,b)=>TIER_ORDER.indexOf(b.tier)-TIER_ORDER.indexOf(a.tier));
+  owned.forEach(card=>{
+    const b=document.createElement('button');
+    b.className='pk-card'; b.type='button'; b.dataset.id=card.id;
+    const cv=document.createElement('canvas');
+    cv.width=128; cv.height=192;
+    b.appendChild(cv);
+    cv.getContext('2d').drawImage(faceCanvas(card).face,0,0,128,192);
+    b.addEventListener('click', ()=>selectPick(card));
+    g.appendChild(b);
   });
 }
+function selectPick(card){
+  if(!match || match.sent) return;
+  match.myCard=card;
+  [...el('pkGrid').children].forEach(b=>b.classList.toggle('sel', b.dataset.id===card.id));
+  const P=PASSIVES[card.id];
+  el('pkSel').innerHTML=`<b>${escapeHTML(card.name)}</b> · 攻 ${card.atk} · 血 ${card.hp}`
+    + (P?` · <span style="color:#e0655a">${escapeHTML(P.text)}</span>`:'');
+  el('pkDone').disabled=false;
+  SFX.tap();
+}
+function confirmPick(){
+  if(!match || !match.myCard || match.sent) return;
+  match.sent=true;
+  el('picker').classList.add('waiting');
+  el('pkWait').classList.add('on');
+  el('pkWaitTxt').textContent=`${match.oppName}이(가) 고르는 중…`;
+  el('pkTitle').textContent='상대를 기다린다';
+  busyOn('상대가 고르는 중');
+  SFX.tap();
+  lobby.send({ type:'broadcast', event:'pick', payload:{
+    match:match.matchId, from:me, to:match.oppId, card:match.myCard.id
+  }});
+  tryStartMatch();
+}
+function onOpponentPick(payload){
+  if(!match || payload.match!==match.matchId) return;
+  match.oppCard=CARD_BY_ID[payload.card]||null;
+  if(!match.sent){
+    el('pkWait').classList.add('on');
+    el('pkWaitTxt').textContent=`${match.oppName}은(는) 골랐다 — 그대 차례`;
+  }
+  tryStartMatch();
+}
+function tryStartMatch(){
+  if(!match || !match.myCard || !match.oppCard) return;
+  const m=match;
+  match=null;
+  clearTimeout(pkTimer);
+  busyOff();
+  el('picker').classList.remove('on','waiting');
+  el('pkWait').classList.remove('on');
+  const A = m.role==='a' ? m.myCard : m.oppCard;   // 도전자
+  const B = m.role==='a' ? m.oppCard : m.myCard;   // 수락자
+  showSeeking(true, '겨룸이 시작된다', `${m.myCard.name}  對  ${m.oppCard.name}`);
+  busyOn('전장을 여는 중');
+  setTimeout(()=>{
+    showSeeking(false);
+    busyOff();
+    runBattle(A, B, m.seed, {
+      online:true, role:m.role, matchId:m.matchId,
+      idA: m.role==='a' ? me : m.oppId,
+      idB: m.role==='a' ? m.oppId : me,
+      myName:myProfile.nickname, foeName:m.oppName
+    });
+  }, 1100);
+}
+function abortMatch(reason){
+  if(!match) return;
+  const m=match; match=null;
+  clearTimeout(pkTimer);
+  busyOff();
+  el('picker').classList.remove('on','waiting');
+  el('pkWait').classList.remove('on');
+  if(lobby) lobby.send({ type:'broadcast', event:'abort', payload:{
+    match:m.matchId, from:me, to:m.oppId }});
+  trackMe('idle');
+  showBattleMsg('겨룸이 깨졌다', reason||'');
+  busy=false; setControls(true);
+  openLobbyView();
+}
+el('pkDone').addEventListener('click', confirmPick);
+el('pkCancel').addEventListener('click', ()=>abortMatch('그대가 물러났다'));
+
 el('champBtn').addEventListener('click', ()=>{
   if(!currentCard || !found.has(currentCard.id)) return;
   setChampion(currentCard, true);
@@ -3107,11 +3313,6 @@ el('battleBtn').addEventListener('click', ()=>{
   }
   if(found.size===0){
     showBattleMsg('잔혼이 없다','먼저 봉인을 해제해 대전할 잔혼을 얻으라.');
-    return;
-  }
-  if(!champion){
-    showBattleMsg('대표 잔혼이 없다','서고에서 대표로 삼을 잔혼을 정하라.');
-    openDrawer(true);
     return;
   }
   openLobbyView();
