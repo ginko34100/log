@@ -2315,6 +2315,7 @@ function typeInfoHTML(card){
   const T=TYPES[card.type], strong=TYPES[T.beats];
   const weak=TYPES[Object.keys(TYPES).find(k=>TYPES[k].beats===card.type)];
   const P2=PASSIVES[card.id];
+  const st=statOf(card);
   return `<b>血 ${st.hp}</b> · <b>攻 ${st.atk}</b>${st.L?` <span style="color:var(--gold)">+${st.L}</span>`:''} &nbsp;|&nbsp; <span class="adv">${strong.hanja} 강함</span> · <span class="dis">${weak.hanja} 약함</span>`
     + (P2 ? `<br><span class="pass">${escapeHTML(P2.text)}</span>` : '');
 }
@@ -2576,7 +2577,7 @@ function drawGourd(g, cx0, baseY, height, rise, flare){
 
 function suckIntoArchive(card){
   return new Promise(res=>{
-    if(!suckCtx){ res(); return; }
+    if(!suckCtx || !glOK){ SFX.absorb(); res(); return; }
     const face=faceCanvas(card).face;
     const rect=cardScreenRect();
     const glow=TYPES[card.type].glow;
@@ -2884,6 +2885,15 @@ async function playDuel(d, iAmA, mine, foe, scoreTxt){
   const myCard=mine.card, foeCard=foe.card;
   const maxMine = iAmA ? d.maxA : d.maxB;
   const maxFoe  = iAmA ? d.maxB : d.maxA;
+  if(!glOK){                                   // 3D 없이도 결과는 진행된다
+    hudSet('L', myCard, mine.lv, maxMine, scoreTxt.me);
+    hudSet('R', foeCard, foe.lv, maxFoe, scoreTxt.foe);
+    combatHud.classList.add('on');
+    showBattleMsg(scoreTxt.title, `${myCard.name} 對 ${foeCard.name}`);
+    await sleep(700);
+    combatHud.classList.remove('on');
+    return (d.winner==='a')===iAmA;
+  }
   setUnitCard(myUnit, myCard); setUnitCard(foeUnit, foeCard);
   const SC=0.74, X=1.55;
   myUnit.home={x:-X,y:0,s:SC,ry:0.24};
