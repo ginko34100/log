@@ -536,7 +536,9 @@ const SUPABASE_ANON_KEY = 'sb_publishable_92DJY8GATx51qt6kqbC8xg_LNVo0z7m';
    │ 같은 폴더의 파일명이든 전체 URL 이든 됩니다.│
    └────────────────────────────────────────────┘ */
 const ART = {
-  lastflame: 'art/Serpentine_eastern_dragon_exhali__2K_202608101147.jpeg',
+  // 파일명만 적으면 art/ · images/ · assets/ · 루트를 차례로 찾는다.
+  // 확실히 하려면 전체 URL(https://raw.githubusercontent.com/...)을 넣으면 된다.
+  lastflame: 'Serpentine_eastern_dragon_exhali__2K_202608101147.jpeg',
 };
 
 const el = id => document.getElementById(id);
@@ -1348,19 +1350,37 @@ function drawBack(){
 /* 일러스트 로딩 — 도착하면 그 카드만 제자리에서 다시 그린다 */
 const artImgs=new Map();      // id -> HTMLImageElement (로드 완료)
 const artPending=new Set();
+/* 경로 후보를 만든다 — 전체 URL 이거나 슬래시가 있으면 그대로 쓴다 */
+function artCandidates(v){
+  if(Array.isArray(v)) return v;
+  if(/^(https?:)?\/\//.test(v) || v.includes('/')) return [v];
+  return ['art/'+v, 'images/'+v, 'assets/'+v, v];
+}
 function ensureArt(card){
-  const src=ART[card.id];
-  if(!src || artImgs.has(card.id) || artPending.has(card.id)) return;
+  const raw=ART[card.id];
+  if(!raw || artImgs.has(card.id) || artPending.has(card.id)) return;
+  const list=artCandidates(raw);
   artPending.add(card.id);
-  const im=new Image();
-  im.crossOrigin='anonymous';
-  im.onload=()=>{
-    artPending.delete(card.id);
-    artImgs.set(card.id, im);
-    refreshCard(card);
+  let i=0;
+  const tryNext=()=>{
+    if(i>=list.length){
+      artPending.delete(card.id);
+      console.warn(`[${card.id}] 그림을 못 찾았다. 시도한 경로:`, list);
+      return;
+    }
+    const url=list[i++];
+    const im=new Image();
+    im.crossOrigin='anonymous';
+    im.onload=()=>{
+      artPending.delete(card.id);
+      artImgs.set(card.id, im);
+      console.log(`[${card.id}] 그림 적용:`, url);
+      refreshCard(card);
+    };
+    im.onerror=()=>{ tryNext(); };
+    im.src=url;
   };
-  im.onerror=()=>{ artPending.delete(card.id); console.warn('그림을 불러오지 못했다:', src); };
-  im.src=src;
+  tryNext();
 }
 function refreshCard(card){
   const cv=faceCache.get(card.id);
