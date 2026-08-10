@@ -56,6 +56,31 @@ body{background:var(--ink);color:var(--paper);
   background:radial-gradient(ellipse at 50% 40%,transparent 32%,rgba(6,7,6,.70) 78%,#050605 100%)}
 /* 광충(光蟲) — 화면 전체를 느리게 떠다닌다 */
 #mushi{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.9}
+
+/* 로딩 표시 */
+.loadbar{position:fixed;left:0;right:0;top:0;height:2px;z-index:30;
+  background:rgba(217,205,180,.06);opacity:0;transition:opacity .25s}
+.loadbar.on{opacity:1}
+.loadbar i{display:block;height:100%;width:0%;
+  background:linear-gradient(90deg,var(--moss),var(--gold));
+  box-shadow:0 0 10px rgba(168,145,63,.6);transition:width .25s ease}
+.loadbar.indet i{width:35%;animation:indet 1.1s ease-in-out infinite;transition:none}
+@keyframes indet{0%{margin-left:-35%}100%{margin-left:100%}}
+.busychip{position:fixed;left:50%;top:calc(var(--sat) + 12px);transform:translateX(-50%);
+  z-index:30;display:none;align-items:center;gap:9px;
+  background:rgba(10,11,10,.92);border:1px solid var(--edge);
+  padding:8px 15px;font-family:"Song Myung",serif;font-size:12px;
+  letter-spacing:.14em;color:var(--paper-dim);
+  box-shadow:0 8px 30px rgba(0,0,0,.6)}
+.busychip.on{display:flex}
+.bspin{width:12px;height:12px;border:1px solid rgba(168,145,63,.35);
+  border-top-color:var(--gold);border-radius:50%;animation:spin .9s linear infinite;flex:0 0 auto}
+button.working{position:relative;color:transparent !important}
+button.working small{color:transparent !important}
+button.working::after{content:"";position:absolute;left:50%;top:50%;
+  width:14px;height:14px;margin:-7px 0 0 -7px;
+  border:1px solid rgba(217,205,180,.3);border-top-color:var(--gold);
+  border-radius:50%;animation:spin .8s linear infinite}
 .grain{position:fixed;inset:-50%;z-index:2;pointer-events:none;opacity:.15;
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='.5'/></svg>");
   animation:grain 1.1s steps(3) infinite}
@@ -390,6 +415,8 @@ button.chg.out{margin:18px auto 4px;border-color:var(--edge);color:var(--paper-d
 <div class="vignette" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
 <div class="flash" id="flash" aria-hidden="true"></div>
+<div class="loadbar" id="loadbar"><i id="loadfill"></i></div>
+<div class="busychip" id="busychip"><span class="bspin"></span><span id="busytxt">기다리는 중</span></div>
 
 <div class="app" id="app">
   <header class="masthead">
@@ -399,6 +426,7 @@ button.chg.out{margin:18px auto 4px;border-color:var(--edge);color:var(--paper-d
       <button id="nameBtn">접속 중…</button>
       <span class="rec" id="recTxt"></span>
       <span class="pres" id="presTxt"></span>
+      <button class="out" id="sfxBtn">소리 켬</button>
       <button class="out" id="outBtn" style="display:none">나가기</button>
     </div>
   </header>
@@ -551,6 +579,107 @@ const ART = {
 };
 
 const el = id => document.getElementById(id);
+
+/* ═══ 소리 — 파일 없이 합성한다 ═══ */
+const SFX = (()=>{
+  let ac=null, master=null, on=true;
+  function ctx(){
+    if(!ac){
+      const AC=window.AudioContext||window.webkitAudioContext;
+      if(!AC) return null;
+      ac=new AC();
+      master=ac.createGain(); master.gain.value=0.5; master.connect(ac.destination);
+    }
+    if(ac.state==='suspended') ac.resume();
+    return ac;
+  }
+  let noiseBuf=null;
+  function noise(){
+    const c=ctx(); if(!c) return null;
+    if(!noiseBuf){
+      noiseBuf=c.createBuffer(1, c.sampleRate*1.2, c.sampleRate);
+      const d=noiseBuf.getChannelData(0);
+      for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+    }
+    const src=c.createBufferSource(); src.buffer=noiseBuf; return src;
+  }
+  function env(g, t0, a, d, peak){
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(Math.max(peak,0.0002), t0+a);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0+a+d);
+  }
+  function tone(freq, t0, dur, type, peak, slideTo){
+    const c=ctx(); if(!c||!on) return;
+    const o=c.createOscillator(), g=c.createGain();
+    o.type=type||'sine'; o.frequency.setValueAtTime(freq, t0);
+    if(slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t0+dur);
+    env(g, t0, Math.min(0.02,dur*0.2), dur, peak==null?0.25:peak);
+    o.connect(g); g.connect(master);
+    o.start(t0); o.stop(t0+dur+0.05);
+  }
+  function hiss(t0, dur, f0, f1, peak, q){
+    const c=ctx(); if(!c||!on) return;
+    const n=noise(); if(!n) return;
+    const bp=c.createBiquadFilter(); bp.type='bandpass';
+    bp.frequency.setValueAtTime(f0,t0);
+    bp.frequency.exponentialRampToValueAtTime(f1,t0+dur);
+    bp.Q.value=q||2;
+    const g=c.createGain(); env(g,t0,0.008,dur,peak==null?0.2:peak);
+    n.connect(bp); bp.connect(g); g.connect(master);
+    n.start(t0); n.stop(t0+dur+0.05);
+  }
+  const now=()=> ctx()? ac.currentTime : 0;
+
+  return {
+    unlock(){ ctx(); },
+    get on(){ return on; },
+    toggle(){ on=!on; if(master) master.gain.value=on?0.5:0; return on; },
+    tap(){ const t=now(); tone(320,t,0.05,'triangle',0.10); hiss(t,0.05,1800,900,0.05,1); },
+    open(){ const t=now(); hiss(t,0.22,300,1600,0.09,1.2); tone(180,t,0.18,'sine',0.08,320); },
+    close(){ const t=now(); hiss(t,0.18,1500,320,0.07,1.2); },
+    draw(){ const t=now();
+      hiss(t,0.5,180,1400,0.14,1.1);
+      tone(90,t,0.4,'sine',0.20,220);
+    },
+    reveal(tier){ const t=now();
+      const base={scrap:300,relic:260,omen:210,taboo:150,promo:130}[tier]||300;
+      const len={scrap:0.5,relic:0.8,omen:1.2,taboo:1.8,promo:1.8}[tier]||0.5;
+      tone(base,t,len,'sine',0.26);
+      tone(base*1.5,t+0.02,len*0.8,'sine',0.12);
+      tone(base*2.01,t+0.04,len*0.6,'sine',0.07);
+      hiss(t,0.3,900,200,0.10,1.5);
+    },
+    cutin(){ const t=now();
+      tone(70,t,1.4,'sine',0.34,52);
+      tone(105,t+0.01,1.1,'triangle',0.16,80);
+      hiss(t,0.7,2400,180,0.16,0.8);
+    },
+    soul(){ const t=now();
+      for(let i=0;i<4;i++) tone(680+i*190, t+i*0.06, 0.35, 'sine', 0.06, 1500+i*200);
+    },
+    clash(crit){ const t=now();
+      hiss(t,0.16,4200,700,crit?0.34:0.22,1.4);
+      tone(crit?150:190,t,0.22,'square',crit?0.20:0.12,crit?60:90);
+      tone(2400,t,0.09,'triangle',0.10,900);
+    },
+    split(){ const t=now();
+      hiss(t,0.14,6000,1200,0.30,3);
+      hiss(t+0.08,0.5,700,90,0.22,0.8);
+      tone(60,t+0.06,0.7,'sine',0.30,34);
+    },
+    win(){ const t=now();
+      [392,523,659].forEach((f,i)=>tone(f,t+i*0.11,0.5,'sine',0.16));
+    },
+    lose(){ const t=now();
+      [330,262,196].forEach((f,i)=>tone(f,t+i*0.13,0.6,'sine',0.15));
+    },
+    challenge(){ const t=now();
+      tone(520,t,0.16,'triangle',0.18); tone(392,t+0.14,0.3,'triangle',0.16);
+    },
+  };
+})();
+['pointerdown','keydown'].forEach(ev=>
+  addEventListener(ev, ()=>SFX.unlock(), { once:true, passive:true }));
 const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ═══ 광충(光蟲) — 화면 전체를 느리게 떠도는 빛 ═══ */
@@ -770,6 +899,8 @@ async function doAuth(isSignup){
   if(!/^[a-z0-9_]{2,20}$/.test(id)){ gateErr('아이디는 영문·숫자 2~20자로.'); return; }
   if(pw.length<2){ gateErr('비밀번호가 너무 짧다.'); return; }
   gateBusy(true);
+  busyOn(isSignup?'이름을 새기는 중':'문을 여는 중');
+  SFX.tap();
   try{
     if(isSignup){
       const { data, error } = await sb.auth.signUp({
@@ -796,6 +927,7 @@ async function doAuth(isSignup){
     else gateErr(m||'들어갈 수 없다.');
   }
   gateBusy(false);
+  busyOff();
 }
 el('gateIn').addEventListener('click', ()=>doAuth(false));
 el('gateUp').addEventListener('click', ()=>doAuth(true));
@@ -803,6 +935,8 @@ el('gatePw').addEventListener('keydown', e=>{ if(e.key==='Enter') doAuth(false);
 el('gateId').addEventListener('keydown', e=>{ if(e.key==='Enter') el('gatePw').focus(); });
 
 async function doLogout(){
+  busyOn('나가는 중');
+  SFX.close();
   try{ if(lobby){ await lobby.unsubscribe(); lobby=null; } }catch(e){}
   try{ await sb.auth.signOut(); }catch(e){}
   location.reload();
@@ -830,13 +964,18 @@ async function loadProfile(){
   }
 }
 async function loadCollection(){
+  busyOn('서고를 여는 중', true);
   const { data } = await sb.from('cards_owned').select('card_id,count').eq('user_id',me);
-  (data||[]).forEach(r=>{
-    if(!CARD_BY_ID[r.card_id]) return;
-    found.set(r.card_id, r.count);
-    renderSlot(CARD_BY_ID[r.card_id], true, true);
-  });
+  const rows=(data||[]).filter(r=>CARD_BY_ID[r.card_id]);
+  rows.forEach(r=>found.set(r.card_id, r.count));
   updateTally();
+  // 카드 그림은 한 장씩 만든다 — 한꺼번에 만들면 화면이 멈춘다
+  for(let i=0;i<rows.length;i++){
+    renderSlot(CARD_BY_ID[rows[i].card_id], true, true);
+    busyStep((i+1)/rows.length);
+    if(i%3===2) await new Promise(r=>requestAnimationFrame(()=>r()));
+  }
+  busyOff();
   resolveChampion();
 }
 function strongest(){
@@ -899,6 +1038,11 @@ function renderWho(){
   el('recTxt').textContent = `${myProfile.wins}승 ${myProfile.losses}패`;
   el('outBtn').style.display = online() ? '' : 'none';
 }
+el('sfxBtn').addEventListener('click', ()=>{
+  const on=SFX.toggle();
+  el('sfxBtn').textContent = on ? '소리 켬' : '소리 끔';
+  if(on) SFX.tap();
+});
 el('outBtn').addEventListener('click', ()=>{ if(online()) doLogout(); });
 el('nameBtn').addEventListener('click', async ()=>{
   if(!online()) return;
@@ -1288,15 +1432,15 @@ function renderFace(card, img, target){
 
   // ── 하단: 공격력 숫자만 ──
   x.strokeStyle=hexA(T.color,.42); x.lineWidth=1;
-  x.beginPath(); x.moveTo(112,H-104); x.lineTo(W-112,H-104); x.stroke();
+  x.beginPath(); x.moveTo(112,H-124); x.lineTo(W-112,H-124); x.stroke();
   x.fillStyle='#f0e2c2';
   x.font='400 62px "Song Myung", serif';
   x.shadowColor=hexA(T.glow,.55); x.shadowBlur=18;
-  x.fillText(String(card.atk), W/2, H-62);
+  x.fillText(String(card.atk), W/2, H-82);
   x.shadowBlur=0;
 
   // 낙관
-  seal(x, W-58, H-62, card.tier==='taboo'?40:34, T.hanja, card.tier==='taboo');
+  seal(x, W-58, H-80, card.tier==='taboo'?40:34, T.hanja, card.tier==='taboo');
 
   // 금박 마스크
   const mc=(target&&target.mask) || document.createElement('canvas');
@@ -1690,7 +1834,7 @@ function splitCard(unit){
     };
     if(REDUCED){ cleanup(); res(); return; }
 
-    shake(true); flash(true);
+    shake(true); flash(true); SFX.split();
     tween(0.12, p=>{ slash.scale.y=0.02+p*1.0; }, ()=>{
       tween(0.22, p=>{ slashMat.opacity=1-p; });
       emit(sparks, '#ffffff', grp.position.x, 0, 3.2, 1.6);
@@ -1707,7 +1851,39 @@ function splitCard(unit){
   });
 }
 
-function summonSolo(card, then){
+/* 카드를 접어 서고 쪽으로 빨아들인다 */
+function foldIntoArchive(){
+  return new Promise(res=>{
+    if(!glOK || REDUCED){ myUnit.group.visible=false; res(); return; }
+    const g=myUnit.group;
+    const sx=g.scale.x;
+    SFX.soul();
+    // 1) 접힌다 — 세로축으로 닫히며 살짝 기운다
+    tween(0.34, p=>{
+      g.scale.x = sx*(1-p*0.94);
+      g.rotation.z = p*0.30;
+      g.rotation.y = p*0.55;
+      g.position.y = -p*0.25;
+    }, ()=>{
+      // 2) 서고 탭 쪽(오른쪽 아래)으로 빨려간다
+      tween(0.42, p=>{
+        const e=p*p;
+        g.position.x = e*2.1;
+        g.position.y = -0.25 - e*3.1;
+        g.scale.setScalar(sx*(1-p*0.92));
+        g.rotation.z = 0.30 + p*1.5;
+      }, ()=>{
+        g.visible=false;
+        g.scale.setScalar(1);
+        g.rotation.set(0,0,0);
+        g.position.set(0,0,0);
+        res();
+      }, t=>t);
+    }, t=>1-Math.pow(1-t,2));
+  });
+}
+
+function summonSolo(card, then, quiet){
   if(!glOK){ if(then) then(); return; }
   foeUnit.group.visible=false;
   setUnitCard(myUnit, card);
@@ -1717,6 +1893,14 @@ function summonSolo(card, then){
   myUnit.home={x:0,y:0,s:1,ry:0};
   auraMat.color.set(T.glow);
   myUnit.group.visible=true;
+  if(quiet){
+    myUnit.group.position.set(0,0,0); myUnit.group.rotation.set(0,0,0); myUnit.group.scale.setScalar(1);
+    summonAnim=null;
+    myUnit.front.material.uniforms.uReveal.value=0;
+    tween(0.5, p=>{ myUnit.front.material.uniforms.uReveal.value=p; }, ()=>{ if(then) then(); });
+    auraMat.opacity=0.3;
+    return;
+  }
   if(REDUCED){
     myUnit.front.material.uniforms.uReveal.value=1;
     myUnit.group.position.set(0,0,0); myUnit.group.rotation.set(0,0,0); myUnit.group.scale.setScalar(1);
@@ -1826,9 +2010,17 @@ async function doDraw100(){
   showDossier(best, `백연(百連) · 새로 ${newCount}종`);
   el('dRecord').textContent =
     `잔재 ${tally.scrap} · 유물 ${tally.relic} · 흉조 ${tally.omen} · 금기 ${tally.taboo}`;
-  summonSolo(best, ()=>{
+  summonSolo(best, async ()=>{
+    SFX.reveal(best.tier);
+    await sleep(1100);
+    await foldIntoArchive();
+    flySoul(TYPES[best.type].glow);
+    await sleep(760);
+    if(champion){
+      showDossier(champion, `백연(百連) · 서고에 들었다`);
+      summonSolo(champion, null, true);
+    }
     busy=false; setControls(true);
-    setTimeout(()=>flySoul(TYPES[best.type].glow), 420);
   });
   if(!glOK){ busy=false; setControls(true); }
 }
@@ -1878,6 +2070,33 @@ function record(card){
   if(!champion) setChampion(card, true);
   return { isNew, count:n };
 }
+/* ── 진행 표시 ── */
+let busyDepth=0;
+function busyOn(label, determinate){
+  busyDepth++;
+  const lb=el('loadbar');
+  lb.classList.add('on');
+  lb.classList.toggle('indet', !determinate);
+  if(determinate) el('loadfill').style.width='2%';
+  el('busytxt').textContent=label||'기다리는 중';
+  el('busychip').classList.add('on');
+}
+function busyStep(p){
+  el('loadbar').classList.remove('indet');
+  el('loadfill').style.width=Math.round(Math.max(0,Math.min(1,p))*100)+'%';
+}
+function busyOff(){
+  busyDepth=Math.max(0,busyDepth-1);
+  if(busyDepth>0) return;
+  const lb=el('loadbar');
+  el('loadfill').style.width='100%';
+  el('busychip').classList.remove('on');
+  setTimeout(()=>{
+    if(busyDepth>0) return;
+    lb.classList.remove('on','indet');
+    setTimeout(()=>{ if(busyDepth===0) el('loadfill').style.width='0%'; }, 260);
+  }, 200);
+}
 /* 뽑은 잔혼이 서고 탭으로 빨려 들어간다 */
 function flySoul(color){
   if(REDUCED) return;
@@ -1913,6 +2132,7 @@ function playCutin(glyph, label, color, dur){
   cut.style.setProperty('--cc', color);
   el('cutGlyph').textContent=glyph;
   el('cutLabel').textContent=label;
+  SFX.cutin();
   cut.classList.remove('on'); void cut.offsetWidth; cut.classList.add('on');
   return new Promise(res=>setTimeout(()=>{ cut.classList.remove('on'); res(); }, dur));
 }
@@ -1927,9 +2147,18 @@ async function doDraw(rewardMode){
     ? (res.isNew?'승리의 전리품 · 새 잔혼!':`승리의 전리품 · 잔향 ×${res.count}`)
     : (res.isNew?'서고에 새로 기록되었다':`이미 기록된 잔혼 · 잔향 ×${res.count}`);
   showDossier(card, echo);
-  summonSolo(card, ()=>{
+  SFX.draw();
+  summonSolo(card, async ()=>{
+    SFX.reveal(card.tier);
+    await sleep(1100);                 // 카드를 잠시 보여준다
+    await foldIntoArchive();           // 접히며
+    flySoul(TYPES[card.type].glow);    // 서고로 빨려든다
+    await sleep(760);
+    if(champion){                      // 무대는 대표 잔혼으로 돌아온다
+      showDossier(champion, `${card.name} · 서고에 들었다`);
+      summonSolo(champion, null, true);
+    }
     busy=false; setControls(true);
-    setTimeout(()=>flySoul(TYPES[card.type].glow), 420);
   });
   if(!glOK){ busy=false; setControls(true); }
 }
@@ -2003,7 +2232,7 @@ async function playRound(r, iAmA, myCard, foeCard){
   const myHp  = iAmA ? r.hpA : r.hpB;
   const foeHp = iAmA ? r.hpB : r.hpA;
   const crit = toFoe.mult>1 || toMe.mult>1;
-  shake(crit); flash(crit);
+  shake(crit); flash(crit); SFX.clash(crit);
   emit(burst, TYPES[myCard.type].glow, 0.1, 0.2, 2.6, 3);
   emit(sparks, '#fff3d9', 0, 0, 3.6, 1.4);
   [myUnit,foeUnit].forEach(u=>{
@@ -2085,6 +2314,7 @@ async function runBattle(cardA, cardB, seed, opts){
   winner.home={x:0,y:0,s:1,ry:0};
   battle=null;
 
+  if(won) SFX.win(); else SFX.lose();
   if(opts.online){ saveResult(won); trackMe('idle'); }
   if(opts.online && opts.role==='a'){
     logMatch({ id:opts.matchId, player_a:opts.idA, player_b:opts.idB,
@@ -2287,6 +2517,7 @@ function cancelOutgoing(){
 
 /* ── 도전 받기 ── */
 function openChallenge(payload){
+  SFX.challenge();
   const c=CARD_BY_ID[payload.fromCard];
   pendingIn={ from:payload.from, name:payload.fromName, card:payload.fromCard };
   const T=TYPES[c.type];
@@ -2356,9 +2587,34 @@ function closeDrawer(){
   drawer.classList.remove('open'); scrim.classList.remove('open');
   pickMode=false; drawer.classList.remove('pick');
 }
-el('openArchive').addEventListener('click', ()=>{ if(!busy) openDrawer(false); });
-el('closeArchive').addEventListener('click', closeDrawer);
-scrim.addEventListener('click', closeDrawer);
+el('openArchive').addEventListener('click', async ()=>{
+  if(busy) return;
+  SFX.open();
+  openDrawer(false);
+  await fillThumbs();
+});
+el('closeArchive').addEventListener('click', ()=>{ SFX.close(); closeDrawer(); });
+scrim.addEventListener('click', ()=>{ SFX.close(); closeDrawer(); });
+
+/* 아직 안 그려진 축소판을 조금씩 채운다 */
+let fillingThumbs=false;
+async function fillThumbs(){
+  if(fillingThumbs) return;
+  const todo=[...found.keys()].filter(id=>{
+    const b=slotEls.get(id);
+    return b && !b.querySelector('canvas.thumb');
+  });
+  if(!todo.length) return;
+  fillingThumbs=true;
+  busyOn('서고를 정리하는 중', true);
+  for(let i=0;i<todo.length;i++){
+    renderSlot(CARD_BY_ID[todo[i]], true, true);
+    busyStep((i+1)/todo.length);
+    if(i%3===2) await new Promise(r=>requestAnimationFrame(()=>r()));
+  }
+  busyOff();
+  fillingThumbs=false;
+}
 addEventListener('keydown', e=>{ if(e.key==='Escape') closeDrawer(); });
 
 function switchTab(name){
@@ -2394,6 +2650,7 @@ async function loadBoard(){
 function escapeHTML(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 el('battleBtn').addEventListener('click', ()=>{
+  SFX.tap();
   if(busy) return;
   if(!online()){
     showBattleMsg('접속되지 않았다','대전은 접속 상태에서만 열린다.');
@@ -2468,7 +2725,7 @@ function renderSlot(card,isNew,quiet){
 }
 
 /* ── 시작 ──────────────────────────────────── */
-el('drawOne').addEventListener('click', ()=>doDraw(false));
+el('drawOne').addEventListener('click', ()=>{ SFX.tap(); doDraw(false); });
 el('bulkBtn').addEventListener('click', doDraw100);
 addEventListener('beforeunload', ()=>{ if(lobby) lobby.unsubscribe(); });
 
