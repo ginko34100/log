@@ -1002,6 +1002,8 @@ async function initSupabase(){
   }
 }
 async function afterAuth(session){
+  kicked=false; rejoinTries=0; netDown=false;
+  busyReset();
   me = session.user.id;
   myLoginId = (session.user.email||'').split('@')[0];
   showGate(false);
@@ -2249,6 +2251,13 @@ function busyPaint(label, determinate){
   el('busychip').classList.add('on');
   busyShownAt=performance.now();
 }
+function busyReset(){
+  busyDepth=0;
+  clearTimeout(busyShowTimer);
+  el('busychip').classList.remove('on');
+  el('loadbar').classList.remove('on','indet');
+  el('loadfill').style.width='0%';
+}
 function busyOn(label, determinate){
   busyDepth++;
   if(el('busychip').classList.contains('on')){
@@ -2418,10 +2427,12 @@ function drawGourd(g, cx0, baseY, height, rise, flare){
   }
 
   // 바닥 그림자
-  const sh=g.createRadialGradient(cx0, baseY, 2, cx0, baseY, w*0.7);
-  sh.addColorStop(0,`rgba(0,0,0,${gourdIsPhoto?.38:.55})`); sh.addColorStop(1,'rgba(0,0,0,0)');
-  g.fillStyle=sh;
-  g.beginPath(); g.ellipse(cx0, baseY, w*0.55, h*0.045, 0, 0, 7); g.fill();
+  if(!gourdIsPhoto){
+    const sh=g.createRadialGradient(cx0, baseY, 2, cx0, baseY, w*0.7);
+    sh.addColorStop(0,'rgba(0,0,0,.55)'); sh.addColorStop(1,'rgba(0,0,0,0)');
+    g.fillStyle=sh;
+    g.beginPath(); g.ellipse(cx0, baseY, w*0.55, h*0.045, 0, 0, 7); g.fill();
+  }
 
   if(gourdImg){
     g.imageSmoothingEnabled=true;
@@ -2432,21 +2443,15 @@ function drawGourd(g, cx0, baseY, height, rise, flare){
     g.beginPath(); g.ellipse(cx, y+h*0.28, w*0.24, h*0.13, 0,0,7); g.fill();
   }
 
-  // 아가리 속 빛
+  // 아가리 위로 스미는 빛 (테두리 없는 부드러운 번짐만)
   if(flare>0){
     g.globalCompositeOperation='lighter';
-    const mg=g.createRadialGradient(mouth.x, mouth.y, 0, mouth.x, mouth.y, w*0.22);
-    mg.addColorStop(0, `rgba(226,246,200,${0.9*flare})`);
+    const mg=g.createRadialGradient(mouth.x, mouth.y, 0, mouth.x, mouth.y, w*0.30);
+    mg.addColorStop(0, `rgba(226,246,200,${0.55*flare})`);
+    mg.addColorStop(0.45, `rgba(180,215,160,${0.16*flare})`);
     mg.addColorStop(1,'rgba(0,0,0,0)');
     g.fillStyle=mg;
-    g.beginPath(); g.ellipse(mouth.x, mouth.y, w*0.16, h*0.035, 0,0,7); g.fill();
-    // 솟는 김
-    g.globalAlpha=Math.min(1,rise)*0.35*flare;
-    const vg=g.createLinearGradient(0, mouth.y-h*0.5, 0, mouth.y);
-    vg.addColorStop(0,'rgba(200,230,180,0)');
-    vg.addColorStop(1,`rgba(200,230,180,${0.5*flare})`);
-    g.fillStyle=vg;
-    g.fillRect(mouth.x-w*0.10, mouth.y-h*0.5, w*0.20, h*0.5);
+    g.fillRect(mouth.x-w*0.35, mouth.y-w*0.35, w*0.70, w*0.70);
     g.globalCompositeOperation='source-over';
   }
   g.restore();
@@ -2842,6 +2847,31 @@ el('cancelSeek').addEventListener('click', ()=>{
 
 /* ── 채널: 접속 즉시 붙어 있는다 (대전 탭을 열지 않아도) ── */
 let netDown=false, rejoinTimer=null, closingLobby=false, joiningLobby=false;
+const SESSION_ID = Math.random().toString(36).slice(2)+Date.now().toString(36);
+let kicked=false;
+
+/* 다른 곳에서 접속하면 이쪽을 끊는다 */
+function kickOut(msg){
+  if(kicked) return;
+  kicked=true;
+  closingLobby=true;
+  try{ if(lobby) lobby.unsubscribe(); }catch(e){}
+  lobby=null; inLobby=false;
+  busy=false; setControls(true);
+  battle=null; match=null;
+  clearTimeout(pkTimer); clearInterval(pkCountId); clearInterval(acceptResendId);
+  busyReset();
+  el('picker').classList.remove('on','waiting');
+  el('challenge').classList.remove('on');
+  showSeeking(false);
+  closeDrawer();
+  netStatus(false, '끊김');
+  showGate(true);
+  gateErr(msg||'연결이 끊겼다. 다시 들어오라.');
+  el('gateId').value=myLoginId||'';
+  el('gatePw').value='';
+  try{ if(sb) sb.auth.signOut(); }catch(e){}
+}
 function netTrouble(msg){
   if(netDown) return;
   netDown=true;
@@ -2854,19 +2884,25 @@ function netOk(){
   busyOff();
   el('netDot').classList.add('on');
 }
+let rejoinTries=0;
 function scheduleRejoin(){
-  if(joiningLobby) return;
+  if(joiningLobby || kicked) return;
   clearTimeout(rejoinTimer);
   rejoinTimer=setTimeout(async ()=>{
-    if(!online() || joiningLobby) return;
-    closingLobby=true;                       // 우리가 끊는 것이니 장애가 아니다
+    if(!online() || joiningLobby || kicked) return;
+    if(rejoinTries++ >= 1){                  // 한 번만 되살려 보고, 안 되면 다시 로그인
+      kickOut('연결이 끊겼다. 다시 들어오라.');
+      return;
+    }
+    closingLobby=true;
     try{ if(lobby){ await lobby.unsubscribe(); } }catch(e){}
     lobby=null;
     closingLobby=false;
     connectLobby();
-  }, 2500);
+  }, 3000);
 }
 addEventListener('offline', ()=>netTrouble('연결이 끊겼다'));
+addEventListener('pagehide', ()=>{ closingLobby=true; try{ if(lobby) lobby.unsubscribe(); }catch(e){} });
 addEventListener('online', ()=>{ if(online() && !inLobby){ netTrouble('다시 잇는 중'); scheduleRejoin(); } });
 addEventListener('visibilitychange', ()=>{
   if(document.visibilityState==='visible' && online() && !lobby && !joiningLobby){
@@ -2885,13 +2921,21 @@ async function connectLobby(){
 
   lobby.on('presence', { event:'sync' }, ()=>{ renderLobby(); renderPresence(); });
   lobby.on('presence', { event:'leave' }, ({ leftPresences })=>{
-    // 도전 상대가 나가버린 경우
+    // 상태를 갱신해도 leave 가 함께 오므로, 정말 사라졌는지 다시 확인한다
     const ids=(leftPresences||[]).map(p=>p.id);
-    if(ids.includes(pendingOut&&pendingOut.to) || ids.includes(pendingIn&&pendingIn.from)){
-      cancelOutgoing(); closeChallenge();
-    }
-    if(match && ids.includes(match.oppId)) abortMatch('상대가 자리를 떴다');
-    renderLobby(); renderPresence();
+    const stillHere=id=>lobbyPlayers().some(p=>p.id===id);
+    setTimeout(()=>{
+      if(pendingOut && ids.includes(pendingOut.to) && !stillHere(pendingOut.to)){
+        cancelOutgoing();
+        showBattleMsg('상대가 자리를 떴다','');
+        busy=false; setControls(true);
+      }
+      if(pendingIn && ids.includes(pendingIn.from) && !stillHere(pendingIn.from)) closeChallenge();
+      if(match && ids.includes(match.oppId) && !stillHere(match.oppId)){
+        abortMatch('상대가 자리를 떴다');
+      }
+      renderLobby(); renderPresence();
+    }, 900);   // 재등록이 끝날 시간을 준다
   });
 
   lobby.on('broadcast', { event:'challenge' }, ({ payload })=>{
@@ -2914,6 +2958,11 @@ async function connectLobby(){
     trackMe('busy');
     openPicker({ matchId:payload.matchId, seed:payload.seed, role:'a',
                  oppId:payload.from, oppName:payload.fromName });
+  });
+
+  lobby.on('broadcast', { event:'takeover' }, ({ payload })=>{
+    if(payload.user!==me || payload.sid===SESSION_ID) return;
+    kickOut('다른 곳에서 접속했다. 이곳의 연결을 끊는다.');
   });
 
   lobby.on('broadcast', { event:'joined' }, ({ payload })=>{
@@ -2959,9 +3008,11 @@ async function connectLobby(){
 
   await lobby.subscribe(async status=>{
     if(status==='SUBSCRIBED'){
-      inLobby=true;
+      inLobby=true; rejoinTries=0;
       if(joiningLobby){ joiningLobby=false; busyOff(); }
       netOk();
+      // 같은 계정의 다른 접속을 밀어낸다
+      sendMatch('takeover', { user:me, sid:SESSION_ID, to:'*' });
       await trackMe('idle'); renderLobby(); renderPresence();
     }else if(status==='CHANNEL_ERROR' || status==='TIMED_OUT'){
       inLobby=false;
