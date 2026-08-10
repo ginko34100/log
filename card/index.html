@@ -287,6 +287,50 @@ header.masthead{text-align:center;flex:0 0 auto}
 .gbtns .gno{color:var(--paper-dim)}
 .gbtns button:disabled{opacity:.4;cursor:default}
 .who .out{opacity:.7}
+.who .souls{color:var(--gold);letter-spacing:.08em}
+/* 카드 상세 */
+.cardsheet{position:fixed;inset:0;z-index:18;display:none;place-content:center;
+  padding:24px;background:rgba(4,5,4,.88);
+  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.cardsheet.on{display:grid}
+.cs-box{width:100%;max-width:330px;text-align:center;
+  background:linear-gradient(180deg,#161310,#0a0908);
+  border:1px solid var(--edge);padding:20px 18px 16px;
+  box-shadow:0 20px 60px rgba(0,0,0,.7)}
+.cs-art{width:150px;height:225px;display:block;margin:0 auto 12px;
+  border:1px solid var(--edge)}
+.cs-box h4{font-family:"Nanum Brush Script",cursive;font-weight:400;font-size:30px;line-height:1.15}
+.cs-sub{font-family:"Song Myung",serif;font-size:11.5px;letter-spacing:.1em;
+  color:var(--paper-dim);margin:4px 0 8px}
+.cs-stat{font-size:14px;color:var(--paper);line-height:1.7}
+.cs-stat b{font-weight:700}
+.cs-hint{font-size:11.5px;color:var(--paper-dim);margin:10px 0 12px;line-height:1.6}
+.cs-btns{display:flex;gap:7px}
+.cs-btns button{flex:1 1 0;appearance:none;cursor:pointer;
+  font-family:"Gowun Batang",serif;font-weight:700;font-size:13px;letter-spacing:.1em;
+  padding:12px 4px;background:linear-gradient(180deg,#1a1712,#0e0d0a);
+  color:var(--paper);border:1px solid var(--edge);transition:border-color .25s,opacity .25s}
+.cs-btns .cs-yes{border-color:rgba(168,145,63,.6)}
+.cs-btns .cs-no{color:var(--paper-dim)}
+.cs-btns button:disabled{opacity:.35;cursor:default}
+/* 덱 슬롯 표시 */
+.pk-card .ord{position:absolute;left:4px;top:4px;width:20px;height:20px;
+  display:grid;place-content:center;background:var(--gold);color:#0a0806;
+  font-family:"Song Myung",serif;font-size:12px}
+.pk-card .lvb{position:absolute;right:3px;bottom:3px;font-family:"Song Myung",serif;
+  font-size:10.5px;color:#0a0806;background:var(--moss);padding:0 4px}
+/* 기록 */
+.rec-row{display:flex;align-items:center;gap:10px;padding:11px 4px;
+  border-bottom:1px solid var(--edge);font-size:13px}
+.rec-row .res{width:26px;flex:0 0 auto;font-family:"Song Myung",serif;font-size:14px}
+.rec-row .res.w{color:#8fbf72}
+.rec-row .res.l{color:#cf7a6c}
+.rec-row .who2{flex:1 1 auto;overflow:hidden}
+.rec-row .who2 small{display:block;color:var(--paper-dim);font-size:11px;margin-top:2px}
+.rec-row button{appearance:none;cursor:pointer;background:none;
+  border:1px solid rgba(158,43,32,.5);color:var(--paper);
+  font-family:"Gowun Batang",serif;font-size:12px;padding:7px 11px;flex:0 0 auto}
+.rec-row button:disabled{opacity:.3;cursor:default}
 /* 개봉 연출 중에는 UI 를 전부 걷는다 */
 .app.cine .masthead,
 .app.cine .dossier,
@@ -511,6 +555,7 @@ button.chg.out{margin:18px auto 4px;border-color:var(--edge);color:var(--paper-d
       <button id="nameBtn">접속 중…</button>
       <span class="rec" id="recTxt"></span>
       <span class="pres" id="presTxt"></span>
+      <span class="souls" id="soulTxt">혼백 0</span>
       <button class="out" id="sfxBtn">소리 켬</button>
       <button class="out" id="outBtn" style="display:none">나가기</button>
     </div>
@@ -568,6 +613,7 @@ button.chg.out{margin:18px auto 4px;border-color:var(--edge);color:var(--paper-d
     <div class="drawer-tabs" id="tabs">
       <button data-tab="grid" class="sel">書庫</button>
       <button data-tab="lobby">戰</button>
+      <button data-tab="log">録</button>
       <button data-tab="board">榜</button>
     </div>
     <button class="drawer-close" id="closeArchive">닫기</button>
@@ -585,6 +631,7 @@ button.chg.out{margin:18px auto 4px;border-color:var(--edge);color:var(--paper-d
     </div>
     <div class="board" id="boardPane"><div class="hint">불러오는 중…</div></div>
     <div class="board" id="lobbyPane"><div class="hint">대전청에 들지 않았습니다.</div></div>
+    <div class="board" id="logPane"><div class="hint">불러오는 중…</div></div>
   </div>
 </aside>
 
@@ -608,6 +655,21 @@ button.chg.out{margin:18px auto 4px;border-color:var(--edge);color:var(--paper-d
   <div class="band b1"></div><div class="band b2"></div>
   <div class="glyph" id="cutGlyph">禁</div>
   <div class="label" id="cutLabel">금 기</div>
+</div>
+
+<div class="cardsheet" id="cardsheet">
+  <div class="cs-box">
+    <canvas class="cs-art" id="csArt" width="192" height="288"></canvas>
+    <h4 id="csName">—</h4>
+    <div class="cs-sub" id="csSub"></div>
+    <div class="cs-stat" id="csStat"></div>
+    <div class="cs-hint" id="csUpHint"></div>
+    <div class="cs-btns">
+      <button class="cs-no" id="csClose">닫는다</button>
+      <button class="cs-yes" id="csUp">강화</button>
+      <button class="cs-yes" id="csChamp">대표로</button>
+    </div>
+  </div>
 </div>
 
 <div class="picker" id="picker">
@@ -974,6 +1036,57 @@ let currentCard=null, busy=false, pickMode=false, battle=null;
 let sb=null, me=null, myProfile={nickname:'무명객', wins:0, losses:0, champion:null};
 let champion=null;
 let myLoginId='';
+const levels=new Map();          // cardId -> 강화 단계 (0~5)
+
+/* 재화와 강화 규칙 */
+const DRAW_COST=20;              // 봉인 해제 1회
+const SOUL_CAP=200;              // 혼백 상한
+const SOUL_PER_TICK=5;           // 10분마다
+const TICK_MS=10*60*1000;
+const WIN_SOULS=30, LOSE_SOULS=10;
+const UP_COST=30, UP_ECHO=2, UP_MAX=5, UP_GAIN=0.07;
+
+const lv = id => levels.get(id)||0;
+function statOf(card, level){
+  const L = level===undefined ? lv(card.id) : level;
+  const m = 1 + L*UP_GAIN;
+  return { hp:Math.round(card.hp*m), atk:Math.round(card.atk*m), L };
+}
+function souls(){ return myProfile.souls||0; }
+function renderSouls(){
+  const e=el('soulTxt');
+  if(e) e.textContent=`혼백 ${souls()}`;
+  const b=el('drawOne');
+  if(b) b.textContent = souls()>=DRAW_COST ? `봉인 해제 · ${DRAW_COST}` : `혼백 부족 · ${DRAW_COST}`;
+}
+/* 마지막 접속 이후 시간만큼 혼백을 채운다 */
+function accrueSouls(){
+  const last = myProfile.souls_at ? new Date(myProfile.souls_at).getTime() : Date.now();
+  const now = Date.now();
+  const ticks = Math.floor((now-last)/TICK_MS);
+  if(ticks>0 && souls()<SOUL_CAP){
+    myProfile.souls = Math.min(SOUL_CAP, souls()+ticks*SOUL_PER_TICK);
+    myProfile.souls_at = new Date(last+ticks*TICK_MS).toISOString();
+    saveSouls();
+  }else if(!myProfile.souls_at){
+    myProfile.souls_at = new Date().toISOString();
+  }
+  renderSouls();
+}
+async function saveSouls(){
+  if(!online()) return;
+  try{ await sb.from('profiles').update({
+    souls:myProfile.souls, souls_at:myProfile.souls_at }).eq('id',me); }catch(e){}
+}
+function spendSouls(n){
+  myProfile.souls = Math.max(0, souls()-n);
+  renderSouls(); saveSouls();
+}
+function gainSouls(n){
+  myProfile.souls = Math.min(SOUL_CAP*3, souls()+n);
+  renderSouls(); saveSouls();
+}
+
 const isAdmin = ()=> !!myProfile.is_admin || ADMIN_IDS.includes(myLoginId);
 let lobby=null;
 const online = ()=> !!(sb && me);
@@ -1010,6 +1123,7 @@ async function afterAuth(session){
   await loadProfile();
   await loadCollection();
   netStatus(true);
+  renderSouls();
   renderAdminUI();
   connectLobby();
   if(champion && !currentCard){
@@ -1088,7 +1202,7 @@ async function insertProfile(uid, nickname){
 }
 async function loadProfile(){
   let { data, error } = await sb.from('profiles')
-    .select('nickname,wins,losses,champion,is_admin').eq('id',me).maybeSingle();
+    .select('nickname,wins,losses,champion,is_admin,souls,souls_at').eq('id',me).maybeSingle();
   if(error){
     const r=await sb.from('profiles').select('nickname,wins,losses,champion').eq('id',me).maybeSingle();
     data=r.data;
@@ -1102,9 +1216,10 @@ async function loadProfile(){
 }
 async function loadCollection(){
   busyOn('서고를 여는 중', true);
-  const { data } = await sb.from('cards_owned').select('card_id,count').eq('user_id',me);
+  let { data, error } = await sb.from('cards_owned').select('card_id,count,level').eq('user_id',me);
+  if(error){ const r=await sb.from('cards_owned').select('card_id,count').eq('user_id',me); data=r.data; }
   const rows=(data||[]).filter(r=>CARD_BY_ID[r.card_id]);
-  rows.forEach(r=>found.set(r.card_id, r.count));
+  rows.forEach(r=>{ found.set(r.card_id, r.count); levels.set(r.card_id, r.level||0); });
   updateTally();
   // 카드 그림은 한 장씩 만든다 — 한꺼번에 만들면 화면이 멈춘다
   for(let i=0;i<rows.length;i++){
@@ -1114,6 +1229,7 @@ async function loadCollection(){
   }
   busyOff();
   resolveChampion();
+  accrueSouls();
 }
 function strongest(){
   let best=null;
@@ -1147,7 +1263,7 @@ function renderChampUI(){
 }
 async function saveCard(cardId, count){
   if(!online()) return;
-  try{ await sb.from('cards_owned').upsert({ user_id:me, card_id:cardId, count }); }
+  try{ await sb.from('cards_owned').upsert({ user_id:me, card_id:cardId, count, level:lv(cardId) }); }
   catch(e){ console.warn('보유 잔혼 저장 실패', e); }
 }
 async function saveResult(won){
@@ -2198,9 +2314,9 @@ function setControls(on){
 function typeInfoHTML(card){
   const T=TYPES[card.type], strong=TYPES[T.beats];
   const weak=TYPES[Object.keys(TYPES).find(k=>TYPES[k].beats===card.type)];
-  const P=PASSIVES[card.id];
-  return `<b>血 ${card.hp}</b> · <b>攻 ${card.atk}</b> &nbsp;|&nbsp; <span class="adv">${strong.hanja} 강함</span> · <span class="dis">${weak.hanja} 약함</span>`
-    + (P ? `<br><span class="pass">${escapeHTML(P.text)}</span>` : '');
+  const P2=PASSIVES[card.id];
+  return `<b>血 ${st.hp}</b> · <b>攻 ${st.atk}</b>${st.L?` <span style="color:var(--gold)">+${st.L}</span>`:''} &nbsp;|&nbsp; <span class="adv">${strong.hanja} 강함</span> · <span class="dis">${weak.hanja} 약함</span>`
+    + (P2 ? `<br><span class="pass">${escapeHTML(P2.text)}</span>` : '');
 }
 function showDossier(card, echoText){
   currentCard=card;
@@ -2603,6 +2719,14 @@ function playCutin(glyph, label, color, dur){
 }
 async function doDraw(rewardMode){
   if(busy && !rewardMode) return;
+  if(!rewardMode){
+    if(souls()<DRAW_COST){
+      showBattleMsg('혼백이 모자라다',
+        `봉인을 풀려면 혼백 ${DRAW_COST}이 든다. 겨루어 얻거나, 십 분마다 ${SOUL_PER_TICK}씩 차오른다.`);
+      return;
+    }
+    spendSouls(DRAW_COST);
+  }
   busy=true; setControls(false);
   const card=drawCard(rewardMode?REWARD_WEIGHTS:null);
   const res=record(card);
@@ -2632,11 +2756,12 @@ async function doDraw(rewardMode){
 /* ═══ 결정론적 전투 시뮬레이션 ═══════════════
    양쪽 클라이언트가 같은 (cardA, cardB, seed)로
    같은 결과를 계산한다. 서버 판정 불필요.       */
-function calcDmg(att, def, rnd){
-  const mult=multiplier(att.type,def.type);
-  const statF=Math.min(1.35,Math.max(0.75, att.atk/def.atk));
+/* ═══ 판정 — 세 판 두 선승. 양쪽이 같은 씨앗으로 같은 결과를 낸다 ═══ */
+function calcDmg(a, d, rnd){
+  const mult=multiplier(a.type, d.type);
+  const statF=Math.min(1.35, Math.max(0.75, a.atk/d.atk));
   const frac=0.34*statF*mult*(0.9+rnd()*0.2);
-  return { dmg:Math.max(8,Math.round(def.hp*frac)), mult };
+  return { dmg:Math.max(8, Math.round(d.hp*frac)), mult };
 }
 function applyPassive(hit, atkP, defP, n){
   let d=hit.dmg, blocked=false;
@@ -2645,42 +2770,54 @@ function applyPassive(hit, atkP, defP, n){
   if(defP && defP.kind==='firstBlock' && n===1){ d=0; blocked=true; }
   return { dmg:d, mult:hit.mult, blocked };
 }
-function simulate(cardA, cardB, seed){
+/* 한 판(局) — 카드 대 카드 */
+function duel(A, B, seed){
+  const sa=statOf(A.card, A.lv), sb2=statOf(B.card, B.lv);
+  const ua={ atk:sa.atk, hp:sa.hp, type:A.card.type };
+  const ub={ atk:sb2.atk, hp:sb2.hp, type:B.card.type };
   const rnd=mulberry32(seed>>>0);
-  let hpA=cardA.hp, hpB=cardB.hp;
-  const pA=PASSIVES[cardA.id], pB=PASSIVES[cardB.id];
+  const pA=PASSIVES[A.card.id], pB=PASSIVES[B.card.id];
+  let hpA=ua.hp, hpB=ub.hp;
   const rounds=[];
   for(let n=1;n<=4 && hpA>0 && hpB>0;n++){
-    const rawA=calcDmg(cardA,cardB,rnd);   // A → B
-    const rawB=calcDmg(cardB,cardA,rnd);   // B → A
+    const rawA=calcDmg(ua, ub, rnd);
+    const rawB=calcDmg(ub, ua, rnd);
     const dA=applyPassive(rawA, pA, pB, n);
     const dB=applyPassive(rawB, pB, pA, n);
     hpB-=dA.dmg; hpA-=dB.dmg;
-    // 되돌리기
     if(pB && pB.kind==='reflect' && dA.dmg>0) hpA-=Math.round(dA.dmg*pB.v);
     if(pA && pA.kind==='reflect' && dB.dmg>0) hpB-=Math.round(dB.dmg*pA.v);
-    // 갉아먹기
     if(pA && pA.kind==='poison') hpB-=pA.v;
     if(pB && pB.kind==='poison') hpA-=pB.v;
     rounds.push({ n, dA, dB, hpA, hpB });
   }
   let winner;
-  if(hpA<=0 && hpB<=0) winner=(hpA/cardA.hp >= hpB/cardB.hp)?'a':'b';
+  if(hpA<=0 && hpB<=0) winner=(hpA/ua.hp >= hpB/ub.hp)?'a':'b';
   else if(hpB<=0) winner='a';
   else if(hpA<=0) winner='b';
-  else winner=(hpA/cardA.hp >= hpB/cardB.hp)?'a':'b';
-  return { rounds, winner };
+  else winner=(hpA/ua.hp >= hpB/ub.hp)?'a':'b';
+  return { rounds, winner, maxA:ua.hp, maxB:ub.hp };
+}
+/* 세 판 — 두 판 먼저 이기면 끝 */
+function simulateMatch(deckA, deckB, seed){
+  const duels=[]; let wa=0, wb=0;
+  for(let i=0;i<3 && wa<2 && wb<2;i++){
+    const d=duel(deckA[i], deckB[i], (seed + i*7919)>>>0);
+    if(d.winner==='a') wa++; else wb++;
+    duels.push({ i, ...d });
+  }
+  return { duels, wa, wb, winner: wa>wb?'a':'b' };
 }
 
-/* ═══ 전투 연출 ══════════════════════════════ */
+/* ═══ 전투 연출 ═══ */
 const combatHud=el('combat');
-function hudSet(side, card, hp, playerName){
-  const T=TYPES[card.type];
+function hudSet(side, card, level, hp, playerName){
+  const T=TYPES[card.type], st=statOf(card, level);
   (side==='L'?el('unitL'):el('unitR')).style.setProperty('--type', T.color);
-  el('name'+side).textContent=card.name;
+  el('name'+side).textContent=card.name+(st.L?` +${st.L}`:'');
   el('type'+side).textContent=T.hanja;
   el('player'+side).textContent=playerName||'';
-  hudHp(side,hp,card.hp);
+  hudHp(side, hp, st.hp);
 }
 function hudHp(side,hp,max){
   el('hp'+side).style.width=Math.max(0,hp/max*100)+'%';
@@ -2693,13 +2830,13 @@ function floater(text,xPct,cls){
   stageEl.appendChild(f);
   setTimeout(()=>f.remove(),1000);
 }
-function roundMark(n){
+function roundMark(txt){
   const r=el('roundmark');
-  r.textContent=`제${['일','이','삼','사'][n-1]||n}합`;
+  r.textContent=txt;
   r.classList.remove('pop'); void r.offsetWidth; r.classList.add('pop');
 }
-async function playRound(r, iAmA, myCard, foeCard){
-  roundMark(r.n);
+async function playRound(r, iAmA, myCard, foeCard, maxMine, maxFoe){
+  roundMark(`제${['일','이','삼','사'][r.n-1]||r.n}합`);
   const mg=myUnit.group, fg=foeUnit.group;
   const mx=myUnit.home.x, fx=foeUnit.home.x;
   await new Promise(res=>{
@@ -2721,8 +2858,8 @@ async function playRound(r, iAmA, myCard, foeCard){
     const hm=u.front.material.uniforms.uHurt;
     tween(0.08,p=>{hm.value=p;},()=>{ tween(0.25,p=>{hm.value=1-p;}); });
   });
-  hudHp('L',myHp,myCard.hp);
-  hudHp('R',foeHp,foeCard.hp);
+  hudHp('L',myHp,maxMine);
+  hudHp('R',foeHp,maxFoe);
   floater(toMe.blocked?'막았다':'-'+toMe.dmg, 27, toMe.blocked?'small':(toMe.mult>1?'big':(toMe.mult<1?'small':'')));
   floater(toFoe.blocked?'막혔다':'-'+toFoe.dmg, 73, toFoe.blocked?'small':(toFoe.mult>1?'big':(toFoe.mult<1?'small':'')));
   if(toMe.blocked || toFoe.blocked){
@@ -2742,87 +2879,110 @@ async function playRound(r, iAmA, myCard, foeCard){
   await sleep(340);
 }
 
-async function runBattle(cardA, cardB, seed, opts){
-  opts=opts||{};
-  const iAmA = opts.role!=='b';
-  const myCard = iAmA?cardA:cardB;
-  const foeCard= iAmA?cardB:cardA;
-  const sim = simulate(cardA,cardB,seed);
-  const won = (sim.winner==='a') === iAmA;
-
-  battle=true; busy=true; setControls(false); summonAnim=null;
-  camTo();
-  setUnitCard(myUnit,myCard); setUnitCard(foeUnit,foeCard);
+/* 한 판 진행 */
+async function playDuel(d, iAmA, mine, foe, scoreTxt){
+  const myCard=mine.card, foeCard=foe.card;
+  const maxMine = iAmA ? d.maxA : d.maxB;
+  const maxFoe  = iAmA ? d.maxB : d.maxA;
+  setUnitCard(myUnit, myCard); setUnitCard(foeUnit, foeCard);
   const SC=0.74, X=1.55;
   myUnit.home={x:-X,y:0,s:SC,ry:0.24};
   foeUnit.home={x:X,y:0,s:SC,ry:-0.24};
-  myUnit.front.material.uniforms.uReveal.value=1;
+  myUnit.group.position.set(-X,0,0); myUnit.group.scale.setScalar(SC);
+  myUnit.group.rotation.set(0,0.24,0);
+  foeUnit.group.position.set(X,0,0); foeUnit.group.scale.setScalar(SC);
+  foeUnit.group.rotation.set(0,-0.24,0);
+  myUnit.front.material.uniforms.uReveal.value=0;
   foeUnit.front.material.uniforms.uReveal.value=0;
   myUnit.group.visible=true; foeUnit.group.visible=true;
-
+  emit(burst, TYPES[foeCard.type].glow, X, 0, 1.8, 2.4);
+  emit(burst, TYPES[myCard.type].glow, -X, 0, 1.8, 2.4);
   await new Promise(res=>{
-    const g=myUnit.group, from={x:g.position.x, s:g.scale.x};
-    tween(0.35,p=>{
-      g.position.x=from.x+(myUnit.home.x-from.x)*p;
-      g.position.y*=(1-p);
-      g.scale.setScalar(from.s+(SC-from.s)*p);
-      g.rotation.x*=(1-p); g.rotation.y=g.rotation.y*(1-p)+myUnit.home.ry*p;
+    tween(0.45,p=>{
+      myUnit.front.material.uniforms.uReveal.value=p;
+      foeUnit.front.material.uniforms.uReveal.value=p;
     },res);
   });
-  foeUnit.group.position.set(foeUnit.home.x,0,0);
-  foeUnit.group.scale.setScalar(SC);
-  foeUnit.group.rotation.set(0,foeUnit.home.ry,0);
-  emit(burst, TYPES[foeCard.type].glow, foeUnit.home.x, 0, 1.8, 2.4);
-  await new Promise(res=>{ tween(0.45,p=>{ foeUnit.front.material.uniforms.uReveal.value=p; },res); });
-
-  hudSet('L', myCard, myCard.hp, opts.myName||'나');
-  hudSet('R', foeCard, foeCard.hp, opts.foeName||'잔혼');
+  hudSet('L', myCard, mine.lv, maxMine, scoreTxt.me);
+  hudSet('R', foeCard, foe.lv, maxFoe, scoreTxt.foe);
   combatHud.classList.add('on');
+  roundMark(scoreTxt.title);
   const m=multiplier(myCard.type,foeCard.type);
-  showBattleMsg(`${foeCard.name} 출현`,
-    m>1?'상극이 유리하다':(m<1?'상극이 불리하다':'상극은 대등하다'),
-    opts.online?`${opts.foeName} 와(과)의 대전`:'');
-  await sleep(620);
-
-  for(const r of sim.rounds){ await playRound(r, iAmA, myCard, foeCard); }
-
-  const loser = won?foeUnit:myUnit, winner = won?myUnit:foeUnit;
+  showBattleMsg(scoreTxt.title,
+    `${myCard.name} 對 ${foeCard.name}`,
+    m>1?'상극이 유리하다':(m<1?'상극이 불리하다':'상극은 대등하다'));
+  await sleep(900);
+  for(const r of d.rounds) await playRound(r, iAmA, myCard, foeCard, maxMine, maxFoe);
+  const iWon = (d.winner==='a')===iAmA;
+  const loser = iWon?foeUnit:myUnit;
   emit(burst, TYPES[loser.card.type].glow, loser.home.x, 0, 3, 3);
   await splitCard(loser);
   combatHud.classList.remove('on');
+  const winner = iWon?myUnit:foeUnit;
   await new Promise(res=>{
-    const g=winner.group, fx0=g.position.x, fs=g.scale.x, fr=g.rotation.y;
-    tween(0.4,p=>{
-      g.position.x=fx0*(1-p);
-      g.scale.setScalar(fs+(1-fs)*p);
-      g.rotation.y=fr*(1-p);
-    },res);
+    tween(0.35,p=>{ winner.group.scale.setScalar(SC*(1-p)); },res);
   });
-  winner.home={x:0,y:0,s:1,ry:0};
-  battle=null;
+  winner.group.visible=false;
+  return iWon;
+}
+
+/* ═══ 세 판 대결 ═══ */
+async function runMatch(deckA, deckB, seed, opts){
+  opts=opts||{};
+  const iAmA = opts.role!=='b';
+  const myDeck = iAmA?deckA:deckB;
+  const foeDeck= iAmA?deckB:deckA;
+  const sim = simulateMatch(deckA, deckB, seed);
+  const won = (sim.winner==='a')===iAmA;
+
+  battle=true; busy=true; setControls(false); summonAnim=null;
   camTo();
+  let myW=0, foeW=0;
 
+  for(const d of sim.duels){
+    const mine = iAmA?deckA[d.i]:deckB[d.i];
+    const foe  = iAmA?deckB[d.i]:deckA[d.i];
+    const iWon = await playDuel(d, iAmA, mine, foe, {
+      title:`제${['일','이','삼'][d.i]}국  ${myW} : ${foeW}`,
+      me:`${opts.myName||'나'}  ${myW}승`,
+      foe:`${opts.foeName||'상대'}  ${foeW}승`
+    });
+    if(iWon) myW++; else foeW++;
+    showBattleMsg(iWon?'한 판 이겼다':'한 판 졌다', `${myW} : ${foeW}`);
+    await sleep(900);
+  }
+
+  battle=null; camTo();
   if(won) SFX.win(); else SFX.lose();
-  if(opts.online){ saveResult(won); trackMe('idle'); }
-  if(opts.online && opts.role==='a'){
-    logMatch({ id:opts.matchId, player_a:opts.idA, player_b:opts.idB,
-      card_a:cardA.id, card_b:cardB.id, seed, winner: sim.winner==='a'?opts.idA:opts.idB });
+  gainSouls(won?WIN_SOULS:LOSE_SOULS);
+
+  if(opts.online){
+    saveResult(won);
+    trackMe('idle');
+    lastFoe={ id:opts.oppId, name:opts.foeName };
+    if(opts.role==='a'){
+      logMatch({
+        id:opts.matchId, player_a:opts.idA, player_b:opts.idB,
+        card_a:deckA[0].card.id, card_b:deckB[0].card.id, seed,
+        winner: sim.winner==='a'?opts.idA:opts.idB,
+        name_a: iAmA?opts.myName:opts.foeName,
+        name_b: iAmA?opts.foeName:opts.myName,
+        deck_a: deckA.map(x=>x.card.id).join(','),
+        deck_b: deckB.map(x=>x.card.id).join(','),
+        score: `${sim.wa}:${sim.wb}`
+      });
+    }
   }
 
-  if(won){
-    showBattleMsg('승(勝)', `${myCard.name}이(가) 어둠 속에 홀로 남았다.`, '전리품 봉인이 열린다 —');
-    currentCard=myCard;
-    await sleep(950);
-    doDraw(true);
-  }else{
-    setUnitCard(myUnit, foeCard);
-    myUnit.group.visible=true; foeUnit.group.visible=false;
-    myUnit.front.material.uniforms.uReveal.value=1;
-    myUnit.home={x:0,y:0,s:1,ry:0};
-    myUnit.group.position.set(0,0,0); myUnit.group.scale.setScalar(1); myUnit.group.rotation.set(0,0,0);
-    showDossier(foeCard, `${myCard.name}은(는) 어둠으로 흩어졌다 · 패(敗)`);
-    busy=false; setControls(true);
+  showBattleMsg(won?'승(勝)':'패(敗)', `${myW} : ${foeW}`,
+    won?`혼백 ${WIN_SOULS}을 얻었다`:`혼백 ${LOSE_SOULS}을 얻었다`);
+  await sleep(1200);
+  if(champion){
+    showDossier(champion, won?`${myW} : ${foeW} 로 이겼다`:`${myW} : ${foeW} 로 졌다`);
+    summonSolo(champion, null, true);
   }
+  busy=false; setControls(true);
+  if(opts.online) openLobbyView();
 }
 
 /* ═══ 대전청 — 접속자 목록 · 도전 · 수락 ══════ */
@@ -3032,7 +3192,7 @@ async function trackMe(status){
   if(!lobby) return;
   try{
     await lobby.track({
-      id:me, name:myProfile.nickname, has:found.size>0, owned:found.size,
+      id:me, name:myProfile.nickname, has:found.size>=3, owned:found.size,
       wins:myProfile.wins, losses:myProfile.losses,
       status, ts:Date.now()
     });
@@ -3109,7 +3269,7 @@ el('lobbyPane').addEventListener('click', async e=>{
 /* ── 도전 보내기 ── */
 function sendChallenge(toId, toName){
   if(!lobby || pendingOut || busy) return;
-  if(found.size===0){ showBattleMsg('잔혼이 없다','먼저 봉인을 풀어야 한다.'); return; }
+  if(found.size<3){ showBattleMsg('잔혼이 모자라다','대전에는 서로 다른 잔혼 3종이 필요하다.'); return; }
   pendingOut={ to:toId, name:toName, at:Date.now() };
   busy=true; setControls(false);
   closeDrawer();
@@ -3133,8 +3293,26 @@ function cancelOutgoing(){
 }
 
 /* ── 도전 받기 ── */
+let titleFlashId=null;
+const BASE_TITLE=document.title;
+function alertUser(msg){
+  try{ if(navigator.vibrate) navigator.vibrate([90,60,90]); }catch(e){}
+  clearInterval(titleFlashId);
+  let on=false;
+  titleFlashId=setInterval(()=>{
+    on=!on;
+    document.title = on ? msg : BASE_TITLE;
+    if(document.visibilityState==='visible'){
+      clearInterval(titleFlashId); document.title=BASE_TITLE;
+    }
+  }, 700);
+}
+function stopAlert(){ clearInterval(titleFlashId); document.title=BASE_TITLE; }
+addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') stopAlert(); });
+
 function openChallenge(payload){
   SFX.challenge();
+  if(document.visibilityState!=='visible') alertUser('전서가 왔다!');
   pendingIn={ from:payload.from, name:payload.fromName };
   el('chbox').style.setProperty('--type', 'var(--cinnabar)');
   el('chTitle').textContent=`${payload.fromName}이(가) 청한다`;
@@ -3150,6 +3328,7 @@ function openChallenge(payload){
   },1000);
 }
 function closeChallenge(){
+  stopAlert();
   clearInterval(chTimerId); chTimerId=null;
   pendingIn=null;
   el('challenge').classList.remove('on');
@@ -3180,19 +3359,66 @@ function acceptChallenge(){
   openPicker({ matchId, seed, role:'b', oppId:p.from, oppName:p.name });
 }
 
+/* ═══ 카드 상세 · 강화 ═══ */
+let sheetCard=null;
+function openCardSheet(card){
+  sheetCard=card;
+  const st=statOf(card), P=PASSIVES[card.id], T=TYPES[card.type];
+  const echo=found.get(card.id)||0;
+  el('csName').textContent=card.name+(st.L?`  +${st.L}`:'');
+  el('csSub').textContent=`${T.hanja} ${T.name} · ${TIERS[card.tier].name} · 잔향 ${echo}`;
+  el('csStat').innerHTML=`<b>攻 ${st.atk}</b> · <b>血 ${st.hp}</b>`
+    + (P?`<br><span style="color:#e0655a">${escapeHTML(P.text)}</span>`:'');
+  const cv=el('csArt');
+  cv.width=192; cv.height=288;
+  cv.getContext('2d').drawImage(faceCanvas(card).face,0,0,192,288);
+  const can = st.L<UP_MAX && echo>UP_ECHO && souls()>=UP_COST;
+  el('csUp').disabled=!can;
+  el('csUpHint').textContent = st.L>=UP_MAX ? '더 오를 곳이 없다'
+    : `강화 — 잔향 ${UP_ECHO} · 혼백 ${UP_COST}  (보유 잔향 ${echo-1}, 혼백 ${souls()})`;
+  el('cardsheet').classList.add('on');
+}
+function closeCardSheet(){ el('cardsheet').classList.remove('on'); sheetCard=null; }
+async function upgradeCard(){
+  const card=sheetCard; if(!card) return;
+  const echo=found.get(card.id)||0, L=lv(card.id);
+  if(L>=UP_MAX || echo<=UP_ECHO || souls()<UP_COST) return;
+  found.set(card.id, echo-UP_ECHO);
+  levels.set(card.id, L+1);
+  spendSouls(UP_COST);
+  saveCard(card.id, echo-UP_ECHO);
+  SFX.absorb();
+  renderSlot(card, false);
+  openCardSheet(card);
+  showDossier(card, `${card.name} 강화 +${L+1}`);
+}
+function chooseAsChampion(){
+  const card=sheetCard; if(!card) return;
+  closeCardSheet(); closeDrawer();
+  setChampion(card, true);
+  busy=true; setControls(false);
+  showDossier(card, `${card.name}을(를) 대표로 삼았다`);
+  summonSolo(card, ()=>{ busy=false; setControls(true); });
+  if(!glOK){ busy=false; setControls(true); }
+}
+el('csClose').addEventListener('click', closeCardSheet);
+el('csUp').addEventListener('click', upgradeCard);
+el('csChamp').addEventListener('click', chooseAsChampion);
+
 /* ═══ 카드 선택 단계 — 둘 다 완료해야 시작한다 ═══ */
 let match=null;   // { matchId, seed, role, oppId, oppName, myCard, oppCard, sent }
 let pkTimer=null, pkCountId=null, acceptResendId=null;
 const earlyPicks=new Map();   // 선택창보다 먼저 온 상대의 선택
 const joinedMatches=new Set();
 
+const DECK_SIZE=3;
 function openPicker(m){
-  match={ ...m, myCard:null, oppCard:null, sent:false };
+  match={ ...m, myDeck:[], oppDeck:null, sent:false };
   busy=true; setControls(false);
   showSeeking(false);
-  el('pkTitle').textContent='잔혼을 고르라';
+  el('pkTitle').textContent='세 잔혼을 고르라';
   el('pkOpp').innerHTML=`맞설 상대<b>${escapeHTML(m.oppName)}</b>`;
-  el('pkSel').textContent='아직 고르지 않았다';
+  el('pkSel').textContent=`고른 순서대로 세 판을 겨룬다 (0/${DECK_SIZE})`;
   el('pkDone').disabled=true;
   el('pkWait').classList.remove('on');
   el('picker').classList.remove('waiting');
@@ -3241,6 +3467,8 @@ async function buildPickerGrid(){
     const cv=document.createElement('canvas');
     cv.width=128; cv.height=192;
     b.appendChild(cv);
+    const L=lv(card.id);
+    if(L>0){ const g=document.createElement('span'); g.className='lvb'; g.textContent='+'+L; b.appendChild(g); }
     b.addEventListener('click', ()=>selectPick(card));
     g.appendChild(b);
     try{ cv.getContext('2d').drawImage(faceCanvas(card).face,0,0,128,192); }
@@ -3250,16 +3478,37 @@ async function buildPickerGrid(){
 }
 function selectPick(card){
   if(!match || match.sent) return;
-  match.myCard=card;
-  [...el('pkGrid').children].forEach(b=>b.classList.toggle('sel', b.dataset.id===card.id));
-  const P=PASSIVES[card.id];
-  el('pkSel').innerHTML=`<b>${escapeHTML(card.name)}</b> · 攻 ${card.atk} · 血 ${card.hp}`
-    + (P?` · <span style="color:#e0655a">${escapeHTML(P.text)}</span>`:'');
-  el('pkDone').disabled=false;
+  const d=match.myDeck;
+  const at=d.findIndex(x=>x.id===card.id);
+  if(at>=0) d.splice(at,1);
+  else if(d.length<DECK_SIZE) d.push(card);
+  else { d.shift(); d.push(card); }
   SFX.tap();
+  renderDeckState();
+}
+function renderDeckState(){
+  const d=match?match.myDeck:[];
+  [...el('pkGrid').children].forEach(b=>{
+    const i=d.findIndex(x=>x.id===b.dataset.id);
+    b.classList.toggle('sel', i>=0);
+    let o=b.querySelector('.ord');
+    if(i>=0){
+      if(!o){ o=document.createElement('span'); o.className='ord'; b.appendChild(o); }
+      o.textContent=['一','二','三'][i]||(i+1);
+    }else if(o) o.remove();
+  });
+  if(!d.length){
+    el('pkSel').textContent=`고른 순서대로 세 판을 겨룬다 (0/${DECK_SIZE})`;
+  }else{
+    el('pkSel').innerHTML=d.map((c,i)=>{
+      const st=statOf(c);
+      return `<b>${['一','二','三'][i]} ${escapeHTML(c.name)}</b> <span style="color:var(--paper-dim)">攻 ${st.atk}</span>`;
+    }).join(' &nbsp;·&nbsp; ') + `  (${d.length}/${DECK_SIZE})`;
+  }
+  el('pkDone').disabled = d.length!==DECK_SIZE;
 }
 function confirmPick(){
-  if(!match || !match.myCard || match.sent) return;
+  if(!match || match.myDeck.length!==DECK_SIZE || match.sent) return;
   match.sent=true;
   el('picker').classList.add('waiting');
   el('pkWait').classList.add('on');
@@ -3267,18 +3516,21 @@ function confirmPick(){
   el('pkTitle').textContent='상대를 기다린다';
   busyOn('상대가 고르는 중');
   SFX.tap();
-  sendMatch('pick', { match:match.matchId, to:match.oppId, card:match.myCard.id });
-  // 유실 대비 재전송
+  const deck=match.myDeck.map(c=>({ id:c.id, lv:lv(c.id) }));
+  sendMatch('pick', { match:match.matchId, to:match.oppId, deck });
   let n=0;
   const rid=setInterval(()=>{
-    if(!match || match.oppCard || n++>4){ clearInterval(rid); return; }
-    sendMatch('pick', { match:match.matchId, to:match.oppId, card:match.myCard.id });
+    if(!match || match.oppDeck || n++>4){ clearInterval(rid); return; }
+    sendMatch('pick', { match:match.matchId, to:match.oppId, deck });
   }, 1800);
   tryStartMatch();
 }
 function onOpponentPick(payload){
   if(!match || payload.match!==match.matchId) return;
-  match.oppCard=CARD_BY_ID[payload.card]||null;
+  const raw=payload.deck||[];
+  const deck=raw.map(x=>({ card:CARD_BY_ID[x.id], lv:x.lv||0 })).filter(x=>x.card);
+  if(deck.length!==DECK_SIZE) return;
+  match.oppDeck=deck;
   if(!match.sent){
     el('pkWait').classList.add('on');
     el('pkWaitTxt').textContent=`${match.oppName}은(는) 골랐다 — 그대 차례`;
@@ -3286,24 +3538,26 @@ function onOpponentPick(payload){
   tryStartMatch();
 }
 function tryStartMatch(){
-  if(!match || !match.myCard || !match.oppCard) return;
+  if(!match || match.myDeck.length!==DECK_SIZE || !match.oppDeck) return;
   const m=match;
   match=null;
   clearTimeout(pkTimer); clearInterval(pkCountId); clearInterval(acceptResendId);
   busyOff();
   el('picker').classList.remove('on','waiting');
   el('pkWait').classList.remove('on');
-  const A = m.role==='a' ? m.myCard : m.oppCard;   // 도전자
-  const B = m.role==='a' ? m.oppCard : m.myCard;   // 수락자
-  showSeeking(true, '겨룸이 시작된다', `${m.myCard.name}  對  ${m.oppCard.name}`);
+  const myDeck=m.myDeck.map(c=>({ card:c, lv:lv(c.id) }));
+  const A = m.role==='a' ? myDeck : m.oppDeck;
+  const B = m.role==='a' ? m.oppDeck : myDeck;
+  showSeeking(true, '겨룸이 시작된다', '세 판 두 선승');
   busyOn('전장을 여는 중');
   setTimeout(()=>{
     showSeeking(false);
     busyOff();
-    runBattle(A, B, m.seed, {
+    runMatch(A, B, m.seed, {
       online:true, role:m.role, matchId:m.matchId,
       idA: m.role==='a' ? me : m.oppId,
       idB: m.role==='a' ? m.oppId : me,
+      oppId:m.oppId,
       myName:myProfile.nickname, foeName:m.oppName
     });
   }, 1100);
@@ -3380,9 +3634,57 @@ function switchTab(name){
   el('gridPane').style.display = name==='grid'?'':'none';
   el('boardPane').classList.toggle('on', name==='board');
   el('lobbyPane').classList.toggle('on', name==='lobby');
+  el('logPane').classList.toggle('on', name==='log');
   if(name==='lobby') renderLobby();
   if(name==='board') loadBoard();
+  if(name==='log') loadLog();
 }
+/* 대전 기록 */
+let lastFoe=null;
+async function loadLog(){
+  const pane=el('logPane');
+  if(!online()){ pane.innerHTML='<div class="hint">접속 상태에서만 볼 수 있습니다.</div>'; return; }
+  pane.innerHTML='<div class="hint">불러오는 중…</div>';
+  busyOn('기록을 뒤지는 중');
+  try{
+    const { data, error } = await sb.from('matches')
+      .select('id,player_a,player_b,name_a,name_b,deck_a,deck_b,winner,score,created_at')
+      .or(`player_a.eq.${me},player_b.eq.${me}`)
+      .order('created_at',{ascending:false}).limit(30);
+    if(error) throw error;
+    const rows=data||[];
+    if(!rows.length){ pane.innerHTML='<div class="hint">아직 겨룬 적이 없습니다.</div>'; }
+    else{
+      const online_=new Set(lobbyPlayers().map(p=>p.id));
+      pane.innerHTML=rows.map(r=>{
+        const iAmA=r.player_a===me;
+        const oppId=iAmA?r.player_b:r.player_a;
+        const oppName=(iAmA?r.name_b:r.name_a)||'무명객';
+        const won=r.winner===me;
+        const myDeck=(iAmA?r.deck_a:r.deck_b)||'';
+        const names=myDeck.split(',').map(id=>CARD_BY_ID[id]?CARD_BY_ID[id].name:'?').join(' · ');
+        const when=new Date(r.created_at);
+        const ago=`${when.getMonth()+1}.${when.getDate()}`;
+        const can = oppId && online_.has(oppId);
+        return `<div class="rec-row">`+
+          `<span class="res ${won?'w':'l'}">${won?'勝':'敗'}</span>`+
+          `<span class="who2">${escapeHTML(oppName)} <span style="color:var(--paper-dim)">${r.score||''}</span>`+
+          `<small>${escapeHTML(names)} · ${ago}</small></span>`+
+          `<button data-opp="${oppId||''}" data-name="${escapeHTML(oppName)}" ${can?'':'disabled'}>다시</button>`+
+        `</div>`;
+      }).join('');
+    }
+  }catch(e){
+    pane.innerHTML='<div class="hint">기록을 불러오지 못했습니다.</div>';
+  }
+  busyOff();
+}
+el('logPane').addEventListener('click', e=>{
+  const b=e.target.closest('button[data-opp]');
+  if(!b || b.disabled || !b.dataset.opp) return;
+  closeDrawer();
+  sendChallenge(b.dataset.opp, b.dataset.name);
+});
 el('tabs').addEventListener('click', e=>{
   const b=e.target.closest('button'); if(!b) return;
   switchTab(b.dataset.tab);
@@ -3416,8 +3718,8 @@ el('battleBtn').addEventListener('click', ()=>{
     showBattleMsg('접속되지 않았다','대전은 접속 상태에서만 열린다.');
     return;
   }
-  if(found.size===0){
-    showBattleMsg('잔혼이 없다','먼저 봉인을 해제해 대전할 잔혼을 얻으라.');
+  if(found.size<3){
+    showBattleMsg('잔혼이 모자라다','대전에는 서로 다른 잔혼 3종이 필요하다.');
     return;
   }
   openLobbyView();
@@ -3440,14 +3742,8 @@ function buildGrid(){
     b.addEventListener('click',()=>{
       if(!found.has(card.id)) return;
       if(busy) return;
-      // 어느 탭에서 고르든 곧바로 대표가 되고 로비로 돌아간다
       SFX.tap();
-      setChampion(card, true);
-      closeDrawer();
-      busy=true; setControls(false);
-      showDossier(card, `${card.name}을(를) 대표로 삼았다`);
-      summonSolo(card, ()=>{ busy=false; setControls(true); });
-      if(!glOK){ busy=false; setControls(true); }
+      openCardSheet(card);
     });
     grid.appendChild(b);
     slotEls.set(card.id,b);
@@ -3470,6 +3766,12 @@ function renderSlot(card,isNew,quiet){
     if(!d){ d=document.createElement('span'); d.className='dupes'; b.appendChild(d); }
     d.textContent='×'+n;
   }
+  const L=lv(card.id);
+  let g=b.querySelector('.lvb');
+  if(L>0){
+    if(!g){ g=document.createElement('span'); g.className='lvb'; b.appendChild(g); }
+    g.textContent='+'+L;
+  }else if(g) g.remove();
   if(!quiet){ b.classList.remove('fresh'); void b.offsetWidth; b.classList.add('fresh'); }
 }
 
@@ -3506,6 +3808,7 @@ addEventListener('beforeunload', ()=>{ if(lobby) lobby.unsubscribe(); });
 })();
 
 async function boot(){
+  setInterval(()=>{ if(online()) accrueSouls(); }, 60*1000);
   initGourd();
   fitSuck();
   buildGrid();
