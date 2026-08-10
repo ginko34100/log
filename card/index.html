@@ -970,6 +970,7 @@ el('gateId').addEventListener('keydown', e=>{ if(e.key==='Enter') el('gatePw').f
 async function doLogout(){
   busyOn('나가는 중');
   SFX.close();
+  closingLobby=true;
   try{ if(lobby){ await lobby.unsubscribe(); lobby=null; } }catch(e){}
   try{ await sb.auth.signOut(); }catch(e){}
   location.reload();
@@ -1466,14 +1467,27 @@ function renderFace(card, img, target){
   // ── 하단: 공격력 숫자만 ──
   x.strokeStyle=hexA(T.color,.42); x.lineWidth=1;
   x.beginPath(); x.moveTo(112,H-124); x.lineTo(W-112,H-124); x.stroke();
-  x.fillStyle='#f0e2c2';
-  x.font='400 62px "Song Myung", serif';
+  // 숫자 + 속성 한자를 한 덩어리로 가운데 정렬
+  const numFont='400 62px "Song Myung", serif';
+  const elFont ='400 30px "Song Myung", serif';
+  const numTxt=String(card.atk);
+  x.font=numFont; const nw=x.measureText(numTxt).width;
+  x.font=elFont;  const ew=x.measureText(T.hanja).width;
+  const gap=12, totalW=nw+gap+ew;
+  const left=W/2-totalW/2;
+
+  x.textAlign='left';
+  x.font=numFont; x.fillStyle='#f0e2c2';
   x.shadowColor=hexA(T.glow,.55); x.shadowBlur=18;
-  x.fillText(String(card.atk), W/2, H-82);
+  x.fillText(numTxt, left, H-82);
+  x.font=elFont; x.fillStyle=hexA(T.glow,.98);
+  x.shadowBlur=14;
+  x.fillText(T.hanja, left+nw+gap, H-76);
   x.shadowBlur=0;
+  x.textAlign='center';
 
   // 낙관
-  seal(x, W-58, H-80, card.tier==='taboo'?40:34, T.hanja, card.tier==='taboo');
+  seal(x, W-58, H-80, card.tier==='taboo'?40:34, '封', card.tier==='taboo');
 
   // 금박 마스크
   const mc=(target&&target.mask) || document.createElement('canvas');
@@ -2108,15 +2122,28 @@ function record(card){
   return { isNew, count:n };
 }
 /* ── 진행 표시 ── */
-let busyDepth=0;
-function busyOn(label, determinate){
-  busyDepth++;
+let busyDepth=0, busyShowTimer=null, busyShownAt=0;
+const BUSY_DELAY=380;    // 이보다 짧게 끝나는 일은 표시하지 않는다
+const BUSY_MIN=520;      // 한 번 떴으면 최소 이만큼은 유지한다
+function busyPaint(label, determinate){
   const lb=el('loadbar');
   lb.classList.add('on');
   lb.classList.toggle('indet', !determinate);
   if(determinate) el('loadfill').style.width='2%';
   el('busytxt').textContent=label||'기다리는 중';
   el('busychip').classList.add('on');
+  busyShownAt=performance.now();
+}
+function busyOn(label, determinate){
+  busyDepth++;
+  if(el('busychip').classList.contains('on')){
+    el('busytxt').textContent=label||'기다리는 중';
+    return;
+  }
+  clearTimeout(busyShowTimer);
+  busyShowTimer=setTimeout(()=>{
+    if(busyDepth>0) busyPaint(label, determinate);
+  }, BUSY_DELAY);
 }
 function busyStep(p){
   el('loadbar').classList.remove('indet');
@@ -2125,14 +2152,24 @@ function busyStep(p){
 function busyOff(){
   busyDepth=Math.max(0,busyDepth-1);
   if(busyDepth>0) return;
-  const lb=el('loadbar');
-  el('loadfill').style.width='100%';
-  el('busychip').classList.remove('on');
+  clearTimeout(busyShowTimer);
+  const shown=el('busychip').classList.contains('on');
+  if(!shown){                                  // 뜨기도 전에 끝났다
+    el('loadbar').classList.remove('on','indet');
+    return;
+  }
+  const wait=Math.max(0, BUSY_MIN-(performance.now()-busyShownAt));
   setTimeout(()=>{
     if(busyDepth>0) return;
-    lb.classList.remove('on','indet');
-    setTimeout(()=>{ if(busyDepth===0) el('loadfill').style.width='0%'; }, 260);
-  }, 200);
+    const lb=el('loadbar');
+    el('loadfill').style.width='100%';
+    el('busychip').classList.remove('on');
+    setTimeout(()=>{
+      if(busyDepth>0) return;
+      lb.classList.remove('on','indet');
+      setTimeout(()=>{ if(busyDepth===0) el('loadfill').style.width='0%'; }, 260);
+    }, 200);
+  }, wait);
 }
 /* ═══ 개봉 연출 — 화면을 비우고, 카드가 픽셀로 부서져 서책으로 ═══ */
 const suckCv = el('suck');
@@ -2211,19 +2248,40 @@ const GOURD_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="3
   <ellipse cx="100" cy="15" rx="15" ry="6" fill="url(#mouthg)" stroke="#141b16" stroke-width="2.5"/>
   <ellipse cx="100" cy="15" rx="9" ry="3.2" fill="#080b09"/>
 </svg>`;
-let gourdImg=null;
+/* 호리병 그림. 없으면 위의 SVG 로 대체한다 */
+const GOURD_SRC=['art/gourd.png','gourd.png','images/gourd.png',
+                 'art/5f83810ac8787711705f08b02edd6cf058f0a39f.png'];
+const GOURD_MOUTH=0.21;       // 그림 세로 기준, 마개(빨려드는 지점)
+let gourdImg=null, gourdIsPhoto=false;
 function initGourd(){
-  const im=new Image();
-  im.onload=()=>{ gourdImg=im; };
-  im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(GOURD_SVG);
+  let i=0;
+  const tryNext=()=>{
+    if(i>=GOURD_SRC.length){                       // 전부 실패 → SVG
+      const sv=new Image();
+      sv.onload=()=>{ gourdImg=sv; gourdIsPhoto=false; };
+      sv.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(GOURD_SVG);
+      return;
+    }
+    const url=GOURD_SRC[i++];
+    const im=new Image();
+    im.crossOrigin='anonymous';
+    im.onload=()=>{ gourdImg=im; gourdIsPhoto=true; console.log('호리병:', url); };
+    im.onerror=tryNext;
+    im.src=url;
+  };
+  tryNext();
 }
 
 /* 호리병을 그리고, 빨려드는 지점(아가리)을 돌려준다 */
 function drawGourd(g, cx, baseY, height, rise, flare){
-  const h=height, w=height*(200/300);
-  const lift=(1-rise)*h*0.35;
+  const ar = gourdImg && gourdIsPhoto
+    ? (gourdImg.naturalWidth||gourdImg.width)/(gourdImg.naturalHeight||gourdImg.height)
+    : (200/300);
+  const h=height, w=height*ar;
+  const lift=(1-rise)*h*0.30;
   const y=baseY-h+lift;
-  const mouth={ x:cx, y:y+h*(15/300) };
+  const mouthRatio = gourdIsPhoto ? GOURD_MOUTH : (15/300);
+  const mouth={ x:cx, y:y+h*mouthRatio };
 
   g.save();
   g.globalAlpha=Math.min(1,rise);
@@ -2240,13 +2298,13 @@ function drawGourd(g, cx, baseY, height, rise, flare){
 
   // 바닥 그림자
   const sh=g.createRadialGradient(cx, baseY, 2, cx, baseY, w*0.7);
-  sh.addColorStop(0,'rgba(0,0,0,.55)'); sh.addColorStop(1,'rgba(0,0,0,0)');
+  sh.addColorStop(0,`rgba(0,0,0,${gourdIsPhoto?.38:.55})`); sh.addColorStop(1,'rgba(0,0,0,0)');
   g.fillStyle=sh;
-  g.beginPath(); g.ellipse(cx, baseY, w*0.62, h*0.06, 0, 0, 7); g.fill();
+  g.beginPath(); g.ellipse(cx, baseY, w*0.62, h*0.05, 0, 0, 7); g.fill();
 
   if(gourdImg){
     g.imageSmoothingEnabled=true;
-    g.drawImage(gourdImg, cx-w/2, y, w, h);
+    g.drawImage(gourdImg, Math.round(cx-w/2), Math.round(y), Math.round(w), Math.round(h));
   }else{
     g.fillStyle='#3f4d3c';
     g.beginPath(); g.ellipse(cx, y+h*0.75, w*0.44, h*0.24, 0,0,7); g.fill();
@@ -2280,9 +2338,10 @@ function suckIntoArchive(card){
     const face=faceCanvas(card).face;
     const rect=cardScreenRect();
     const glow=TYPES[card.type].glow;
-    const gH=Math.min(innerHeight*0.30, 250);
-    const gBase=innerHeight - Math.max(70, innerHeight*0.10);
-    const gx=innerWidth/2;
+    // 화면 정중앙에 세운다
+    const gH=Math.min(innerHeight*0.56, innerWidth*1.25, 520);
+    const gBase=Math.round(innerHeight/2 + gH/2);
+    const gx=Math.round(innerWidth/2);
 
     if(REDUCED){ SFX.absorb(); res(); return; }
 
@@ -2640,7 +2699,7 @@ el('cancelSeek').addEventListener('click', ()=>{
 });
 
 /* ── 채널: 접속 즉시 붙어 있는다 (대전 탭을 열지 않아도) ── */
-let netDown=false, rejoinTimer=null;
+let netDown=false, rejoinTimer=null, closingLobby=false, joiningLobby=false;
 function netTrouble(msg){
   if(netDown) return;
   netDown=true;
@@ -2654,23 +2713,29 @@ function netOk(){
   el('netDot').classList.add('on');
 }
 function scheduleRejoin(){
+  if(joiningLobby) return;
   clearTimeout(rejoinTimer);
   rejoinTimer=setTimeout(async ()=>{
-    if(!online()) return;
+    if(!online() || joiningLobby) return;
+    closingLobby=true;                       // 우리가 끊는 것이니 장애가 아니다
     try{ if(lobby){ await lobby.unsubscribe(); } }catch(e){}
     lobby=null;
+    closingLobby=false;
     connectLobby();
   }, 2500);
 }
 addEventListener('offline', ()=>netTrouble('연결이 끊겼다'));
-addEventListener('online', ()=>{ netTrouble('다시 잇는 중'); scheduleRejoin(); });
+addEventListener('online', ()=>{ if(online() && !inLobby){ netTrouble('다시 잇는 중'); scheduleRejoin(); } });
 addEventListener('visibilitychange', ()=>{
-  if(document.visibilityState==='visible' && online() && !lobby) { netTrouble('다시 잇는 중'); scheduleRejoin(); }
+  if(document.visibilityState==='visible' && online() && !lobby && !joiningLobby){
+    netTrouble('다시 잇는 중'); scheduleRejoin();
+  }
 });
 
 async function connectLobby(){
-  if(!online() || lobby) return;
-  netTrouble('대전청에 드는 중');
+  if(!online() || lobby || joiningLobby) return;
+  joiningLobby=true;
+  busyOn('대전청에 드는 중');
 
   lobby = sb.channel('lobby:jonhonrok', {
     config:{ presence:{ key:me }, broadcast:{ self:false } }
@@ -2722,10 +2787,19 @@ async function connectLobby(){
 
   await lobby.subscribe(async status=>{
     if(status==='SUBSCRIBED'){
-      inLobby=true; netOk();
+      inLobby=true;
+      if(joiningLobby){ joiningLobby=false; busyOff(); }
+      netOk();
       await trackMe('idle'); renderLobby(); renderPresence();
-    }else if(status==='CHANNEL_ERROR' || status==='TIMED_OUT' || status==='CLOSED'){
+    }else if(status==='CHANNEL_ERROR' || status==='TIMED_OUT'){
       inLobby=false;
+      if(joiningLobby){ joiningLobby=false; busyOff(); }
+      netTrouble('다시 잇는 중');
+      scheduleRejoin();
+    }else if(status==='CLOSED'){
+      inLobby=false;
+      if(closingLobby) return;               // 우리가 끊은 것 — 무시
+      if(joiningLobby){ joiningLobby=false; busyOff(); }
       netTrouble('다시 잇는 중');
       scheduleRejoin();
     }
@@ -2744,7 +2818,9 @@ async function trackMe(status){
 async function leaveLobby(){
   inLobby=false;
   cancelOutgoing(); closeChallenge();
+  closingLobby=true;
   if(lobby){ try{ await lobby.unsubscribe(); }catch(e){} lobby=null; }
+  closingLobby=false;
 }
 addEventListener('beforeunload', ()=>{ if(lobby) lobby.unsubscribe(); });
 
