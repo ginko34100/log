@@ -187,6 +187,13 @@ header.masthead{text-align:center;flex:0 0 auto}
 .gbtns .gno{color:var(--paper-dim)}
 .gbtns button:disabled{opacity:.4;cursor:default}
 .who .out{opacity:.7}
+/* 영혼이 서고로 */
+.soul{position:fixed;z-index:14;pointer-events:none;width:26px;height:26px;
+  border-radius:50%;will-change:transform,opacity}
+.tabpulse{animation:tabPulse .85s ease-out}
+@keyframes tabPulse{
+  0%{box-shadow:0 0 0 0 rgba(168,145,63,.75);border-color:rgba(168,145,63,.9)}
+  100%{box-shadow:0 0 26px 8px rgba(168,145,63,0)}}
 .side-btn.admin{border-color:rgba(107,122,86,.6);color:var(--paper)}
 .side-btn.admin small{color:var(--moss)}
 
@@ -538,7 +545,9 @@ const SUPABASE_ANON_KEY = 'sb_publishable_92DJY8GATx51qt6kqbC8xg_LNVo0z7m';
 const ART = {
   // 파일명만 적으면 art/ · images/ · assets/ · 루트를 차례로 찾는다.
   // 확실히 하려면 전체 URL(https://raw.githubusercontent.com/...)을 넣으면 된다.
-  lastflame: 'Serpentine_eastern_dragon_exhali__2K_202608101147.jpeg',
+  lastflame:  'Serpentine_eastern_dragon_exhali__2K_202608101147.jpeg',
+  whitenight: 'snowwhite.png',
+  mrlee:      'mr.lee.png',
 };
 
 const el = id => document.getElementById(id);
@@ -620,9 +629,10 @@ const TIERS = {
   relic: { name:'유물', numeral:'二', weight:30, foil:0.25, hp:78,  atk:16 },
   omen:  { name:'흉조', numeral:'三', weight:12, foil:0.6,  hp:102, atk:21 },
   taboo: { name:'금기', numeral:'四', weight:3,  foil:1.0,  hp:132, atk:27 },
+  promo: { name:'전승', numeral:'特', weight:1,  foil:1.0,  hp:150, atk:32 },
 };
-const TIER_ORDER = ['scrap','relic','omen','taboo'];
-const REWARD_WEIGHTS = { scrap:30, relic:38, omen:24, taboo:8 };
+const TIER_ORDER = ['scrap','relic','omen','taboo','promo'];
+const REWARD_WEIGHTS = { scrap:30, relic:37, omen:24, taboo:8, promo:1 };
 
 /* ═══ 크리처 도안 ═══ . 빈칸 b 몸통 d 어둠 h 밝음 e 눈 ═══ */
 const SPRITES = {
@@ -675,16 +685,22 @@ const CARDS = [
   { id:'frostfang', name:'서리엄니 이리',sprite:'wolf',   type:'frost', tier:'relic', record:'물린 자리는 아프지 않다. 천천히 차가워질 뿐.' },
   { id:'whitenight',name:'백야의 무녀',  sprite:'robed',  type:'frost', tier:'omen',  record:'그녀의 겨울에는 밤이 없다. 잠들 수도 없다.' },
   { id:'eternice',  name:'영겁빙 군주',  sprite:'armor',  type:'frost', tier:'taboo', record:'시간을 얼렸다. 그 안에서 홀로 왕좌를 지킨다.' },
+  // 프로모 — 테두리 없이 그림 그대로 쓴다
+  { id:'mrlee', name:'이석용', sprite:'robed', type:'iron', tier:'promo', promo:true,
+    record:'서고 밖에서 온 자. 어느 목록에도 실려 있지 않다.' },
 ];
 const CARD_BY_ID = Object.fromEntries(CARDS.map(c=>[c.id,c]));
 
 function hashStr(s){ let h=2166136261; for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);} return h>>>0; }
 function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+/* 등급 기본값 × 개체 편차. BOOST 로 개별 상향 */
+const BOOST = { lastflame:{ hp:1.34, atk:1.42 } };
 CARDS.forEach(c=>{
   const rnd = mulberry32(hashStr('stat'+c.id));
   const t = TIERS[c.tier];
-  c.hp  = Math.round(t.hp  * (0.92 + rnd()*0.16));
-  c.atk = Math.round(t.atk * (0.92 + rnd()*0.16));
+  const b = BOOST[c.id] || { hp:1, atk:1 };
+  c.hp  = Math.round(t.hp  * (0.92 + rnd()*0.16) * b.hp);
+  c.atk = Math.round(t.atk * (0.92 + rnd()*0.16) * b.atk);
 });
 
 /* ── 상태 ───────────────────────────────────── */
@@ -731,6 +747,10 @@ async function afterAuth(session){
   netStatus(true);
   renderAdminUI();
   connectLobby();
+  if(champion && !currentCard){
+    showDossier(champion, '대표 잔혼');
+    summonSolo(champion);
+  }
 }
 
 /* ── 입문 관문 ── */
@@ -1085,6 +1105,7 @@ function ruyiCorner(x, cx, cy, s, dx, dy, col, lw){
 
 /* ── 등급별 프레임. mask=true 면 금박 마스크(흑백)를 그린다 ── */
 function drawFrame(x, card, mask){
+  if(card.tier==='promo') return;          // 그림에 이미 처리되어 있다
   const T=TYPES[card.type], G=TIERS[card.tier];
   const tier=card.tier;
   const ink = c => mask ? '#000' : c;
@@ -1188,19 +1209,18 @@ function paintArtwork(x, img, card, rnd){
   x.save();
   x.drawImage(img, (W-dw)/2, (H-dh)/2 - dh*0.02, dw, dh);
 
-  // 위: 스탯 줄이 읽히도록
-  const tg=x.createLinearGradient(0,0,0,H*0.20);
-  tg.addColorStop(0,'rgba(4,4,3,.90)'); tg.addColorStop(0.55,'rgba(4,4,3,.35)');
+  // 위: 이름이 읽히도록
+  const tg=x.createLinearGradient(0,0,0,H*0.24);
+  tg.addColorStop(0,'rgba(4,4,3,.94)'); tg.addColorStop(0.52,'rgba(4,4,3,.55)');
   tg.addColorStop(1,'rgba(4,4,3,0)');
-  x.fillStyle=tg; x.fillRect(0,0,W,H*0.20);
+  x.fillStyle=tg; x.fillRect(0,0,W,H*0.24);
 
-  // 아래: 기록·명판이 앉을 자리
-  const bgd=x.createLinearGradient(0,H*0.52,0,H);
+  // 아래: 공격력이 앉을 자리
+  const bgd=x.createLinearGradient(0,H*0.68,0,H);
   bgd.addColorStop(0,'rgba(3,3,2,0)');
-  bgd.addColorStop(0.42,'rgba(3,3,2,.62)');
-  bgd.addColorStop(0.70,'rgba(3,3,2,.93)');
-  bgd.addColorStop(1,'rgba(3,3,2,.99)');
-  x.fillStyle=bgd; x.fillRect(0,H*0.52,W,H*0.48);
+  bgd.addColorStop(0.45,'rgba(3,3,2,.72)');
+  bgd.addColorStop(1,'rgba(3,3,2,.97)');
+  x.fillStyle=bgd; x.fillRect(0,H*0.68,W,H*0.32);
 
   // 좌우 가장자리 어둠 — 테두리가 어둠 위에 앉도록
   const sg=x.createLinearGradient(0,0,W,0);
@@ -1234,69 +1254,49 @@ function renderFace(card, img, target){
              : card.tier==='omen'  ? ['#181320','#0d0a11','#050404']
              : ['#171310','#0d0b09','#050403'];
 
+  const isPromo = card.tier==='promo';
+
+  // 프로모 — 그림이 이미 완성본이다. 테두리도 글자도 얹지 않는다.
+  if(isPromo && img){
+    const iw=img.width||img.naturalWidth, ih=img.height||img.naturalHeight;
+    const sc=Math.max(W/iw, H/ih);
+    x.drawImage(img, (W-iw*sc)/2, (H-ih*sc)/2, iw*sc, ih*sc);
+    const mc0=(target&&target.mask) || document.createElement('canvas');
+    mc0.width=W; mc0.height=H;
+    const mx0=mc0.getContext('2d');
+    mx0.fillStyle='#000'; mx0.fillRect(0,0,W,H);
+    if(target){ target.face=c; target.mask=mc0; return target; }
+    return { face:c, mask:mc0 };
+  }
+
   if(img){
     paintArtwork(x, img, card, rnd);
   }else{
     paperTexture(x, rnd, tone);
-    // 원상(圓相)
-    x.save(); x.translate(W/2,H*0.385);
-    x.strokeStyle=hexA(T.glow,0.30); x.shadowColor=T.glow; x.shadowBlur=9;
-    x.lineWidth=5; x.lineCap='round';
-    x.beginPath(); x.arc(0,0,W*0.315,-Math.PI*0.42,Math.PI*1.44); x.stroke();
-    if(card.tier==='taboo'||card.tier==='omen'){
-      x.lineWidth=1.2; x.globalAlpha=0.5;
-      x.beginPath(); x.arc(0,0,W*0.345,-Math.PI*0.36,Math.PI*1.30); x.stroke();
-      x.globalAlpha=1;
-    }
-    x.restore();
-    drawCreature(x, W/2, H*0.385, W*0.56, card, rnd);
+    drawCreature(x, W/2, H*0.44, W*0.58, card, rnd);
   }
   x.shadowBlur=0;
 
   drawFrame(x, card, false);
 
-  // 상단 판: 등급 · 혈 · 공
+  // ── 상단: 이름 ──
   x.textAlign='center'; x.textBaseline='middle';
-  x.fillStyle=hexA(T.glow,0.95); x.font='400 26px "Song Myung", serif';
-  x.fillText(G.numeral, W/2, 50);
-  x.font='400 17px "Song Myung", serif'; x.fillStyle='#d3c6ac';
-  x.textAlign='left';  x.fillText('血 '+card.hp, 40, 50);
-  x.textAlign='right'; x.fillText('攻 '+card.atk, W-40, 50);
+  x.fillStyle='#ead9b8';
+  fitText(x, card.name, W/2, 62, W-104, 40, s=>`400 ${s}px "Nanum Brush Script", cursive`);
+  x.fillStyle=hexA(T.glow,0.92); x.font='400 13px "Song Myung", serif';
+  x.fillText(`${T.hanja} ${T.name} · ${G.numeral} ${G.name}`, W/2, 96);
 
-  // 기록(플레이버) — 카드 위에 직접 새긴다
-  const fy=H-196;
-  x.save();
-  x.strokeStyle=hexA(T.color,.32); x.lineWidth=1;
-  x.beginPath(); x.moveTo(62,fy-16); x.lineTo(W-62,fy-16); x.stroke();
-  x.textAlign='center'; x.textBaseline='middle';
-  x.font='400 13px "Nanum Myeongjo","Gowun Batang",serif';
-  x.fillStyle='rgba(190,178,156,.78)';
-  const words=card.record.split(' ');
-  let line='', ln=0;
-  for(let i=0;i<words.length && ln<2;i++){
-    const test=line?line+' '+words[i]:words[i];
-    if(x.measureText(test).width>W-112 && line){
-      x.fillText(line, W/2, fy+ln*19); ln++; line=words[i];
-    } else line=test;
-  }
-  if(ln<2 && line) x.fillText(line, W/2, fy+ln*19);
-  x.restore();
+  // ── 하단: 공격력 숫자만 ──
+  x.strokeStyle=hexA(T.color,.42); x.lineWidth=1;
+  x.beginPath(); x.moveTo(112,H-104); x.lineTo(W-112,H-104); x.stroke();
+  x.fillStyle='#f0e2c2';
+  x.font='400 62px "Song Myung", serif';
+  x.shadowColor=hexA(T.glow,.55); x.shadowBlur=18;
+  x.fillText(String(card.atk), W/2, H-62);
+  x.shadowBlur=0;
 
-  // 명판
-  const plateY=H-142;
-  const pg=x.createLinearGradient(0,plateY,0,H-24);
-  pg.addColorStop(0,'rgba(0,0,0,0)'); pg.addColorStop(0.35,'rgba(4,3,3,.88)'); pg.addColorStop(1,'rgba(4,3,3,.96)');
-  x.fillStyle=pg; x.fillRect(24,plateY,W-48,H-plateY-24);
-  x.strokeStyle=hexA(T.color,.4); x.lineWidth=1;
-  x.beginPath(); x.moveTo(70,plateY+26); x.lineTo(W-70,plateY+26); x.stroke();
-
-  x.textAlign='center'; x.fillStyle='#ead9b8';
-  fitText(x, card.name, W/2, plateY+64, W-92, 44, s=>`400 ${s}px "Nanum Brush Script", cursive`);
-  x.fillStyle=hexA(T.glow,0.95); x.font='400 15px "Song Myung", serif';
-  x.fillText(`${T.name} · ${G.name}`, W/2, plateY+103);
-
-  // 낙관 — 그림 영역 오른쪽 아래 (전통 낙관 위치)
-  seal(x, W-62, H-252, card.tier==='taboo'?42:36, T.hanja, card.tier==='taboo');
+  // 낙관
+  seal(x, W-58, H-62, card.tier==='taboo'?40:34, T.hanja, card.tier==='taboo');
 
   // 금박 마스크
   const mc=(target&&target.mask) || document.createElement('canvas');
@@ -1304,13 +1304,6 @@ function renderFace(card, img, target){
   const mx=mc.getContext('2d');
   mx.fillStyle='#000'; mx.fillRect(0,0,W,H);
   drawFrame(mx, card, true);
-  if(card.tier!=='scrap'){
-    mx.save(); mx.translate(W/2,H*0.385);
-    mx.strokeStyle=`rgba(255,255,255,${card.tier==='taboo'?0.8:0.45})`;
-    mx.lineWidth=5; mx.lineCap='round';
-    mx.beginPath(); mx.arc(0,0,W*0.315,-Math.PI*0.42,Math.PI*1.44); mx.stroke();
-    mx.restore();
-  }
   if(target){ target.face=c; target.mask=mc; return target; }
   return { face:c, mask:mc };
 }
@@ -1653,6 +1646,67 @@ stageEl.addEventListener('pointerup', ()=>{ tTiltX=0; tTiltY=0; });
 let summonAnim=null;
 const easeOut=t=>1-Math.pow(1-t,3);
 const easeIn =t=>t*t*t;
+/* 패배한 카드를 세로로 반 가른다 */
+function splitCard(unit){
+  return new Promise(res=>{
+    if(!glOK){ unit.group.visible=false; res(); return; }
+    const u0=unit.front.material.uniforms;
+    const half=(side)=>{
+      const g=new THREE.PlaneGeometry(CARD_W/2, CARD_H, 1, 1);
+      const uv=g.attributes.uv;
+      for(let i=0;i<uv.count;i++){
+        const u=uv.getX(i);
+        uv.setX(i, side<0 ? u*0.5 : 0.5+u*0.5);
+      }
+      uv.needsUpdate=true;
+      const m=makeCardMat(u0.map.value, u0.uMask.value, '#ffffff', u0.uFoil.value);
+      m.uniforms.uGlow.value.copy(u0.uGlow.value);
+      const mesh=new THREE.Mesh(g,m);
+      mesh.position.x=side*CARD_W/4;
+      return mesh;
+    };
+    const grp=new THREE.Group();
+    const L=half(-1), R=half(1);
+    grp.add(L,R);
+    grp.position.copy(unit.group.position);
+    grp.rotation.copy(unit.group.rotation);
+    grp.scale.copy(unit.group.scale);
+    scene.add(grp);
+    unit.group.visible=false;
+
+    // 갈라놓는 섬광
+    const slashMat=new THREE.MeshBasicMaterial({ color:0xffffff, transparent:true,
+      blending:THREE.AdditiveBlending, depthWrite:false, opacity:1 });
+    const slash=new THREE.Mesh(new THREE.PlaneGeometry(0.055, CARD_H*1.35), slashMat);
+    slash.position.copy(grp.position); slash.position.z+=0.4;
+    slash.scale.y=0.02;
+    scene.add(slash);
+
+    const cleanup=()=>{
+      scene.remove(grp); scene.remove(slash);
+      L.geometry.dispose(); R.geometry.dispose();
+      L.material.dispose(); R.material.dispose();
+      slash.geometry.dispose(); slashMat.dispose();
+    };
+    if(REDUCED){ cleanup(); res(); return; }
+
+    shake(true); flash(true);
+    tween(0.12, p=>{ slash.scale.y=0.02+p*1.0; }, ()=>{
+      tween(0.22, p=>{ slashMat.opacity=1-p; });
+      emit(sparks, '#ffffff', grp.position.x, 0, 3.2, 1.6);
+      tween(0.75, p=>{
+        const e=1-Math.pow(1-p,2);
+        L.position.x=-CARD_W/4 - e*0.85;
+        R.position.x= CARD_W/4 + e*0.85;
+        L.rotation.z= e*0.42;  R.rotation.z=-e*0.42;
+        L.position.y=-e*e*1.9; R.position.y=-e*e*2.1;
+        L.material.uniforms.uReveal.value=1-p*0.98;
+        R.material.uniforms.uReveal.value=1-p*0.98;
+      }, ()=>{ cleanup(); res(); });
+    }, t=>t*t);
+  });
+}
+
 function summonSolo(card, then){
   if(!glOK){ if(then) then(); return; }
   foeUnit.group.visible=false;
@@ -1772,7 +1826,10 @@ async function doDraw100(){
   showDossier(best, `백연(百連) · 새로 ${newCount}종`);
   el('dRecord').textContent =
     `잔재 ${tally.scrap} · 유물 ${tally.relic} · 흉조 ${tally.omen} · 금기 ${tally.taboo}`;
-  summonSolo(best, ()=>{ busy=false; setControls(true); });
+  summonSolo(best, ()=>{
+    busy=false; setControls(true);
+    setTimeout(()=>flySoul(TYPES[best.type].glow), 420);
+  });
   if(!glOK){ busy=false; setControls(true); }
 }
 function setControls(on){
@@ -1821,6 +1878,35 @@ function record(card){
   if(!champion) setChampion(card, true);
   return { isNew, count:n };
 }
+/* 뽑은 잔혼이 서고 탭으로 빨려 들어간다 */
+function flySoul(color){
+  if(REDUCED) return;
+  const st=stageEl.getBoundingClientRect();
+  const bt=el('openArchive').getBoundingClientRect();
+  const x0=st.left+st.width/2, y0=st.top+st.height*0.46;
+  const x1=bt.left+bt.width/2, y1=bt.top+bt.height/2;
+  const dx=x1-x0, dy=y1-y0;
+  for(let i=0;i<6;i++){
+    const d=document.createElement('div');
+    d.className='soul';
+    d.style.left=(x0-13)+'px'; d.style.top=(y0-13)+'px';
+    d.style.background=`radial-gradient(circle,#fff 0%,${color} 36%,transparent 72%)`;
+    document.body.appendChild(d);
+    const jx=(Math.random()-0.5)*90, jy=(Math.random()-0.5)*60;
+    const a=d.animate([
+      { transform:'translate(0,0) scale(.5)', opacity:0 },
+      { transform:`translate(${dx*0.32+jx}px,${dy*0.28+jy}px) scale(1.3)`, opacity:1, offset:0.34 },
+      { transform:`translate(${dx*0.72+jx*0.3}px,${dy*0.7}px) scale(.9)`, opacity:.85, offset:0.72 },
+      { transform:`translate(${dx}px,${dy}px) scale(.18)`, opacity:0 }
+    ], { duration:880+i*70, delay:i*55, easing:'cubic-bezier(.4,0,.25,1)' });
+    a.onfinish=()=>d.remove();
+  }
+  setTimeout(()=>{
+    const b=el('openArchive');
+    b.classList.remove('tabpulse'); void b.offsetWidth; b.classList.add('tabpulse');
+  }, 980);
+}
+
 function playCutin(glyph, label, color, dur){
   if(REDUCED) return Promise.resolve();
   const cut=el('cutin');
@@ -1841,7 +1927,10 @@ async function doDraw(rewardMode){
     ? (res.isNew?'승리의 전리품 · 새 잔혼!':`승리의 전리품 · 잔향 ×${res.count}`)
     : (res.isNew?'서고에 새로 기록되었다':`이미 기록된 잔혼 · 잔향 ×${res.count}`);
   showDossier(card, echo);
-  summonSolo(card, ()=>{ busy=false; setControls(true); });
+  summonSolo(card, ()=>{
+    busy=false; setControls(true);
+    setTimeout(()=>flySoul(TYPES[card.type].glow), 420);
+  });
   if(!glOK){ busy=false; setControls(true); }
 }
 
@@ -1982,13 +2071,8 @@ async function runBattle(cardA, cardB, seed, opts){
   for(const r of sim.rounds){ await playRound(r, iAmA, myCard, foeCard); }
 
   const loser = won?foeUnit:myUnit, winner = won?myUnit:foeUnit;
-  shake(true);
   emit(burst, TYPES[loser.card.type].glow, loser.home.x, 0, 3, 3);
-  await new Promise(res=>{
-    tween(0.5,p=>{ loser.front.material.uniforms.uReveal.value=1-p;
-                   loser.back.material.uniforms.uReveal.value=1-p; },res);
-  });
-  loser.group.visible=false;
+  await splitCard(loser);
   combatHud.classList.remove('on');
   await new Promise(res=>{
     const g=winner.group, fx0=g.position.x, fs=g.scale.x, fr=g.rotation.y;
