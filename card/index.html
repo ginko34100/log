@@ -2907,6 +2907,7 @@ async function connectLobby(){
 
   lobby.on('broadcast', { event:'accept' }, ({ payload })=>{
     if(payload.to!==me) return;
+    if(match && match.matchId===payload.matchId) return;       // 재전송 — 이미 들어와 있다
     if(!pendingOut || pendingOut.to!==payload.from) return;
     clearTimeout(outTimerId); pendingOut=null;
     showSeeking(false); closeDrawer();
@@ -2915,8 +2916,20 @@ async function connectLobby(){
                  oppId:payload.from, oppName:payload.fromName });
   });
 
+  lobby.on('broadcast', { event:'joined' }, ({ payload })=>{
+    if(payload.to!==me) return;
+    joinedMatches.add(payload.match);
+    if(match && match.matchId===payload.match && !match.sent){
+      el('pkOpp').innerHTML=`맞설 상대<b>${escapeHTML(match.oppName)}</b>`;
+    }
+  });
+
   lobby.on('broadcast', { event:'pick' }, ({ payload })=>{
     if(payload.to!==me) return;
+    if(!match || match.matchId!==payload.match){
+      earlyPicks.set(payload.match, payload);   // 아직 선택창이 없다 — 보관
+      return;
+    }
     onOpponentPick(payload);
   });
 
@@ -3102,9 +3115,15 @@ function acceptChallenge(){
   closeChallenge();
   const matchId=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random());
   const seed=(Math.random()*2**31)|0;
-  lobby.send({ type:'broadcast', event:'accept', payload:{
-    from:me, to:p.from, matchId, seed, fromName:myProfile.nickname
-  }});
+  const payload={ to:p.from, matchId, seed, fromName:myProfile.nickname };
+  sendMatch('accept', payload);
+  // 상대가 들어올 때까지 몇 번 더 알린다 (신호 유실 대비)
+  clearInterval(acceptResendId);
+  let n=0;
+  acceptResendId=setInterval(()=>{
+    if(joinedMatches.has(matchId) || !match || n++>5){ clearInterval(acceptResendId); return; }
+    sendMatch('accept', payload);
+  }, 1500);
   closeDrawer();
   trackMe('busy');
   openPicker({ matchId, seed, role:'b', oppId:p.from, oppName:p.name });
@@ -3112,7 +3131,9 @@ function acceptChallenge(){
 
 /* ═══ 카드 선택 단계 — 둘 다 완료해야 시작한다 ═══ */
 let match=null;   // { matchId, seed, role, oppId, oppName, myCard, oppCard, sent }
-let pkTimer=null;
+let pkTimer=null, pkCountId=null, acceptResendId=null;
+const earlyPicks=new Map();   // 선택창보다 먼저 온 상대의 선택
+const joinedMatches=new Set();
 
 function openPicker(m){
   match={ ...m, myCard:null, oppCard:null, sent:false };
@@ -3124,27 +3145,57 @@ function openPicker(m){
   el('pkDone').disabled=true;
   el('pkWait').classList.remove('on');
   el('picker').classList.remove('waiting');
-  buildPickerGrid();
   el('picker').classList.add('on');
   SFX.open();
+  buildPickerGrid();
+
+  // 내가 들어왔음을 알린다 (수락 신호 재전송을 멈추게 한다)
+  sendMatch('joined', { match:m.matchId, to:m.oppId });
+
+  // 선택창보다 먼저 도착해 있던 상대의 선택을 회수한다
+  const early=earlyPicks.get(m.matchId);
+  if(early){ earlyPicks.delete(m.matchId); onOpponentPick(early); }
+
   clearTimeout(pkTimer);
-  pkTimer=setTimeout(()=>{ if(match) abortMatch('시간이 다했다'); }, 75000);
+  let left=60;
+  el('pkOpp').innerHTML=`맞설 상대<b>${escapeHTML(m.oppName)}</b>`;
+  clearInterval(pkCountId);
+  pkCountId=setInterval(()=>{
+    left--;
+    if(!match){ clearInterval(pkCountId); return; }
+    if(!match.sent) el('pkSel').dataset.left=left;
+    if(left<=0){ clearInterval(pkCountId); abortMatch('시간이 다했다'); }
+  },1000);
+  pkTimer=setTimeout(()=>{ if(match) abortMatch('시간이 다했다'); }, 62000);
 }
-function buildPickerGrid(){
+/* 브로드캐스트 전송 — 실패해도 게임이 멈추지 않게 감싼다 */
+function sendMatch(event, payload){
+  if(!lobby) return;
+  try{
+    const r=lobby.send({ type:'broadcast', event, payload:{ from:me, ...payload }});
+    if(r && r.catch) r.catch(e=>console.warn('전송 실패', event, e));
+  }catch(e){ console.warn('전송 오류', event, e); }
+}
+async function buildPickerGrid(){
   const g=el('pkGrid');
   g.innerHTML='';
   const owned=CARDS.filter(c=>found.has(c.id))
     .sort((a,b)=>TIER_ORDER.indexOf(b.tier)-TIER_ORDER.indexOf(a.tier));
-  owned.forEach(card=>{
+  const mine=match ? match.matchId : null;
+  for(let i=0;i<owned.length;i++){
+    if(match && match.matchId!==mine) return;      // 그 사이 취소됐다
+    const card=owned[i];
     const b=document.createElement('button');
     b.className='pk-card'; b.type='button'; b.dataset.id=card.id;
     const cv=document.createElement('canvas');
     cv.width=128; cv.height=192;
     b.appendChild(cv);
-    cv.getContext('2d').drawImage(faceCanvas(card).face,0,0,128,192);
     b.addEventListener('click', ()=>selectPick(card));
     g.appendChild(b);
-  });
+    try{ cv.getContext('2d').drawImage(faceCanvas(card).face,0,0,128,192); }
+    catch(e){ console.warn('축소판 실패', card.id, e); }
+    if(i%3===2) await new Promise(r=>requestAnimationFrame(()=>r()));
+  }
 }
 function selectPick(card){
   if(!match || match.sent) return;
@@ -3165,9 +3216,13 @@ function confirmPick(){
   el('pkTitle').textContent='상대를 기다린다';
   busyOn('상대가 고르는 중');
   SFX.tap();
-  lobby.send({ type:'broadcast', event:'pick', payload:{
-    match:match.matchId, from:me, to:match.oppId, card:match.myCard.id
-  }});
+  sendMatch('pick', { match:match.matchId, to:match.oppId, card:match.myCard.id });
+  // 유실 대비 재전송
+  let n=0;
+  const rid=setInterval(()=>{
+    if(!match || match.oppCard || n++>4){ clearInterval(rid); return; }
+    sendMatch('pick', { match:match.matchId, to:match.oppId, card:match.myCard.id });
+  }, 1800);
   tryStartMatch();
 }
 function onOpponentPick(payload){
@@ -3183,7 +3238,7 @@ function tryStartMatch(){
   if(!match || !match.myCard || !match.oppCard) return;
   const m=match;
   match=null;
-  clearTimeout(pkTimer);
+  clearTimeout(pkTimer); clearInterval(pkCountId); clearInterval(acceptResendId);
   busyOff();
   el('picker').classList.remove('on','waiting');
   el('pkWait').classList.remove('on');
@@ -3205,12 +3260,11 @@ function tryStartMatch(){
 function abortMatch(reason){
   if(!match) return;
   const m=match; match=null;
-  clearTimeout(pkTimer);
+  clearTimeout(pkTimer); clearInterval(pkCountId); clearInterval(acceptResendId);
   busyOff();
   el('picker').classList.remove('on','waiting');
   el('pkWait').classList.remove('on');
-  if(lobby) lobby.send({ type:'broadcast', event:'abort', payload:{
-    match:m.matchId, from:me, to:m.oppId }});
+  sendMatch('abort', { match:m.matchId, to:m.oppId });
   trackMe('idle');
   showBattleMsg('겨룸이 깨졌다', reason||'');
   busy=false; setControls(true);
