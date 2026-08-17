@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>푸시업놀 · 투여일지</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#080B0A; --ink:#E8EFEC; --soft:#7A8C88; --hair:#1E2A28;
+    --serum:#FF2E2E; --serum-dim:#8C1B1B; --gold:#E8C36A;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;margin:0}
+  body{background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans KR",system-ui,sans-serif;
+       font-weight:300;overflow:hidden;overscroll-behavior:none}
+  .app{position:relative;height:100%;max-width:560px;margin:0 auto;display:flex;flex-direction:column;
+       padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+
+  .label-strip{padding:14px 22px 10px;border-bottom:1px solid var(--hair)}
+  .brand{display:flex;align-items:baseline;gap:8px}
+  .brand h1{margin:0;font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:18px;letter-spacing:.22em;text-transform:uppercase}
+  .brand .dose{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--serum);letter-spacing:.14em}
+  .brand .kr{margin-left:auto;font-size:12px;color:var(--soft)}
+  .fine{margin-top:4px;font-family:"IBM Plex Mono",monospace;font-size:9.5px;color:var(--soft);letter-spacing:.1em;text-transform:uppercase}
+
+  .date-bar{display:flex;align-items:center;gap:6px;padding:8px 18px 2px}
+  .nav-btn{width:32px;height:32px;border:1px solid var(--hair);background:transparent;border-radius:50%;
+           color:var(--ink);font-size:15px;line-height:1;cursor:pointer;display:grid;place-items:center}
+  .nav-btn:disabled{opacity:.25;cursor:default}
+  .date-cap{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;background:none;border:0;color:inherit;cursor:pointer;font-family:inherit;padding:3px 0}
+  .date-cap .d{font-family:"IBM Plex Mono",monospace;font-size:15px;letter-spacing:.1em}
+  .date-cap .rel{font-size:9.5px;color:var(--soft);letter-spacing:.16em;font-family:"IBM Plex Mono",monospace}
+
+  .stage{position:relative;flex:1;min-height:0;touch-action:none;user-select:none}
+  .arm-wrap{position:absolute;bottom:0;left:0}
+  .arm-wrap svg{display:block;overflow:visible}
+  @keyframes tremble{
+    0%,100%{transform:translate(0,0) rotate(0)}
+    15%{transform:translate(-3px,1.5px) rotate(-.5deg)}
+    30%{transform:translate(3px,-1.5px) rotate(.5deg)}
+    45%{transform:translate(-2.5px,-1px) rotate(-.35deg)}
+    60%{transform:translate(2px,1.5px) rotate(.3deg)}
+    80%{transform:translate(-1px,-.5px) rotate(-.15deg)}
+  }
+  #armGroup.shake{animation:tremble .55s ease-in-out}
+  .arm-line{fill:var(--bg);stroke:var(--ink);stroke-width:2.2;stroke-linejoin:round}
+  .arm-detail{fill:none;stroke:var(--ink);stroke-width:1.1;stroke-linecap:round;opacity:.42}
+  .arm-hatch{fill:none;stroke:var(--ink);stroke-width:1;stroke-linecap:round;opacity:0;transition:opacity .6s}
+  .gear{fill:var(--bg);stroke:var(--ink);stroke-width:2.1;stroke-linejoin:round}
+  .gear-detail{fill:none;stroke:var(--ink);stroke-width:1.1;opacity:.4}
+  .hand{fill:var(--bg);stroke:var(--ink);stroke-width:2.1;stroke-linejoin:round}
+  .hand-detail{fill:none;stroke:var(--ink);stroke-width:1.2;opacity:.5;stroke-linecap:round}
+  .vein{fill:none;stroke:var(--serum);stroke-width:1.8;stroke-linecap:round;opacity:0;transition:opacity .8s ease}
+  .vein.on{opacity:.85}
+  .glow{fill:var(--serum);opacity:0;transition:opacity .8s ease}
+  .glow.on{opacity:.12}
+  #ring,#ring2{fill:none;stroke:var(--serum);stroke-width:2.4;transform-box:fill-box;transform-origin:center;opacity:0}
+  @keyframes ping{from{transform:scale(.2);opacity:1}to{transform:scale(3.4);opacity:0}}
+  #ring.go{animation:ping .55s ease-out}
+  #ring2.go{animation:ping .75s .08s ease-out}
+
+  .syringe{position:absolute;left:0;top:0;width:52px;height:164px;transform-origin:50% 88%;will-change:transform;
+           transition:transform .42s cubic-bezier(.34,1.24,.5,1),filter .3s,opacity .3s;cursor:grab}
+  .syringe.blurred{filter:blur(5px);opacity:.28}
+  .syringe.gone{opacity:0}
+  .bandage{cursor:pointer}
+  .bandage .tape{fill:#101615;stroke:var(--ink);stroke-width:2;stroke-linejoin:round}
+  .bandage .pad{fill:#1B2423;stroke:var(--ink);stroke-width:1.1;opacity:.85}
+  .bandage .spot{fill:var(--serum)}
+  .bandage .hole{fill:var(--ink);opacity:.3}
+  .mark-num{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:600;fill:var(--ink);opacity:.9}
+  @keyframes popin{from{transform:scale(.3);opacity:0}60%{transform:scale(1.15)}to{transform:scale(1);opacity:1}}
+  .pop-in{transform-box:fill-box;transform-origin:center;animation:popin .34s cubic-bezier(.2,1.5,.4,1)}
+  .syringe.picked{z-index:8;cursor:grabbing}
+  .syringe.idle{animation:bob 3.4s ease-in-out infinite}
+  @keyframes bob{0%,100%{margin-top:0}50%{margin-top:-7px}}
+  .syringe svg{display:block;width:100%;height:100%;overflow:visible}
+  .sy-line{fill:none;stroke:var(--ink);stroke-width:1.5;stroke-linejoin:round;stroke-linecap:round}
+  .sy-glass{fill:#FFFFFF;opacity:.05}
+  .sy-liquid{fill:var(--serum)}
+  .sy-tick{stroke:var(--ink);stroke-width:1;opacity:.3}
+  .sy-num{position:absolute;left:50%;bottom:100%;transform:translateX(-50%);font-family:"IBM Plex Mono",monospace;
+          font-weight:600;font-size:26px;opacity:0;transition:opacity .16s;white-space:nowrap;pointer-events:none}
+  .sy-num.show{opacity:1}
+  .sy-num.record{color:var(--serum)}
+  .sy-num small{display:block;text-align:center;font-size:8px;font-weight:400;letter-spacing:.18em;color:var(--soft)}
+  .sy-seq{position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:5px;
+          font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:.14em;color:var(--soft);white-space:nowrap}
+  .syringe.done .sy-seq{color:var(--ink);opacity:.85}
+
+  .hint{text-align:center;font-size:11.5px;color:var(--soft);min-height:17px;padding:2px 12px 0}
+  .pop{position:absolute;font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:20px;color:var(--serum);
+       pointer-events:none;opacity:0}
+  @keyframes rise{0%{opacity:0;transform:translate(-50%,0) scale(.8)}
+                  20%{opacity:1;transform:translate(-50%,-6px) scale(1.1)}
+                  100%{opacity:0;transform:translate(-50%,-46px) scale(1)}}
+  .pop.go{animation:rise 1s ease-out}
+  .stamp{position:absolute;right:16px;top:26%;font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:12px;
+         letter-spacing:.2em;color:var(--serum);border:2px solid var(--serum);border-radius:3px;padding:7px 10px;
+         transform:rotate(-11deg) scale(.6);opacity:0;transition:transform .45s cubic-bezier(.2,1.6,.4,1),opacity .3s;
+         text-align:center;line-height:1.35;z-index:3}
+  .stamp.on{transform:rotate(-11deg) scale(1);opacity:.95}
+  .stamp small{display:block;font-size:8px;font-weight:400;letter-spacing:.12em;opacity:.75}
+
+  .gear-bar{display:flex;gap:6px;padding:6px 18px 0;justify-content:center}
+  .gear-chip{border:1px solid var(--hair);background:transparent;color:var(--soft);border-radius:20px;
+             padding:6px 13px;font-size:11px;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:5px}
+  .gear-chip.on{border-color:var(--gold);color:var(--gold)}
+  .gear-chip.lock{opacity:.4}
+
+  .readout{border-top:1px solid var(--hair);padding:10px 20px 14px;display:flex;gap:20px;align-items:flex-end;margin-top:8px}
+  .stat .k{font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:.16em;color:var(--soft);text-transform:uppercase}
+  .stat .v{font-family:"IBM Plex Mono",monospace;font-size:25px;font-weight:600;line-height:1.15}
+  .stat .v span{font-size:11px;font-weight:400;color:var(--soft);margin-left:2px}
+  .spark{margin-left:auto;display:flex;align-items:flex-end;gap:5px;height:42px}
+  .spark div{width:9px;background:#3A1414;border-radius:1px;position:relative}
+  .spark div.today{background:var(--serum)}
+  .spark div::after{content:attr(data-d);position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:4px;
+                    font-family:"IBM Plex Mono",monospace;font-size:8px;color:var(--soft)}
+
+  .undo{position:absolute;left:50%;bottom:100px;transform:translate(-50%,14px);display:flex;align-items:center;gap:14px;
+        background:var(--ink);color:var(--bg);padding:9px 12px 9px 15px;border-radius:2px;font-size:12px;
+        opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:20}
+  .undo.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+  .undo button{background:none;border:1px solid rgba(8,11,10,.35);color:inherit;font-family:"IBM Plex Mono",monospace;
+               font-size:10px;letter-spacing:.14em;padding:5px 9px;border-radius:2px;cursor:pointer}
+
+  .sheet{position:absolute;inset:0;background:var(--bg);z-index:30;display:flex;flex-direction:column;
+         padding:20px 20px calc(20px + env(safe-area-inset-bottom));transform:translateY(100%);
+         transition:transform .34s cubic-bezier(.3,.9,.3,1)}
+  .sheet.on{transform:translateY(0)}
+  .sheet-head{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+  .sheet-head h2{margin:0;font-family:"IBM Plex Mono",monospace;font-size:13px;letter-spacing:.2em;font-weight:600}
+  .sheet-head .close{margin-left:auto;background:none;border:0;font-size:22px;color:var(--ink);cursor:pointer;line-height:1;padding:4px 6px}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .dow{font-family:"IBM Plex Mono",monospace;font-size:9px;color:var(--soft);text-align:center;letter-spacing:.1em;padding-bottom:4px}
+  .cell{aspect-ratio:1;border:1px solid var(--hair);border-radius:2px;background:transparent;display:flex;flex-direction:column;
+        align-items:center;justify-content:center;gap:2px;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink);
+        cursor:pointer;padding:0;position:relative;overflow:hidden}
+  .cell.empty{border-color:transparent;cursor:default}
+  .cell.future{opacity:.25;cursor:default}
+  .cell.sel{outline:2px solid var(--ink);outline-offset:-1px}
+  .cell .bar{position:absolute;left:0;right:0;bottom:0;background:var(--serum);opacity:.3}
+  .cell .full{position:absolute;inset:0;border:2px solid var(--serum);border-radius:2px;opacity:.75}
+  .cell .n{position:relative;z-index:1}
+  .cell .r{position:relative;z-index:1;font-size:8px;color:var(--soft)}
+  .cal-note{margin-top:auto;padding-top:16px;font-size:11px;color:var(--soft);line-height:1.8}
+
+  @media (prefers-reduced-motion:reduce){*{animation:none !important;transition-duration:.01ms !important}}
+  @media (max-height:680px){.label-strip{padding:10px 20px 8px}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="label-strip">
+    <div class="brand">
+      <h1>Pushupnol</h1><span class="dose">15mg</span>
+      <span class="kr">푸시업놀 · 투여일지</span>
+    </div>
+    <div class="fine">1일 5회 투여 · 피험자 정모</div>
+  </header>
+
+  <div class="date-bar">
+    <button class="nav-btn" id="prev" aria-label="어제">‹</button>
+    <button class="date-cap" id="dateCap"><span class="d" id="dateText">—</span><span class="rel" id="dateRel"></span></button>
+    <button class="nav-btn" id="next" aria-label="내일">›</button>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="arm-wrap" id="armWrap">
+      <svg id="armSvg" viewBox="0 0 300 230" aria-hidden="true">
+        <g id="armGroup">
+          <path class="glow" id="armGlow"/>
+          <path class="arm-line" id="armOutline"/>
+          <g id="armDetails"></g>
+          <g id="armHatch"></g>
+          <g class="gear" id="gearGroup"></g>
+          <g id="handGroup"></g>
+          <g id="veins"></g>
+          <g id="marks"></g>
+          <g id="flash" style="opacity:0">
+            <circle id="ring" r="9"/><circle id="ring2" r="5"/>
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <div class="pop" id="pop"></div>
+    <div class="stamp" id="stamp">투여 완료<small>5 / 5 DOSES</small></div>
+  </div>
+
+  <div class="hint" id="hint">주사기를 하나 잡으면 확대됩니다</div>
+  <div class="gear-bar" id="gearBar"></div>
+
+  <div class="readout">
+    <div class="stat"><div class="k">오늘 총합</div><div class="v" id="total">0<span>회</span></div></div>
+    <div class="stat"><div class="k">연속</div><div class="v" id="streak">0<span>일</span></div></div>
+    <div class="spark" id="spark"></div>
+  </div>
+
+  <div class="undo" id="undo"><span id="undoText">투여됨</span><button id="undoBtn">되돌리기</button></div>
+
+  <div class="sheet" id="sheet">
+    <div class="sheet-head">
+      <button class="nav-btn" id="mPrev" aria-label="이전 달">‹</button>
+      <h2 id="mTitle">—</h2>
+      <button class="nav-btn" id="mNext" aria-label="다음 달">›</button>
+      <button class="close" id="sheetClose" aria-label="닫기">×</button>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-note">채워진 만큼 그날 투여량입니다. 5회를 다 채운 날은 빨간 테두리. 지난 날짜를 눌러 빠뜨린 기록을 채워 넣을 수 있습니다.</div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const KEY = 'pushupnol-v1', GEARKEY = 'pushupnol-gear';
+  const SETS = 5, MAX = 60, PX_PER_REP = 4;
+  const NS = 'http://www.w3.org/2000/svg';
+  const $ = s => document.querySelector(s);
+  const stage = $('#stage'), armWrap = $('#armWrap'), armSvg = $('#armSvg');
+  const AVW = 300, AVH = 230;
+  const mk = (tag, cls, d) => { const e = document.createElementNS(NS, tag); if (cls) e.setAttribute('class', cls); if (d) e.setAttribute('d', d); return e; };
+
+  /* ── 팔 뼈대 → 외곽선 ───────────────────── */
+  const bones = b => [
+    [-34, 172, 40,        34],
+    [ 16, 168, 44 + 10*b, 34 + 4*b],
+    [ 62, 166, 46 + 26*b, 33 + 6*b],   // 이두
+    [110, 172, 33 +  4*b, 30 + 3*b],
+    [148, 170, 22,        27 + 2*b],   // 팔꿈치
+    [176, 128, 23 +  2*b, 23 + 3*b],   // 전완
+    [196,  96, 20 +  2*b, 20 + 2*b]    // 손목
+  ];
+  function catmull(pts, n){
+    const out = [], P = [pts[0], ...pts, pts[pts.length-1]];
+    for (let i = 1; i < P.length-2; i++)
+      for (let s = 0; s < n; s++){
+        const t = s/n, t2 = t*t, t3 = t2*t, v = [];
+        for (let k = 0; k < 4; k++)
+          v.push(0.5*((2*P[i][k]) + (-P[i-1][k]+P[i+1][k])*t +
+            (2*P[i-1][k]-5*P[i][k]+4*P[i+1][k]-P[i+2][k])*t2 +
+            (-P[i-1][k]+3*P[i][k]-3*P[i+1][k]+P[i+2][k])*t3));
+        out.push(v);
+      }
+    out.push(P[P.length-2]);
+    return out;
+  }
+  function armPath(b){
+    const c = catmull(bones(b), 12), L = [], R = [];
+    for (let i = 0; i < c.length; i++){
+      const p = c[i], q = c[Math.min(i+1,c.length-1)], o = c[Math.max(i-1,0)];
+      let dx = q[0]-o[0], dy = q[1]-o[1];
+      const m = Math.hypot(dx,dy) || 1; dx /= m; dy /= m;
+      L.push([p[0]+dy*p[2], p[1]-dx*p[2]]);
+      R.push([p[0]-dy*p[3], p[1]+dx*p[3]]);
+    }
+    const e = c[c.length-1];
+    const d = [`M ${L[0][0].toFixed(1)},${L[0][1].toFixed(1)}`];
+    for (let i = 1; i < L.length; i++) d.push(`L ${L[i][0].toFixed(1)},${L[i][1].toFixed(1)}`);
+    d.push(`A ${e[2].toFixed(1)} ${e[3].toFixed(1)} 0 0 1 ${R[R.length-1][0].toFixed(1)},${R[R.length-1][1].toFixed(1)}`);
+    for (let i = R.length-2; i >= 0; i--) d.push(`L ${R[i][0].toFixed(1)},${R[i][1].toFixed(1)}`);
+    return d.join(' ') + ' Z';
+  }
+
+  // 근육 디테일 (b에 따라 선명해짐)
+  const detailPaths = b => ([
+    `M 20,${152-8*b} C 44,${126-26*b} 74,${120-28*b} 106,${136-22*b}`,    // 이두 갈라짐
+    `M 30,${160-6*b} C 48,${140-20*b} 70,${136-22*b} 92,${144-18*b}`,     // 이두 안쪽 결
+    `M 104,${146-10*b} C 118,152 130,160 140,166`,                        // 상완근 → 팔꿈치
+    `M 6,170 C 15,178 19,185 19,193`,                                     // 어깨 앞 삼각근
+    `M 4,140 C 13,148 19,156 21,166`,                                     // 삼각근 결
+    `M 116,178 C 130,182 142,180 150,174`,                                // 삼두 아래
+    `M 158,140 C 168,146 176,148 184,146`,                                // 전완 굴근
+    `M 168,116 C 176,122 184,124 192,122`,                                // 전완 결
+    `M 178,102 C 186,108 194,108 200,102`                                 // 손목 주름
+  ]);
+  const hatchPaths = [
+    'M 40,128 L 46,140','M 52,120 L 58,133','M 64,117 L 70,130','M 76,120 L 82,132',
+    'M 150,136 L 156,146','M 162,124 L 168,133','M 120,152 L 126,162'
+  ];
+
+  /* ── 손 · 장비 ─────────────────────────── */
+  const HAND = {
+    fist: 'M 197,98 C 191,86 192,72 200,62 C 204,56 210,55 214,60 C 218,54 226,54 230,60 C 234,54 242,55 245,61 C 249,57 255,60 255,68 C 256,80 252,90 244,95 C 234,101 214,104 203,102 Z',
+    thumb: 'M 199,92 C 197,82 203,73 213,70 C 222,67 229,71 228,78 C 227,85 216,92 207,95 C 202,97 199,96 199,92 Z',
+    detail: ['M 214,60 L 214,69','M 230,60 L 230,68','M 245,61 L 244,69','M 212,96 C 220,93 228,92 234,94']
+  };
+  const GEAR = {
+    dumbbell: { name: '아령', shapes: [
+      ['rect', 176, 66, 100, 11, 5], ['rect', 176, 46, 19, 50, 7], ['rect', 256, 42, 21, 58, 7],
+      ['rect', 166, 55, 12, 32, 5], ['rect', 276, 52, 13, 38, 5]
+    ], detail: ['M 185,58 L 185,84','M 266,54 L 266,88'] },
+    kettlebell: { name: '케틀벨', shapes: [
+      ['path', 'M 216,94 C 212,112 214,126 222,136'],
+      ['path', 'M 252,92 C 258,110 258,126 252,136'],
+      ['path', 'M 222,136 C 210,146 202,162 206,178 C 211,198 231,210 249,206 C 268,202 279,184 275,165 C 272,150 262,141 252,136 Z']
+    ], detail: ['M 220,150 C 212,162 212,176 219,187'] },
+    none: { name: '맨손', shapes: [], detail: [] }
+  };
+  let gear = localStorage.getItem(GEARKEY) || 'dumbbell';
+
+  function drawGear(){
+    const g = $('#gearGroup'); g.innerHTML = '';
+    const spec = GEAR[gear] || GEAR.none;
+    spec.shapes.forEach(s => {
+      if (s[0] === 'rect'){
+        const r = document.createElementNS(NS, 'rect');
+        r.setAttribute('x', s[1]); r.setAttribute('y', s[2]);
+        r.setAttribute('width', s[3]); r.setAttribute('height', s[4]); r.setAttribute('rx', s[5]);
+        g.appendChild(r);
+      } else g.appendChild(mk('path', null, s[1]));
+    });
+    spec.detail.forEach(d => g.appendChild(mk('path', 'gear-detail', d)));
+  }
+  function drawHand(){
+    const g = $('#handGroup'); g.innerHTML = '';
+    g.appendChild(mk('path', 'hand', HAND.fist));
+    g.appendChild(mk('path', 'hand', HAND.thumb));
+    HAND.detail.forEach(d => g.appendChild(mk('path', 'hand-detail', d)));
+  }
+
+  const VEINS = [
+    'M 20,124 C 30,134 34,146 34,158',
+    'M 62,110 C 74,122 78,134 78,148',
+    'M 110,138 C 120,148 124,158 124,168',
+    'M 150,122 C 160,130 164,140 164,150',
+    'M 172,98 C 182,106 186,114 186,124'
+  ];
+  const POINTS = [[18,120],[62,108],[110,136],[150,120],[172,96]];
+  const ANG = [-16, -10, -22, -58, -62];   // 피부 결에 맞춘 반창고 각도
+  const LBL = [[0,-13],[0,-13],[0,-13],[0,-13],[-22,-4]];  // 숫자 위치(아령과 안 겹치게)
+  let justMarked = -1;                     // 방금 붙은 반창고만 팝인
+
+  function renderMarks(){
+    const g = $('#marks'); g.innerHTML = '';
+    const arr = dayOf(cur);
+    arr.forEach((v, i) => {
+      if (v === null || v === undefined || injecting === i) return;
+      const outer = document.createElementNS(NS,'g');
+      outer.setAttribute('class','bandage');
+      outer.setAttribute('data-i', i);
+      outer.setAttribute('transform', `translate(${POINTS[i][0]},${POINTS[i][1]})`);
+      const pop = document.createElementNS(NS,'g');
+      if (justMarked === i) pop.setAttribute('class','pop-in');
+      const rot = document.createElementNS(NS,'g');
+      rot.setAttribute('transform', `rotate(${ANG[i]})`);
+      rot.innerHTML =
+        '<rect class="tape" x="-16" y="-6" width="32" height="12" rx="5"/>' +
+        '<rect class="pad" x="-5.5" y="-4" width="11" height="8" rx="1.5"/>' +
+        '<circle class="spot" cx="0" cy="0" r="1.7"/>' +
+        '<circle class="hole" cx="-11" cy="0" r="1"/><circle class="hole" cx="11" cy="0" r="1"/>';
+      pop.appendChild(rot);
+      const t = document.createElementNS(NS,'text');
+      t.setAttribute('class','mark-num');
+      t.setAttribute('text-anchor','middle');
+      t.setAttribute('x', LBL[i][0]); t.setAttribute('y', LBL[i][1]);
+      t.textContent = v;
+      pop.appendChild(t);
+      outer.appendChild(pop);
+      g.appendChild(outer);
+    });
+  }
+
+  const dEls = detailPaths(0).map(d => { const p = mk('path','arm-detail',d); $('#armDetails').appendChild(p); return p; });
+  const hEls = hatchPaths.map(d => { const p = mk('path','arm-hatch',d); $('#armHatch').appendChild(p); return p; });
+  const vEls = VEINS.map(d => { const p = mk('path','vein',d); $('#veins').appendChild(p); return p; });
+  drawGear(); drawHand();
+
+  let muscle = 0, muscleTarget = 0, raf = null;
+  function drawArm(b){
+    const d = armPath(b);
+    $('#armOutline').setAttribute('d', d);
+    $('#armGlow').setAttribute('d', d);
+    detailPaths(b).forEach((dd,i) => dEls[i].setAttribute('d', dd));
+    hEls.forEach(el => el.style.opacity = (0.05 + 0.28*b).toFixed(2));
+  }
+  function animateMuscle(){
+    cancelAnimationFrame(raf);
+    const step = () => {
+      muscle += (muscleTarget - muscle) * 0.12;
+      if (Math.abs(muscleTarget - muscle) < 0.002) muscle = muscleTarget;
+      drawArm(muscle);
+      if (muscle !== muscleTarget) raf = requestAnimationFrame(step);
+    };
+    step();
+  }
+
+  /* ── 저장소 ─────────────────────────── */
+  let db = {};
+  try { db = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e){ db = {}; }
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch(e){} };
+  const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const parse = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y,m-1,d); };
+  const today = ymd(new Date());
+  let cur = today, calMonth = parse(today);
+  const dayOf = k => db[k] || Array(SETS).fill(null);
+  const setRep = (k,i,v) => {
+    const arr = dayOf(k).slice(); arr[i] = v;
+    if (arr.every(x => x === null)) delete db[k]; else db[k] = arr;
+    save();
+  };
+  const best = () => { let m = 0; for (const k in db) for (const v of db[k]) if (v > m) m = v; return m; };
+
+  /* ── 주사기 ─────────────────────────── */
+  const syringes = [];
+  for (let i = 0; i < SETS; i++){
+    const el = document.createElement('div');
+    el.className = 'syringe idle'; el.dataset.i = i;
+    el.style.animationDelay = (-0.68*i)+'s';
+    el.innerHTML = `
+      <div class="sy-num"><span class="n">0</span><small>REPS</small></div>
+      <svg viewBox="0 0 52 164">
+        <rect class="sy-liquid" x="15" y="28" width="22" height="0" rx="1"/>
+        <rect class="sy-glass" x="15" y="28" width="22" height="76" rx="2"/>
+        <path class="sy-line" d="M15,28 L15,104 L37,104 L37,28"/>
+        <path class="sy-line" d="M8,28 L44,28"/>
+        <path class="sy-line" d="M26,28 L26,9"/>
+        <path class="sy-line" d="M14,9 L38,9"/>
+        <path class="sy-line" d="M20,104 L20,114 L32,114 L32,104"/>
+        <path class="sy-line" d="M26,114 L26,154"/>
+        <line class="sy-tick" x1="15" y1="47" x2="23" y2="47"/>
+        <line class="sy-tick" x1="15" y1="66" x2="23" y2="66"/>
+        <line class="sy-tick" x1="15" y1="85" x2="23" y2="85"/>
+      </svg>
+      <div class="sy-seq">${i+1}회차</div>`;
+    stage.appendChild(el);
+    syringes.push({ el, num: el.querySelector('.sy-num'), numText: el.querySelector('.sy-num .n'),
+                    seq: el.querySelector('.sy-seq'), liquid: el.querySelector('.sy-liquid'), draft: 0 });
+  }
+
+  const slots = { rack: [], arm: [], center: null };
+  let picked = null, dragging = false, startY = 0, baseVal = 0, lastTick = -1, busy = false, injecting = null;
+
+  function layout(){
+    const sr = stage.getBoundingClientRect();
+    if (!sr.width) return;
+
+    // 팔 크기 → 위쪽 남는 공간에 맞춰 주사기 크기 결정 (절대 잘리지 않게)
+    let armH = Math.min(sr.width * AVH/AVW, sr.height * 0.56);
+    let avail = sr.height - armH;
+    if (avail < 120){ armH = sr.height - 120; avail = 120; }
+    const h = Math.max(86, Math.min(168, avail - 34));
+    const w = h * 52/164;
+    syringes.forEach(s => { s.el.style.height = h+'px'; s.el.style.width = w+'px'; });
+
+    const armW = armH * AVW/AVH, armL = (sr.width - armW)/2;
+    armWrap.style.left = armL+'px';
+    armSvg.style.width = armW+'px';
+    armSvg.style.height = armH+'px';
+
+    const tipX = 0.5*w + 0.028*h, tipY = 0.921*h;
+    const rackY = Math.max(4, (avail - h - 26)/2);
+    for (let i = 0; i < SETS; i++){
+      slots.rack[i] = { x: sr.width*(i+0.5)/SETS - w/2, y: rackY, s: 1, r: 0 };
+      slots.arm[i] = {
+        x: armL + armW*(POINTS[i][0]/AVW) - tipX,
+        y: (sr.height - armH) + armH*(POINTS[i][1]/AVH) - tipY,
+        s: 1, r: -34
+      };
+    }
+    // 가운데 확대: 위쪽 숫자까지 화면 안에 들어오도록 배율/위치 계산
+    const S = Math.max(1.15, Math.min(1.7, (sr.height - armH*0.55 - 52) / h));
+    slots.center = { x: sr.width/2 - w/2, y: 48 + (S-1)*0.88*h, s: S, r: 0 };
+    place();
+  }
+
+  const fill = (s,val) => {
+    const H = 76, TOP = 28, hh = H*Math.min(1, val/MAX);
+    s.liquid.setAttribute('y', TOP + (H-hh));
+    s.liquid.setAttribute('height', hh);
+  };
+
+  function place(){
+    const arr = dayOf(cur), bn = best();
+    syringes.forEach((s,i) => {
+      const v = arr[i], done = v !== null && v !== undefined;
+      const flying = injecting === i;
+      s.el.style.display = (done && !flying) ? 'none' : '';
+      s.el.classList.toggle('gone', false);
+      let p;
+      if (picked === i) p = slots.center;
+      else p = done ? slots.arm[i] : slots.rack[i];
+      if (!p) return;
+      const scale = picked === i ? p.s : (picked !== null ? 0.9 : 1);
+      s.el.style.transform = `translate(${p.x}px, ${p.y}px) rotate(${p.r}deg) scale(${scale})`;
+      s.el.classList.toggle('done', done);
+      s.el.classList.toggle('idle', !done && picked === null);
+      s.el.classList.toggle('picked', picked === i);
+      s.el.classList.toggle('blurred', picked !== null && picked !== i);
+      if (picked !== i && injecting !== i){
+        s.draft = done ? v : 0;
+        fill(s, 0);                       // 투여가 끝났으면 통은 비어 있음
+        s.numText.textContent = done ? v : 0;
+        s.num.classList.toggle('show', done);
+        s.num.classList.toggle('record', done && v >= bn && v > 0);
+      }
+      s.seq.textContent = done ? `${i+1}회차 · ${v}` : `${i+1}회차`;
+    });
+  }
+
+  /* ── 조작 ───────────────────────────── */
+  stage.addEventListener('pointerdown', e => {
+    if (busy) return;
+    const band = e.target.closest && e.target.closest('.bandage');
+    if (band){ setRep(cur, +band.dataset.i, null); render(); return; }
+    const el = e.target.closest('.syringe');
+    const arr = dayOf(cur);
+    if (!el){                                  // 빈 곳 → 선택 해제
+      if (picked !== null){ syringes[picked].draft = 0; picked = null; render(); }
+      return;
+    }
+    const i = +el.dataset.i;
+    if (picked !== null && picked !== i) return;
+    if (arr[i] !== null && arr[i] !== undefined){ setRep(cur,i,null); render(); return; }
+    if (parse(cur) > parse(today)) return;
+
+    picked = i; dragging = true; startY = e.clientY; baseVal = syringes[i].draft;
+    stage.setPointerCapture(e.pointerId);
+    syringes[i].num.classList.add('show');
+    $('#hint').textContent = '위아래로 밀어 횟수 조절 · 손을 떼면 투여';
+    place();
+  });
+
+  stage.addEventListener('pointermove', e => {
+    if (!dragging || picked === null) return;
+    const s = syringes[picked];
+    const val = Math.max(0, Math.min(MAX, baseVal + Math.round((startY - e.clientY)/PX_PER_REP)));
+    if (val !== s.draft){
+      s.draft = val;
+      s.numText.textContent = val;
+      fill(s, val);
+      s.num.classList.toggle('record', val > best() && val > 0);
+      if (val % 5 === 0 && val !== lastTick){ lastTick = val; buzz(8); }
+    }
+  });
+
+  const endDrag = () => {
+    if (!dragging || picked === null) return;
+    dragging = false; lastTick = -1;
+    const i = picked, s = syringes[i], val = s.draft;
+    if (val <= 0) return;                       // 그대로 가운데 유지 (다시 밀 수 있음)
+    inject(i, val);
+  };
+  stage.addEventListener('pointerup', endDrag);
+  stage.addEventListener('pointercancel', endDrag);
+
+  function inject(i, val){
+    busy = true;
+    injecting = i;
+    const s = syringes[i];
+    setRep(cur, i, val);
+    picked = null;
+    place();                                    // 주사기가 팔로 날아감
+    $('#hint').textContent = '';
+    setTimeout(() => {
+      impact(i, val);
+      setTimeout(() => {
+        s.el.classList.add('gone');
+        setTimeout(() => { injecting = null; busy = false; justMarked = i; render(); justMarked = -1; showUndo(i, val); }, 340);
+      }, 460);
+    }, 420);
+  }
+
+  function impact(i, val){
+    buzz([18, 40, 22]);
+    $('#armGroup').classList.remove('shake');
+    void $('#armGroup').offsetWidth;
+    $('#armGroup').classList.add('shake');
+
+    const [px, py] = POINTS[i];
+    const f = $('#flash');
+    f.setAttribute('transform', `translate(${px},${py})`);
+    f.style.opacity = 1;
+    ['#ring','#ring2'].forEach(sel => {
+      const el = $(sel); el.classList.remove('go'); void el.getBoundingClientRect(); el.classList.add('go');
+    });
+
+    const sr = stage.getBoundingClientRect(), ar = armSvg.getBoundingClientRect();
+    const pop = $('#pop');
+    pop.textContent = '+' + val;
+    pop.style.left = (ar.left - sr.left + ar.width*(px/AVW)) + 'px';
+    pop.style.top  = (ar.top  - sr.top  + ar.height*(py/AVH) - 24) + 'px';
+    pop.classList.remove('go'); void pop.offsetWidth; pop.classList.add('go');
+
+    // 약물이 몸으로 들어가며 주사기 비워짐
+    const s = syringes[i];
+    let t = 0;
+    const drain = () => {
+      t += 0.06;
+      fill(s, val * (1 - Math.min(1, t)));
+      if (t < 1) requestAnimationFrame(drain);
+    };
+    requestAnimationFrame(drain);
+  }
+  const buzz = p => { if (navigator.vibrate) try { navigator.vibrate(p); } catch(e){} };
+
+  let undoTimer = null;
+  function showUndo(i, val){
+    const bar = $('#undo');
+    $('#undoText').textContent = `${i+1}회차 · ${val}회 투여됨`;
+    bar.classList.add('on');
+    clearTimeout(undoTimer);
+    undoTimer = setTimeout(() => bar.classList.remove('on'), 3200);
+    $('#undoBtn').onclick = () => { setRep(cur,i,null); bar.classList.remove('on'); render(); };
+  }
+
+  /* ── 장비 선택 ──────────────────────── */
+  function renderGearBar(){
+    const bar = $('#gearBar'); bar.innerHTML = '';
+    [['dumbbell','아령'],['kettlebell','케틀벨'],['none','맨손']].forEach(([k,label]) => {
+      const b = document.createElement('button');
+      b.className = 'gear-chip' + (gear === k ? ' on' : '');
+      b.textContent = label;
+      b.onclick = () => { gear = k; localStorage.setItem(GEARKEY, k); drawGear(); renderGearBar(); };
+      bar.appendChild(b);
+    });
+    const soon = document.createElement('button');
+    soon.className = 'gear-chip lock'; soon.textContent = '＋ 잠금';
+    soon.onclick = () => { $('#hint').textContent = '새 장비는 준비 중'; setTimeout(() => render(), 1400); };
+    bar.appendChild(soon);
+  }
+
+  /* ── 통계 ───────────────────────────── */
+  function streak(){
+    let n = 0; const d = parse(today);
+    if (!db[today] || db[today].every(v => v === null)) d.setDate(d.getDate()-1);
+    for(;;){ const a = db[ymd(d)]; if (a && a.some(v => v !== null)){ n++; d.setDate(d.getDate()-1); } else break; }
+    return n;
+  }
+  function renderSpark(){
+    const box = $('#spark'); box.innerHTML = '';
+    const days = [];
+    for (let i = 6; i >= 0; i--){
+      const d = parse(today); d.setDate(d.getDate()-i);
+      const k = ymd(d);
+      days.push({ k, sum: (db[k]||[]).reduce((a,b)=>a+(b||0),0), lbl: d.getDate() });
+    }
+    const mx = Math.max(1, ...days.map(d => d.sum));
+    days.forEach(d => {
+      const bar = document.createElement('div');
+      bar.style.height = Math.max(2,(d.sum/mx)*30)+'px';
+      bar.dataset.d = d.lbl;
+      if (d.k === cur) bar.classList.add('today');
+      bar.title = `${d.k} · ${d.sum}회`;
+      box.appendChild(bar);
+    });
+  }
+
+  /* ── 렌더 ───────────────────────────── */
+  const DOW = ['일','월','화','수','목','금','토'];
+  function render(){
+    const d = parse(cur);
+    $('#dateText').textContent = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} (${DOW[d.getDay()]})`;
+    const diff = Math.round((parse(today)-d)/86400000);
+    $('#dateRel').textContent = diff === 0 ? 'TODAY' : diff === 1 ? 'YESTERDAY' : `${diff} DAYS AGO`;
+    $('#next').disabled = cur === today;
+
+    const arr = dayOf(cur);
+    const done = arr.filter(v => v !== null && v !== undefined).length;
+    $('#total').innerHTML = `${arr.reduce((a,b)=>a+(b||0),0)}<span>회</span>`;
+    $('#streak').innerHTML = `${streak()}<span>일</span>`;
+
+    vEls.forEach((el,i) => el.classList.toggle('on', arr[i] !== null && arr[i] !== undefined));
+    $('#armGlow').classList.toggle('on', done === SETS);
+    $('#stamp').classList.toggle('on', done === SETS);
+    $('#hint').textContent = picked !== null ? '위아래로 밀어 횟수 조절 · 손을 떼면 투여'
+      : done === SETS ? '오늘 5회 전부 투여 완료 · 반창고를 누르면 취소'
+      : done === 0 ? '주사기를 하나 잡으면 확대됩니다'
+      : `${SETS-done}개 남음 · 반창고를 누르면 취소`;
+
+    muscleTarget = done / SETS;
+    animateMuscle();
+    renderMarks();
+    place();
+    renderSpark();
+  }
+
+  const move = n => { const d = parse(cur); d.setDate(d.getDate()+n); if (d > parse(today)) return; cur = ymd(d); picked = null; render(); };
+  $('#prev').onclick = () => move(-1);
+  $('#next').onclick = () => move(1);
+
+  /* ── 달력 ───────────────────────────── */
+  function renderCal(){
+    const grid = $('#calGrid'); grid.innerHTML = '';
+    $('#mTitle').textContent = `${calMonth.getFullYear()}.${String(calMonth.getMonth()+1).padStart(2,'0')}`;
+    DOW.forEach(w => { const h = document.createElement('div'); h.className = 'dow'; h.textContent = w; grid.appendChild(h); });
+    const first = new Date(calMonth.getFullYear(), calMonth.getMonth(), 1);
+    const last = new Date(calMonth.getFullYear(), calMonth.getMonth()+1, 0).getDate();
+    for (let i = 0; i < first.getDay(); i++){ const c = document.createElement('div'); c.className = 'cell empty'; grid.appendChild(c); }
+    for (let n = 1; n <= last; n++){
+      const k = ymd(new Date(calMonth.getFullYear(), calMonth.getMonth(), n));
+      const arr = db[k] || [];
+      const done = arr.filter(v => v !== null && v !== undefined).length;
+      const sum = arr.reduce((a,b)=>a+(b||0),0);
+      const future = parse(k) > parse(today);
+      const c = document.createElement('button');
+      c.className = 'cell' + (future ? ' future' : '') + (k === cur ? ' sel' : '');
+      c.innerHTML = (done ? `<div class="bar" style="height:${(done/SETS)*100}%"></div>` : '')
+        + (done === SETS ? '<div class="full"></div>' : '')
+        + `<span class="n">${n}</span>` + (sum ? `<span class="r">${sum}</span>` : '');
+      if (!future) c.onclick = () => { cur = k; picked = null; $('#sheet').classList.remove('on'); render(); };
+      grid.appendChild(c);
+    }
+  }
+  $('#dateCap').onclick = () => { calMonth = parse(cur); renderCal(); $('#sheet').classList.add('on'); };
+  $('#sheetClose').onclick = () => $('#sheet').classList.remove('on');
+  $('#mPrev').onclick = () => { calMonth.setMonth(calMonth.getMonth()-1); renderCal(); };
+  $('#mNext').onclick = () => { calMonth.setMonth(calMonth.getMonth()+1); renderCal(); };
+
+  /* ── 시작 ───────────────────────────── */
+  window.addEventListener('resize', layout);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
+  renderGearBar(); drawArm(0); layout(); render();
+  setTimeout(() => { layout(); render(); }, 90);
+})();
+</script>
+</body>
+</html>
