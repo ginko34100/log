@@ -2,7 +2,13 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="푸시업놀">
+<meta name="theme-color" content="#080B0A">
+<meta name="format-detection" content="telephone=no">
 <title>푸시업놀 · 투여일지</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,12 +18,17 @@
     --bg:#080B0A; --ink:#E8EFEC; --soft:#7A8C88; --hair:#1E2A28;
     --serum:#FF2E2E; --serum-dim:#8C1B1B; --gold:#E8C36A;
   }
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{height:100%;margin:0}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+  html{height:-webkit-fill-available}
+  html,body{margin:0}
   body{background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans KR",system-ui,sans-serif;
-       font-weight:300;overflow:hidden;overscroll-behavior:none}
+       font-weight:300;overflow:hidden;overscroll-behavior:none;position:fixed;inset:0;
+       height:100vh;height:100dvh;
+       -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
+       -webkit-text-size-adjust:100%;text-size-adjust:100%}
   .app{position:relative;height:100%;max-width:560px;margin:0 auto;display:flex;flex-direction:column;
-       padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+       padding:calc(env(safe-area-inset-top) + 4px) env(safe-area-inset-right)
+               max(env(safe-area-inset-bottom), 10px) env(safe-area-inset-left)}
 
   .label-strip{padding:14px 22px 10px;border-bottom:1px solid var(--hair)}
   .brand{display:flex;align-items:baseline;gap:8px}
@@ -34,7 +45,8 @@
   .date-cap .d{font-family:"IBM Plex Mono",monospace;font-size:15px;letter-spacing:.1em}
   .date-cap .rel{font-size:9.5px;color:var(--soft);letter-spacing:.16em;font-family:"IBM Plex Mono",monospace}
 
-  .stage{position:relative;flex:1;min-height:0;touch-action:none;user-select:none}
+  .stage,.stage *{touch-action:none}
+  .stage{position:relative;flex:1;min-height:0;user-select:none}
   .arm-wrap{position:absolute;bottom:0;left:0}
   .arm-wrap svg{display:block;overflow:visible}
   @keyframes tremble{
@@ -132,6 +144,7 @@
          padding:20px 20px calc(20px + env(safe-area-inset-bottom));transform:translateY(100%);
          transition:transform .34s cubic-bezier(.3,.9,.3,1)}
   .sheet.on{transform:translateY(0)}
+  .sheet{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
   .sheet-head{display:flex;align-items:center;gap:10px;margin-bottom:16px}
   .sheet-head h2{margin:0;font-family:"IBM Plex Mono",monospace;font-size:13px;letter-spacing:.2em;font-weight:600}
   .sheet-head .close{margin-left:auto;background:none;border:0;font-size:22px;color:var(--ink);cursor:pointer;line-height:1;padding:4px 6px}
@@ -712,10 +725,25 @@
   $('#mPrev').onclick = () => { calMonth.setMonth(calMonth.getMonth()-1); renderCal(); };
   $('#mNext').onclick = () => { calMonth.setMonth(calMonth.getMonth()+1); renderCal(); };
 
+  /* ── 사파리(iOS) 대응 ────────────────── */
+  ['gesturestart','gesturechange','gestureend'].forEach(ev =>
+    document.addEventListener(ev, e => e.preventDefault(), { passive:false }));
+  document.addEventListener('dblclick', e => e.preventDefault(), { passive:false });
+  document.addEventListener('touchmove', e => {
+    if (!e.target.closest || !e.target.closest('.sheet')) e.preventDefault();
+  }, { passive:false });
+  const fitVH = () => {
+    const h = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+    document.body.style.height = h + 'px';
+    layout();
+  };
+  window.addEventListener('orientationchange', () => setTimeout(fitVH, 260));
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', fitVH);
+
   /* ── 시작 ───────────────────────────── */
   window.addEventListener('resize', layout);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
-  renderGearBar(); drawArm(0); layout(); render();
+  renderGearBar(); drawArm(0); fitVH(); render();
   setTimeout(() => { layout(); render(); }, 90);
 })();
 </script>
