@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Basic Mathematics · Ch.1 §4 짝수와 홀수, 나눗셈</title>
+<style>
+:root{
+  --bg:#000; --surf:#0e0e0e; --surf2:#161616;
+  --line:#282828; --line2:#3a3a3a;
+  --tx:#eeeeea; --mut:#8d8d86;
+  --gold:#ffc93c; --orange:#ff6b4a; --blue:#6fa8dc; --green:#6ec98a; --purple:#b48ce0;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth;scroll-padding-top:56px}
+body{background:var(--bg);color:var(--tx);
+  font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+  line-height:1.78;font-size:15px;padding-bottom:60px;-webkit-text-size-adjust:100%}
+.wrap{max-width:600px;margin:0 auto;padding:0 16px}
+
+#bar{position:fixed;top:0;left:0;height:2px;background:var(--gold);z-index:60;width:0}
+nav{position:sticky;top:0;z-index:50;background:rgba(0,0,0,.94);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.nv{max-width:600px;margin:0 auto;display:flex;gap:4px;padding:9px 12px;overflow-x:auto;scrollbar-width:none}
+.nv::-webkit-scrollbar{display:none}
+.nv a{flex:0 0 auto;font-size:11.5px;color:var(--mut);text-decoration:none;
+  padding:5px 10px;border:1px solid var(--line);border-radius:2px;white-space:nowrap}
+.nv a.on{color:#000;background:var(--gold);border-color:var(--gold);font-weight:700}
+
+header{padding:30px 0 22px;border-bottom:1px solid var(--line)}
+h1{font-size:21px;font-weight:700;letter-spacing:-.01em;line-height:1.4}
+header p{font-size:11px;color:var(--mut);font-family:ui-monospace,monospace;letter-spacing:.1em;margin-top:7px}
+
+section{padding:34px 0 10px;border-bottom:1px solid var(--line)}
+h2{font-size:18px;font-weight:700;display:flex;align-items:baseline;gap:9px;margin-bottom:5px}
+h2 em{font-style:normal;font-family:ui-monospace,monospace;font-size:13px;color:var(--gold)}
+h2+.sub{font-size:12px;color:var(--mut);margin-bottom:18px}
+h3{font-size:15.5px;font-weight:700;margin:30px 0 9px;padding-left:11px;
+  border-left:3px solid var(--gold);line-height:1.45}
+h3 small{display:block;font-weight:500;font-size:11px;color:var(--mut);
+  font-family:ui-monospace,monospace;letter-spacing:.05em;margin-top:2px}
+p{margin:11px 0;color:#dcdcd7}
+b{color:#fff;font-weight:700}
+.hl{color:var(--gold);font-weight:700}
+.hlo{color:var(--orange);font-weight:700}
+.hlb{color:var(--blue);font-weight:700}
+.hlp{color:var(--purple);font-weight:700}
+
+.m{font-family:'Times New Roman',Georgia,serif;font-style:italic;font-size:17px;color:#fff;font-weight:500;white-space:nowrap}
+.mb .kw{font-style:normal;font-family:-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+  font-size:15px;color:#c9c9c3;font-weight:600}
+.mb{display:block;text-align:center;font-family:'Times New Roman',Georgia,serif;
+  font-style:italic;font-size:21px;color:#fff;margin:16px 0;line-height:1.6}
+sup{font-size:.62em;vertical-align:super;line-height:0}
+.seq{font-family:ui-monospace,'SF Mono',monospace;font-size:15px;letter-spacing:.04em;
+  text-align:center;display:block;margin:12px 0;color:#fff}
+
+.rule{border:1px solid var(--gold);background:rgba(255,201,60,.06);padding:14px;margin:18px 0;border-radius:2px}
+.rule .tag{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.12em;
+  color:var(--gold);font-weight:700;display:block;margin-bottom:6px}
+.rule .mb{margin:9px 0 6px;font-size:22px}
+.rule p{margin:6px 0 0;font-size:13px;color:#c9c9c3}
+
+.thm{border:1px solid var(--green);background:rgba(110,201,138,.055);padding:14px;margin:18px 0;border-radius:2px}
+.thm .tag{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.12em;
+  color:var(--green);font-weight:700;display:block;margin-bottom:8px}
+.thm p{margin:5px 0;font-size:14px;color:#dfe9e2}
+
+.mine{border:1px solid #3d2b52;background:rgba(180,140,224,.07);padding:14px;margin:18px 0;border-radius:2px}
+.mine .tag{font-size:10.5px;letter-spacing:.1em;color:var(--purple);font-weight:700;
+  display:block;margin-bottom:6px;font-family:ui-monospace,monospace}
+.mine p{margin:7px 0 0;font-size:13.8px;color:#d3cade}
+.mine p:first-of-type{margin-top:0}
+
+.warn{border:1px solid #4a2418;background:rgba(255,107,74,.07);padding:13px 14px;margin:18px 0;border-radius:2px}
+.warn .tag{font-size:11px;letter-spacing:.08em;color:var(--orange);font-weight:700;display:block;margin-bottom:5px}
+.warn p{margin:5px 0 0;font-size:13.5px}
+
+.note{border-left:3px solid var(--line2);padding:2px 0 2px 13px;margin:16px 0}
+.note p{margin:4px 0;font-size:13.5px;color:#b6b6b0}
+
+ol.steps{list-style:none;counter-reset:s;margin:14px 0}
+ol.steps li{counter-increment:s;position:relative;padding-left:32px;margin:11px 0;font-size:14px;color:#dcdcd7}
+ol.steps li::before{content:counter(s);position:absolute;left:0;top:2px;width:21px;height:21px;
+  border:1px solid var(--line2);border-radius:50%;font-size:11px;font-family:ui-monospace,monospace;
+  color:var(--mut);display:flex;align-items:center;justify-content:center}
+
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+th,td{border:1px solid var(--line);padding:8px 9px;text-align:left;vertical-align:top}
+th{background:var(--surf2);font-size:11.5px;color:var(--mut);font-weight:600}
+td .m{font-size:15px}
+td.c{text-align:center}
+
+.fig{background:var(--surf);border:1px solid var(--line);margin:18px 0;border-radius:2px;overflow:hidden}
+.fig svg{display:block;width:100%;height:auto}
+.fctl{display:flex;align-items:center;gap:7px;padding:9px 10px;border-top:1px solid var(--line);flex-wrap:wrap}
+.fctl .lbl{font-size:11.5px;color:var(--mut);flex:1 1 100%;order:-1;line-height:1.7}
+.fctl .lbl b{color:var(--tx);font-family:'Times New Roman',serif;font-style:italic;font-size:15px}
+.fctl .grp{display:flex;align-items:center;border:1px solid var(--line2);border-radius:2px;overflow:hidden}
+.fctl .grp span{padding:0 9px;font-size:11.5px;color:var(--mut);font-family:'Times New Roman',serif;font-style:italic}
+.fctl .grp button{width:30px;height:29px;background:var(--surf2);border:none;border-left:1px solid var(--line2);
+  color:var(--tx);font-size:15px;font-family:inherit;cursor:pointer}
+.fctl .grp button:active{background:var(--gold);color:#000}
+.fctl>button.tg{background:var(--surf2);border:1px solid var(--line2);color:var(--tx);
+  padding:7px 12px;font-size:11.5px;font-family:inherit;cursor:pointer;border-radius:2px}
+.fctl>button.tg.on{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700}
+
+.proof{background:var(--surf);border:1px solid var(--line);margin:18px 0;border-radius:2px;overflow:hidden}
+.proof>.ph{padding:10px 13px;border-bottom:1px solid var(--line);font-size:11px;
+  font-family:ui-monospace,monospace;letter-spacing:.1em;color:var(--green)}
+.pline{border-bottom:1px solid var(--line)}
+.pline:last-child{border-bottom:none}
+.pline .eqn{padding:12px 13px;font-family:'Times New Roman',Georgia,serif;font-style:italic;
+  font-size:16.5px;color:#fff;display:flex;align-items:center;gap:10px}
+.pline .eqn span{flex:1}
+.pline .why{flex:0 0 auto;background:transparent;border:1px solid var(--line2);color:var(--mut);
+  font-size:10.5px;padding:4px 9px;font-family:inherit;font-style:normal;cursor:pointer;border-radius:2px}
+.pline .why.on{color:var(--gold);border-color:var(--gold)}
+.pline .ans{display:none;padding:0 13px 13px;font-size:13px;color:#b6b6b0;line-height:1.7}
+.pline .ans.on{display:block}
+.pline .ans b{color:var(--gold)}
+
+.q{background:var(--surf);border:1px solid var(--line);padding:13px;margin:11px 0;border-radius:2px}
+.q .qt{font-size:14px;color:var(--tx)}
+.q .qt i{font-style:normal;font-family:ui-monospace,monospace;color:var(--mut);font-size:11px;margin-right:8px}
+.q button{margin-top:10px;background:transparent;border:1px solid var(--line2);color:var(--mut);
+  font-size:11.5px;padding:6px 11px;font-family:inherit;cursor:pointer;border-radius:2px}
+.q .sol{display:none;margin-top:11px;padding-top:11px;border-top:1px solid var(--line);
+  font-size:13.5px;color:#c9c9c3;line-height:1.85}
+.q .sol.on{display:block}
+.q .sol .m{font-size:15px}
+
+footer{padding:26px 0 0;font-size:11px;color:#5a5a55;line-height:1.9}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<nav><div class="nv">
+  <a href="#a1" class="on">짝·홀 정의</a>
+  <a href="#form">2n · 2n+1 ★</a>
+  <a href="#t1">정리 1</a>
+  <a href="#t2">정리 2</a>
+  <a href="#cor">따름정리 ★</a>
+  <a href="#div">나눗셈</a>
+  <a href="#mod">합동 (mod)</a>
+  <a href="#ex">연습</a>
+</div></nav>
+
+<div class="wrap">
+<header>
+  <h1>짝수와 홀수, 나눗셈</h1>
+  <p>SERGE LANG · BASIC MATHEMATICS · CH.1 §4 · pp.22–26</p>
+</header>
+
+<section>
+  <h2><em>§4</em> Even and Odd Integers; Divisibility</h2>
+  <div class="sub">이 절의 한 문장 — <b>"모든 짝수"를 <span class="m">2n</span>이라는 식 하나로 바꾸는 순간, 무한히 많은 수에 대한 증명이 가능해진다.</b></div>
+
+  <div class="mine">
+    <span class="tag">먼저 · 이 절이 진짜로 하는 일</span>
+    <p>제목만 보면 "짝수 홀수쯤이야" 싶습니다. 초등학교에서 배운 거니까요.</p>
+    <p>하지만 이 절의 목표는 짝수·홀수를 <b>가르치는 게</b> 아닙니다. <span class="hlp">무한히 많은 수를 한 번에 다루는 기술</span>을 처음 보여주는 거예요.</p>
+    <p>"모든 홀수의 제곱은 홀수다"를 증명하려면 어떻게 해야 할까요? 1, 3, 5, 7, … 을 하나씩 다 해볼 수는 없습니다. <b>무한하니까요.</b></p>
+    <p>그런데 홀수를 <span class="m">2n + 1</span> 이라고 <b>한 줄로 쓸 수 있다면</b>, 그 한 줄만 제곱해보면 끝납니다. 이 절 전체가 이 발상 하나 위에 서 있습니다.</p>
+  </div>
+
+  <h3 id="a1">1. 두 종류로 나누기<small>ODD AND EVEN</small></h3>
+  <p>양의 정수 <span class="m">1, 2, 3, 4, 5, …</span> 를 놓고 두 종류로 구분합니다.</p>
+  <div class="rule">
+    <span class="tag">정의</span>
+    <p style="margin-top:0"><b>홀수(odd integers)</b></p>
+    <span class="seq" style="color:var(--orange)">1, 3, 5, 7, 9, 11, 13, …</span>
+    <p style="margin-top:10px"><b>짝수(even integers)</b></p>
+    <span class="seq" style="color:var(--blue)">2, 4, 6, 8, 10, 12, 14, …</span>
+  </div>
+  <p>Lang이 짚는 특징이 셋입니다.</p>
+  <ol class="steps">
+    <li>홀수는 <b>2씩 올라갑니다</b></li>
+    <li>짝수도 <b>2씩 올라갑니다</b></li>
+    <li>차이는 <b>출발점뿐</b>입니다. 홀수는 1에서, 짝수는 2에서 시작합니다</li>
+  </ol>
+  <div class="mine">
+    <span class="tag">내 설명 · 왜 이 셋을 굳이 말하나</span>
+    <p>당연해 보이지만 이게 <b>다음 단계의 씨앗</b>입니다.</p>
+    <p>"2씩 올라간다"는 말은 곧 <b>2의 배수 구조</b>가 깔려 있다는 뜻이고, "출발점만 다르다"는 말은 곧 <b>2n 과 2n+1 로 쓸 수 있다</b>는 뜻이거든요. Lang은 결론을 미리 말하지 않고 관찰만 던져둔 겁니다.</p>
+  </div>
+
+  <h3 id="form">2. 식으로 바꾸기 ★ 이 절의 심장<small>2n AND 2n+1</small></h3>
+  <div class="rule">
+    <span class="tag">짝수의 다른 정의</span>
+    <p style="margin-top:0"><b>짝수</b>란, 어떤 양의 정수 <span class="m">n</span> 에 대해 <span class="m">2n</span> 꼴로 쓸 수 있는 양의 정수다</p>
+  </div>
+  <p>Lang이 든 예를 그대로 보면:</p>
+  <table>
+    <tr><th>짝수</th><th><span class="m">2n</span> 꼴</th><th><span class="m">n</span></th></tr>
+    <tr><td class="c"><span class="m">2</span></td><td class="c"><span class="m">2 · 1</span></td><td class="c">1</td></tr>
+    <tr><td class="c"><span class="m">4</span></td><td class="c"><span class="m">2 · 2</span></td><td class="c">2</td></tr>
+    <tr><td class="c"><span class="m">6</span></td><td class="c"><span class="m">2 · 3</span></td><td class="c">3</td></tr>
+    <tr><td class="c"><span class="m">8</span></td><td class="c"><span class="m">2 · 4</span></td><td class="c">4</td></tr>
+  </table>
+
+  <div class="rule">
+    <span class="tag">홀수의 다른 정의 (1)</span>
+    <p style="margin-top:0"><b>홀수</b>란 짝수와 <b>1만큼 차이나는</b> 정수다. 따라서 어떤 양의 정수 <span class="m">m</span> 에 대해 <span class="m">2m − 1</span> 꼴로 쓸 수 있다</p>
+  </div>
+  <table>
+    <tr><th>홀수</th><th><span class="m">2m − 1</span> 꼴</th><th><span class="m">m</span></th></tr>
+    <tr><td class="c"><span class="m">1</span></td><td class="c"><span class="m">2 · 1 − 1</span></td><td class="c">1</td></tr>
+    <tr><td class="c"><span class="m">3</span></td><td class="c"><span class="m">2 · 2 − 1</span></td><td class="c">2</td></tr>
+    <tr><td class="c"><span class="m">5</span></td><td class="c"><span class="m">2 · 3 − 1</span></td><td class="c">3</td></tr>
+    <tr><td class="c"><span class="m">7</span></td><td class="c"><span class="m">2 · 4 − 1</span></td><td class="c">4</td></tr>
+    <tr><td class="c"><span class="m">9</span></td><td class="c"><span class="m">2 · 5 − 1</span></td><td class="c">5</td></tr>
+  </table>
+
+  <div class="rule">
+    <span class="tag">홀수의 다른 정의 (2) — 실제로 더 많이 씀</span>
+    <p style="margin-top:0"><span class="m">n</span> 을 <b>자연수</b>로 허용하면, 즉 <span class="m">n = 0</span> 을 허용하면 홀수를 <span class="m">2n + 1</span> 꼴로도 쓸 수 있다</p>
+  </div>
+  <table>
+    <tr><th>홀수</th><th><span class="m">2n + 1</span> 꼴</th><th><span class="m">n</span></th></tr>
+    <tr><td class="c"><span class="m">1</span></td><td class="c"><span class="m">2 · 0 + 1</span></td><td class="c" style="color:var(--gold)"><b>0</b></td></tr>
+    <tr><td class="c"><span class="m">3</span></td><td class="c"><span class="m">2 · 1 + 1</span></td><td class="c">1</td></tr>
+    <tr><td class="c"><span class="m">5</span></td><td class="c"><span class="m">2 · 2 + 1</span></td><td class="c">2</td></tr>
+    <tr><td class="c"><span class="m">7</span></td><td class="c"><span class="m">2 · 3 + 1</span></td><td class="c">3</td></tr>
+    <tr><td class="c"><span class="m">9</span></td><td class="c"><span class="m">2 · 4 + 1</span></td><td class="c">4</td></tr>
+  </table>
+  <div class="warn">
+    <span class="tag">⚠ 여기서 §1이 되살아납니다</span>
+    <p><span class="m">2n + 1</span> 이 되려면 <span class="m">n = 0</span> 이 허용돼야 하고, 그러려면 <b>0이 자연수여야</b> 합니다. §1에서 Lang이 자연수에 0을 넣어둔 게 여기서 쓰이는 거예요. 그래서 첫 줄이 <span class="m">1 = 2·0 + 1</span> 로 시작할 수 있습니다.</p>
+    <p><span class="m">2m − 1</span> 쪽은 <span class="m">m</span> 이 <b>양의 정수</b>(1부터)면 충분합니다. 두 표기의 조건이 다르다는 걸 놓치지 마세요.</p>
+  </div>
+
+  <div class="mine">
+    <span class="tag">내 설명 · 점으로 보면 한 장</span>
+    <p>수를 <b>점 무더기</b>라고 생각하고 <b>둘씩 짝지어</b> 보세요.</p>
+    <p><b>짝수</b> = 짝이 딱 맞아떨어짐. 남는 점이 없음 → <span class="m">2n</span></p>
+    <p><b>홀수</b> = 짝을 다 지어도 <b>하나가 남음</b> → <span class="m">2n + 1</span></p>
+    <p>이 "남는 점 하나"가 이 절 전체의 주인공입니다. 아래에서 직접 짝지어 보세요.</p>
+  </div>
+  <div class="fig" data-fig="pair" data-n="7"></div>
+
+  <h3 id="t1">3. 정리 1 — 더하면 어떻게 되나<small>THEOREM 1</small></h3>
+  <div class="thm">
+    <span class="tag">THEOREM 1</span>
+    <p><span class="m">a, b</span> 를 양의 정수라 하자.</p>
+    <p>① <span class="m">a</span> 짝수, <span class="m">b</span> 짝수 → <span class="m">a + b</span> <b>짝수</b></p>
+    <p>② <span class="m">a</span> 짝수, <span class="m">b</span> 홀수 → <span class="m">a + b</span> <b>홀수</b></p>
+    <p>③ <span class="m">a</span> 홀수, <span class="m">b</span> 짝수 → <span class="m">a + b</span> <b>홀수</b></p>
+    <p>④ <span class="m">a</span> 홀수, <span class="m">b</span> 홀수 → <span class="m">a + b</span> <b>짝수</b></p>
+  </div>
+  <p>Lang은 <b>②만 증명하고 나머지는 연습문제로 남깁니다.</b> (연습문제 1번)</p>
+
+  <div class="proof">
+    <div class="ph">PROOF · ② 짝수 + 홀수 = 홀수</div>
+    <div class="pline"><div class="eqn"><span>a = 2n,&nbsp; b = 2k + 1</span><button class="why">왜?</button></div>
+      <div class="ans"><b>가정을 식으로 번역한 것입니다.</b> <span class="m">a</span> 가 짝수라 했으니 어떤 <b>양의 정수</b> <span class="m">n</span> 에 대해 <span class="m">2n</span>. <span class="m">b</span> 가 홀수라 했으니 어떤 <b>자연수</b> <span class="m">k</span> 에 대해 <span class="m">2k+1</span>.<br>
+      이 한 줄이 증명의 전부라고 해도 됩니다. <b>말을 식으로 바꾼 순간 계산이 가능해졌으니까요.</b></div></div>
+    <div class="pline"><div class="eqn"><span>a + b = 2n + 2k + 1</span><button class="why">왜?</button></div>
+      <div class="ans">그냥 <b>대입</b>했습니다. 특별한 기술 없음.</div></div>
+    <div class="pline"><div class="eqn"><span>= 2(n + k) + 1</span><button class="why">왜?</button></div>
+      <div class="ans"><b>분배법칙을 거꾸로</b> 썼습니다(§3). <span class="m">2n + 2k = 2(n+k)</span> 로 공통 인수 2를 묶었어요.<br>
+      <b>왜 하필 2로 묶나?</b> "짝수/홀수"의 정의가 2를 기준으로 되어 있기 때문입니다. 답의 모양을 미리 알고 그쪽으로 맞춰가는 겁니다.</div></div>
+    <div class="pline"><div class="eqn"><span>= 2m + 1&nbsp;&nbsp;(m = n + k 로 두면)</span><button class="why">왜?</button></div>
+      <div class="ans"><span class="m">n + k</span> 를 <span class="m">m</span> 이라는 <b>새 이름</b>으로 부른 것뿐입니다. 계산이 아니라 <b>이름 붙이기</b>예요.<br>
+      왜 굳이? <span class="m">2m + 1</span> 이 되어야 <b>홀수의 정의와 글자 그대로 같은 모양</b>이 되기 때문입니다.<br>
+      <b>증명 끝.</b> 따라서 <span class="m">a + b</span> 는 홀수입니다.</div></div>
+  </div>
+
+  <div class="mine">
+    <span class="tag">내 설명 · 점으로 보면 즉시 보임</span>
+    <p>짝수 <span class="m">a</span> = 짝이 딱 맞는 무더기. 홀수 <span class="m">b</span> = 짝이 맞고 <b>하나 남은</b> 무더기.</p>
+    <p>둘을 합치면? 짝은 짝끼리 그대로 있고, <b>남은 하나는 여전히 하나</b>입니다. 짝지어줄 상대가 없거든요. 그래서 홀수.</p>
+    <p>④가 더 재밌습니다. <b>홀수 + 홀수.</b> 양쪽에서 하나씩 남는데, <b>그 둘이 서로 짝이 됩니다.</b> 남는 게 없어지니 짝수예요.</p>
+    <p>아래에서 직접 합쳐보세요.</p>
+  </div>
+  <div class="fig" data-fig="add" data-a="6" data-b="5"></div>
+
+  <h3 id="t2">4. 정리 2 — 제곱하면 어떻게 되나<small>THEOREM 2</small></h3>
+  <div class="thm">
+    <span class="tag">THEOREM 2</span>
+    <p><span class="m">a</span> 를 양의 정수라 하자.</p>
+    <p><span class="m">a</span> 가 짝수면 <span class="m">a<sup>2</sup></span> 도 <b>짝수</b>다.</p>
+    <p><span class="m">a</span> 가 홀수면 <span class="m">a<sup>2</sup></span> 도 <b>홀수</b>다.</p>
+  </div>
+
+  <div class="proof">
+    <div class="ph">PROOF · 앞부분 — a가 짝수인 경우</div>
+    <div class="pline"><div class="eqn"><span>a = 2n</span><button class="why">왜?</button></div>
+      <div class="ans">짝수의 정의. 어떤 양의 정수 <span class="m">n</span> 이 존재합니다.</div></div>
+    <div class="pline"><div class="eqn"><span>a<sup>2</sup> = 2n · 2n</span><button class="why">왜?</button></div>
+      <div class="ans">거듭제곱의 정의(§3). 제곱은 자기 자신을 두 번 곱한 것.</div></div>
+    <div class="pline"><div class="eqn"><span>= 2(2n<sup>2</sup>)</span><button class="why">왜?</button></div>
+      <div class="ans"><b>곱셈의 교환·결합법칙</b>(§3). <span class="m">2·n·2·n</span> 을 <span class="m">2·(2·n·n)</span> 으로 재배열했습니다. 여기서도 <b>2를 앞으로 빼내는 게</b> 목표예요.</div></div>
+    <div class="pline"><div class="eqn"><span>= 2m&nbsp;&nbsp;(m = 2n<sup>2</sup>)</span><button class="why">왜?</button></div>
+      <div class="ans">이름 붙이기. <span class="m">m = 2n<sup>2</sup></span> 은 <b>양의 정수</b>입니다 — 정수끼리 곱했으니까요.<br>
+      이 확인이 중요합니다. <span class="m">m</span> 이 정수가 아니면 <span class="m">2m</span> 은 짝수가 아니거든요.<br>
+      <b>앞부분 증명 끝.</b></div></div>
+  </div>
+
+  <div class="proof">
+    <div class="ph">PROOF · 뒷부분 — a가 홀수인 경우</div>
+    <div class="pline"><div class="eqn"><span>a = 2n + 1</span><button class="why">왜?</button></div>
+      <div class="ans">홀수의 정의. 여기서 <span class="m">n</span> 은 <b>자연수</b>입니다(0 허용).</div></div>
+    <div class="pline"><div class="eqn"><span>a<sup>2</sup> = (2n + 1)<sup>2</sup></span><button class="why">왜?</button></div>
+      <div class="ans">대입.</div></div>
+    <div class="pline"><div class="eqn"><span>= (2n)<sup>2</sup> + 2(2n)(1) + 1<sup>2</sup></span><button class="why">왜?</button></div>
+      <div class="ans"><b>§3의 첫 번째 암기 공식</b>입니다. <span class="m">(a+b)<sup>2</sup> = a<sup>2</sup> + 2ab + b<sup>2</sup></span> 에서 <span class="m">a = 2n</span>, <span class="m">b = 1</span> 로 둔 것.<br>
+      §3에서 "반드시 외우라"고 했던 그 공식이 <b>바로 다음 절에서 쓰입니다.</b></div></div>
+    <div class="pline"><div class="eqn"><span>= 4n<sup>2</sup> + 4n + 1</span><button class="why">왜?</button></div>
+      <div class="ans">계산했습니다. <span class="m">(2n)<sup>2</sup> = 4n<sup>2</sup></span>, <span class="m">2(2n)(1) = 4n</span>, <span class="m">1<sup>2</sup> = 1</span>.</div></div>
+    <div class="pline"><div class="eqn"><span>= 2(2n<sup>2</sup> + 2n) + 1</span><button class="why">왜?</button></div>
+      <div class="ans"><b>또 2로 묶기.</b> 분배법칙을 거꾸로 써서 <span class="m">4n<sup>2</sup> + 4n</span> 에서 2를 뽑아냈습니다.<br>
+      <b>+1은 건드리지 않습니다.</b> 그게 홀수 표시니까요.</div></div>
+    <div class="pline"><div class="eqn"><span>= 2k + 1&nbsp;&nbsp;(k = 2n<sup>2</sup> + 2n)</span><button class="why">왜?</button></div>
+      <div class="ans">이름 붙이기. <span class="m">k</span> 는 정수입니다.<br>
+      <b>증명 끝.</b> 따라서 <span class="m">a<sup>2</sup></span> 는 홀수입니다.</div></div>
+  </div>
+
+  <div class="mine">
+    <span class="tag">내 설명 · 증명의 리듬을 외우세요</span>
+    <p>세 증명이 전부 <b>똑같은 네 박자</b>였습니다.</p>
+    <ol class="steps" style="margin-top:8px">
+      <li><b>번역</b> — "짝수다"를 <span class="m">2n</span> 으로 바꾼다</li>
+      <li><b>계산</b> — 시키는 대로 더하거나 제곱한다</li>
+      <li><b>2로 묶기</b> — 분배법칙을 거꾸로 써서 2를 앞으로 뺀다</li>
+      <li><b>이름 붙이기</b> — 남은 덩어리에 새 문자를 주고, <b>그게 정수인지 확인한다</b></li>
+    </ol>
+    <p>§4의 연습문제 1~7번은 <b>전부 이 네 박자로 풀립니다.</b> 숫자만 바뀔 뿐이에요.</p>
+  </div>
+
+  <h3 id="cor">5. 따름정리 — 뒤집어 읽기 ★<small>COROLLARY</small></h3>
+  <div class="thm">
+    <span class="tag">COROLLARY</span>
+    <p><span class="m">a</span> 를 양의 정수라 하자.</p>
+    <p><span class="m">a<sup>2</sup></span> 이 짝수면 <span class="m">a</span> 도 <b>짝수</b>다.</p>
+    <p><span class="m">a<sup>2</sup></span> 이 홀수면 <span class="m">a</span> 도 <b>홀수</b>다.</p>
+  </div>
+  <p>Lang은 이걸 <b>"정리를 다시 표현한 것에 지나지 않는다"</b>고 말합니다. 평범한 논리를 적용했을 뿐이라고요.</p>
+
+  <div class="proof">
+    <div class="ph">PROOF · 따름정리</div>
+    <div class="pline"><div class="eqn"><span>a<sup>2</sup> 이 짝수라 하자</span><button class="why">왜?</button></div>
+      <div class="ans">가정입니다. 여기서 <span class="m">a</span> 가 짝수임을 보여야 합니다.</div></div>
+    <div class="pline"><div class="eqn"><span>a 는 홀수일 수 없다</span><button class="why">왜?</button></div>
+      <div class="ans"><b>정리 2 때문입니다.</b> 만약 <span class="m">a</span> 가 홀수라면 <span class="m">a<sup>2</sup></span> 도 홀수여야 해요. 그런데 <span class="m">a<sup>2</sup></span> 은 짝수라고 가정했습니다. <b>모순.</b></div></div>
+    <div class="pline"><div class="eqn"><span>∴ a 는 짝수</span><button class="why">왜?</button></div>
+      <div class="ans">정수는 <b>짝수 아니면 홀수</b>, 둘 중 하나입니다. 홀수가 아니라면 짝수일 수밖에 없어요.<br>
+      뒷부분도 같은 방식입니다. <span class="m">a<sup>2</sup></span> 이 홀수면 <span class="m">a</span> 는 짝수일 수 없습니다(짝수의 제곱은 짝수니까). 따라서 홀수.<br>
+      <b>증명 끝.</b></div></div>
+  </div>
+
+  <div class="mine">
+    <span class="tag">내 설명 · 이게 논리적으로 무엇인가</span>
+    <p>지금 쓴 논리에 이름이 있습니다. <span class="hlp">대우(contrapositive)</span>입니다.</p>
+    <p><b>"A이면 B"</b> 가 참이면 <b>"B가 아니면 A도 아니다"</b> 도 반드시 참입니다.</p>
+    <p>여기서는 "<span class="m">a</span> 홀수면 <span class="m">a<sup>2</sup></span> 홀수" 를 뒤집어 "<span class="m">a<sup>2</sup></span> 홀수가 아니면(=짝수면) <span class="m">a</span> 도 홀수가 아니다(=짝수다)" 로 쓴 겁니다.</p>
+    <p><b>주의할 것</b> — "A이면 B"가 참이라고 해서 <b>"B이면 A"</b>가 참인 건 아닙니다. 이건 <b>역</b>이고, 참일 수도 거짓일 수도 있어요. 대우와 역을 헷갈리면 증명이 통째로 무너집니다. Interlude §2에서 정식으로 다룹니다.</p>
+    <p>여기서 대우가 통한 결정적 이유는 <b>"정수는 짝수 아니면 홀수"</b> 라는 사실입니다. 제3의 가능성이 없어야 "홀수가 아니다 = 짝수다" 로 넘어갈 수 있어요.</p>
+  </div>
+
+  <div class="warn">
+    <span class="tag">★ 이 따름정리가 나중에 무엇에 쓰이나</span>
+    <p>지금은 시시해 보이지만, 이게 수학사에서 가장 유명한 증명의 <b>핵심 부품</b>입니다.</p>
+    <p><b><span class="m">√2</span> 가 유리수가 아님을 증명</b>할 때 쓰입니다. 대략 이런 흐름이에요.</p>
+    <p>① <span class="m">√2 = m/n</span> 이라고 가정 (더 이상 약분 안 되는 상태) → ② 양변 제곱하면 <span class="m">m<sup>2</sup> = 2n<sup>2</sup></span> → ③ 그럼 <span class="m">m<sup>2</sup></span> 이 짝수 → ④ <b>따름정리에 의해 <span class="m">m</span> 도 짝수</b> → ⑤ 같은 논법으로 <span class="m">n</span> 도 짝수 → ⑥ 둘 다 짝수면 <b>약분이 되어야</b> 하는데 안 된다고 했으니 모순</p>
+    <p>④ 자리에 정확히 이 따름정리가 들어갑니다. 3장에서 실제로 만나게 돼요.</p>
+  </div>
+
+  <h3 id="div">6. 나눗셈으로 일반화<small>DIVISIBILITY</small></h3>
+  <p>Lang은 <b>"짝수를 정의할 때 쓴 성질을 일반화할 수 있다"</b>고 말하며 넘어갑니다.</p>
+  <div class="rule">
+    <span class="tag">정의</span>
+    <p style="margin-top:0"><span class="m">d</span> 를 <b>양의 정수</b>, <span class="m">n</span> 을 <b>정수</b>라 하자.</p>
+    <div class="mb">n = dk</div>
+    <p>를 만족하는 <b>정수</b> <span class="m">k</span> 가 존재하면,<br>
+    <span class="m">d</span> 가 <span class="m">n</span> 을 <b>나눈다(divides)</b>, 또는 <span class="m">n</span> 이 <span class="m">d</span> 로 <b>나누어떨어진다</b>고 한다.</p>
+  </div>
+  <p>이 정의로 보면 <b>짝수란 2로 나누어떨어지는 양의 정수</b>입니다. 짝수는 나눗셈의 특수한 경우였던 거예요.</p>
+
+  <p>Lang이 든 예를 하나도 빼지 않고 보겠습니다.</p>
+  <table>
+    <tr><th>주장</th><th>왜냐하면</th></tr>
+    <tr><td>9는 3으로 나누어떨어진다</td><td><span class="m">9 = 3 · 3</span></td></tr>
+    <tr><td>15는 3으로 나누어떨어진다</td><td><span class="m">15 = 3 · 5</span></td></tr>
+    <tr><td><span class="hlo">−30</span>은 5로 나누어떨어진다</td><td><span class="m">−30 = 5(−6)</span></td></tr>
+    <tr><td>모든 정수는 1로 나누어떨어진다</td><td><span class="m">n = 1 · n</span></td></tr>
+    <tr><td>모든 양의 정수는 자기 자신으로 나누어떨어진다</td><td><span class="m">n = n · 1</span></td></tr>
+  </table>
+
+  <div class="warn">
+    <span class="tag">⚠ 세 번째 줄을 그냥 넘기지 마세요</span>
+    <p><span class="m">−30 = 5(−6)</span>. 여기서 <span class="m">k = −6</span> 으로 <b>음수</b>입니다.</p>
+    <p>정의를 다시 읽어보세요. <span class="m">d</span> 는 <b>양의 정수</b>여야 하지만 <span class="m">k</span> 는 그냥 <b>정수</b>입니다. 조건이 다릅니다. 그래서 음수도 나누어떨어질 수 있어요.</p>
+    <p>이 비대칭을 놓치면 나중에 정수론에서 계속 걸립니다.</p>
+  </div>
+
+  <div class="mine">
+    <span class="tag">내 설명 · 정의를 정확히 읽는 훈련</span>
+    <p>이 정의에서 <b>"존재하면"</b> 이라는 말이 핵심입니다. 나눗셈을 <b>실제로 하지 않습니다.</b></p>
+    <p>"<span class="m">d</span> 가 <span class="m">n</span> 을 나눈다"는 <b>곱셈으로만</b> 정의돼 있어요. <span class="m">n</span> 을 <span class="m">d</span> 로 나눈 결과를 구하는 게 아니라, <b>곱해서 <span class="m">n</span> 이 되는 정수 짝이 있느냐</b>를 묻는 겁니다.</p>
+    <p>왜 이렇게 할까요? <b>나눗셈은 정수 세계를 벗어나기 때문</b>입니다. <span class="m">7 ÷ 2</span> 는 정수가 아니죠. 하지만 곱셈은 정수 안에서 끝납니다. <b>정수 이야기를 정수 언어로만 하려는 것</b>이 이 정의의 의도예요.</p>
+    <p style="margin-top:12px"><b>보너스 — 0은?</b></p>
+    <p>Lang은 언급하지 않지만 자연히 나오는 질문입니다. <b>0은 모든 양의 정수로 나누어떨어집니다.</b> <span class="m">0 = d · 0</span> 이고 0은 정수니까요. <span class="m">d = 7</span> 이든 <span class="m">d = 1000</span> 이든 상관없습니다.</p>
+    <p>반대로 <span class="m">d = 0</span> 은 애초에 금지돼 있습니다. 정의에서 <span class="m">d</span> 를 <b>양의 정수</b>로 못박았으니까요.</p>
+  </div>
+
+  <p>나누어떨어짐을 점으로 보면 이렇습니다.</p>
+  <div class="fig" data-fig="div" data-n="15" data-d="3"></div>
+
+  <h3 id="mod">7. 합동 — 연습문제 24·25번<small>CONGRUENCE MOD d</small></h3>
+  <p>§4 연습문제 마지막에 <b>완전히 새로운 개념</b>이 정의 없이 툭 나옵니다. 겁먹지 않도록 미리 풀어둘게요.</p>
+  <div class="rule">
+    <span class="tag">정의 (연습문제 25번)</span>
+    <p style="margin-top:0"><span class="m">d</span> 를 양의 정수, <span class="m">a, b</span> 를 정수라 하자.</p>
+    <div class="mb">a ≡ b <span class="kw">(mod d)</span></div>
+    <p>는 <b><span class="m">a − b</span> 가 <span class="m">d</span> 로 나누어떨어진다</b>는 뜻이다.<br>
+    "<span class="m">a</span> 는 <span class="m">d</span> 를 법으로 <span class="m">b</span> 와 합동이다"라고 읽는다.</p>
+  </div>
+  <div class="mine">
+    <span class="tag">내 설명 · 시계로 보면 끝</span>
+    <p><b>시계가 곧 mod 12 세계</b>입니다.</p>
+    <p>시계에서 15시는 3시와 <b>같은 자리</b>입니다. 왜? <span class="m">15 − 3 = 12</span> 이고 12는 12로 나누어떨어지니까요. 즉 <span class="m">15 ≡ 3 (mod 12)</span>.</p>
+    <p>합동은 <b>"같다"가 아니라 "나머지가 같다"</b>입니다. <span class="m">d</span> 로 나눈 나머지가 같은 수들을 한 덩어리로 묶는 거예요.</p>
+    <p><span class="m">mod 5</span> 라면 정수 전체가 딱 5덩어리로 나뉩니다 — 나머지 0인 것들, 1인 것들, 2, 3, 4. 이게 24번 문제의 배경입니다.</p>
+    <p style="margin-top:12px"><b>24·25번이 요구하는 것</b>은 이겁니다. <b>합동인 채로 더하고 곱해도 합동이 유지되는가?</b> 답은 예이고, 증명은 §4에서 배운 네 박자로 그대로 됩니다. 아래 연습에 풀이를 넣어뒀습니다.</p>
+  </div>
+
+  <div class="mine">
+    <span class="tag">내 설명 · 연습문제 26번의 3k, 3k+1, 3k+2</span>
+    <p>26번은 <b>2 대신 3으로 같은 일을 하라</b>는 문제입니다.</p>
+    <p>2로 나누면 나머지가 0 또는 1 → <span class="m">2n</span>, <span class="m">2n+1</span> 두 종류.<br>
+    3으로 나누면 나머지가 0, 1, 2 → <span class="m">3k</span>, <span class="m">3k+1</span>, <span class="m">3k+2</span> <b>세 종류.</b></p>
+    <p>이렇게 모든 정수를 빠짐없이 몇 종류로 나눠놓고 <b>각 경우를 다 확인하는</b> 방법을 <b>경우 나누기</b>라고 합니다. 종류가 유한하기만 하면, 무한한 정수 전체를 다룰 수 있어요.</p>
+  </div>
+
+  <h3 id="ex">8. 연습 문제<small>교재 25–26쪽</small></h3>
+  <p style="font-size:13px;color:var(--mut)">교재 §4 연습문제 1~26번을 유형별로 다뤘습니다. 먼저 직접 풀어보세요.</p>
+
+  <div class="q"><div class="qt"><i>1번 ①</i>정리 1의 나머지 경우를 증명하세요. 먼저 <b>짝수 + 짝수 = 짝수</b>.</div>
+    <button>답 보기</button><div class="sol">
+    <b>번역</b> <span class="m">a = 2n</span>, <span class="m">b = 2k</span> (n, k 양의 정수)<br>
+    <b>계산</b> <span class="m">a + b = 2n + 2k</span><br>
+    <b>2로 묶기</b> <span class="m">= 2(n + k)</span><br>
+    <b>이름</b> <span class="m">m = n + k</span> 로 두면 <span class="m">a + b = 2m</span>, <span class="m">m</span> 은 양의 정수<br>
+    따라서 <span class="m">a + b</span> 는 짝수 ∎</div></div>
+
+  <div class="q"><div class="qt"><i>1번 ③</i><b>홀수 + 짝수 = 홀수</b>.</div>
+    <button>답 보기</button><div class="sol">
+    <span class="m">a = 2n + 1</span>, <span class="m">b = 2k</span><br>
+    <span class="m">a + b = 2n + 1 + 2k = 2(n + k) + 1 = 2m + 1</span><br>
+    따라서 홀수 ∎<br>
+    <span style="color:var(--mut);font-size:12.5px">사실 ②의 결과에 <b>덧셈의 교환법칙</b>을 쓰면 한 줄로도 끝납니다. <span class="m">a + b = b + a</span> 이고 ②가 이미 "짝수+홀수=홀수"를 보였으니까요.</span></div></div>
+
+  <div class="q"><div class="qt"><i>1번 ④</i><b>홀수 + 홀수 = 짝수</b>. — 가장 재밌는 경우</div>
+    <button>답 보기</button><div class="sol">
+    <span class="m">a = 2n + 1</span>, <span class="m">b = 2k + 1</span><br>
+    <span class="m">a + b = 2n + 1 + 2k + 1 = 2n + 2k + 2</span><br>
+    <span class="m">= 2(n + k + 1)</span><br>
+    <span class="m">m = n + k + 1</span> 로 두면 <span class="m">a + b = 2m</span> → <b>짝수</b> ∎<br>
+    <span style="color:var(--gold)">양쪽의 남은 1 두 개가 합쳐져 2가 되고, 그 2가 통째로 묶여 들어간 것입니다.</span></div></div>
+
+  <div class="q"><div class="qt"><i>2번</i><span class="m">a</span> 가 짝수이고 <span class="m">b</span> 가 임의의 양의 정수면 <span class="m">ab</span> 는 짝수임을 증명하세요.</div>
+    <button>답 보기</button><div class="sol">
+    <span class="m">a = 2n</span> 이므로<br>
+    <span class="m">ab = 2n · b = 2(nb)</span><br>
+    <span class="m">m = nb</span> 는 정수이므로 <span class="m">ab = 2m</span> → 짝수 ∎<br>
+    <span style="color:var(--mut);font-size:12.5px"><b>b가 짝수인지 홀수인지 전혀 묻지 않았다는 점</b>에 주목하세요. 한쪽만 짝수면 곱은 무조건 짝수입니다.</span></div></div>
+
+  <div class="q"><div class="qt"><i>3번</i><span class="m">a</span> 가 짝수면 <span class="m">a<sup>3</sup></span> 도 짝수임을 증명하세요.</div>
+    <button>답 보기</button><div class="sol">
+    <span class="m">a = 2n</span><br>
+    <span class="m">a<sup>3</sup> = (2n)<sup>3</sup> = 2n · 2n · 2n = 2(4n<sup>3</sup>)</span><br>
+    <span class="m">m = 4n<sup>3</sup></span> 은 정수 → <span class="m">a<sup>3</sup> = 2m</span> → 짝수 ∎</div></div>
+
+  <div class="q"><div class="qt"><i>4번</i><span class="m">a</span> 가 홀수면 <span class="m">a<sup>3</sup></span> 도 홀수임을 증명하세요.</div>
+    <button>답 보기</button><div class="sol">
+    <b>지름길</b>: 정리 2에서 <span class="m">a<sup>2</sup></span> 은 홀수입니다. 그리고 7번(홀수×홀수=홀수)에 의해 <span class="m">a<sup>3</sup> = a<sup>2</sup> · a</span> 도 홀수 ∎<br><br>
+    <b>직접 전개</b>: <span class="m">a = 2n + 1</span><br>
+    <span class="m">a<sup>3</sup> = 8n<sup>3</sup> + 12n<sup>2</sup> + 6n + 1</span><br>
+    <span class="m">= 2(4n<sup>3</sup> + 6n<sup>2</sup> + 3n) + 1</span> → 홀수 ∎<br>
+    <span style="color:var(--mut);font-size:12.5px">전개에는 §3 연습문제에서 본 <span class="m">(a+b)<sup>3</sup></span> 의 1-3-3-1 계수를 씁니다.</span></div></div>
+
+  <div class="q"><div class="qt"><i>5·6번</i><span class="m">n</span> 이 짝수면 <span class="m">(−1)<sup>n</sup> = 1</span>, 홀수면 <span class="m">(−1)<sup>n</sup> = −1</span> 임을 증명하세요.</div>
+    <button>답 보기</button><div class="sol">
+    <b>5번</b> <span class="m">n = 2k</span> 이므로<br>
+    <span class="m">(−1)<sup>n</sup> = (−1)<sup>2k</sup> = ((−1)<sup>2</sup>)<sup>k</sup></span> &nbsp;(§3의 N12)<br>
+    <span class="m">(−1)<sup>2</sup> = 1</span> 이므로 <span class="m">= 1<sup>k</sup> = 1</span> ∎<br><br>
+    <b>6번</b> <span class="m">n = 2k + 1</span> 이므로<br>
+    <span class="m">(−1)<sup>n</sup> = (−1)<sup>2k</sup> · (−1)<sup>1</sup></span> &nbsp;(§3의 N11)<br>
+    <span class="m">= 1 · (−1) = −1</span> ∎<br>
+    <span style="color:var(--gold)">§3의 지수 법칙 두 개가 그대로 도구로 쓰였습니다.</span></div></div>
+
+  <div class="q"><div class="qt"><i>7번</i><span class="m">m, n</span> 이 홀수면 곱 <span class="m">mn</span> 도 홀수임을 증명하세요.</div>
+    <button>답 보기</button><div class="sol">
+    <span class="m">m = 2a + 1</span>, <span class="m">n = 2b + 1</span><br>
+    <span class="m">mn = (2a+1)(2b+1) = 4ab + 2a + 2b + 1</span><br>
+    <span class="m">= 2(2ab + a + b) + 1</span><br>
+    <span class="m">k = 2ab + a + b</span> 는 정수 → 홀수 ∎</div></div>
+
+  <div class="q"><div class="qt"><i>8~15번</i>다음 수를 나누는 <b>2의 가장 큰 거듭제곱</b>을 구하세요.<br>
+    16, 24, 32, 20, 50, 64, 100, 36</div>
+    <button>답 보기</button><div class="sol">
+    2로 계속 나누어 홀수가 될 때까지 세면 됩니다.<br><br>
+    <b>16</b> = 2<sup>4</sup> → <span class="m">2<sup>4</sup></span><br>
+    <b>24</b> = 2<sup>3</sup>·3 → <span class="m">2<sup>3</sup></span><br>
+    <b>32</b> = 2<sup>5</sup> → <span class="m">2<sup>5</sup></span><br>
+    <b>20</b> = 2<sup>2</sup>·5 → <span class="m">2<sup>2</sup></span><br>
+    <b>50</b> = 2·25 → <span class="m">2<sup>1</sup></span><br>
+    <b>64</b> = 2<sup>6</sup> → <span class="m">2<sup>6</sup></span><br>
+    <b>100</b> = 2<sup>2</sup>·25 → <span class="m">2<sup>2</sup></span><br>
+    <b>36</b> = 2<sup>2</sup>·9 → <span class="m">2<sup>2</sup></span><br>
+    <span style="color:var(--mut);font-size:12.5px">요령: 나눈 결과가 <b>홀수가 되는 순간</b> 멈춥니다. 홀수는 더 이상 2로 안 나뉘니까요.</span></div></div>
+
+  <div class="q"><div class="qt"><i>16~23번</i>다음 수를 나누는 <b>3의 가장 큰 거듭제곱</b>을 구하세요.<br>
+    30, 27, 63, 99, 60, 50, 42, 45</div>
+    <button>답 보기</button><div class="sol">
+    <b>30</b> = 3·10 → <span class="m">3<sup>1</sup></span><br>
+    <b>27</b> = 3<sup>3</sup> → <span class="m">3<sup>3</sup></span><br>
+    <b>63</b> = 3<sup>2</sup>·7 → <span class="m">3<sup>2</sup></span><br>
+    <b>99</b> = 3<sup>2</sup>·11 → <span class="m">3<sup>2</sup></span><br>
+    <b>60</b> = 3·20 → <span class="m">3<sup>1</sup></span><br>
+    <b>50</b> = 2·25 → <span class="m">3<sup>0</sup> = 1</span> <span style="color:var(--orange)">(3으로 안 나뉨)</span><br>
+    <b>42</b> = 3·14 → <span class="m">3<sup>1</sup></span><br>
+    <b>45</b> = 3<sup>2</sup>·5 → <span class="m">3<sup>2</sup></span><br>
+    <span style="color:var(--mut);font-size:12.5px">50번을 주의하세요. 3으로 한 번도 안 나뉘면 답은 <span class="m">3<sup>0</sup> = 1</span> 입니다. "없다"가 아니라 0제곱이에요.</span></div></div>
+
+  <div class="q"><div class="qt"><i>24·25번</i><span class="m">a ≡ b (mod d)</span> 이고 <span class="m">x ≡ y (mod d)</span> 이면 <span class="m">a + x ≡ b + y (mod d)</span> 임을 증명하세요.</div>
+    <button>답 보기</button><div class="sol">
+    <b>번역</b> 가정을 나눗셈 정의로 풉니다.<br>
+    <span class="m">a − b = dk</span>, <span class="m">x − y = dl</span> (k, l 은 정수)<br><br>
+    <b>보일 것</b> <span class="m">(a + x) − (b + y)</span> 가 <span class="m">d</span> 로 나누어떨어짐<br><br>
+    <b>계산</b><br>
+    <span class="m">(a + x) − (b + y) = (a − b) + (x − y)</span> &nbsp;<span style="color:var(--mut)">(교환·결합법칙)</span><br>
+    <span class="m">= dk + dl</span><br>
+    <span class="m">= d(k + l)</span> &nbsp;<span style="color:var(--mut)">(분배법칙 거꾸로)</span><br><br>
+    <span class="m">k + l</span> 은 정수이므로 <span class="m">d</span> 로 나누어떨어짐 ∎</div></div>
+
+  <div class="q"><div class="qt"><i>24·25번 (곱)</i>같은 가정에서 <span class="m">ax ≡ by (mod d)</span> 임을 증명하세요. — 조금 까다롭습니다</div>
+    <button>답 보기</button><div class="sol">
+    <span class="m">a − b = dk</span>, <span class="m">x − y = dl</span><br><br>
+    <b>요령</b>: <span class="m">ax − by</span> 를 바로 묶으려 하면 안 됩니다. <b>중간에 없는 항을 하나 끼워 넣습니다.</b><br><br>
+    <span class="m">ax − by = ax − bx + bx − by</span><br>
+    <span style="color:var(--mut);font-size:12.5px">(−bx 와 +bx 를 더했으니 값은 그대로 — §2 N2)</span><br>
+    <span class="m">= x(a − b) + b(x − y)</span> &nbsp;<span style="color:var(--mut)">(분배법칙 거꾸로, 두 번)</span><br>
+    <span class="m">= x(dk) + b(dl)</span><br>
+    <span class="m">= d(xk + bl)</span><br><br>
+    <span class="m">xk + bl</span> 은 정수이므로 <span class="m">d</span> 로 나누어떨어짐 ∎<br>
+    <span style="color:var(--gold)">"0을 더해서 모양을 만든다"는 이 수법은 앞으로 계속 나옵니다. 기억해두세요.</span></div></div>
+
+  <div class="q"><div class="qt"><i>26번</i>모든 양의 정수가 <span class="m">3k</span>, <span class="m">3k+1</span>, <span class="m">3k+2</span> 중 하나로 쓰인다고 하자. 양의 정수의 <b>제곱이 3으로 나누어떨어지면 그 정수도 3으로 나누어떨어짐</b>을 보이세요.</div>
+    <button>답 보기</button><div class="sol">
+    <b>전략</b>: 따름정리와 똑같이 <b>대우</b>로 갑니다. "<span class="m">a</span> 가 3의 배수가 아니면 <span class="m">a<sup>2</sup></span> 도 3의 배수가 아니다"를 보이면 됩니다.<br><br>
+    3의 배수가 아닌 경우는 두 가지뿐입니다.<br><br>
+    <b>경우 ① <span class="m">a = 3k + 1</span></b><br>
+    <span class="m">a<sup>2</sup> = 9k<sup>2</sup> + 6k + 1 = 3(3k<sup>2</sup> + 2k) + 1</span><br>
+    → 3으로 나눈 나머지가 <b>1</b>. 나누어떨어지지 않음<br><br>
+    <b>경우 ② <span class="m">a = 3k + 2</span></b><br>
+    <span class="m">a<sup>2</sup> = 9k<sup>2</sup> + 12k + 4 = 3(3k<sup>2</sup> + 4k + 1) + 1</span><br>
+    → 나머지가 <b>1</b>. 역시 나누어떨어지지 않음<br><br>
+    두 경우 모두 <span class="m">a<sup>2</sup></span> 이 3의 배수가 아닙니다.<br>
+    대우에 의해, <span class="m">a<sup>2</sup></span> 이 3의 배수면 <span class="m">a</span> 도 3의 배수 ∎<br>
+    <span style="color:var(--gold)">이 결과는 <span class="m">√3</span> 이 무리수임을 증명할 때 그대로 쓰입니다.</span></div></div>
+</section>
+
+<section style="border-bottom:none">
+  <h3 style="margin-top:10px">§4 한눈에</h3>
+  <table>
+    <tr><th>항목</th><th>내용</th></tr>
+    <tr><td>짝수</td><td><span class="m">2n</span> &nbsp;(n 양의 정수)</td></tr>
+    <tr><td>홀수</td><td><span class="m">2m − 1</span> (m 양의 정수) 또는 <span class="m">2n + 1</span> (n 자연수)</td></tr>
+    <tr><td><b>정리 1</b></td><td>짝+짝=짝, 짝+홀=홀, 홀+짝=홀, 홀+홀=짝</td></tr>
+    <tr><td><b>정리 2</b></td><td><span class="m">a</span> 짝 → <span class="m">a<sup>2</sup></span> 짝 / <span class="m">a</span> 홀 → <span class="m">a<sup>2</sup></span> 홀</td></tr>
+    <tr><td><b>따름정리</b></td><td><span class="m">a<sup>2</sup></span> 짝 → <span class="m">a</span> 짝 / <span class="m">a<sup>2</sup></span> 홀 → <span class="m">a</span> 홀 &nbsp;<span style="color:var(--mut)">(대우)</span></td></tr>
+    <tr><td>나누어떨어짐</td><td><span class="m">n = dk</span> 인 정수 <span class="m">k</span> 존재 &nbsp;(<span class="m">d</span>는 양의 정수)</td></tr>
+    <tr><td>합동</td><td><span class="m">a ≡ b (mod d)</span> ⟺ <span class="m">a − b</span> 가 <span class="m">d</span> 로 나누어떨어짐</td></tr>
+  </table>
+  <div class="mine">
+    <span class="tag">마무리 · 이 절에서 가져갈 것 하나</span>
+    <p>공식이 아니라 <b>네 박자</b>입니다.</p>
+    <p><b>번역 → 계산 → 묶기 → 이름 붙이기.</b></p>
+    <p>"짝수다"라는 <b>말</b>을 <span class="m">2n</span> 이라는 <b>식</b>으로 바꾸는 첫 걸음이 전부입니다. 앞으로 어떤 증명에서 막히든, <b>"주어진 조건을 식으로 어떻게 쓰지?"</b> 를 먼저 물어보세요.</p>
+  </div>
+  <p style="color:var(--mut);font-size:13px">다음은 §5 유리수 (26쪽)입니다.</p>
+</section>
+
+<footer>
+  Serge Lang, <i>Basic Mathematics</i> (Addison-Wesley, 1971) §4 의 내용을 한국어로 재구성한 학습 노트입니다.
+  보라색 블록은 교재에 없는 보충 설명입니다. 원문 번역이 아니며, 정확한 표현은 교재를 참조하세요.
+</footer>
+</div>
+
+<script>
+const NS='http://www.w3.org/2000/svg';
+function el(t,a){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;}
+function txt(x,y,s,f,sz,anch){const e=el('text',{x:x,y:y,'text-anchor':anch||'middle',
+  'font-family':"'Times New Roman',serif",'font-style':'italic','font-size':sz||14,fill:f});
+  e.textContent=s;return e;}
+
+/* ── 짝짓기 ── */
+function makePair(host){
+  let n=+host.dataset.n;
+  const sv=el('svg',{viewBox:'0 0 340 120',preserveAspectRatio:'xMidYMid meet'});
+  const ctl=document.createElement('div'); ctl.className='fctl';
+  const lbl=document.createElement('div'); lbl.className='lbl'; ctl.appendChild(lbl);
+  const g=document.createElement('div'); g.className='grp';
+  const sp=document.createElement('span'); sp.textContent='수';
+  const mn=document.createElement('button'); mn.textContent='−';
+  const pl=document.createElement('button'); pl.textContent='+';
+  mn.onclick=()=>{if(n>1){n--;render();}}; pl.onclick=()=>{if(n<24){n++;render();}};
+  g.appendChild(sp);g.appendChild(mn);g.appendChild(pl);ctl.appendChild(g);
+  host.appendChild(sv); host.appendChild(ctl);
+  function render(){
+    sv.innerHTML='';
+    const pairs=Math.floor(n/2), rem=n%2;
+    const cols=Math.min(12,Math.max(pairs+rem,1));
+    const u=Math.min(24, 300/cols), X0=(340-cols*u)/2, Y0=34;
+    for(let i=0;i<pairs;i++){
+      const c=i%cols, rw=Math.floor(i/cols);
+      const x=X0+c*u, y=Y0+rw*40;
+      sv.appendChild(el('rect',{x:x+2,y:y-3,width:u-6,height:32,rx:3,
+        fill:'rgba(111,168,220,.13)',stroke:'#6fa8dc','stroke-width':1}));
+      sv.appendChild(el('circle',{cx:x+u/2-2,cy:y+5,r:5,fill:'#6fa8dc'}));
+      sv.appendChild(el('circle',{cx:x+u/2-2,cy:y+19,r:5,fill:'#6fa8dc'}));
+    }
+    if(rem){
+      const i=pairs, c=i%cols, rw=Math.floor(i/cols);
+      const x=X0+c*u, y=Y0+rw*40;
+      sv.appendChild(el('rect',{x:x+2,y:y-3,width:u-6,height:32,rx:3,
+        fill:'rgba(255,107,74,.13)',stroke:'#ff6b4a','stroke-width':1,'stroke-dasharray':'3 3'}));
+      sv.appendChild(el('circle',{cx:x+u/2-2,cy:y+5,r:5,fill:'#ff6b4a'}));
+      sv.appendChild(txt(x+u/2-2,y+27,'?','#ff6b4a',13));
+    }
+    sv.appendChild(txt(170,18, n+' = 2 · '+pairs+(rem?' + 1':''), rem?'#ff6b4a':'#6fa8dc',16));
+    lbl.innerHTML= rem
+      ? '<b>'+n+'</b> 은 <span style="color:var(--orange);font-style:normal;font-family:inherit"><b>홀수</b></span> — 짝을 '+pairs+'개 짓고 <b style="font-family:inherit;font-style:normal;color:#ff6b4a">하나가 남습니다</b>. 그래서 2n + 1 꼴'
+      : '<b>'+n+'</b> 은 <span style="color:var(--blue);font-style:normal;font-family:inherit"><b>짝수</b></span> — 짝이 '+pairs+'개로 <b style="font-family:inherit;font-style:normal">딱 맞습니다</b>. 그래서 2n 꼴';
+  }
+  render();
+}
+
+/* ── 두 수 더하기 ── */
+function makeAdd(host){
+  let a=+host.dataset.a, b=+host.dataset.b;
+  const sv=el('svg',{viewBox:'0 0 340 150',preserveAspectRatio:'xMidYMid meet'});
+  const ctl=document.createElement('div'); ctl.className='fctl';
+  const lbl=document.createElement('div'); lbl.className='lbl'; ctl.appendChild(lbl);
+  [['a',()=>a,v=>a=v],['b',()=>b,v=>b=v]].forEach(([nm,get,set])=>{
+    const g=document.createElement('div'); g.className='grp';
+    const sp=document.createElement('span'); sp.textContent=nm;
+    const mn=document.createElement('button'); mn.textContent='−';
+    const pl=document.createElement('button'); pl.textContent='+';
+    mn.onclick=()=>{if(get()>1){set(get()-1);render();}};
+    pl.onclick=()=>{if(get()<11){set(get()+1);render();}};
+    g.appendChild(sp);g.appendChild(mn);g.appendChild(pl);ctl.appendChild(g);
+  });
+  host.appendChild(sv); host.appendChild(ctl);
+  function row(y,n,col,label){
+    const pairs=Math.floor(n/2), rem=n%2, u=22, X0=72;
+    sv.appendChild(txt(X0-10,y+16,label,'#8d8d86',13,'end'));
+    for(let i=0;i<pairs;i++){
+      const x=X0+i*u;
+      sv.appendChild(el('rect',{x:x+1,y:y,width:u-4,height:26,rx:2,
+        fill:'rgba(111,168,220,.12)',stroke:col,'stroke-width':1}));
+      sv.appendChild(el('circle',{cx:x+u/2-1,cy:y+7,r:4,fill:col}));
+      sv.appendChild(el('circle',{cx:x+u/2-1,cy:y+19,r:4,fill:col}));
+    }
+    if(rem){const x=X0+pairs*u;
+      sv.appendChild(el('rect',{x:x+1,y:y,width:u-4,height:26,rx:2,
+        fill:'rgba(255,107,74,.15)',stroke:'#ff6b4a','stroke-width':1,'stroke-dasharray':'3 3'}));
+      sv.appendChild(el('circle',{cx:x+u/2-1,cy:y+7,r:4,fill:'#ff6b4a'}));}
+    return rem;
+  }
+  function render(){
+    sv.innerHTML='';
+    const ra=row(16,a,'#6fa8dc','a = '+a);
+    const rb=row(56,b,'#6fa8dc','b = '+b);
+    sv.appendChild(el('line',{x1:40,y1:94,x2:310,y2:94,stroke:'#3a3a3a','stroke-width':1}));
+    const s=a+b, rs=s%2;
+    const pairs=Math.floor(s/2);
+    sv.appendChild(txt(62,116,'a+b = '+s,'#8d8d86',12.5,'end'));
+    const u=Math.min(22, 246/Math.max(1,pairs+rs));
+    for(let i=0;i<pairs;i++){
+      const x=72+i*u;
+      const joined=(ra&&rb&&i===pairs-1);
+      sv.appendChild(el('rect',{x:x+1,y:104,width:u-4,height:26,rx:2,
+        fill:joined?'rgba(255,201,60,.18)':'rgba(111,168,220,.12)',
+        stroke:joined?'#ffc93c':'#6fa8dc','stroke-width':joined?1.6:1}));
+      sv.appendChild(el('circle',{cx:x+u/2-1,cy:111,r:4,fill:joined?'#ffc93c':'#6fa8dc'}));
+      sv.appendChild(el('circle',{cx:x+u/2-1,cy:123,r:4,fill:joined?'#ffc93c':'#6fa8dc'}));
+    }
+    if(rs){const x=72+pairs*u;
+      sv.appendChild(el('rect',{x:x+1,y:104,width:u-4,height:26,rx:2,
+        fill:'rgba(255,107,74,.15)',stroke:'#ff6b4a','stroke-width':1,'stroke-dasharray':'3 3'}));
+      sv.appendChild(el('circle',{cx:x+u/2-1,cy:111,r:4,fill:'#ff6b4a'}));}
+    const nm=v=>v%2?'홀수':'짝수';
+    let msg='<b>'+a+' + '+b+' = '+(a+b)+'</b> &nbsp;→&nbsp; '+nm(a)+' + '+nm(b)+' = <b style="font-family:inherit;font-style:normal">'+nm(a+b)+'</b>';
+    if(ra&&rb) msg+='<br><span style="color:var(--gold)">양쪽에서 남은 점 두 개가 서로 짝이 되었습니다. 그래서 짝수.</span>';
+    else if(ra||rb) msg+='<br><span style="color:var(--orange)">남은 점 하나는 짝지어줄 상대가 없습니다. 그래서 홀수.</span>';
+    else msg+='<br><span style="color:var(--mut)">남는 점이 애초에 없습니다.</span>';
+    lbl.innerHTML=msg;
+  }
+  render();
+}
+
+/* ── 나누어떨어짐 ── */
+function makeDiv(host){
+  let n=+host.dataset.n, d=+host.dataset.d;
+  const sv=el('svg',{viewBox:'0 0 340 140',preserveAspectRatio:'xMidYMid meet'});
+  const ctl=document.createElement('div'); ctl.className='fctl';
+  const lbl=document.createElement('div'); lbl.className='lbl'; ctl.appendChild(lbl);
+  [['n',()=>n,v=>n=v,1,30],['d',()=>d,v=>d=v,1,9]].forEach(([nm,get,set,lo,hi])=>{
+    const g=document.createElement('div'); g.className='grp';
+    const sp=document.createElement('span'); sp.textContent=nm;
+    const mn=document.createElement('button'); mn.textContent='−';
+    const pl=document.createElement('button'); pl.textContent='+';
+    mn.onclick=()=>{if(get()>lo){set(get()-1);render();}};
+    pl.onclick=()=>{if(get()<hi){set(get()+1);render();}};
+    g.appendChild(sp);g.appendChild(mn);g.appendChild(pl);ctl.appendChild(g);
+  });
+  host.appendChild(sv); host.appendChild(ctl);
+  function render(){
+    sv.innerHTML='';
+    const k=Math.floor(n/d), rem=n%d;
+    const u=Math.min(20, 280/Math.max(d,1));
+    const rows=k+(rem?1:0);
+    const rh=Math.min(26, 110/Math.max(rows,1));
+    const X0=(340-d*u)/2;
+    for(let i=0;i<rows;i++){
+      const full=(i<k), cnt=full?d:rem;
+      const y=14+i*rh;
+      sv.appendChild(el('rect',{x:X0-3,y:y-2,width:d*u+6,height:rh-4,rx:2,
+        fill:full?'rgba(255,201,60,.09)':'rgba(255,107,74,.13)',
+        stroke:full?'#ffc93c':'#ff6b4a','stroke-width':1,
+        'stroke-dasharray':full?'':'3 3'}));
+      for(let j=0;j<cnt;j++)
+        sv.appendChild(el('circle',{cx:X0+j*u+u/2,cy:y+rh/2-2,
+          r:Math.min(5,rh/5),fill:full?'#ffc93c':'#ff6b4a'}));
+    }
+    lbl.innerHTML = rem===0
+      ? '<b>'+n+' = '+d+' · '+k+'</b> &nbsp;→&nbsp; '+d+'개씩 <b style="font-family:inherit;font-style:normal">'+k+'줄로 딱 나뉩니다</b>. <span style="color:var(--gold);font-style:normal;font-family:inherit">'+d+'는 '+n+'을 나눕니다</span>'
+      : '<b>'+n+' = '+d+' · '+k+' + '+rem+'</b> &nbsp;→&nbsp; <span style="color:var(--orange);font-style:normal;font-family:inherit">'+rem+'개가 남습니다</span>. 나누어떨어지지 않습니다';
+  }
+  render();
+}
+
+document.querySelectorAll('.fig').forEach(f=>{
+  const t=f.dataset.fig;
+  if(t==='pair') makePair(f); else if(t==='add') makeAdd(f); else if(t==='div') makeDiv(f);
+});
+document.querySelectorAll('.pline .why').forEach(b=>{
+  b.onclick=()=>{const a=b.closest('.pline').querySelector('.ans');
+    const on=a.classList.toggle('on'); b.classList.toggle('on',on); b.textContent=on?'닫기':'왜?';};
+});
+document.querySelectorAll('.q button').forEach(b=>{
+  b.onclick=()=>{const s=b.nextElementSibling;
+    const on=s.classList.toggle('on'); b.textContent=on?'접기':'답 보기';};
+});
+const bar=document.getElementById('bar');
+const links=[...document.querySelectorAll('.nv a')];
+const targets=links.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+function onScroll(){const h=document.documentElement;
+  bar.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+  let idx=0; targets.forEach((t,i)=>{if(t.getBoundingClientRect().top<=90) idx=i;});
+  links.forEach((a,i)=>a.classList.toggle('on',i===idx));}
+addEventListener('scroll',onScroll,{passive:true}); onScroll();
+</script>
+</body>
+</html>
