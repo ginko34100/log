@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Basic Mathematics · Ch.1 §5 유리수</title>
+<style>
+:root{
+  --bg:#000; --surf:#0e0e0e; --surf2:#161616;
+  --line:#282828; --line2:#3a3a3a;
+  --tx:#eeeeea; --mut:#8d8d86;
+  --gold:#ffc93c; --orange:#ff6b4a; --blue:#6fa8dc; --green:#6ec98a; --purple:#b48ce0;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth;scroll-padding-top:56px}
+body{background:var(--bg);color:var(--tx);
+  font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+  line-height:1.78;font-size:15px;padding-bottom:60px;-webkit-text-size-adjust:100%}
+.wrap{max-width:600px;margin:0 auto;padding:0 16px}
+
+#bar{position:fixed;top:0;left:0;height:2px;background:var(--gold);z-index:60;width:0}
+nav{position:sticky;top:0;z-index:50;background:rgba(0,0,0,.94);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.nv{max-width:600px;margin:0 auto;display:flex;gap:4px;padding:9px 12px;overflow-x:auto;scrollbar-width:none}
+.nv::-webkit-scrollbar{display:none}
+.nv a{flex:0 0 auto;font-size:11.5px;color:var(--mut);text-decoration:none;
+  padding:5px 10px;border:1px solid var(--line);border-radius:2px;white-space:nowrap}
+.nv a.on{color:#000;background:var(--gold);border-color:var(--gold);font-weight:700}
+
+header{padding:30px 0 22px;border-bottom:1px solid var(--line)}
+h1{font-size:21px;font-weight:700;letter-spacing:-.01em;line-height:1.4}
+header p{font-size:11px;color:var(--mut);font-family:ui-monospace,monospace;letter-spacing:.1em;margin-top:7px}
+
+section{padding:34px 0 10px;border-bottom:1px solid var(--line)}
+h2{font-size:18px;font-weight:700;display:flex;align-items:baseline;gap:9px;margin-bottom:5px}
+h2 em{font-style:normal;font-family:ui-monospace,monospace;font-size:13px;color:var(--gold)}
+h2+.sub{font-size:12px;color:var(--mut);margin-bottom:18px}
+h3{font-size:15.5px;font-weight:700;margin:30px 0 9px;padding-left:11px;
+  border-left:3px solid var(--gold);line-height:1.45}
+h3 small{display:block;font-weight:500;font-size:11px;color:var(--mut);
+  font-family:ui-monospace,monospace;letter-spacing:.05em;margin-top:2px}
+p{margin:11px 0;color:#dcdcd7}
+b{color:#fff;font-weight:700}
+.hl{color:var(--gold);font-weight:700}
+.hlo{color:var(--orange);font-weight:700}
+.hlb{color:var(--blue);font-weight:700}
+.hlp{color:var(--purple);font-weight:700}
+
+.m{font-family:'Times New Roman',Georgia,serif;font-style:italic;font-size:17px;color:#fff;font-weight:500;white-space:nowrap}
+.mb .kw{font-style:normal;font-family:-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+  font-size:15px;color:#c9c9c3;font-weight:600}
+.mb{display:block;text-align:center;font-family:'Times New Roman',Georgia,serif;
+  font-style:italic;font-size:21px;color:#fff;margin:16px 0;line-height:1.6}
+sup{font-size:.62em;vertical-align:super;line-height:0}
+/* 분수 */
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;
+  font-family:'Times New Roman',Georgia,serif;font-style:italic;line-height:1.15;margin:0 3px}
+.fr i{font-style:italic;display:block;padding:0 4px}
+.fr i:first-child{border-bottom:1.4px solid currentColor}
+.mb .fr{font-size:20px}
+p .fr,td .fr,li .fr{font-size:16px}
+
+.rule{border:1px solid var(--gold);background:rgba(255,201,60,.06);padding:14px;margin:18px 0;border-radius:2px}
+.rule .tag{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.12em;
+  color:var(--gold);font-weight:700;display:block;margin-bottom:6px}
+.rule .mb{margin:9px 0 6px;font-size:22px}
+.rule p{margin:6px 0 0;font-size:13px;color:#c9c9c3}
+
+.thm{border:1px solid var(--green);background:rgba(110,201,138,.055);padding:14px;margin:18px 0;border-radius:2px}
+.thm .tag{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.12em;
+  color:var(--green);font-weight:700;display:block;margin-bottom:8px}
+.thm p{margin:5px 0;font-size:14px;color:#dfe9e2}
+
+.mine{border:1px solid #3d2b52;background:rgba(180,140,224,.07);padding:14px;margin:18px 0;border-radius:2px}
+.mine .tag{font-size:10.5px;letter-spacing:.1em;color:var(--purple);font-weight:700;
+  display:block;margin-bottom:6px;font-family:ui-monospace,monospace}
+.mine p{margin:7px 0 0;font-size:13.8px;color:#d3cade}
+.mine p:first-of-type{margin-top:0}
+
+.warn{border:1px solid #4a2418;background:rgba(255,107,74,.07);padding:13px 14px;margin:18px 0;border-radius:2px}
+.warn .tag{font-size:11px;letter-spacing:.08em;color:var(--orange);font-weight:700;display:block;margin-bottom:5px}
+.warn p{margin:5px 0 0;font-size:13.5px}
+
+.note{border-left:3px solid var(--line2);padding:2px 0 2px 13px;margin:16px 0}
+.note p{margin:4px 0;font-size:13.5px;color:#b6b6b0}
+
+ol.steps{list-style:none;counter-reset:s;margin:14px 0}
+ol.steps li{counter-increment:s;position:relative;padding-left:32px;margin:11px 0;font-size:14px;color:#dcdcd7}
+ol.steps li::before{content:counter(s);position:absolute;left:0;top:2px;width:21px;height:21px;
+  border:1px solid var(--line2);border-radius:50%;font-size:11px;font-family:ui-monospace,monospace;
+  color:var(--mut);display:flex;align-items:center;justify-content:center}
+
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+th,td{border:1px solid var(--line);padding:8px 9px;text-align:left;vertical-align:middle}
+th{background:var(--surf2);font-size:11.5px;color:var(--mut);font-weight:600}
+td .m{font-size:15px}
+td.c{text-align:center}
+
+.fig{background:var(--surf);border:1px solid var(--line);margin:18px 0;border-radius:2px;overflow:hidden}
+.fig svg{display:block;width:100%;height:auto}
+.fctl{display:flex;align-items:center;gap:7px;padding:9px 10px;border-top:1px solid var(--line);flex-wrap:wrap}
+.fctl .lbl{font-size:11.5px;color:var(--mut);flex:1 1 100%;order:-1;line-height:1.7}
+.fctl .lbl b{color:var(--tx)}
+.fctl .grp{display:flex;align-items:center;border:1px solid var(--line2);border-radius:2px;overflow:hidden}
+.fctl .grp span{padding:0 9px;font-size:11.5px;color:var(--mut);font-family:'Times New Roman',serif;font-style:italic}
+.fctl .grp button{width:30px;height:29px;background:var(--surf2);border:none;border-left:1px solid var(--line2);
+  color:var(--tx);font-size:15px;font-family:inherit;cursor:pointer}
+.fctl .grp button:active{background:var(--gold);color:#000}
+.fctl>button.tg{background:var(--surf2);border:1px solid var(--line2);color:var(--tx);
+  padding:7px 12px;font-size:11.5px;font-family:inherit;cursor:pointer;border-radius:2px}
+.fctl>button.tg.on{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700}
+
+/* √2 사냥 */
+.hunt{background:var(--surf);border:1px solid var(--line);margin:18px 0;border-radius:2px;padding:14px}
+.hunt .disp{text-align:center;font-family:ui-monospace,'SF Mono',monospace;padding:6px 0 12px}
+.hunt .cand{font-size:26px;color:#fff;letter-spacing:.02em}
+.hunt .sq{font-size:15px;margin-top:8px}
+.hunt .sq.lo{color:var(--blue)} .hunt .sq.hi{color:var(--orange)}
+.hunt .verdict{font-family:-apple-system,sans-serif;font-size:12px;color:var(--mut);margin-top:6px}
+.hunt .digits{display:flex;justify-content:center;gap:5px;flex-wrap:wrap;margin:10px 0 4px}
+.hunt .dg{display:flex;flex-direction:column;align-items:center;gap:3px}
+.hunt .dg button{width:30px;height:24px;background:var(--surf2);border:1px solid var(--line2);
+  color:var(--mut);font-size:12px;font-family:inherit;cursor:pointer;border-radius:2px}
+.hunt .dg .v{font-family:ui-monospace,monospace;font-size:17px;color:#fff;width:30px;text-align:center}
+.hunt .acts{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}
+.hunt .acts button{flex:1 1 auto;background:var(--surf2);border:1px solid var(--line2);color:var(--tx);
+  padding:9px 10px;font-size:12px;font-family:inherit;cursor:pointer;border-radius:2px}
+.hunt .acts button.pri{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700}
+.hunt .log{margin-top:12px;border-top:1px solid var(--line);padding-top:10px;
+  font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.9;max-height:190px;overflow-y:auto}
+.hunt .log div span.s{color:var(--blue)} .hunt .log div span.b{color:var(--orange)}
+
+.proof{background:var(--surf);border:1px solid var(--line);margin:18px 0;border-radius:2px;overflow:hidden}
+.proof>.ph{padding:10px 13px;border-bottom:1px solid var(--line);font-size:11px;
+  font-family:ui-monospace,monospace;letter-spacing:.1em;color:var(--green)}
+.pline{border-bottom:1px solid var(--line)}
+.pline:last-child{border-bottom:none}
+.pline .eqn{padding:12px 13px;font-family:'Times New Roman',Georgia,serif;font-style:italic;
+  font-size:16.5px;color:#fff;display:flex;align-items:center;gap:10px}
+.pline .eqn span.e{flex:1}
+.pline .why{flex:0 0 auto;background:transparent;border:1px solid var(--line2);color:var(--mut);
+  font-size:10.5px;padding:4px 9px;font-family:inherit;font-style:normal;cursor:pointer;border-radius:2px}
+.pline .why.on{color:var(--gold);border-color:var(--gold)}
+.pline .ans{display:none;padding:0 13px 13px;font-size:13px;color:#b6b6b0;line-height:1.75}
+.pline .ans.on{display:block}
+.pline .ans b{color:var(--gold)}
+
+.q{background:var(--surf);border:1px solid var(--line);padding:13px;margin:11px 0;border-radius:2px}
+.q .qt{font-size:14px;color:var(--tx)}
+.q .qt i{font-style:normal;font-family:ui-monospace,monospace;color:var(--mut);font-size:11px;margin-right:8px}
+.q button{margin-top:10px;background:transparent;border:1px solid var(--line2);color:var(--mut);
+  font-size:11.5px;padding:6px 11px;font-family:inherit;cursor:pointer;border-radius:2px}
+.q .sol{display:none;margin-top:11px;padding-top:11px;border-top:1px solid var(--line);
+  font-size:13.5px;color:#c9c9c3;line-height:1.9}
+.q .sol.on{display:block}
+.q .sol .m{font-size:15px}
+
+footer{padding:26px 0 0;font-size:11px;color:#5a5a55;line-height:1.9}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<nav><div class="nv">
+  <a href="#a1" class="on">정의</a>
+  <a href="#line">수직선</a>
+  <a href="#cross">십자곱 ★</a>
+  <a href="#cancel">약분</a>
+  <a href="#t3">정리 3</a>
+  <a href="#add">덧셈</a>
+  <a href="#carry">물려받기 ★</a>
+  <a href="#mul">곱셈</a>
+  <a href="#hunt">√2 사냥 ★</a>
+  <a href="#t4">정리 4 ★</a>
+  <a href="#solve">방정식</a>
+  <a href="#ex">연습</a>
+</div></nav>
+
+<div class="wrap">
+<header>
+  <h1>유리수</h1>
+  <p>SERGE LANG · BASIC MATHEMATICS · CH.1 §5 · pp.26–42</p>
+</header>
+
+<section>
+  <h2><em>§5</em> Rational Numbers</h2>
+  <div class="sub">이 절의 한 문장 — 정수를 분수까지 넓히고, 그렇게 넓힌 세계<b>조차</b> <span class="m">√2</span>를 담지 못한다는 걸 증명한다.</div>
+
+  <div class="mine">
+    <span class="tag">먼저 · 이 절의 이야기 구조</span>
+    <p>§5는 <b>두 부분</b>으로 뚜렷하게 나뉩니다. 이걸 알고 읽으면 훨씬 편해요.</p>
+    <p><b>전반부(26–35쪽)</b> — 분수를 다루는 <b>기술</b>. 십자곱, 약분, 기약분수, 통분, 덧셈, 곱셈, 거듭제곱. 대부분 이미 아는 내용입니다. Lang이 하는 일은 <b>왜 그렇게 해도 되는지</b>를 §2·§3의 규칙으로 뒷받침하는 겁니다.</p>
+    <p><b>후반부(35–37쪽)</b> — <b>충격</b>. 분수를 아무리 잘 다뤄도 <span class="m">√2</span>는 못 만든다는 증명. 여기가 §5의 진짜 목적지이고, <b>3장 실수가 필요한 이유</b>가 됩니다.</p>
+    <p>그리고 이 절에는 조용하지만 중요한 주제가 하나 더 흐릅니다. <span class="hlp">§2·§3에서 증명한 것들이 유리수에서도 그대로 통한다</span>는 선언이에요. Lang이 두 번이나 강조합니다.</p>
+  </div>
+
+  <h3 id="a1">1. 유리수란 무엇인가<small>DEFINITION</small></h3>
+  <div class="rule">
+    <span class="tag">정의</span>
+    <p style="margin-top:0"><b>유리수(rational number)</b>란 평범한 분수, 즉 몫</p>
+    <div class="mb"><span class="fr"><i>m</i><i>n</i></span> &nbsp;<span class="kw">또는</span>&nbsp; m/n</div>
+    <p>을 말한다. 여기서 <span class="m">m, n</span> 은 정수이고 <span class="hlo"><span class="m">n ≠ 0</span></span> 이다.</p>
+  </div>
+  <p>Lang이 곧바로 강조합니다 — <b>0으로 나눌 수 없으므로 항상 <span class="m">n ≠ 0</span> 인지 확인해야 한다.</b></p>
+  <p>예로 든 유리수들입니다.</p>
+  <div class="mb"><span class="fr"><i>1</i><i>4</i></span> &nbsp;&nbsp; <span class="fr"><i>2</i><i>3</i></span> &nbsp;&nbsp; <span class="fr"><i>3</i><i>4</i></span> &nbsp;&nbsp; <span class="fr"><i>5</i><i>7</i></span></div>
+  <p><b>유한소수</b>도 유리수의 예가 됩니다.</p>
+  <div class="mb">1.4 = <span class="fr"><i>14</i><i>10</i></span> &nbsp;&nbsp;&nbsp; 1.41 = <span class="fr"><i>141</i><i>100</i></span></div>
+
+  <div class="mine">
+    <span class="tag">내 설명 · 왜 하필 0만 안 되나</span>
+    <p><span class="m">n = 0</span> 을 금지하는 게 자의적인 규칙처럼 보이지만 이유가 있습니다.</p>
+    <p><span class="fr" style="font-size:15px"><i>m</i><i>n</i></span> 는 <b>"<span class="m">n</span>을 곱하면 <span class="m">m</span>이 되는 수"</b>라는 뜻입니다. 그런데 <span class="m">n = 0</span> 이면? <b>0을 곱해서 <span class="m">m</span>이 되는 수</b>를 찾아야 하는데, §3에서 <span class="m">0a = 0</span> 을 증명했죠. 0을 곱하면 무조건 0입니다.</p>
+    <p>그러니 <span class="m">m ≠ 0</span> 이면 <b>그런 수가 아예 없고</b>, <span class="m">m = 0</span> 이면 <b>아무 수나 다 되어버립니다.</b> 없거나 너무 많거나 — 어느 쪽도 "수 하나"가 아닙니다. 그래서 금지하는 거예요.</p>
+  </div>
+
+  <h3 id="line">2. 수직선 위에 올리기<small>ON THE LINE</small></h3>
+  <p>정수 때와 똑같이 유리수도 직선 위에 표시할 수 있습니다.</p>
+  <ol class="steps">
+    <li><span class="fr"><i>1</i><i>2</i></span> 은 0과 1 사이의 <b>절반 지점</b>에 놓입니다</li>
+    <li><span class="fr"><i>2</i><i>3</i></span> 은 0과 1 사이의 <b>3분의 2 지점</b>에 놓입니다</li>
+    <li>음의 유리수 <span class="m">−</span><span class="fr"><i>2</i><i>3</i></span> 은 0의 <b>반대편</b>에, 0으로부터 거리 <span class="fr"><i>2</i><i>3</i></span> 만큼 떨어진 곳에 놓입니다</li>
+  </ol>
+  <p>§1에서 "덧셈은 걷기"라고 했던 그 직선이 그대로 쓰입니다. <b>눈금이 촘촘해졌을 뿐</b>이에요.</p>
+
+  <h3>3. 표현이 하나가 아니다<small>NO UNIQUE REPRESENTATION</small></h3>
+  <p>Lang이 짚는 중요한 사실입니다. <b>하나의 유리수를 두 정수의 몫으로 나타내는 방법은 유일하지 않습니다.</b></p>
+  <div class="mb"><span class="fr"><i>1</i><i>2</i></span> = <span class="fr"><i>2</i><i>4</i></span></div>
+  <p>기하적으로 보면 이렇습니다. 0과 1 사이 선분을 <b>4등분</b>하고 그중 <b>2조각</b>을 취하면, 선분의 <b>절반</b>을 취한 것과 같습니다.</p>
+  <p>아래에서 두 분수를 직접 비교해 보세요.</p>
+  <div class="fig" data-fig="bar" data-m="1" data-n="2" data-r="2" data-s="4"></div>
+
+  <div class="warn">
+    <span class="tag">⚠ 여기서 문제가 생깁니다</span>
+    <p>같은 수를 여러 꼴로 쓸 수 있다면, <b>두 분수가 같은 수인지 어떻게 판정하죠?</b> <span class="fr" style="font-size:14px"><i>17</i><i>51</i></span> 과 <span class="fr" style="font-size:14px"><i>23</i><i>69</i></span> 이 같은 수인가요?</p>
+    <p>이 물음에 답하기 위해 <b>일반적인 규칙</b>이 필요합니다. 그게 다음 항목입니다.</p>
+  </div>
+
+  <h3 id="cross">4. 십자곱 규칙 ★<small>CROSS-MULTIPLYING</small></h3>
+  <div class="rule">
+    <span class="tag">규칙 (증명 없이 가정)</span>
+    <p style="margin-top:0"><span class="m">m, n, r, s</span> 를 정수라 하고 <span class="m">n ≠ 0</span>, <span class="m">s ≠ 0</span> 이라 하자. 그러면</p>
+    <div class="mb"><span class="fr"><i>m</i><i>n</i></span> = <span class="fr"><i>r</i><i>s</i></span> &nbsp;<span class="kw">일 필요충분조건은</span>&nbsp; ms = rn</div>
+  </div>
+  <p>"십자곱(cross-multiplying)"이라는 이름은 <b>대각선으로 곱하는 그림</b>에서 왔습니다.</p>
+  <div class="mb" style="font-family:ui-monospace,monospace;font-style:normal;font-size:15px;color:var(--gold)">
+    m &nbsp;╲╱&nbsp; r<br>
+    n &nbsp;╱╲&nbsp; s<br>
+    <span style="font-size:12px;color:var(--mut)">m×s &nbsp;=&nbsp; r×n</span>
+  </div>
+  <p>Lang이 든 예를 그대로 보겠습니다.</p>
+  <table>
+    <tr><th>주장</th><th>십자곱 확인</th></tr>
+    <tr><td class="c"><span class="fr"><i>1</i><i>2</i></span> = <span class="fr"><i>2</i><i>4</i></span></td><td class="c"><span class="m">1 · 4 = 2 · 2</span></td></tr>
+    <tr><td class="c"><span class="fr"><i>3</i><i>7</i></span> = <span class="fr"><i>9</i><i>21</i></span></td><td class="c"><span class="m">3 · 21 = 9 · 7</span> <span style="color:var(--mut)">(양쪽 63)</span></td></tr>
+    <tr><td class="c"><span class="fr"><i>−4</i><i>5</i></span> = <span class="fr"><i>8</i><i>−10</i></span></td><td class="c"><span class="m">(−4)(−10) = 8 · 5</span> <span style="color:var(--mut)">(양쪽 40)</span></td></tr>
+  </table>
+  <p>세 번째 줄이 보여주듯 <b>십자곱은 음수에서도 그대로 작동합니다.</b></p>
+
+  <h3>5. 정수도 유리수다</h3>
+  <p>Lang은 정수 <span class="m">m</span> 과 유리수 <span class="fr"><i>m</i><i>1</i></span> 을 <b>구별하지 않겠다</b>고 약속합니다.</p>
+  <div class="mb">m = m/1 = <span class="fr"><i>m</i><i>1</i></span></div>
+  <p>이 약속에 따라 <b>모든 정수는 유리수이기도 합니다.</b> 예를 들어 <span class="m">3 = 3/1</span>, <span class="m">−4 = −4/1</span>.</p>
+
+  <div class="mine">
+    <span class="tag">내 설명 · 수 체계가 커지는 방식</span>
+    <p>이게 수학에서 계속 반복되는 패턴입니다. <b>새 세계를 만들 때 옛 세계를 통째로 안에 넣습니다.</b></p>
+    <p>정수 ⊂ 유리수 ⊂ 실수 ⊂ 복소수. 뒤로 갈수록 넓어지는데, <b>앞의 것을 버리지 않아요.</b> 3은 정수이면서 동시에 유리수이고 실수이고 복소수입니다.</p>
+    <p>그래서 "정수에서 성립하던 규칙이 유리수에서도 성립하는가?"가 매번 중요한 질문이 됩니다. 이 절 뒤쪽에서 Lang이 정확히 그 답을 합니다.</p>
+  </div>
+
+  <p>Lang은 한쪽이 정수일 때의 특수한 경우도 짚습니다. 예를 들어</p>
+  <div class="mb"><span class="fr"><i>2n</i><i>6</i></span> = 5 &nbsp;⟺&nbsp; 2n = 30 &nbsp;⟺&nbsp; n = <span class="fr"><i>30</i><i>2</i></span> = 15</div>
+  <p>이 셋은 <span class="m">n</span> 에 관한 <b>같은 관계를 다르게 쓴 것</b>일 뿐입니다.</p>
+
+  <div class="note">
+    <p><b>Lang의 각주(Remark)</b> — 지금은 정수의 몫을 다루며 그 성질을 서술하는 중입니다. <b>§6에서 곱셈의 역원</b>을 다루는데, 거기서 십자곱 규칙이 역원의 성질로부터 <b>실제로 증명될 수 있음</b>을 보게 됩니다. 어떤 사람들은 그 증명이 십자곱이 "작동하는 이유"라고 봅니다. 하지만 어떤 맥락에서는 <b>거꾸로</b> 십자곱 규칙으로 곱셈의 역원을 정의하고 싶어 하죠. 그래서 여기서는 <b>독립적으로</b> 강조해 둔 것입니다.</p>
+  </div>
+
+  <h3 id="cancel">6. 약분 규칙<small>CANCELLATION RULE</small></h3>
+  <div class="rule">
+    <span class="tag">약분 규칙</span>
+    <p style="margin-top:0"><span class="m">a</span> 를 <b>0이 아닌</b> 정수라 하자. <span class="m">m, n</span> 은 정수이고 <span class="m">n ≠ 0</span>. 그러면</p>
+    <div class="mb"><span class="fr"><i>am</i><i>an</i></span> = <span class="fr"><i>m</i><i>n</i></span></div>
+  </div>
+  <p>이번엔 <b>가정이 아니라 증명합니다.</b> 도구는 방금 받은 십자곱입니다.</p>
+  <div class="proof">
+    <div class="ph">PROOF · 약분 규칙</div>
+    <div class="pline"><div class="eqn"><span class="e">보일 것: (am)n = m(an)</span><button class="why">왜?</button></div>
+      <div class="ans"><b>십자곱 규칙을 적용한 것입니다.</b> <span class="fr" style="font-size:14px"><i>am</i><i>an</i></span> = <span class="fr" style="font-size:14px"><i>m</i><i>n</i></span> 인지 판정하려면, 대각선끼리 곱한 <span class="m">(am)·n</span> 과 <span class="m">m·(an)</span> 이 같은지만 보면 됩니다.<br>
+      <b>등식 판정이 곱셈 확인으로 바뀌었습니다.</b></div></div>
+    <div class="pline"><div class="eqn"><span class="e">(am)n = m(an)</span><button class="why">왜?</button></div>
+      <div class="ans">Lang의 말 그대로 — <b>결합법칙과 교환법칙에 의해</b> 참입니다(§3).<br>
+      실제로 <span class="m">(am)n = a·m·n</span> 이고 <span class="m">m(an) = m·a·n = a·m·n</span>. 순서와 묶음만 다를 뿐 같은 곱이에요.<br>
+      <b>증명 끝.</b></div></div>
+  </div>
+  <p>Lang이 든 예입니다. <b>음수로 약분해도 됩니다.</b></p>
+  <div class="mb"><span class="fr"><i>−4</i><i>5</i></span> = <span class="fr"><i>(−2)(−4)</i><i>(−2)5</i></span> = <span class="fr"><i>8</i><i>−10</i></span></div>
+
+  <h3>7. 마이너스는 어디에 붙여도 된다</h3>
+  <p>음수가 섞인 몫을 다룰 때 유용한 관찰이라며 Lang이 짚습니다.</p>
+  <div class="rule">
+    <span class="tag">관찰</span>
+    <div class="mb"><span class="fr"><i>−m</i><i>n</i></span> = <span class="fr"><i>m</i><i>−n</i></span></div>
+  </div>
+  <p>증명은 역시 십자곱입니다. <span class="m">(−m)(−n) = mn</span> 임을 확인하면 되는데, <b>이건 §3의 N10에서 이미 알고 있습니다</b>(음수 곱하기 음수는 양수).</p>
+  <p>나중에 <span class="m">−</span><span class="fr"><i>m</i><i>n</i></span> 까지 합쳐 이렇게 정리됩니다.</p>
+  <div class="mb">−<span class="fr"><i>m</i><i>n</i></span> = <span class="fr"><i>−m</i><i>n</i></span> = <span class="fr"><i>m</i><i>−n</i></span></div>
+  <p>Lang의 표현대로, <b>마이너스 부호는 분수의 여러 자리를 옮겨 다녀도 값이 변하지 않습니다.</b></p>
+
+  <h3>8. 공약수로 약분하기</h3>
+  <p>약분 규칙은 §4에서 배운 <b>나누어떨어짐</b> 개념으로 이어집니다.</p>
+  <ol class="steps">
+    <li><span class="m">d</span> 가 양의 정수이고, <span class="m">m</span> 과 <span class="m">n</span> 이 <b>둘 다</b> <span class="m">d</span> 로 나누어떨어진다고 하자. 이때 <span class="m">d</span> 를 <span class="m">m, n</span> 의 <span class="hl">공약수(common divisor)</span>라 한다</li>
+    <li>그러면 어떤 정수 <span class="m">r, s</span> 에 대해 <span class="m">m = dr</span>, <span class="m">n = ds</span> 로 쓸 수 있다</li>
+    <li>따라서 <span class="fr"><i>m</i><i>n</i></span> = <span class="fr"><i>dr</i><i>ds</i></span> = <span class="fr"><i>r</i><i>s</i></span> — <b>약분 규칙이 그대로 적용됩니다</b></li>
+  </ol>
+  <p>Lang의 예입니다. 10과 15가 <b>둘 다 5로 나누어떨어지므로</b>:</p>
+  <div class="mb"><span class="fr"><i>10</i><i>15</i></span> = <span class="fr"><i>2 · 5</i><i>3 · 5</i></span> = <span class="fr"><i>2</i><i>3</i></span></div>
+
+  <h3 id="t3">9. 기약분수와 정리 3<small>LOWEST FORM · THEOREM 3</small></h3>
+  <div class="rule">
+    <span class="tag">정의</span>
+    <p style="margin-top:0"><b>양의 유리수</b>란 <span class="fr"><i>m</i><i>n</i></span> 꼴로 쓸 수 있는 유리수다. 단 <span class="m">m, n</span> 은 <b>양의 정수</b>.</p>
+    <p style="margin-top:10px">양의 유리수 <span class="m">a</span> 가</p>
+    <div class="mb" style="margin:8px 0">a = <span class="fr"><i>r</i><i>s</i></span></div>
+    <p>로 쓰였고 <span class="m">r, s</span> 가 양의 정수이며 <b><span class="m">r</span> 과 <span class="m">s</span> 의 공약수가 1뿐</b>일 때, <span class="m">a</span> 가 <span class="hl">기약 형태(lowest form)</span>로 표현되었다고 한다.</p>
+  </div>
+
+  <div class="thm">
+    <span class="tag">THEOREM 3</span>
+    <p>모든 양의 유리수는 <b>기약분수 형태로 표현할 수 있다.</b></p>
+  </div>
+
+  <div class="proof">
+    <div class="ph">PROOF · THEOREM 3</div>
+    <div class="pline"><div class="eqn"><span class="e">a = m/n&nbsp; (m, n 양의 정수)</span><button class="why">왜?</button></div>
+      <div class="ans">주어진 양의 유리수를 <b>일단 양의 정수의 몫으로</b> 씁니다. 정의상 가능합니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">공약수 중 가장 큰 것 d 가 존재한다</span><button class="why">왜?</button></div>
+      <div class="ans">두 가지를 확인합니다.<br>
+      ① <b>공약수가 적어도 하나는 있다</b> — 1은 항상 공약수입니다(§4: 모든 정수는 1로 나누어떨어짐).<br>
+      ② <b>공약수가 무한정 커질 수 없다</b> — 어떤 공약수도 <span class="m">m</span> 이나 <span class="m">n</span> 을 넘지 못합니다.<br>
+      개수가 유한하고 적어도 하나 있으니, <b>그중 가장 큰 것이 반드시 있습니다.</b> 이걸 <span class="m">d</span> 라 부릅니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">m = dr,&nbsp; n = ds&nbsp; →&nbsp; a = r/s</span><button class="why">왜?</button></div>
+      <div class="ans"><span class="m">d</span> 가 공약수이므로 그렇게 쓸 수 있고(§4 나눗셈 정의), <b>약분 규칙</b>으로 <span class="fr" style="font-size:14px"><i>dr</i><i>ds</i></span> = <span class="fr" style="font-size:14px"><i>r</i><i>s</i></span>.<br>
+      이제 남은 일은 <b><span class="m">r</span> 과 <span class="m">s</span> 의 공약수가 1뿐임을 보이는 것</b>입니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">e &gt; 1 인 공약수가 있다고 가정</span><button class="why">왜?</button></div>
+      <div class="ans"><b>귀류법</b>을 시작합니다. "1뿐이다"의 반대, 즉 <b>1보다 큰 공약수 <span class="m">e</span> 가 있다</b>고 가정하고 모순을 찾습니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">r = ex,&nbsp; s = ey</span><button class="why">왜?</button></div>
+      <div class="ans">공약수의 정의. <span class="m">x, y</span> 는 양의 정수입니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">m = dr = dex,&nbsp; n = ds = dey</span><button class="why">왜?</button></div>
+      <div class="ans">그냥 대입했습니다. <b>여기가 핵심 한 걸음입니다</b> — <span class="m">m</span> 과 <span class="m">n</span> 이 둘 다 <span class="m">de</span> 라는 공통 인수를 갖게 되었어요.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">∴ de 는 m, n 의 공약수이고 d 보다 크다</span><button class="why">왜?</button></div>
+      <div class="ans"><span class="m">e &gt; 1</span> 이라고 가정했으므로 <span class="m">de &gt; d</span> 입니다.<br>
+      그런데 <span class="m">d</span> 는 <b>가장 큰 공약수</b>라고 했습니다. 자기보다 큰 공약수가 있을 수 없어요. <b>모순.</b><br>
+      따라서 <span class="m">r</span> 과 <span class="m">s</span> 의 공약수는 1뿐입니다. <b>증명 끝.</b></div></div>
+  </div>
+
+  <div class="mine">
+    <span class="tag">내 설명 · 왜 "가장 큰" 공약수여야 하나</span>
+    <p>증명에서 <b>아무 공약수나 뽑아 약분하면 안 됩니다.</b> 반드시 <b>최대</b>여야 해요.</p>
+    <p>예를 들어 <span class="fr" style="font-size:15px"><i>24</i><i>36</i></span> 에서 2로 약분하면 <span class="fr" style="font-size:15px"><i>12</i><i>18</i></span>. 아직 6으로 더 약분됩니다. <b>기약이 아니죠.</b></p>
+    <p>최대공약수 12로 한 번에 약분해야 <span class="fr" style="font-size:15px"><i>2</i><i>3</i></span> 이 되고, 여기서 멈춥니다. <b>"가장 크다"는 조건이 "더 이상 줄일 수 없다"를 보장하는 장치</b>입니다.</p>
+    <p>증명의 마지막 모순도 정확히 이 지점을 찌릅니다. "더 약분된다면 <span class="m">d</span>가 최대가 아니었다"는 거예요.</p>
+  </div>
+
+  <p>Lang이 바로 이어 붙이는 <b>따름 예시</b>가 있는데, 이게 뒤에서 결정적으로 쓰입니다.</p>
+  <div class="warn">
+    <span class="tag">★ 기억해둘 것</span>
+    <p>모든 양의 유리수는 <span class="fr" style="font-size:14px"><i>m</i><i>n</i></span> 꼴로 쓸 수 있되, <b><span class="m">m</span> 과 <span class="m">n</span> 이 둘 다 짝수는 아니게</b> 쓸 수 있다.</p>
+    <p><b>왜?</b> 기약 형태로 쓰면 2가 <span class="m">m, n</span> 을 <b>동시에</b> 나눌 수 없습니다(공약수가 1뿐이니까). 따라서 <b>둘 중 적어도 하나는 홀수</b>입니다.</p>
+    <p>이 한 줄이 뒤에 나올 <b>정리 4의 급소</b>가 됩니다.</p>
+  </div>
+
+  <p>아래에서 약분을 직접 해보세요.</p>
+  <div class="fig" data-fig="red" data-m="24" data-n="36"></div>
+
+  <h3 id="add">10. 통분과 덧셈<small>COMMON DENOMINATOR · ADDITION</small></h3>
+  <p>두 유리수 <span class="fr"><i>m</i><i>n</i></span> 과 <span class="fr"><i>r</i><i>s</i></span> 를 <b>공통분모 <span class="m">ns</span></b> 위에 올릴 수 있습니다.</p>
+  <div class="mb"><span class="fr"><i>m</i><i>n</i></span> = <span class="fr"><i>ms</i><i>ns</i></span> &nbsp;&nbsp;&nbsp; <span class="fr"><i>r</i><i>s</i></span> = <span class="fr"><i>nr</i><i>ns</i></span></div>
+  <p>Lang의 예 — <span class="fr"><i>3</i><i>5</i></span> 와 <span class="fr"><i>5</i><i>7</i></span> 를 공통분모 <span class="m">5 · 7 = 35</span> 위에 올리면:</p>
+  <div class="mb"><span class="fr"><i>3</i><i>5</i></span> = <span class="fr"><i>3 · 7</i><i>35</i></span> = <span class="fr"><i>21</i><i>35</i></span> &nbsp;&nbsp;&nbsp; <span class="fr"><i>5</i><i>7</i></span> = <span class="fr"><i>5 · 5</i><i>35</i></span> = <span class="fr"><i>25</i><i>35</i></span></div>
+
+  <p>먼저 <b>분모가 같은 특수한 경우</b>부터 봅니다.</p>
+  <div class="mb"><span class="fr"><i>3</i><i>5</i></span> + <span class="fr"><i>8</i><i>5</i></span> = <span class="fr"><i>11</i><i>5</i></span></div>
+  <p>Lang은 이게 <b>유리수의 해석만으로도 당연하다</b>고 말합니다. 어떤 것의 5분의 3을 갖고 있고 <b>같은 것</b>의 5분의 8을 더하면, 그것의 5분의 11을 얻습니다.</p>
+  <div class="rule">
+    <span class="tag">분모가 같을 때</span>
+    <div class="mb"><span class="fr"><i>m</i><i>n</i></span> + <span class="fr"><i>r</i><i>n</i></span> = <span class="fr"><i>m + r</i><i>n</i></span></div>
+  </div>
+  <p>예: <span class="fr"><i>−5</i><i>8</i></span> + <span class="fr"><i>2</i><i>8</i></span> = <span class="fr"><i>−3</i><i>8</i></span></p>
+
+  <div class="rule">
+    <span class="tag">일반 덧셈 공식</span>
+    <div class="mb"><span class="fr"><i>m</i><i>n</i></span> + <span class="fr"><i>r</i><i>s</i></span> = <span class="fr"><i>sm + nr</i><i>sn</i></span></div>
+    <p>(<span class="m">n ≠ 0</span>, <span class="m">s ≠ 0</span>)</p>
+  </div>
+  <p>Lang의 예 세 개를 하나도 빼지 않고 보겠습니다.</p>
+  <table>
+    <tr><th>식</th><th>계산</th><th>답</th></tr>
+    <tr><td class="c"><span class="fr"><i>3</i><i>5</i></span> + <span class="fr"><i>4</i><i>7</i></span></td>
+        <td class="c"><span class="fr"><i>3·7 + 4·5</i><i>35</i></span> = <span class="fr"><i>21 + 20</i><i>35</i></span></td>
+        <td class="c"><span class="fr"><i>41</i><i>35</i></span></td></tr>
+    <tr><td class="c"><span class="fr"><i>−5</i><i>2</i></span> + <span class="fr"><i>3</i><i>7</i></span></td>
+        <td class="c"><span class="fr"><i>(−5)·7 + 2·3</i><i>14</i></span></td>
+        <td class="c"><span class="fr"><i>−29</i><i>14</i></span></td></tr>
+    <tr><td class="c"><span class="fr"><i>3</i><i>−4</i></span> + <span class="fr"><i>5</i><i>7</i></span></td>
+        <td class="c"><span class="fr"><i>21 − 20</i><i>−28</i></span></td>
+        <td class="c"><span class="fr"><i>1</i><i>−28</i></span></td></tr>
+  </table>
+  <p>이 덧셈 규칙으로부터 곧바로 결론이 하나 나옵니다.</p>
+  <div class="rule">
+    <span class="tag">따름</span>
+    <p style="margin-top:0"><b>양의 유리수의 합은 역시 양의 유리수다.</b></p>
+  </div>
+
+  <h3>11. 0과 음수</h3>
+  <p><span class="m">n ≠ 0</span> 인 임의의 정수 <span class="m">n</span> 에 대해</p>
+  <div class="mb">0 = <span class="fr"><i>0</i><i>n</i></span></div>
+  <p>임을 십자곱으로 확인할 수 있습니다. <span class="m">0 · 1 = 0 · n</span> 이고 양쪽 다 0이니까요.</p>
+  <p>그리고 임의의 유리수 <span class="m">a</span> 에 대해 <span class="m">0 + a = a + 0 = a</span> 입니다. <span class="m">a = m/n</span> 으로 쓰고 정수의 성질을 그대로 쓰면 됩니다.</p>
+  <div class="rule">
+    <span class="tag">정의 · 음의 유리수</span>
+    <p style="margin-top:0"><span class="m">m, n</span> 이 <b>양의 정수</b>일 때</p>
+    <div class="mb">−<span class="fr"><i>m</i><i>n</i></span> = <span class="fr"><i>−m</i><i>n</i></span> = <span class="fr"><i>m</i><i>−n</i></span></div>
+    <p>꼴로 쓸 수 있는 유리수를 <b>음(negative)</b>이라고 부른다.</p>
+  </div>
+  <p>예를 들어 <span class="fr"><i>3</i><i>−5</i></span> = <span class="fr"><i>−3</i><i>5</i></span> = <span class="m">−</span><span class="fr"><i>3</i><i>5</i></span> 는 음수입니다.</p>
+  <p>Lang은 <b>음의 유리수의 합이 음수임은 스스로 확인해 보라</b>고 남깁니다.</p>
+
+  <h3 id="carry">12. §2의 결과가 그대로 살아남는다 ★<small>WHAT CARRIES OVER</small></h3>
+  <div class="rule">
+    <span class="tag">가정 (증명 없이)</span>
+    <p style="margin-top:0"><b>유리수의 덧셈은 교환법칙과 결합법칙을 만족한다.</b></p>
+  </div>
+  <p>정수 때와 똑같이 증명 없이 받습니다. 그리고 <b>이 절에서 가장 중요한 선언</b>이 이어집니다.</p>
+
+  <div class="warn">
+    <span class="tag">★ Lang의 선언</span>
+    <p>§2에서 우리는 <b>교환법칙·결합법칙과 <span class="m">0 + a = a</span>, <span class="m">a + (−a) = 0</span> 만 써서</b> 여러 성질을 증명했다.</p>
+    <p>따라서 <b>그 성질들은 유리수에서도 그대로 유효하다. §2의 연습문제도 전부 유리수에서 유효하다.</b></p>
+  </div>
+
+  <div class="mine">
+    <span class="tag">내 설명 · 이게 왜 대단한 일인가</span>
+    <p>§2에서 증명한 걸 떠올려 보세요. <b>N3, N4, N5.</b></p>
+    <p>그 증명들을 다시 읽어보면 <b>"정수"라는 말을 한 번도 쓰지 않았습니다.</b> 오직 네 가지 규칙(교환·결합·<span class="m">0+a=a</span>·<span class="m">a+(−a)=0</span>)만 썼어요.</p>
+    <p>그러니 <b>그 네 규칙이 성립하는 세계라면 어디서든</b> 같은 증명이 그대로 통합니다. 유리수든, 실수든, 아직 배우지 않은 무엇이든요.</p>
+    <p><span class="hlp">이것이 수학이 "가정을 최소로 줄이려는" 진짜 이유입니다.</span> 증명이 적은 재료로 되어 있을수록, 그 증명이 통하는 세계가 넓어집니다. §3에서 "가정은 빚"이라고 했는데, 그 빚을 줄인 대가를 여기서 받는 거예요.</p>
+    <p>Lang은 이 말을 <b>앞으로 비슷한 상황마다 반복하겠다</b>고 예고합니다. 실제로 §5 뒤쪽에서 곱셈에 대해 한 번 더 합니다.</p>
+  </div>
+
+  <p>예를 들어 §2의 N3이 그대로 살아 있으므로:</p>
+  <div class="mb"><span class="kw">만약</span> a + b = 0 <span class="kw">이면</span> b = −a</div>
+  <p>증명도 §2와 똑같습니다. 양변에 <span class="m">−a</span> 를 더하면 됩니다. Lang의 말로 옮기면 — <b>어떤 유리수가 다른 유리수의 마이너스인지 확인하려면, 두 수의 합이 0인지만 보면 된다.</b></p>
+
+  <h3 id="mul">13. 곱셈<small>MULTIPLICATION</small></h3>
+  <div class="rule">
+    <span class="tag">곱셈 공식</span>
+    <div class="mb"><span class="fr"><i>m</i><i>n</i></span> · <span class="fr"><i>r</i><i>s</i></span> = <span class="fr"><i>mr</i><i>ns</i></span></div>
+    <p>곱의 <b>분자는 분자들의 곱</b>, 곱의 <b>분모는 분모들의 곱</b></p>
+  </div>
+  <table>
+    <tr><th>식</th><th>계산</th><th>답</th></tr>
+    <tr><td class="c"><span class="fr"><i>3</i><i>5</i></span> · <span class="fr"><i>7</i><i>8</i></span></td><td class="c"><span class="fr"><i>3·7</i><i>5·8</i></span></td><td class="c"><span class="fr"><i>21</i><i>40</i></span></td></tr>
+    <tr><td class="c"><span class="fr"><i>2</i><i>7</i></span> · <span class="fr"><i>11</i><i>16</i></span></td><td class="c"><span class="fr"><i>22</i><i>112</i></span></td><td class="c"><span class="fr"><i>11</i><i>56</i></span></td></tr>
+    <tr><td class="c"><span class="fr"><i>−4</i><i>5</i></span> · <span class="fr"><i>7</i><i>−3</i></span></td><td class="c"><span class="fr"><i>(−4)·7</i><i>5·(−3)</i></span> = <span class="fr"><i>−28</i><i>−15</i></span></td><td class="c"><span class="fr"><i>28</i><i>15</i></span></td></tr>
+  </table>
+  <p>두 번째 줄에 Lang의 <b>실전 조언</b>이 붙습니다. <span class="fr"><i>22</i><i>112</i></span> 를 그냥 두지 말고 이렇게 보라는 거예요.</p>
+  <div class="mb"><span class="fr"><i>2</i><i>7</i></span> · <span class="fr"><i>11</i><i>16</i></span> = <span class="fr"><i>2 · 11</i><i>7 · 2 · 8</i></span> = <span class="fr"><i>11</i><i>56</i></span></div>
+  <div class="warn">
+    <span class="tag">★ Lang의 조언</span>
+    <p><b>곱셈을 끝까지 해버리기 전에, 약분할 게 있는지 먼저 보는 편이 낫다.</b></p>
+    <p><span class="m">2 · 11 = 22</span>, <span class="m">7 · 16 = 112</span> 를 다 계산해버리면 112에서 2를 다시 찾아내야 합니다. 인수 상태로 두면 2가 눈에 바로 보여요.</p>
+  </div>
+
+  <h3>14. 거듭제곱</h3>
+  <p><span class="m">a = m/n</span> 일 때, 곱셈 공식을 반복 적용하면:</p>
+  <div class="mb">a<sup>2</sup> = <span class="fr"><i>m<sup>2</sup></i><i>n<sup>2</sup></i></span> &nbsp;&nbsp;&nbsp; a<sup>3</sup> = <span class="fr"><i>m</i><i>n</i></span>·<span class="fr"><i>m</i><i>n</i></span>·<span class="fr"><i>m</i><i>n</i></span> = <span class="fr"><i>m<sup>3</sup></i><i>n<sup>3</sup></i></span></div>
+  <div class="rule">
+    <span class="tag">일반 규칙</span>
+    <p style="margin-top:0">임의의 양의 정수 <span class="m">k</span> 에 대하여</p>
+    <div class="mb">(<span class="fr"><i>m</i><i>n</i></span>)<sup>k</sup> = <span class="fr"><i>m<sup>k</sup></i><i>n<sup>k</sup></i></span></div>
+  </div>
+  <p>예: <span class="m">(</span><span class="fr"><i>1</i><i>2</i></span><span class="m">)<sup>3</sup> = </span><span class="fr"><i>1</i><i>8</i></span> &nbsp;&nbsp; <span class="m">(</span><span class="fr"><i>3</i><i>5</i></span><span class="m">)<sup>4</sup> = </span><span class="fr"><i>81</i><i>625</i></span></p>
+
+  <div class="rule">
+    <span class="tag">Lang의 예제 · 화학 물질</span>
+    <p style="margin-top:0">어떤 물질이 <b>10분마다 절반</b>으로 붕괴한다. 지금 <b>20 g</b> 이 있다면 <b>50분 후</b> 얼마가 남는가?</p>
+  </div>
+  <ol class="steps">
+    <li>10분 후 → <span class="fr"><i>1</i><i>2</i></span> · 20 g</li>
+    <li>20분 후 → <span class="fr"><i>1</i><i>2<sup>2</sup></i></span> · 20 g</li>
+    <li>50분 후 → <span class="fr"><i>1</i><i>2<sup>5</sup></i></span> · 20 = <span class="fr"><i>20</i><i>32</i></span> g</li>
+  </ol>
+  <p>Lang은 <b>이것도 정답</b>이라고 말합니다. 기약 형태로 쓰고 싶으면 <span class="fr"><i>5</i><i>8</i></span> g 이 되고, 근사 소수로 바꿀 수도 있지만 여기서는 하지 않는다고요.</p>
+  <div class="mine">
+    <span class="tag">내 설명 · 이 유형의 골격</span>
+    <p>§3의 인구 문제와 <b>똑같은 구조</b>인데 배율이 1보다 작을 뿐입니다.</p>
+    <p><b>1단계</b> 몇 번 변했나 = (전체 시간) ÷ (주기). 여기서는 <span class="m">50 ÷ 10 = 5</span>번.<br>
+    <b>2단계</b> 처음 값 × (배율)<sup>횟수</sup>. 여기서는 <span class="m">20 × (</span><span class="fr"><i>1</i><i>2</i></span><span class="m">)<sup>5</sup></span>.</p>
+    <p>연습문제 16~21번이 전부 이 골격입니다. <b>"3분의 1이 사라진다"면 배율은 <span class="fr"><i>1</i><i>3</i></span> 이 아니라 <span class="fr"><i>2</i><i>3</i></span></b> 라는 것만 조심하세요. Lang도 문제에 주석을 달아 경고합니다.</p>
+  </div>
+
+  <h3 id="hunt">15. √2 사냥 ★<small>SEARCHING FOR A SQUARE ROOT OF 2</small></h3>
+  <p>Lang이 질문을 던집니다. <b>제곱해서 2가 되는 양의 유리수가 있는가?</b></p>
+  <p>답은 처음엔 분명하지 않다고 말하며, 손으로 찾아 나섭니다.</p>
+  <ol class="steps">
+    <li><span class="m">1<sup>2</sup> = 1</span> 은 2보다 작고, <span class="m">2<sup>2</sup> = 4</span> 는 2보다 큽니다</li>
+    <li>따라서 <b>2의 양의 제곱근이 존재한다면 1과 2 사이</b>에 있어야 합니다</li>
+    <li>1과 2의 한가운데인 1.5부터 시험합니다. <span class="m">(1.5)<sup>2</sup> = 2.25</span> — <b>너무 큽니다</b></li>
+  </ol>
+  <p>그래서 좀 더 체계적으로 갑니다. Lang의 표를 그대로 옮기면:</p>
+  <table>
+    <tr><th>시도</th><th>제곱</th><th>판정</th></tr>
+    <tr><td class="c"><span class="m">(1.1)<sup>2</sup></span></td><td class="c">1.21</td><td class="c" style="color:var(--blue)">너무 작다</td></tr>
+    <tr><td class="c"><span class="m">(1.2)<sup>2</sup></span></td><td class="c">1.44</td><td class="c" style="color:var(--blue)">너무 작다</td></tr>
+    <tr><td class="c"><span class="m">(1.3)<sup>2</sup></span></td><td class="c">1.69</td><td class="c" style="color:var(--blue)">너무 작다</td></tr>
+    <tr><td class="c"><span class="m">(1.4)<sup>2</sup></span></td><td class="c">1.96</td><td class="c" style="color:var(--blue)">작지만 가까워짐</td></tr>
+    <tr><td class="c"><span class="m">(1.41)<sup>2</sup></span></td><td class="c">1.9881</td><td class="c" style="color:var(--blue)">너무 작다</td></tr>
+    <tr><td class="c"><span class="m">(1.42)<sup>2</sup></span></td><td class="c">2.0164</td><td class="c" style="color:var(--orange)">너무 크다</td></tr>
+  </table>
+  <p>다음 자리로 넘어가 <span class="m">(1.411)<sup>2</sup>, (1.412)<sup>2</sup>, (1.413)<sup>2</sup>, (1.414)<sup>2</sup></span> 을 차례로 계산하면 <b>모두 너무 작고</b>, <span class="m">(1.415)<sup>2</sup></span> 을 계산하면 <b>너무 큽니다.</b> 이런 식으로 계속 갈 수 있습니다.</p>
+
+  <p>Lang이 이 과정에 대해 두 가지를 말합니다.</p>
+  <ol class="steps">
+    <li>매우 <b>체계적</b>이며 <b>컴퓨터로 프로그램할 수 있다</b></li>
+    <li>2의 제곱근에 <b>점점 더 좋은 근사</b>를 준다. 즉 제곱이 2에 점점 가까워지는 유리수들을 준다</li>
+  </ol>
+  <p>직접 사냥해 보세요. Lang이 손으로 하던 그 과정입니다.</p>
+
+  <div class="hunt" id="huntbox">
+    <div class="disp">
+      <div class="cand" id="hCand">1.4</div>
+      <div class="sq" id="hSq">1.96</div>
+      <div class="verdict" id="hV">너무 작다</div>
+    </div>
+    <div class="digits" id="hDigits"></div>
+    <div class="acts">
+      <button class="pri" id="hAuto">다음 자리 최선값 찾기</button>
+      <button id="hDrop">자리 줄이기</button>
+      <button id="hReset">처음부터</button>
+    </div>
+    <div class="log" id="hLog"></div>
+  </div>
+
+  <div class="mine">
+    <span class="tag">내 설명 · 사냥하면서 느껴야 할 것</span>
+    <p>버튼을 눌러 자리를 계속 늘려보세요. <b>제곱값이 2에 한없이 가까워지는데, 절대로 2가 되지 않습니다.</b></p>
+    <p>이게 이상하지 않나요? 아무리 가까워져도 안 닿는다는 게요.</p>
+    <p>그런데 여기서 결정적인 함정이 있습니다. <b>"계속 가까워지니까 언젠가는 닿겠지"는 증명이 아닙니다.</b> 백만 자리까지 가도 "아직 못 찾았다"일 뿐, "없다"가 아니에요.</p>
+    <p>Lang의 표현이 재밌습니다. 이 절차는 <b>"a bummer(맥 빠지는 일)"</b> 라고요. 왜냐하면 다음 정리 때문입니다.</p>
+  </div>
+
+  <h3 id="t4">16. 정리 4 — 찾을 필요가 없었다 ★<small>THEOREM 4</small></h3>
+  <div class="thm">
+    <span class="tag">THEOREM 4</span>
+    <p><b>제곱해서 2가 되는 양의 유리수는 존재하지 않는다.</b></p>
+  </div>
+  <p>수학사에서 가장 유명한 증명 중 하나입니다. §4에서 만든 부품이 여기서 쓰입니다.</p>
+
+  <div class="proof">
+    <div class="ph">PROOF · THEOREM 4</div>
+    <div class="pline"><div class="eqn"><span class="e">그런 유리수가 존재한다고 가정하자</span><button class="why">왜?</button></div>
+      <div class="ans"><b>귀류법</b>입니다. "없다"를 직접 보이는 건 어렵습니다. 그래서 <b>"있다"고 가정하고 모순을 끌어냅니다.</b></div></div>
+    <div class="pline"><div class="eqn"><span class="e">기약 형태 m/n 으로 쓴다</span><button class="why">왜?</button></div>
+      <div class="ans"><b>정리 3</b> 덕분에 가능합니다. 모든 양의 유리수는 기약분수로 쓸 수 있다고 방금 증명했죠.<br>
+      <b>특히 <span class="m">m</span> 과 <span class="m">n</span> 이 둘 다 짝수일 수는 없습니다.</b> 앞의 ★ 표시한 그 사실입니다. 이게 마지막에 모순을 만드는 <b>덫</b>이에요.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">(m/n)<sup>2</sup> = 2 &nbsp;→&nbsp; m<sup>2</sup> = 2n<sup>2</sup></span><button class="why">왜?</button></div>
+      <div class="ans">거듭제곱 규칙으로 <span class="fr" style="font-size:14px"><i>m<sup>2</sup></i><i>n<sup>2</sup></i></span> = 2. 양변에 <span class="m">n<sup>2</sup></span> 을 곱하면(또는 십자곱) <span class="m">m<sup>2</sup> = 2n<sup>2</sup></span>.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">∴ m<sup>2</sup> 은 짝수</span><button class="why">왜?</button></div>
+      <div class="ans"><span class="m">2n<sup>2</sup></span> 은 <b><span class="m">2 ×</span> (정수)</b> 꼴입니다. §4의 짝수 정의 그대로예요.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">∴ m 은 짝수</span><button class="why">왜?</button></div>
+      <div class="ans"><b>§4 정리 2의 따름정리</b>입니다. Lang이 여기서 정확히 그걸 인용해요.<br>
+      "<span class="m">m<sup>2</sup></span> 이 짝수면 <span class="m">m</span> 도 짝수." §4에서 시시해 보였던 그 따름정리가 <b>바로 여기 쓰입니다.</b></div></div>
+    <div class="pline"><div class="eqn"><span class="e">m = 2k &nbsp;→&nbsp; m<sup>2</sup> = 4k<sup>2</sup> = 2n<sup>2</sup></span><button class="why">왜?</button></div>
+      <div class="ans"><span class="m">m</span> 이 짝수이므로 어떤 양의 정수 <span class="m">k</span> 에 대해 <span class="m">m = 2k</span>. 제곱하면 <span class="m">(2k)<sup>2</sup> = 4k<sup>2</sup></span>. 그리고 이건 <span class="m">2n<sup>2</sup></span> 과 같습니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">n<sup>2</sup> = 2k<sup>2</sup></span><button class="why">왜?</button></div>
+      <div class="ans"><span class="m">4k<sup>2</sup> = 2n<sup>2</sup></span> 의 <b>양변에서 2를 약분</b>했습니다. <span class="m">2k<sup>2</sup> = n<sup>2</sup></span>.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">∴ n<sup>2</sup> 은 짝수 → n 도 짝수</span><button class="why">왜?</button></div>
+      <div class="ans">앞과 <b>똑같은 논법</b>을 반복합니다. <span class="m">2k<sup>2</sup></span> 은 짝수이고, 따름정리에 의해 <span class="m">n</span> 도 짝수.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">모순 — m, n 이 둘 다 짝수</span><button class="why">왜?</button></div>
+      <div class="ans">기약 형태로 썼으므로 <b>둘 다 짝수일 수는 없다</b>고 했습니다. 그런데 둘 다 짝수라는 결론이 나왔어요.<br>
+      따라서 처음 가정 <span class="m">(m/n)<sup>2</sup> = 2</span> 가 <b>참일 수 없습니다.</b><br>
+      <b>증명 끝.</b></div></div>
+  </div>
+
+  <div class="mine">
+    <span class="tag">내 설명 · 이 증명의 급소는 "기약"이다</span>
+    <p>증명 전체에서 <b>가장 영리한 한 수</b>는 맨 앞에 있습니다. <b>기약 형태로 쓴 것.</b></p>
+    <p>왜 영리하냐면, "둘 다 짝수는 아니다"라는 <b>덫을 미리 깔아둔</b> 것이기 때문입니다. 그러고 나서 증명은 뚜벅뚜벅 걸어가 <b>정확히 그 덫에 걸립니다.</b></p>
+    <p>만약 기약으로 안 썼다면? <span class="m">m, n</span> 이 둘 다 짝수여도 아무 문제가 없습니다. 모순이 안 생겨요. <b>증명이 실패합니다.</b></p>
+    <p style="margin-top:12px"><b>부품 목록을 보세요.</b> 이 증명은 §4·§5에서 만든 것들의 조립입니다.</p>
+    <p>정리 3(기약 형태) + §4 따름정리(<span class="m">m<sup>2</sup></span> 짝수 → <span class="m">m</span> 짝수) + 거듭제곱 규칙 + 약분 규칙. <b>새로 만든 도구가 하나도 없습니다.</b></p>
+    <p>Lang이 §4에서 시시해 보이는 따름정리를 굳이 증명해둔 이유가 이거예요. <b>이 순간을 위해서</b>였습니다.</p>
+  </div>
+
+  <div class="rule">
+    <span class="tag">정의</span>
+    <p style="margin-top:0">유리수가 <b>아닌</b> 수를 <span class="hl">무리수(irrational)</span>라고 한다.</p>
+  </div>
+  <p>정리 4로부터, <b>만약</b> <span class="m">a<sup>2</sup> = 2</span> 인 양수 <span class="m">a</span> 가 존재한다면 그 <span class="m">a</span> 는 반드시 무리수여야 합니다. Lang은 이 이야기를 <b>실수를 다루는 다음 절(3장)에서 더 논의하겠다</b>고 남깁니다.</p>
+  <div class="warn">
+    <span class="tag">⚠ "만약"에 주목하세요</span>
+    <p>정리 4가 말한 건 <b>"유리수 중에는 없다"</b> 뿐입니다. <span class="m">√2</span> 라는 수가 <b>존재하는지 자체는 아직 증명하지 않았습니다.</b></p>
+    <p>대각선 길이가 <span class="m">√2</span> 인 정사각형은 분명히 그릴 수 있는데, 그 길이에 해당하는 수가 유리수 세계에는 없습니다. <b>수직선에 구멍이 뚫려 있는 셈</b>이에요.</p>
+    <p>이 구멍을 메우려고 만드는 것이 <b>실수</b>이고, 그게 3장입니다. <b>§5는 3장이 왜 필요한지를 증명한 절</b>입니다.</p>
+  </div>
+
+  <h3>17. 곱셈의 결과도 그대로 물려받는다</h3>
+  <div class="rule">
+    <span class="tag">가정</span>
+    <p style="margin-top:0">임의의 유리수 <span class="m">a</span> 에 대해 <span class="m">1a = a</span> 이고 <span class="m">0a = 0</span> 이다.<br>
+    또한 곱셈은 <b>결합적·교환적</b>이며 덧셈에 대해 <b>분배적</b>이다.</p>
+  </div>
+  <p>덧셈 때와 같은 선언이 반복됩니다. <b>§3에서 기본 성질만으로 증명한 것들은 유리수에서도 전부 유효합니다.</b> 예를 들어</p>
+  <div class="mb">(a + b)<sup>2</sup> = a<sup>2</sup> + 2ab + b<sup>2</sup></div>
+  <p>가 이제 <b>유리수에서도 성립</b>합니다. <b>§3 끝의 연습문제도 전부 유리수에서 유효합니다.</b></p>
+
+  <h3 id="solve">18. 방정식 풀기<small>SOLVING EQUATIONS</small></h3>
+  <p>Lang의 예제 세 개입니다.</p>
+
+  <div class="proof">
+    <div class="ph">EXAMPLE 1 · 3a − 1 = 7</div>
+    <div class="pline"><div class="eqn"><span class="e">3a = 7 + 1 = 8</span><button class="why">왜?</button></div>
+      <div class="ans"><b>양변에 1을 더했습니다.</b> §2에서 배운 "양변에 같은 수 더하기"입니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">a = 8/3</span><button class="why">왜?</button></div>
+      <div class="ans"><b>양변을 3으로 나눴습니다.</b><br>
+      여기가 §5가 필요한 지점이에요. 정수 세계였다면 <span class="m">3a = 8</span> 은 <b>해가 없습니다.</b> 유리수로 넓혔기 때문에 <span class="fr" style="font-size:14px"><i>8</i><i>3</i></span> 이라는 답이 생긴 겁니다.</div></div>
+  </div>
+
+  <div class="proof">
+    <div class="ph">EXAMPLE 2 · 2(x − 3) = 7</div>
+    <div class="pline"><div class="eqn"><span class="e">2x − 6 = 7</span><button class="why">왜?</button></div>
+      <div class="ans"><b>분배법칙</b>을 먼저 썼습니다(§3). 동치인 방정식이 됩니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">2x = 7 + 6 = 13</span><button class="why">왜?</button></div>
+      <div class="ans">양변에 6을 더했습니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">x = 13/2</span><button class="why">왜?</button></div>
+      <div class="ans">양변을 2로 나눴습니다.<br>
+      <b>Lang은 다른 길도 보여줍니다.</b> 분배법칙을 쓰지 않고 먼저 양변을 2로 나누면 <span class="m">x − 3 = </span><span class="fr" style="font-size:14px"><i>7</i><i>2</i></span>, 따라서 <span class="m">x = </span><span class="fr" style="font-size:14px"><i>7</i><i>2</i></span><span class="m"> + 3</span>.<br>
+      이것도 <b>완벽히 옳은 답</b>이라고 말합니다. 다만 분수 꼴로 정리하고 싶다면 <span class="m">3 = </span><span class="fr" style="font-size:14px"><i>6</i><i>2</i></span> 로 써서 <span class="m">x = </span><span class="fr" style="font-size:14px"><i>7</i><i>2</i></span><span class="m"> + </span><span class="fr" style="font-size:14px"><i>6</i><i>2</i></span><span class="m"> = </span><span class="fr" style="font-size:14px"><i>13</i><i>2</i></span>.</div></div>
+  </div>
+
+  <div class="proof">
+    <div class="ph">EXAMPLE 3 · (3x − 7)/2 + 4 = 2x</div>
+    <div class="pline"><div class="eqn"><span class="e">3x − 7 + 8 = 4x</span><button class="why">왜?</button></div>
+      <div class="ans"><b>양변에 2를 곱했습니다.</b> 분모를 없애는 게 목적이에요. <span class="m">4 × 2 = 8</span>, <span class="m">2x × 2 = 4x</span>.<br>
+      <b>분수가 있는 방정식의 정석</b>입니다 — 분모를 먼저 털어냅니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">1 = 4x − 3x = x</span><button class="why">왜?</button></div>
+      <div class="ans"><b>양변에 −3x 를 더했습니다.</b> 왼쪽은 <span class="m">−7 + 8 = 1</span> 만 남고, 오른쪽은 <span class="m">4x − 3x = x</span>.<br>
+      따라서 <span class="m">x = 1</span>. <b>끝.</b></div></div>
+  </div>
+
+  <h3 id="ex">19. 연습 문제<small>교재 39–41쪽</small></h3>
+  <p style="font-size:13px;color:var(--mut)">교재 §5 연습문제 1~21번을 유형별로 다뤘습니다.</p>
+
+  <div class="q"><div class="qt"><i>2번</i>다음 방정식을 <span class="m">x</span> 에 대해 푸세요.<br>
+    a) <span class="m">3x − 5 = 0</span> &nbsp; b) <span class="m">−2x + 6 = 1</span> &nbsp; c) <span class="m">−7x = 2</span></div>
+    <button>답 보기</button><div class="sol">
+    <b>a)</b> <span class="m">3x = 5</span> → <span class="m">x = </span><span class="fr"><i>5</i><i>3</i></span><br>
+    <b>b)</b> <span class="m">−2x = 1 − 6 = −5</span> → <span class="m">x = </span><span class="fr"><i>−5</i><i>−2</i></span> = <span class="fr"><i>5</i><i>2</i></span><br>
+    <b>c)</b> <span class="m">x = </span><span class="fr"><i>2</i><i>−7</i></span> = <span class="m">−</span><span class="fr"><i>2</i><i>7</i></span></div></div>
+
+  <div class="q"><div class="qt"><i>3번</i>다음 분수를 기약 형태로 고치세요.<br>
+    <span class="fr"><i>10</i><i>26</i></span> &nbsp; <span class="fr"><i>3</i><i>9</i></span> &nbsp; <span class="fr"><i>30</i><i>26</i></span> &nbsp; <span class="fr"><i>50</i><i>16</i></span> &nbsp; <span class="fr"><i>45</i><i>9</i></span> &nbsp; <span class="fr"><i>23</i><i>46</i></span> &nbsp; <span class="fr"><i>16</i><i>40</i></span></div>
+    <button>답 보기</button><div class="sol">
+    최대공약수로 한 번에 나눕니다.<br><br>
+    <span class="fr"><i>10</i><i>26</i></span> = <span class="fr"><i>5</i><i>13</i></span> <span style="color:var(--mut)">(÷2)</span> &nbsp;&nbsp;
+    <span class="fr"><i>3</i><i>9</i></span> = <span class="fr"><i>1</i><i>3</i></span> <span style="color:var(--mut)">(÷3)</span><br>
+    <span class="fr"><i>30</i><i>26</i></span> = <span class="fr"><i>15</i><i>13</i></span> <span style="color:var(--mut)">(÷2)</span> &nbsp;&nbsp;
+    <span class="fr"><i>50</i><i>16</i></span> = <span class="fr"><i>25</i><i>8</i></span> <span style="color:var(--mut)">(÷2)</span><br>
+    <span class="fr"><i>45</i><i>9</i></span> = <span class="fr"><i>5</i><i>1</i></span> = 5 <span style="color:var(--mut)">(÷9)</span> &nbsp;&nbsp;
+    <span class="fr"><i>23</i><i>46</i></span> = <span class="fr"><i>1</i><i>2</i></span> <span style="color:var(--mut)">(÷23)</span><br>
+    <span class="fr"><i>16</i><i>40</i></span> = <span class="fr"><i>2</i><i>5</i></span> <span style="color:var(--mut)">(÷8)</span><br>
+    <span style="color:var(--gold)">45/9 처럼 정수가 되는 경우도 있습니다. 5 = 5/1 이므로 여전히 유리수예요.</span></div></div>
+
+  <div class="q"><div class="qt"><i>4번</i><span class="m">a = m/n</span> 이고 <span class="m">m ≠ 0</span>, <span class="m">n ≠ 0</span> 일 때, <span class="m">ab = ba = 1</span> 인 유리수 <span class="m">b</span> 가 존재함을 보이세요.</div>
+    <button>답 보기</button><div class="sol">
+    <span class="m">b = </span><span class="fr"><i>n</i><i>m</i></span> 로 두면 됩니다. <span class="m">m ≠ 0</span> 이므로 이건 정당한 유리수입니다.<br><br>
+    곱셈 공식에 의해<br>
+    <span class="m">ab = </span><span class="fr"><i>m</i><i>n</i></span><span class="m"> · </span><span class="fr"><i>n</i><i>m</i></span><span class="m"> = </span><span class="fr"><i>mn</i><i>nm</i></span><br>
+    약분 규칙(또는 십자곱)으로 <span class="fr"><i>mn</i><i>nm</i></span> = <span class="fr"><i>1</i><i>1</i></span> = 1 ∎<br>
+    <span style="color:var(--gold)">이게 바로 §6의 주제인 <b>곱셈의 역원</b>입니다. Lang이 연습문제로 미리 맛보게 한 거예요.</span></div></div>
+
+  <div class="q"><div class="qt"><i>5번 a·b·d</i>a) <span class="m">2x − 7 = 21</span> &nbsp; b) <span class="m">3(2x − 5) = 7</span> &nbsp; d) <span class="m">−4x + 3 = 5x</span></div>
+    <button>답 보기</button><div class="sol">
+    <b>a)</b> <span class="m">2x = 28</span> → <span class="m">x = 14</span><br><br>
+    <b>b)</b> 분배법칙: <span class="m">6x − 15 = 7</span> → <span class="m">6x = 22</span> → <span class="m">x = </span><span class="fr"><i>22</i><i>6</i></span> = <span class="fr"><i>11</i><i>3</i></span><br>
+    <span style="color:var(--mut);font-size:12.5px">답은 반드시 기약으로 정리하세요.</span><br><br>
+    <b>d)</b> 양변에 <span class="m">4x</span> 를 더합니다: <span class="m">3 = 9x</span> → <span class="m">x = </span><span class="fr"><i>1</i><i>3</i></span></div></div>
+
+  <div class="q"><div class="qt"><i>5번 e·f</i>e) <span class="m">3x − 2 = −5x + 8</span> &nbsp; f) <span class="m">3x + 2 = −3x + 4</span></div>
+    <button>답 보기</button><div class="sol">
+    <b>e)</b> 양변에 <span class="m">5x</span> 를 더하고 2를 더합니다<br>
+    <span class="m">8x = 10</span> → <span class="m">x = </span><span class="fr"><i>10</i><i>8</i></span> = <span class="fr"><i>5</i><i>4</i></span><br><br>
+    <b>f)</b> 양변에 <span class="m">3x</span> 를 더하고 2를 뺍니다<br>
+    <span class="m">6x = 2</span> → <span class="m">x = </span><span class="fr"><i>1</i><i>3</i></span></div></div>
+
+  <div class="q"><div class="qt"><i>5번 i</i><span class="m">(2x − 1)/3 + 4x = 10</span></div>
+    <button>답 보기</button><div class="sol">
+    <b>분모부터 털어냅니다.</b> 양변에 3을 곱하면<br>
+    <span class="m">2x − 1 + 12x = 30</span><br>
+    <span class="m">14x = 31</span><br>
+    <span class="m">x = </span><span class="fr"><i>31</i><i>14</i></span><br>
+    <span style="color:var(--mut);font-size:12.5px">14와 31은 공약수가 1뿐이므로 이미 기약입니다.</span></div></div>
+
+  <div class="q"><div class="qt"><i>7번 a</i><span class="m">n</span> 계승 <span class="m">n!</span> 은 처음 <span class="m">n</span> 개 양의 정수의 곱입니다. <span class="m">5!, 6!, 7!, 8!</span> 을 구하세요.</div>
+    <button>답 보기</button><div class="sol">
+    <span class="m">2! = 2</span>, <span class="m">3! = 2·3 = 6</span>, <span class="m">4! = 2·3·4 = 24</span> 에서 이어가면<br><br>
+    <span class="m">5! = 24 · 5 = <b>120</b></span><br>
+    <span class="m">6! = 120 · 6 = <b>720</b></span><br>
+    <span class="m">7! = 720 · 7 = <b>5040</b></span><br>
+    <span class="m">8! = 5040 · 8 = <b>40320</b></span><br>
+    <span style="color:var(--mut);font-size:12.5px">앞의 값에 다음 수만 곱하면 되므로 처음부터 다시 계산할 필요가 없습니다.</span></div></div>
+
+  <div class="q"><div class="qt"><i>7번 b·c·d</i>이항계수 <span class="m">C(m,n) = m! / (n!(m−n)!)</span>, <span class="m">0! = 1</span>.<br>
+    c) <span class="m">C(m,n) = C(m, m−n)</span> 을 보이세요. &nbsp; d) <span class="m">C(m,n) + C(m,n−1) = C(m+1, n)</span> 을 보이세요.</div>
+    <button>답 보기</button><div class="sol">
+    <b>c)</b> 정의에 <span class="m">m − n</span> 을 대입합니다.<br>
+    <span class="m">C(m, m−n) = </span><span class="fr"><i>m!</i><i>(m−n)! (m−(m−n))!</i></span> = <span class="fr"><i>m!</i><i>(m−n)! n!</i></span><br>
+    분모의 두 인수가 순서만 바뀌었을 뿐입니다(곱셈 교환법칙). 따라서 <span class="m">= C(m,n)</span> ∎<br>
+    <span style="color:var(--mut);font-size:12.5px">뜻으로 보면 당연합니다. <b>m개에서 n개를 고르는 것</b>과 <b>버릴 m−n개를 고르는 것</b>은 같은 일이니까요.</span><br><br>
+    <b>d)</b> 통분이 핵심입니다.<br>
+    <span class="m">C(m,n) + C(m,n−1)</span><br>
+    = <span class="fr"><i>m!</i><i>n!(m−n)!</i></span> + <span class="fr"><i>m!</i><i>(n−1)!(m−n+1)!</i></span><br>
+    공통분모 <span class="m">n!(m−n+1)!</span> 로 맞추면<br>
+    = <span class="fr"><i>m!(m−n+1) + m!·n</i><i>n!(m−n+1)!</i></span> = <span class="fr"><i>m!(m+1)</i><i>n!(m+1−n)!</i></span><br>
+    = <span class="fr"><i>(m+1)!</i><i>n!((m+1)−n)!</i></span> = <span class="m">C(m+1, n)</span> ∎<br>
+    <span style="color:var(--gold)">이게 파스칼의 삼각형에서 <b>위 두 수를 더하면 아래 수가 되는</b> 규칙입니다. §3에서 본 1-3-3-1 이 여기서 나옵니다.</span></div></div>
+
+  <div class="q"><div class="qt"><i>8번</i><span class="m">a<sup>3</sup> = 2</span> 인 양의 유리수 <span class="m">a</span> 가 없음을 증명하세요.</div>
+    <button>답 보기</button><div class="sol">
+    정리 4와 <b>같은 골격</b>입니다.<br><br>
+    기약 형태 <span class="m">a = m/n</span> 으로 쓰면 <span class="m">m<sup>3</sup> = 2n<sup>3</sup></span><br>
+    → <span class="m">m<sup>3</sup></span> 은 짝수<br>
+    → <b><span class="m">m</span> 도 짝수</b> <span style="color:var(--mut)">(§4 연습 3·4번: a 홀수면 a³ 홀수, 그 대우)</span><br>
+    → <span class="m">m = 2k</span> 로 두면 <span class="m">8k<sup>3</sup> = 2n<sup>3</sup></span> → <span class="m">n<sup>3</sup> = 4k<sup>3</sup></span><br>
+    → <span class="m">n<sup>3</sup></span> 은 짝수 → <span class="m">n</span> 도 짝수<br>
+    → <b>둘 다 짝수 — 기약에 모순</b> ∎<br>
+    <span style="color:var(--gold)">§4 연습문제 3·4번을 여기서 씁니다. 그때 풀어둔 게 부품이 된 거예요.</span></div></div>
+
+  <div class="q"><div class="qt"><i>10번</i><span class="m">a<sup>2</sup> = 3</span> 인 양의 유리수가 없음을 증명하세요.</div>
+    <button>답 보기</button><div class="sol">
+    <b>1단계</b> — §4 연습 26번의 결과를 씁니다. <b>양의 정수의 제곱이 3으로 나누어떨어지면 그 정수도 3으로 나누어떨어진다.</b><br>
+    <span style="color:var(--mut);font-size:12.5px">(모든 정수를 3k, 3k+1, 3k+2 로 나눠 각 경우를 확인해 대우로 얻습니다)</span><br><br>
+    <b>2단계</b> — √2 때와 같은 흐름<br>
+    기약 <span class="m">m/n</span> 으로 쓰면 <span class="m">m<sup>2</sup> = 3n<sup>2</sup></span><br>
+    → <span class="m">m<sup>2</sup></span> 이 3의 배수 → <span class="m">m</span> 도 3의 배수 → <span class="m">m = 3k</span><br>
+    → <span class="m">9k<sup>2</sup> = 3n<sup>2</sup></span> → <span class="m">n<sup>2</sup> = 3k<sup>2</sup></span><br>
+    → <span class="m">n</span> 도 3의 배수<br>
+    → <b>둘 다 3의 배수 — 기약에 모순</b> ∎<br>
+    <span style="color:var(--mut);font-size:12.5px">이때 "기약"의 의미가 <b>3을 공약수로 갖지 않는다</b>로 바뀝니다. 2가 아니라 3이 주인공이니까요.</span></div></div>
+
+  <div class="q"><div class="qt"><i>11번</i>제곱이 2에 <b>소수점 셋째 자리까지</b> 근사하는 양의 유리수를 소수로 구하세요.</div>
+    <button>답 보기</button><div class="sol">
+    <span class="m">1.414</span><br>
+    <span class="m">(1.414)<sup>2</sup> = 1.999396</span> → 2와의 차이가 <span class="m">0.000604</span><br><br>
+    <b>넷째 자리까지</b>라면 <span class="m">1.4142</span><br>
+    <span class="m">(1.4142)<sup>2</sup> = 1.99996164</span><br>
+    <span style="color:var(--gold)">위의 √2 사냥 도구로 직접 확인해 보세요. "다음 자리 최선값 찾기"를 누르면 이 숫자들이 그대로 나옵니다.</span></div></div>
+
+  <div class="q"><div class="qt"><i>16번</i>3분마다 절반이 되는 물질이 처음 6 g 있습니다. a) 3분 후 b) 27분 후 c) 36분 후?</div>
+    <button>답 보기</button><div class="sol">
+    <b>횟수</b> = 시간 ÷ 3, <b>배율</b> = <span class="fr"><i>1</i><i>2</i></span><br><br>
+    <b>a)</b> 1번 → <span class="m">6 · </span><span class="fr"><i>1</i><i>2</i></span> = <b>3 g</b><br>
+    <b>b)</b> 9번 → <span class="m">6 · </span><span class="fr"><i>1</i><i>2<sup>9</sup></i></span> = <span class="fr"><i>6</i><i>512</i></span> = <span class="fr"><i>3</i><i>256</i></span> <b>g</b><br>
+    <b>c)</b> 12번 → <span class="m">6 · </span><span class="fr"><i>1</i><i>2<sup>12</sup></i></span> = <span class="fr"><i>6</i><i>4096</i></span> = <span class="fr"><i>3</i><i>2048</i></span> <b>g</b></div></div>
+
+  <div class="q"><div class="qt"><i>17번</i>15분마다 남은 것의 <b>3분의 1이 분해</b>됩니다. 처음 15 g. a) 30분 후 b) 45분 후 c) 165분 후?</div>
+    <button>답 보기</button><div class="sol">
+    <span style="color:var(--orange)"><b>함정</b> — 3분의 1이 사라지면 배율은 <span class="fr"><i>1</i><i>3</i></span> 이 아니라 <span class="fr"><i>2</i><i>3</i></span> 입니다.</span> Lang도 비슷한 문제에 주석을 답니다.<br><br>
+    <b>a)</b> 2번 → <span class="m">15 · (</span><span class="fr"><i>2</i><i>3</i></span><span class="m">)<sup>2</sup> = 15 · </span><span class="fr"><i>4</i><i>9</i></span> = <span class="fr"><i>20</i><i>3</i></span> <b>g</b><br>
+    <b>b)</b> 3번 → <span class="m">15 · </span><span class="fr"><i>8</i><i>27</i></span> = <span class="fr"><i>40</i><i>9</i></span> <b>g</b><br>
+    <b>c)</b> 11번 → <span class="m">15 · (</span><span class="fr"><i>2</i><i>3</i></span><span class="m">)<sup>11</sup> = 15 · </span><span class="fr"><i>2048</i><i>177147</i></span> = <span class="fr"><i>10240</i><i>59049</i></span> <b>g</b></div></div>
+
+  <div class="q"><div class="qt"><i>19번</i>10분마다 살아있는 박테리아의 <b>10분의 1이 죽습니다.</b> 처음 <span class="m">10<sup>6</sup></span> 마리. a) 10분 후 c) 50분 후 d) 절반이 죽는 것은 몇 번째 10분 구간인가?</div>
+    <button>답 보기</button><div class="sol">
+    <b>배율</b> = <span class="fr"><i>9</i><i>10</i></span> <span style="color:var(--mut)">(10분의 1이 죽으면 10분의 9가 남음 — Lang의 주석)</span><br><br>
+    <b>a)</b> <span class="m">10<sup>6</sup> · </span><span class="fr"><i>9</i><i>10</i></span> = <b>900,000</b><br>
+    <b>c)</b> 5번 → <span class="m">10<sup>6</sup> · (</span><span class="fr"><i>9</i><i>10</i></span><span class="m">)<sup>5</sup> ≈ <b>590,490</b></span><br><br>
+    <b>d)</b> 남은 비율이 <span class="fr"><i>1</i><i>2</i></span> 아래로 처음 떨어지는 때를 찾습니다.<br>
+    <span class="m">(0.9)<sup>6</sup> ≈ 0.531</span> — 아직 절반 이상 생존<br>
+    <span class="m">(0.9)<sup>7</sup> ≈ 0.478</span> — 절반 아래로<br>
+    → <b>7번째 10분 구간</b>(60~70분 사이)</div></div>
+
+  <div class="q"><div class="qt"><i>21번</i>10년마다 인구가 이전의 <span class="fr"><i>5</i><i>4</i></span> 가 됩니다. a) 두 배가 되는 데 몇 년? b) 세 배는?</div>
+    <button>답 보기</button><div class="sol">
+    <span class="m">(</span><span class="fr"><i>5</i><i>4</i></span><span class="m">)<sup>k</sup></span> 가 2를 넘는 최소 <span class="m">k</span> 를 찾습니다.<br><br>
+    <span class="m">(1.25)<sup>1</sup> = 1.25</span><br>
+    <span class="m">(1.25)<sup>2</sup> = 1.5625</span><br>
+    <span class="m">(1.25)<sup>3</sup> ≈ 1.953</span> — 아직 2 미만<br>
+    <span class="m">(1.25)<sup>4</sup> ≈ 2.441</span> — 넘음<br>
+    <b>a) 40년</b><br><br>
+    <span class="m">(1.25)<sup>5</sup> ≈ 3.052</span> — 3을 넘음<br>
+    <b>b) 50년</b><br>
+    <span style="color:var(--mut);font-size:12.5px">§3의 인구 문제는 배율이 정확히 2였지만, 여기서는 <b>몇 번 곱해야 목표를 넘는지</b>를 세는 방향으로 뒤집혔습니다. 이게 나중에 <b>로그</b>(13장 §5)로 이어집니다.</span></div></div>
+</section>
+
+<section style="border-bottom:none">
+  <h3 style="margin-top:10px">§5 한눈에</h3>
+  <table>
+    <tr><th>항목</th><th>내용</th><th>정체</th></tr>
+    <tr><td>유리수</td><td><span class="fr"><i>m</i><i>n</i></span>, <span class="m">m, n</span> 정수, <span class="m">n ≠ 0</span></td><td>정의</td></tr>
+    <tr><td><b>십자곱</b></td><td><span class="fr"><i>m</i><i>n</i></span>=<span class="fr"><i>r</i><i>s</i></span> ⟺ <span class="m">ms = rn</span></td><td style="color:var(--gold)">가정 ★</td></tr>
+    <tr><td>약분</td><td><span class="fr"><i>am</i><i>an</i></span> = <span class="fr"><i>m</i><i>n</i></span></td><td style="color:var(--green)">증명됨</td></tr>
+    <tr><td>부호 이동</td><td>−<span class="fr"><i>m</i><i>n</i></span> = <span class="fr"><i>−m</i><i>n</i></span> = <span class="fr"><i>m</i><i>−n</i></span></td><td style="color:var(--green)">증명됨</td></tr>
+    <tr><td><b>정리 3</b></td><td>모든 양의 유리수는 기약분수로 쓸 수 있다</td><td style="color:var(--green)">증명됨</td></tr>
+    <tr><td>덧셈</td><td><span class="fr"><i>m</i><i>n</i></span>+<span class="fr"><i>r</i><i>s</i></span> = <span class="fr"><i>sm+nr</i><i>sn</i></span></td><td>공식</td></tr>
+    <tr><td>곱셈</td><td><span class="fr"><i>m</i><i>n</i></span>·<span class="fr"><i>r</i><i>s</i></span> = <span class="fr"><i>mr</i><i>ns</i></span></td><td>공식</td></tr>
+    <tr><td>거듭제곱</td><td>(<span class="fr"><i>m</i><i>n</i></span>)<sup>k</sup> = <span class="fr"><i>m<sup>k</sup></i><i>n<sup>k</sup></i></span></td><td>공식</td></tr>
+    <tr><td><b>정리 4</b></td><td>제곱해서 2가 되는 양의 유리수는 없다</td><td style="color:var(--green)">증명됨 ★</td></tr>
+    <tr><td>무리수</td><td>유리수가 아닌 수</td><td>정의</td></tr>
+  </table>
+  <div class="mine">
+    <span class="tag">마무리 · §5가 남긴 것 두 가지</span>
+    <p><b>① 물려받기.</b> §2·§3에서 증명한 것들이 유리수에서 <b>다시 증명할 필요 없이</b> 그대로 유효합니다. 적은 가정으로 증명해둔 대가를 받은 겁니다.</p>
+    <p><b>② 구멍.</b> 그렇게 넓힌 유리수 세계에도 <span class="m">√2</span>가 없습니다. 정사각형 대각선은 분명히 존재하는데, 그 길이를 담을 수가 없어요.</p>
+    <p>이 구멍을 메우는 게 <b>3장 실수</b>입니다. §5는 <b>3장이 왜 필요한지를 증명해 보인 절</b>이에요.</p>
+  </div>
+  <p style="color:var(--mut);font-size:13px">다음은 §6 곱셈의 역원 (42쪽)입니다.</p>
+</section>
+
+<footer>
+  Serge Lang, <i>Basic Mathematics</i> (Addison-Wesley, 1971) §5 의 내용을 한국어로 재구성한 학습 노트입니다.
+  보라색 블록은 교재에 없는 보충 설명입니다. 원문 번역이 아니며, 정확한 표현은 교재를 참조하세요.
+</footer>
+</div>
+
+<script>
+const NS='http://www.w3.org/2000/svg';
+function el(t,a){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;}
+function tx(x,y,s,f,sz,an){const e=el('text',{x:x,y:y,'text-anchor':an||'middle',
+  'font-family':"ui-monospace,monospace",'font-size':sz||12,fill:f});e.textContent=s;return e;}
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b];}return a||1;}
+function stepper(ctl,name,get,set,lo,hi,cb){
+  const g=document.createElement('div'); g.className='grp';
+  const s=document.createElement('span'); s.textContent=name;
+  const m=document.createElement('button'); m.textContent='−';
+  const p=document.createElement('button'); p.textContent='+';
+  m.onclick=()=>{if(get()>lo){set(get()-1);cb();}};
+  p.onclick=()=>{if(get()<hi){set(get()+1);cb();}};
+  g.appendChild(s);g.appendChild(m);g.appendChild(p);ctl.appendChild(g);
+}
+
+/* ── 분수 막대 비교 ── */
+function makeBar(host){
+  let m=+host.dataset.m,n=+host.dataset.n,r=+host.dataset.r,s=+host.dataset.s;
+  const sv=el('svg',{viewBox:'0 0 340 130',preserveAspectRatio:'xMidYMid meet'});
+  const ctl=document.createElement('div'); ctl.className='fctl';
+  const lbl=document.createElement('div'); lbl.className='lbl'; ctl.appendChild(lbl);
+  const go=()=>render();
+  stepper(ctl,'m',()=>m,v=>m=v,0,12,go); stepper(ctl,'n',()=>n,v=>n=v,1,12,go);
+  stepper(ctl,'r',()=>r,v=>r=v,0,12,go); stepper(ctl,'s',()=>s,v=>s=v,1,12,go);
+  host.appendChild(sv); host.appendChild(ctl);
+  function bar(y,num,den,col,name){
+    const X0=44,W=260;
+    sv.appendChild(tx(X0-8,y+18,name,'#8d8d86',12,'end'));
+    for(let i=0;i<den;i++){
+      const w=W/den, x=X0+i*w;
+      sv.appendChild(el('rect',{x:x,y:y,width:w-1,height:26,
+        fill:i<num?col+'44':'#141414',stroke:i<num?col:'#3a3a3a','stroke-width':1}));
+    }
+    sv.appendChild(el('line',{x1:X0,y1:y+32,x2:X0+W*Math.min(1,num/den),y2:y+32,
+      stroke:col,'stroke-width':2.5}));
+  }
+  function render(){
+    sv.innerHTML='';
+    bar(16,m,n,'#6fa8dc',m+'/'+n);
+    bar(72,r,s,'#ffc93c',r+'/'+s);
+    const eq=(m*s===r*n);
+    lbl.innerHTML='<b>'+m+'·'+s+' = '+(m*s)+'</b> &nbsp;/&nbsp; <b>'+r+'·'+n+' = '+(r*n)+'</b> &nbsp;→&nbsp; '+
+      (eq?'<span style="color:var(--gold)"><b>같은 수입니다</b> (색칠된 길이가 정확히 일치)</span>'
+         :'<span style="color:var(--orange)"><b>다른 수입니다</b> (십자곱이 안 맞음)</span>');
+  }
+  render();
+}
+
+/* ── 기약분수 만들기 ── */
+function makeRed(host){
+  let m=+host.dataset.m,n=+host.dataset.n;
+  const sv=el('svg',{viewBox:'0 0 340 120',preserveAspectRatio:'xMidYMid meet'});
+  const ctl=document.createElement('div'); ctl.className='fctl';
+  const lbl=document.createElement('div'); lbl.className='lbl'; ctl.appendChild(lbl);
+  const go=()=>render();
+  stepper(ctl,'m',()=>m,v=>m=v,1,60,go); stepper(ctl,'n',()=>n,v=>n=v,1,60,go);
+  host.appendChild(sv); host.appendChild(ctl);
+  function row(y,v,d,col,name){
+    const X0=52, u=Math.min(9, 256/Math.max(v,1));
+    sv.appendChild(tx(X0-8,y+13,name,'#8d8d86',12,'end'));
+    for(let i=0;i<v;i++){
+      const grp=Math.floor(i/d);
+      sv.appendChild(el('rect',{x:X0+i*u,y:y,width:Math.max(2,u-1.5),height:17,
+        fill:grp%2?col+'55':col+'22',stroke:col,'stroke-width':.6}));
+    }
+  }
+  function render(){
+    sv.innerHTML='';
+    const d=gcd(m,n), r=m/d, s=n/d;
+    row(14,m,d,'#6fa8dc','m = '+m);
+    row(46,n,d,'#ffc93c','n = '+n);
+    sv.appendChild(tx(170,90, m+'/'+n+'  =  '+r+'/'+s, d>1?'#ffc93c':'#6ec98a',15));
+    sv.appendChild(tx(170,108, d>1?('최대공약수 '+d+' 로 묶었습니다'):'이미 기약입니다','#8d8d86',11));
+    lbl.innerHTML = d>1
+      ? '<b>'+m+'</b>과 <b>'+n+'</b>의 최대공약수는 <b style="color:var(--gold)">'+d+'</b>. 같은 크기 덩어리로 묶으면 '+r+'덩어리 대 '+s+'덩어리 → <b>'+r+'/'+s+'</b>'
+      : '<b>'+m+'</b>과 <b>'+n+'</b>의 공약수는 1뿐입니다 — <b style="color:var(--green)">이미 기약분수</b>';
+  }
+  render();
+}
+
+document.querySelectorAll('.fig').forEach(f=>{
+  const t=f.dataset.fig;
+  if(t==='bar') makeBar(f); else if(t==='red') makeRed(f);
+});
+
+/* ── √2 사냥 ── */
+(function(){
+  let dg=[1,4];
+  const cand=document.getElementById('hCand'), sq=document.getElementById('hSq'),
+        vd=document.getElementById('hV'), dv=document.getElementById('hDigits'),
+        lg=document.getElementById('hLog');
+  const log=[];
+  function num(){return BigInt(dg.join(''));}
+  function dec(){return dg.length-1;}
+  function pow10(k){return BigInt(10)**BigInt(k);}
+  function fmt(v,places){
+    let s=v.toString().padStart(places+1,'0');
+    return places? s.slice(0,s.length-places)+'.'+s.slice(s.length-places) : s;
+  }
+  function state(){
+    const k=num(), d=dec();
+    const k2=k*k, target=BigInt(2)*pow10(BigInt(2*d));
+    return {k,d,k2,target,small:k2<target,exact:k2===target};
+  }
+  function render(push){
+    const st=state();
+    cand.textContent=fmt(st.k,st.d);
+    sq.textContent=fmt(st.k2,2*st.d);
+    sq.className='sq '+(st.small?'lo':'hi');
+    vd.textContent=st.exact?'정확히 2 — 있을 수 없는 일':(st.small?'너무 작다':'너무 크다');
+    vd.style.color=st.exact?'#6ec98a':(st.small?'#6fa8dc':'#ff6b4a');
+    dv.innerHTML='';
+    dg.forEach((v,i)=>{
+      const w=document.createElement('div'); w.className='dg';
+      const up=document.createElement('button'); up.textContent='▲';
+      const val=document.createElement('div'); val.className='v';
+      val.textContent=(i===1?'.':'')+v;
+      const dn=document.createElement('button'); dn.textContent='▼';
+      up.onclick=()=>{if(dg[i]<9){dg[i]++;render(true);}};
+      dn.onclick=()=>{if(dg[i]>0&&!(i===0&&dg[i]<=1)){dg[i]--;render(true);}};
+      w.appendChild(up);w.appendChild(val);w.appendChild(dn);dv.appendChild(w);
+    });
+    if(push){
+      const line='('+fmt(st.k,st.d)+')² = '+fmt(st.k2,2*st.d)+
+        ' <span class="'+(st.small?'s':'b')+'">'+(st.small?'너무 작다':'너무 크다')+'</span>';
+      if(log[0]!==line){log.unshift(line); if(log.length>24)log.pop();}
+      lg.innerHTML=log.map(l=>'<div>'+l+'</div>').join('');
+    }
+  }
+  document.getElementById('hAuto').onclick=()=>{
+    dg.push(0);
+    for(let t=9;t>=0;t--){ dg[dg.length-1]=t; if(state().small) break; }
+    render(true);
+  };
+  document.getElementById('hDrop').onclick=()=>{ if(dg.length>2){dg.pop(); render(true);} };
+  document.getElementById('hReset').onclick=()=>{ dg=[1,4]; log.length=0; lg.innerHTML=''; render(true); };
+  render(true);
+})();
+
+document.querySelectorAll('.pline .why').forEach(b=>{
+  b.onclick=()=>{const a=b.closest('.pline').querySelector('.ans');
+    const on=a.classList.toggle('on'); b.classList.toggle('on',on); b.textContent=on?'닫기':'왜?';};
+});
+document.querySelectorAll('.q button').forEach(b=>{
+  b.onclick=()=>{const s=b.nextElementSibling;
+    const on=s.classList.toggle('on'); b.textContent=on?'접기':'답 보기';};
+});
+const bar=document.getElementById('bar');
+const links=[...document.querySelectorAll('.nv a')];
+const targets=links.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+function onScroll(){const h=document.documentElement;
+  bar.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+  let idx=0; targets.forEach((t,i)=>{if(t.getBoundingClientRect().top<=90) idx=i;});
+  links.forEach((a,i)=>a.classList.toggle('on',i===idx));}
+addEventListener('scroll',onScroll,{passive:true}); onScroll();
+</script>
+</body>
+</html>
