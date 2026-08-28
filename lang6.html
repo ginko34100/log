@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Basic Mathematics · Ch.1 §6 곱셈의 역원</title>
+<style>
+:root{
+  --bg:#000; --surf:#0e0e0e; --surf2:#161616;
+  --line:#282828; --line2:#3a3a3a;
+  --tx:#eeeeea; --mut:#8d8d86;
+  --gold:#ffc93c; --orange:#ff6b4a; --blue:#6fa8dc; --green:#6ec98a; --purple:#b48ce0;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth;scroll-padding-top:56px}
+body{background:var(--bg);color:var(--tx);
+  font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+  line-height:1.78;font-size:15px;padding-bottom:60px;-webkit-text-size-adjust:100%}
+.wrap{max-width:600px;margin:0 auto;padding:0 16px}
+
+#bar{position:fixed;top:0;left:0;height:2px;background:var(--gold);z-index:60;width:0}
+nav{position:sticky;top:0;z-index:50;background:rgba(0,0,0,.94);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.nv{max-width:600px;margin:0 auto;display:flex;gap:4px;padding:9px 12px;overflow-x:auto;scrollbar-width:none}
+.nv::-webkit-scrollbar{display:none}
+.nv a{flex:0 0 auto;font-size:11.5px;color:var(--mut);text-decoration:none;
+  padding:5px 10px;border:1px solid var(--line);border-radius:2px;white-space:nowrap}
+.nv a.on{color:#000;background:var(--gold);border-color:var(--gold);font-weight:700}
+
+header{padding:30px 0 22px;border-bottom:1px solid var(--line)}
+h1{font-size:21px;font-weight:700;letter-spacing:-.01em;line-height:1.4}
+header p{font-size:11px;color:var(--mut);font-family:ui-monospace,monospace;letter-spacing:.1em;margin-top:7px}
+
+section{padding:34px 0 10px;border-bottom:1px solid var(--line)}
+h2{font-size:18px;font-weight:700;display:flex;align-items:baseline;gap:9px;margin-bottom:5px}
+h2 em{font-style:normal;font-family:ui-monospace,monospace;font-size:13px;color:var(--gold)}
+h2+.sub{font-size:12px;color:var(--mut);margin-bottom:18px}
+h3{font-size:15.5px;font-weight:700;margin:30px 0 9px;padding-left:11px;
+  border-left:3px solid var(--gold);line-height:1.45}
+h3 small{display:block;font-weight:500;font-size:11px;color:var(--mut);
+  font-family:ui-monospace,monospace;letter-spacing:.05em;margin-top:2px}
+p{margin:11px 0;color:#dcdcd7}
+b{color:#fff;font-weight:700}
+.hl{color:var(--gold);font-weight:700}
+.hlo{color:var(--orange);font-weight:700}
+.hlb{color:var(--blue);font-weight:700}
+.hlp{color:var(--purple);font-weight:700}
+
+.m{font-family:'Times New Roman',Georgia,serif;font-style:italic;font-size:17px;color:#fff;font-weight:500;white-space:nowrap}
+.mb .kw{font-style:normal;font-family:-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+  font-size:15px;color:#c9c9c3;font-weight:600}
+.mb{display:block;text-align:center;font-family:'Times New Roman',Georgia,serif;
+  font-style:italic;font-size:21px;color:#fff;margin:16px 0;line-height:1.7}
+sup{font-size:.62em;vertical-align:super;line-height:0}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;
+  font-family:'Times New Roman',Georgia,serif;font-style:italic;line-height:1.15;margin:0 3px}
+.fr i{font-style:italic;display:block;padding:0 5px}
+.fr i:first-child{border-bottom:1.4px solid currentColor}
+.mb .fr{font-size:19px}
+p .fr,td .fr,li .fr,.sol .fr,.ans .fr{font-size:15px}
+
+.rule{border:1px solid var(--gold);background:rgba(255,201,60,.06);padding:14px;margin:18px 0;border-radius:2px}
+.rule .tag{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.12em;
+  color:var(--gold);font-weight:700;display:block;margin-bottom:6px}
+.rule .mb{margin:9px 0 6px;font-size:22px}
+.rule p{margin:6px 0 0;font-size:13px;color:#c9c9c3}
+
+.thm{border:1px solid var(--green);background:rgba(110,201,138,.055);padding:14px;margin:18px 0;border-radius:2px}
+.thm .tag{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.12em;
+  color:var(--green);font-weight:700;display:block;margin-bottom:8px}
+.thm p{margin:5px 0;font-size:14px;color:#dfe9e2}
+
+.mine{border:1px solid #3d2b52;background:rgba(180,140,224,.07);padding:14px;margin:18px 0;border-radius:2px}
+.mine .tag{font-size:10.5px;letter-spacing:.1em;color:var(--purple);font-weight:700;
+  display:block;margin-bottom:6px;font-family:ui-monospace,monospace}
+.mine p{margin:7px 0 0;font-size:13.8px;color:#d3cade}
+.mine p:first-of-type{margin-top:0}
+
+.warn{border:1px solid #4a2418;background:rgba(255,107,74,.07);padding:13px 14px;margin:18px 0;border-radius:2px}
+.warn .tag{font-size:11px;letter-spacing:.08em;color:var(--orange);font-weight:700;display:block;margin-bottom:5px}
+.warn p{margin:5px 0 0;font-size:13.5px}
+
+.note{border-left:3px solid var(--line2);padding:2px 0 2px 13px;margin:16px 0}
+.note p{margin:4px 0;font-size:13.5px;color:#b6b6b0}
+
+ol.steps{list-style:none;counter-reset:s;margin:14px 0}
+ol.steps li{counter-increment:s;position:relative;padding-left:32px;margin:11px 0;font-size:14px;color:#dcdcd7}
+ol.steps li::before{content:counter(s);position:absolute;left:0;top:2px;width:21px;height:21px;
+  border:1px solid var(--line2);border-radius:50%;font-size:11px;font-family:ui-monospace,monospace;
+  color:var(--mut);display:flex;align-items:center;justify-content:center}
+
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+th,td{border:1px solid var(--line);padding:8px 9px;text-align:left;vertical-align:middle}
+th{background:var(--surf2);font-size:11.5px;color:var(--mut);font-weight:600}
+td .m{font-size:15px}
+td.c{text-align:center}
+
+.fig{background:var(--surf);border:1px solid var(--line);margin:18px 0;border-radius:2px;overflow:hidden}
+.fig svg{display:block;width:100%;height:auto}
+.fctl{display:flex;align-items:center;gap:7px;padding:9px 10px;border-top:1px solid var(--line);flex-wrap:wrap}
+.fctl .lbl{font-size:11.5px;color:var(--mut);flex:1 1 100%;order:-1;line-height:1.8}
+.fctl .lbl b{color:var(--tx)}
+.fctl .grp{display:flex;align-items:center;border:1px solid var(--line2);border-radius:2px;overflow:hidden}
+.fctl .grp span{padding:0 9px;font-size:11.5px;color:var(--mut);font-family:'Times New Roman',serif;font-style:italic}
+.fctl .grp button{width:30px;height:29px;background:var(--surf2);border:none;border-left:1px solid var(--line2);
+  color:var(--tx);font-size:15px;font-family:inherit;cursor:pointer}
+.fctl .grp button:active{background:var(--gold);color:#000}
+.fctl>button.tg{background:var(--surf2);border:1px solid var(--line2);color:var(--tx);
+  padding:7px 12px;font-size:11.5px;font-family:inherit;cursor:pointer;border-radius:2px}
+.fctl>button.tg.on{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700}
+.fctl input[type=range]{flex:1 1 140px;accent-color:var(--gold);height:28px}
+
+.proof{background:var(--surf);border:1px solid var(--line);margin:18px 0;border-radius:2px;overflow:hidden}
+.proof>.ph{padding:10px 13px;border-bottom:1px solid var(--line);font-size:11px;
+  font-family:ui-monospace,monospace;letter-spacing:.1em;color:var(--green)}
+.pline{border-bottom:1px solid var(--line)}
+.pline:last-child{border-bottom:none}
+.pline .eqn{padding:12px 13px;font-family:'Times New Roman',Georgia,serif;font-style:italic;
+  font-size:16.5px;color:#fff;display:flex;align-items:center;gap:10px}
+.pline .eqn span.e{flex:1}
+.pline .why{flex:0 0 auto;background:transparent;border:1px solid var(--line2);color:var(--mut);
+  font-size:10.5px;padding:4px 9px;font-family:inherit;font-style:normal;cursor:pointer;border-radius:2px}
+.pline .why.on{color:var(--gold);border-color:var(--gold)}
+.pline .ans{display:none;padding:0 13px 13px;font-size:13px;color:#b6b6b0;line-height:1.75}
+.pline .ans.on{display:block}
+.pline .ans b{color:var(--gold)}
+
+.q{background:var(--surf);border:1px solid var(--line);padding:13px;margin:11px 0;border-radius:2px}
+.q .qt{font-size:14px;color:var(--tx)}
+.q .qt i{font-style:normal;font-family:ui-monospace,monospace;color:var(--mut);font-size:11px;margin-right:8px}
+.q button{margin-top:10px;background:transparent;border:1px solid var(--line2);color:var(--mut);
+  font-size:11.5px;padding:6px 11px;font-family:inherit;cursor:pointer;border-radius:2px}
+.q .sol{display:none;margin-top:11px;padding-top:11px;border-top:1px solid var(--line);
+  font-size:13.5px;color:#c9c9c3;line-height:1.9}
+.q .sol.on{display:block}
+.q .sol .m{font-size:15px}
+
+footer{padding:26px 0 0;font-size:11px;color:#5a5a55;line-height:1.9}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<nav><div class="nv">
+  <a href="#a1" class="on">역원</a>
+  <a href="#zero">ab=0 ★</a>
+  <a href="#div">나눗셈</a>
+  <a href="#cross">십자곱 증명 ★</a>
+  <a href="#cancel">약분법칙</a>
+  <a href="#frac">분수 계산</a>
+  <a href="#phys">속도·거리</a>
+  <a href="#mix">혼합 문제 ★</a>
+  <a href="#ex">연습</a>
+</div></nav>
+
+<div class="wrap">
+<header>
+  <h1>곱셈의 역원</h1>
+  <p>SERGE LANG · BASIC MATHEMATICS · CH.1 §6 · pp.42–51</p>
+</header>
+
+<section>
+  <h2><em>§6</em> Multiplicative Inverses</h2>
+  <div class="sub">이 절의 한 문장 — 유리수가 정수보다 <b>딱 하나 더</b> 가진 성질, 그 하나에서 나눗셈·십자곱·방정식 풀이가 전부 흘러나온다.</div>
+
+  <div class="mine">
+    <span class="tag">먼저 · 1장의 마지막 절입니다</span>
+    <p>§6은 <b>회수의 절</b>입니다. 앞에서 미뤄둔 것들이 여기서 갚아집니다.</p>
+    <p>§5에서 Lang이 십자곱 규칙을 <b>증명 없이 가정</b>하며 이렇게 적었죠 — "§6에서 곱셈의 역원을 다루는데, 거기서 십자곱이 역원의 성질로부터 실제로 증명될 수 있음을 보게 된다." <b>그 약속을 여기서 지킵니다.</b></p>
+    <p>그리고 §5 연습문제 4번("<span class="m">ab = 1</span> 인 <span class="m">b</span> 가 존재함을 보여라")도 여기서 정식 주제가 됩니다.</p>
+    <p style="margin-top:12px"><b>구조를 미리 말하면</b> — 성질 하나(<span class="m">a<sup>−1</sup></span>의 존재)를 받고, 거기서 <b>다섯 가지</b>를 뽑아냅니다. 나눗셈의 정의, <span class="m">ab=0</span> 정리, 십자곱, 약분법칙, 그리고 분수 계산 전부.</p>
+  </div>
+
+  <h3 id="a1">1. 정수가 못 가진 성질 하나<small>THE ONE PROPERTY</small></h3>
+  <p>Lang이 §6을 여는 첫 문장입니다. <b>유리수는 정수가 만족하지 못하는 성질 하나를 만족한다.</b></p>
+  <div class="rule">
+    <span class="tag">성질 (역원의 존재)</span>
+    <p style="margin-top:0"><span class="m">a</span> 가 <b>0이 아닌</b> 유리수면, 다음을 만족하는 유리수 <span class="m">a<sup>−1</sup></span> 이 <b>존재한다</b>.</p>
+    <div class="mb">a<sup>−1</sup>a = aa<sup>−1</sup> = 1</div>
+    <p>이 <span class="m">a<sup>−1</sup></span> 을 <span class="m">a</span> 의 <b>곱셈의 역원(multiplicative inverse)</b>이라 한다.</p>
+  </div>
+  <p>실제로 <span class="m">a = m/n</span> 이고 <span class="m">m, n</span> 이 둘 다 0이 아닌 정수라면, <span class="m">a<sup>−1</sup> = n/m</span> 입니다. 왜냐하면</p>
+  <div class="mb"><span class="fr"><i>m</i><i>n</i></span> · <span class="fr"><i>n</i><i>m</i></span> = <span class="fr"><i>mn</i><i>nm</i></span> = 1</div>
+  <p>Lang이 든 예입니다.</p>
+  <table>
+    <tr><th><span class="m">a</span></th><th><span class="m">a<sup>−1</sup></span></th><th>확인</th></tr>
+    <tr><td class="c"><span class="fr"><i>1</i><i>2</i></span></td><td class="c"><span class="fr"><i>2</i><i>1</i></span> = 2</td><td class="c"><span class="fr"><i>1</i><i>2</i></span>·2 = 1</td></tr>
+    <tr><td class="c"><span class="fr"><i>2</i><i>3</i></span></td><td class="c"><span class="fr"><i>3</i><i>2</i></span></td><td class="c"><span class="fr"><i>6</i><i>6</i></span> = 1</td></tr>
+    <tr><td class="c"><span class="m">−</span><span class="fr"><i>4</i><i>5</i></span></td><td class="c"><span class="m">−</span><span class="fr"><i>5</i><i>4</i></span></td><td class="c"><span class="fr"><i>20</i><i>20</i></span> = 1</td></tr>
+  </table>
+
+  <div class="mine">
+    <span class="tag">내 설명 · 왜 이게 "하나 더"인가</span>
+    <p>§2에서 <b>덧셈의 역원</b>을 배웠습니다. <span class="m">a + (−a) = 0</span>. 짝을 만나면 <b>0</b>으로 돌아가는 상대죠.</p>
+    <p>§6은 <b>같은 이야기의 곱셈판</b>입니다. <span class="m">a · a<sup>−1</sup> = 1</span>. 짝을 만나면 <b>1</b>로 돌아갑니다.</p>
+    <p>덧셈에서 "아무것도 안 하는 수"가 0이었듯, 곱셈에서는 1입니다(§3 N6). 그래서 곱셈의 역원은 <b>1로 되돌리는 짝</b>이에요.</p>
+    <p style="margin-top:12px"><b>그런데 정수 세계에는 이게 없습니다.</b> <span class="m">3 · ? = 1</span> 을 만족하는 <b>정수</b>가 있나요? 없습니다. <span class="fr" style="font-size:14px"><i>1</i><i>3</i></span> 은 정수가 아니거든요.</p>
+    <p>정수에서 역원을 가진 수는 <b>1과 −1뿐</b>입니다. 그래서 유리수로 넓힌 겁니다. <span class="hlp">§5·§6이 존재하는 이유가 이 한 줄이에요.</span></p>
+  </div>
+
+  <div class="warn">
+    <span class="tag">⚠ 0만 예외인 이유</span>
+    <p>성질에 <b>"0이 아닌"</b> 이 붙어 있습니다. 왜일까요?</p>
+    <p><span class="m">0 · ? = 1</span> 을 만족하는 수를 찾아야 하는데, §3에서 <span class="m">0a = 0</span> 을 <b>증명</b>했습니다. 0을 곱하면 무조건 0이에요. 절대 1이 될 수 없습니다.</p>
+    <p>그래서 <b>0의 역원은 존재하지 않고</b>, 그게 곧 <b>0으로 나눌 수 없는</b> 이유입니다. §5에서 <span class="m">n ≠ 0</span> 을 계속 달던 조건이 여기서 정체를 드러냅니다.</p>
+  </div>
+
+  <p>아래에서 역원을 직접 뒤집어 보세요.</p>
+  <div class="fig" data-fig="inv" data-m="3" data-n="4"></div>
+
+  <h3>2. 역원은 유일하다</h3>
+  <div class="thm">
+    <span class="tag">관찰</span>
+    <p><span class="m">a, b</span> 가 유리수이고 <span class="m">ab = 1</span> 이면 <span class="m">b = a<sup>−1</sup></span> 이다.</p>
+  </div>
+  <div class="proof">
+    <div class="ph">PROOF</div>
+    <div class="pline"><div class="eqn"><span class="e">a<sup>−1</sup>ab = a<sup>−1</sup> · 1 = a<sup>−1</sup></span><button class="why">왜?</button></div>
+      <div class="ans"><b>양변에 <span class="m">a<sup>−1</sup></span> 을 곱했습니다.</b> <span class="m">ab = 1</span> 의 양쪽에 같은 것을 곱한 거죠.<br>
+      오른쪽은 <span class="m">a<sup>−1</sup> · 1 = a<sup>−1</sup></span> (§3 N6: 1을 곱하면 그대로).</div></div>
+    <div class="pline"><div class="eqn"><span class="e">a<sup>−1</sup>ab = 1b = b</span><button class="why">왜?</button></div>
+      <div class="ans">왼쪽을 <b>결합법칙</b>으로 다시 묶었습니다. <span class="m">(a<sup>−1</sup>a)b</span> 로 보면 괄호 안이 1이므로 <span class="m">1b = b</span>.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">∴ b = a<sup>−1</sup></span><button class="why">왜?</button></div>
+      <div class="ans">같은 것을 두 가지로 계산했더니 <span class="m">a<sup>−1</sup></span> 과 <span class="m">b</span> 가 나왔습니다. 따라서 둘은 같습니다.<br>
+      <b>증명 끝.</b><br><br>
+      <b>§2와 비교해 보세요.</b> N3이 "<span class="m">a + b = 0</span> 이면 <span class="m">b = −a</span>"였죠. 완전히 같은 모양입니다. 0이 1로, 덧셈이 곱셈으로 바뀌었을 뿐이에요.</div></div>
+  </div>
+
+  <h3 id="zero">3. ab = 0 이면 둘 중 하나는 0 ★</h3>
+  <div class="thm">
+    <span class="tag">정리</span>
+    <p><span class="m">ab = 0</span> 이면 <span class="m">a = 0</span> 이거나 <span class="m">b = 0</span> 이다.</p>
+  </div>
+  <div class="proof">
+    <div class="ph">PROOF</div>
+    <div class="pline"><div class="eqn"><span class="e">a ≠ 0 이라고 하자</span><button class="why">왜?</button></div>
+      <div class="ans"><b>경우를 나눕니다.</b> <span class="m">a = 0</span> 이면 결론이 이미 참이니 볼 것이 없어요. 그러니 <span class="m">a ≠ 0</span> 인 경우에 <b><span class="m">b = 0</span> 임을 보이면</b> 됩니다.<br>
+      그리고 <span class="m">a ≠ 0</span> 이므로 <b><span class="m">a<sup>−1</sup></span> 이 존재합니다.</b> 이게 이 증명의 유일한 재료예요.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">a<sup>−1</sup>ab = 0a<sup>−1</sup> = 0</span><button class="why">왜?</button></div>
+      <div class="ans"><b>양변에 <span class="m">a<sup>−1</sup></span> 을 곱했습니다.</b> 오른쪽은 <span class="m">0 · a<sup>−1</sup> = 0</span> (§3에서 증명한 <span class="m">0a = 0</span>).</div></div>
+    <div class="pline"><div class="eqn"><span class="e">a<sup>−1</sup>ab = 1b = b</span><button class="why">왜?</button></div>
+      <div class="ans">왼쪽을 결합법칙으로 묶으면 <span class="m">(a<sup>−1</sup>a)b = 1b = b</span>.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">∴ b = 0</span><button class="why">왜?</button></div>
+      <div class="ans">왼쪽 계산은 <span class="m">b</span>, 오른쪽 계산은 0. 따라서 <span class="m">b = 0</span>.<br><b>증명 끝.</b></div></div>
+  </div>
+
+  <div class="warn">
+    <span class="tag">★ 이 정리가 나중에 무엇이 되는가</span>
+    <p>지금은 당연해 보이지만, 이게 <b>4장 이차방정식 전체를 떠받치는 기둥</b>입니다.</p>
+    <p><span class="m">x<sup>2</sup> + x − 6 = 0</span> 을 풀 때 우리는 이렇게 하죠.</p>
+    <div class="mb" style="font-size:18px">(x − 2)(x + 3) = 0</div>
+    <p>그리고 <b>"따라서 <span class="m">x = 2</span> 또는 <span class="m">x = −3</span>"</b> 이라고 씁니다. 왜 그렇게 말할 수 있죠?</p>
+    <p><b>바로 이 정리 때문입니다.</b> 두 수의 곱이 0이면 둘 중 하나가 0이어야 하니까요. 인수분해로 방정식을 푸는 방법 전체가 이 한 줄 위에 서 있습니다.</p>
+    <p style="margin-top:10px">그리고 이 정리는 <b>역원이 있는 세계에서만</b> 성립합니다. 역원이 없는 수 체계에서는 <span class="m">ab = 0</span> 인데 둘 다 0이 아닌 일이 실제로 벌어집니다. 시계 산술(§4의 mod)에서 <span class="m">4 × 3 = 12 ≡ 0 (mod 12)</span> 인데 4도 3도 0이 아니죠.</p>
+  </div>
+
+  <h3 id="div">4. 나눗셈은 새 연산이 아니다<small>NOTATION FOR QUOTIENTS</small></h3>
+  <p>Lang은 정수의 몫에서 쓰던 표기를 <b>유리수의 몫</b>에도 그대로 쓰겠다고 선언합니다.</p>
+  <div class="rule">
+    <span class="tag">표기 약속</span>
+    <div class="mb"><span class="fr"><i>a</i><i>b</i></span> &nbsp;<span class="kw">또는</span>&nbsp; a/b &nbsp;<span class="kw">는</span>&nbsp; b<sup>−1</sup>a &nbsp;<span class="kw">또는</span>&nbsp; ab<sup>−1</sup> <span class="kw">의 줄임말</span></div>
+  </div>
+
+  <div class="mine">
+    <span class="tag">내 설명 · §2와 정확히 같은 구조</span>
+    <p>§2에서 이런 약속을 했었죠. <span class="m">a − b</span> 는 <span class="m">a + (−b)</span> 의 줄임말이다. 그래서 <b>뺄셈이라는 별도의 연산은 없다</b>고요.</p>
+    <p>§6은 그 <b>곱셈판</b>입니다. <span class="m">a / b</span> 는 <span class="m">a · b<sup>−1</sup></span> 의 줄임말입니다. 그러니 <span class="hlp">나눗셈이라는 별도의 연산도 없습니다.</span></p>
+    <table style="margin-top:10px">
+      <tr><th></th><th>덧셈 세계 (§2)</th><th>곱셈 세계 (§6)</th></tr>
+      <tr><td>아무 일 안 하는 수</td><td class="c"><span class="m">0</span></td><td class="c"><span class="m">1</span></td></tr>
+      <tr><td>역원</td><td class="c"><span class="m">−a</span></td><td class="c"><span class="m">a<sup>−1</sup></span></td></tr>
+      <tr><td>역원 성질</td><td class="c"><span class="m">a + (−a) = 0</span></td><td class="c"><span class="m">a · a<sup>−1</sup> = 1</span></td></tr>
+      <tr><td>줄임 표기</td><td class="c"><span class="m">a − b</span></td><td class="c"><span class="m">a / b</span></td></tr>
+      <tr><td>예외</td><td class="c">없음</td><td class="c" style="color:var(--orange)"><span class="m">0</span>은 역원 없음</td></tr>
+    </table>
+    <p style="margin-top:10px">거의 완벽한 대칭인데 <b>마지막 줄만 다릅니다.</b> 덧셈에서는 모든 수가 역원을 갖지만, 곱셈에서는 0만 빠져요. 그 한 칸의 차이가 "0으로 나누지 마라"라는 평생 듣는 규칙의 정체입니다.</p>
+  </div>
+
+  <p>Lang의 예입니다. <span class="m">a = </span><span class="fr"><i>3</i><i>4</i></span>, <span class="m">b = </span><span class="fr"><i>5</i><i>7</i></span> 일 때:</p>
+  <div class="mb"><span class="fr"><i>3/4</i><i>5/7</i></span> = <span class="fr"><i>3</i><i>4</i></span>(<span class="fr"><i>5</i><i>7</i></span>)<sup>−1</sup> = <span class="fr"><i>3</i><i>4</i></span> · <span class="fr"><i>7</i><i>5</i></span> = <span class="fr"><i>21</i><i>20</i></span></div>
+  <div class="note">
+    <p><b>"분수의 나눗셈은 뒤집어서 곱한다"</b>는 초등학교 규칙의 정체가 이겁니다. 뒤집는 건 <b>역원을 취하는 것</b>이고, 나눗셈은 <b>역원을 곱하는 것</b>이니까요. 규칙이 아니라 <b>정의의 결과</b>였습니다.</p>
+  </div>
+
+  <h3 id="cross">5. 십자곱 — 약속을 지키다 ★<small>CROSS-MULTIPLICATION, PROVED</small></h3>
+  <p>§5에서 <b>증명 없이 가정</b>했던 십자곱 규칙을, 이제 <b>덧셈·곱셈·역원의 기본 성질만으로</b> 증명합니다.</p>
+  <div class="thm">
+    <span class="tag">CROSS-MULTIPLICATION</span>
+    <p><span class="m">a, b, c, d</span> 를 유리수라 하고 <span class="m">b ≠ 0</span>, <span class="m">d ≠ 0</span> 이라 하자.</p>
+    <p>① <span class="fr"><i>a</i><i>b</i></span> = <span class="fr"><i>c</i><i>d</i></span> &nbsp;이면&nbsp; <span class="m">ad = bc</span></p>
+    <p>② <span class="m">ad = bc</span> &nbsp;이면&nbsp; <span class="fr"><i>a</i><i>b</i></span> = <span class="fr"><i>c</i><i>d</i></span></p>
+  </div>
+
+  <div class="proof">
+    <div class="ph">PROOF · ① 정방향</div>
+    <div class="pline"><div class="eqn"><span class="e">b<sup>−1</sup>a = d<sup>−1</sup>c</span><button class="why">왜?</button></div>
+      <div class="ans"><b>가정을 표기 약속대로 풀어 쓴 것뿐입니다.</b> <span class="fr" style="font-size:14px"><i>a</i><i>b</i></span> 는 정의상 <span class="m">b<sup>−1</sup>a</span> 이고, <span class="fr" style="font-size:14px"><i>c</i><i>d</i></span> 는 <span class="m">d<sup>−1</sup>c</span> 입니다.<br>
+      <b>분수 기호를 벗겨내는 게 첫걸음</b>이에요. 그래야 곱셈 규칙을 쓸 수 있습니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">dbb<sup>−1</sup>a = bdd<sup>−1</sup>c</span><button class="why">왜?</button></div>
+      <div class="ans"><b>양변에 <span class="m">db</span> 를 곱했습니다</b>(<span class="m">bd</span> 와 같습니다 — 교환법칙).<br>
+      <b>왜 하필 <span class="m">db</span> 인가?</b> 왼쪽의 <span class="m">b<sup>−1</sup></span> 과 오른쪽의 <span class="m">d<sup>−1</sup></span> 을 <b>동시에 없애기 위해서</b>입니다. 각각의 짝을 한꺼번에 데려온 거예요.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">da = bc</span><button class="why">왜?</button></div>
+      <div class="ans">왼쪽: <span class="m">bb<sup>−1</sup>a = 1a = a</span> 이므로 <span class="m">da</span> 만 남습니다.<br>
+      오른쪽: <span class="m">dd<sup>−1</sup>c = 1c = c</span> 이므로 <span class="m">bc</span> 만 남습니다.<br>
+      <span class="m">da = ad</span> (교환법칙)이므로 <span class="m">ad = bc</span>. <b>①  증명 끝.</b></div></div>
+  </div>
+
+  <div class="proof">
+    <div class="ph">PROOF · ② 역방향</div>
+    <div class="pline"><div class="eqn"><span class="e">add<sup>−1</sup>b<sup>−1</sup> = d<sup>−1</sup>b<sup>−1</sup>bc</span><button class="why">왜?</button></div>
+      <div class="ans">가정 <span class="m">ad = bc</span> 의 <b>양변에 <span class="m">b<sup>−1</sup>d<sup>−1</sup></span> 을 곱했습니다</b>(<span class="m">d<sup>−1</sup>b<sup>−1</sup></span> 과 같습니다).<br>
+      이번엔 <b>거꾸로</b>입니다. 아까는 역원을 없애려고 <span class="m">db</span> 를 곱했고, 지금은 역원을 <b>만들려고</b> 곱합니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">ab<sup>−1</sup> = d<sup>−1</sup>c</span><button class="why">왜?</button></div>
+      <div class="ans">왼쪽: <span class="m">dd<sup>−1</sup> = 1</span> 이므로 <span class="m">ab<sup>−1</sup></span> 만 남습니다.<br>
+      오른쪽: <span class="m">b<sup>−1</sup>b = 1</span> 이므로 <span class="m">d<sup>−1</sup>c</span> 만 남습니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">∴ a/b = c/d</span><button class="why">왜?</button></div>
+      <div class="ans">표기 약속을 <b>다시 씌우면</b> 그대로 <span class="fr" style="font-size:14px"><i>a</i><i>b</i></span> = <span class="fr" style="font-size:14px"><i>c</i><i>d</i></span> 입니다.<br>
+      <b>② 증명 끝.</b> ①과 ②를 합치면 "<b>필요충분</b>"이 됩니다.</div></div>
+  </div>
+
+  <div class="mine">
+    <span class="tag">내 설명 · 증명의 리듬</span>
+    <p>두 방향 증명이 <b>거울처럼 대칭</b>입니다.</p>
+    <p><b>① 분수 → 정수식</b>: 역원을 <b>없애려고</b> <span class="m">db</span> 를 곱한다<br>
+    <b>② 정수식 → 분수</b>: 역원을 <b>만들려고</b> <span class="m">b<sup>−1</sup>d<sup>−1</sup></span> 을 곱한다</p>
+    <p>§2·§4에서 봤던 <b>"없애고 싶은 놈의 역원을 양변에 곱한다"</b>가 여기서도 그대로입니다. 덧셈판에서는 마이너스를 더했고, 곱셈판에서는 역원을 곱합니다.</p>
+    <p style="margin-top:10px"><b>그리고 §5의 약속이 지켜졌습니다.</b> 십자곱은 이제 가정이 아니라 <b>정리</b>입니다. 빚 하나를 갚은 셈이에요.</p>
+  </div>
+
+  <p>Lang의 예제 두 개입니다.</p>
+  <div class="proof">
+    <div class="ph">EXAMPLE · 3/(x−1) = 2</div>
+    <div class="pline"><div class="eqn"><span class="e">3 = 2(x − 1) = 2x − 2</span><button class="why">왜?</button></div>
+      <div class="ans"><b>십자곱</b>입니다. <span class="fr" style="font-size:14px"><i>3</i><i>x−1</i></span> = <span class="fr" style="font-size:14px"><i>2</i><i>1</i></span> 로 보면 <span class="m">3 · 1 = 2(x−1)</span>.<br>
+      그다음 <b>분배법칙</b>(§3)으로 괄호를 풀었습니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">3 + 2 = 2x&nbsp; →&nbsp; x = 5/2</span><button class="why">왜?</button></div>
+      <div class="ans">양변에 2를 더하고, 양변을 2로 나눴습니다.<br>
+      <span class="m">5 = 2x</span> 이므로 <span class="m">x = </span><span class="fr" style="font-size:14px"><i>5</i><i>2</i></span>. <b>끝.</b></div></div>
+  </div>
+  <div class="proof">
+    <div class="ph">EXAMPLE · (4+x)/(x/2) = 5</div>
+    <div class="pline"><div class="eqn"><span class="e">4 + x = 5 · (x/2) = 5x/2</span><button class="why">왜?</button></div>
+      <div class="ans">십자곱 1차. 분모 <span class="fr" style="font-size:14px"><i>x</i><i>2</i></span> 를 오른쪽으로 넘긴 겁니다.<br>
+      <b>분모 자체가 분수</b>인 경우인데, 십자곱은 유리수에서도 성립하므로(방금 증명) 그대로 씁니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">2(4 + x) = 5x</span><button class="why">왜?</button></div>
+      <div class="ans"><b>십자곱 2차.</b> 아직 남아 있는 분모 2를 털어냅니다. <span class="fr" style="font-size:14px"><i>4+x</i><i>1</i></span> = <span class="fr" style="font-size:14px"><i>5x</i><i>2</i></span> 이므로 <span class="m">2(4+x) = 5x</span>.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">8 + 2x = 5x&nbsp; →&nbsp; x = 8/3</span><button class="why">왜?</button></div>
+      <div class="ans">분배법칙으로 풀고, <b>양변에서 <span class="m">2x</span> 를 뺐습니다.</b> <span class="m">8 = 3x</span> 이므로 <span class="m">x = </span><span class="fr" style="font-size:14px"><i>8</i><i>3</i></span>. <b>끝.</b></div></div>
+  </div>
+
+  <h3 id="cancel">6. 두 개의 약분 법칙<small>CANCELLATION LAWS</small></h3>
+  <div class="thm">
+    <span class="tag">곱셈의 약분 법칙</span>
+    <p><span class="m">a</span> 를 <b>0이 아닌</b> 유리수라 하자. <span class="m">ab = ac</span> 이면 <span class="m">b = c</span> 이다.</p>
+  </div>
+  <p>증명은 한 줄입니다. 양변에 <span class="m">a<sup>−1</sup></span> 을 곱하면 <span class="m">a<sup>−1</sup>ab = a<sup>−1</sup>ac</span>, 즉 <span class="m">b = c</span>.</p>
+  <div class="warn">
+    <span class="tag">⚠ "0이 아닌"을 빼면 무너집니다</span>
+    <p><span class="m">a = 0</span> 이면? <span class="m">0 · 5 = 0 · 7</span> 은 참(양쪽 다 0)이지만 <span class="m">5 = 7</span> 은 거짓입니다.</p>
+    <p>약분이 되는 이유는 <b>역원이 있기 때문</b>이고, 0은 역원이 없으니 약분할 수 없습니다. 조건을 빼먹으면 아무거나 증명해버릴 수 있어요.</p>
+  </div>
+
+  <div class="thm">
+    <span class="tag">몫의 약분 법칙</span>
+    <p><span class="m">a, b, c, d</span> 가 유리수이고 <span class="m">a ≠ 0</span>, <span class="m">c ≠ 0</span> 이면</p>
+    <div class="mb" style="margin:8px 0"><span class="fr"><i>ab</i><i>ac</i></span> = <span class="fr"><i>b</i><i>c</i></span></div>
+  </div>
+  <p>Lang은 이걸 <b>십자곱으로</b> 확인합니다. <span class="m">(ab)c = b(ac)</span> 즉 <span class="m">abc = bac</span> 인데, 이는 <b>교환법칙과 결합법칙</b>에 의해 참입니다.</p>
+  <p>그리고 이렇게 정리합니다 — <b>유리수로 만든 분수도 정수로 만든 분수와 거의 똑같이 다룰 수 있다.</b></p>
+
+  <h3 id="frac">7. 분수 계산 규칙을 다시 유도하기</h3>
+  <p>§5에서 <b>정수</b>의 몫에 대해 세웠던 공식들을, 이제 <b>유리수</b>의 몫에 대해 다시 얻습니다.</p>
+
+  <p><b>통분</b> — <span class="m">a/b</span> 와 <span class="m">c/d</span> 가 유리수의 몫이면(<span class="m">b ≠ 0, d ≠ 0</span>):</p>
+  <div class="mb"><span class="fr"><i>a</i><i>b</i></span> = <span class="fr"><i>ad</i><i>bd</i></span> &nbsp;&nbsp;&nbsp; <span class="fr"><i>c</i><i>d</i></span> = <span class="fr"><i>bc</i><i>bd</i></span></div>
+
+  <p><b>분모가 같을 때의 덧셈</b> — <span class="m">x, y, b</span> 가 유리수이고 <span class="m">b ≠ 0</span> 이면:</p>
+  <div class="proof">
+    <div class="ph">유도 · x/b + y/b</div>
+    <div class="pline"><div class="eqn"><span class="e">= b<sup>−1</sup>x + b<sup>−1</sup>y</span><button class="why">왜?</button></div>
+      <div class="ans"><b>표기 약속을 풀어 썼습니다.</b> 분수 기호를 벗기면 역원의 곱입니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">= b<sup>−1</sup>(x + y)</span><button class="why">왜?</button></div>
+      <div class="ans"><b>분배법칙</b>입니다(§3). Lang이 직접 "by distributivity"라고 적어둔 자리예요.<br>
+      공통 인수 <span class="m">b<sup>−1</sup></span> 로 묶었습니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">= (x + y)/b</span><button class="why">왜?</button></div>
+      <div class="ans"><b>표기 약속을 다시 씌웠습니다</b>(Lang: "by definition").<br>
+      <b>유도 끝.</b> 분모가 같으면 분자끼리 더하면 된다는 규칙이, <b>분배법칙 한 줄</b>에서 나왔습니다.</div></div>
+  </div>
+
+  <p>이 둘을 합치면 <b>일반 덧셈 공식</b>이 나옵니다.</p>
+  <div class="rule">
+    <span class="tag">일반 덧셈</span>
+    <div class="mb"><span class="fr"><i>a</i><i>b</i></span> + <span class="fr"><i>c</i><i>d</i></span> = <span class="fr"><i>ad + bc</i><i>bd</i></span></div>
+    <p>Lang의 말 — <b>이 공식은 두 유리수의 합을 나타내는 공식과 완전히 유사하다.</b></p>
+  </div>
+
+  <div class="rule">
+    <span class="tag">Lang의 예제</span>
+    <p style="margin-top:0">다음을 보이시오.</p>
+    <div class="mb" style="margin:10px 0"><span class="fr"><i>1</i><i>x − y</i></span> + <span class="fr"><i>1</i><i>x + y</i></span> = <span class="fr"><i>2x</i><i>x<sup>2</sup> − y<sup>2</sup></i></span></div>
+  </div>
+  <div class="proof">
+    <div class="ph">PROOF</div>
+    <div class="pline"><div class="eqn"><span class="e">= [1(x+y) + 1(x−y)] / [(x−y)(x+y)]</span><button class="why">왜?</button></div>
+      <div class="ans">방금 유도한 <b>일반 덧셈 공식</b>을 그대로 적용했습니다. <span class="m">a = 1, b = x−y, c = 1, d = x+y</span>.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">분자 = x + y + x − y = 2x</span><button class="why">왜?</button></div>
+      <div class="ans"><span class="m">+y</span> 와 <span class="m">−y</span> 가 서로 잡아먹습니다(§2 N2). 남는 건 <span class="m">x + x = 2x</span>.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">분모 = x<sup>2</sup> − y<sup>2</sup></span><button class="why">왜?</button></div>
+      <div class="ans"><b>§3의 세 번째 암기 공식</b>입니다. <span class="m">(a+b)(a−b) = a<sup>2</sup> − b<sup>2</sup></span>.<br>
+      "반드시 외우라"던 그 공식이 여기서 쓰입니다.<br>
+      따라서 <span class="fr" style="font-size:14px"><i>2x</i><i>x<sup>2</sup>−y<sup>2</sup></i></span>. <b>증명 끝.</b></div></div>
+  </div>
+
+  <div class="note">
+    <p><b>Lang의 Remark</b> — 위 예제에서 <span class="m">1/(x−y)</span> 와 <span class="m">1/(x+y)</span> 는 <span class="m">x − y = 0</span> 이거나 <span class="m">x + y = 0</span> 이면 <b>말이 되지 않습니다.</b> 그런 경우 <span class="m">x, y</span> 가 <span class="m">x − y ≠ 0</span> 이고 <span class="m">x + y ≠ 0</span> 을 만족한다고 <b>암묵적으로 가정</b>합니다. 앞으로 혼동의 여지가 없으면 이런 조건을 <b>명시하지 않고 넘어가기도 하겠다</b>고 적어둡니다.</p>
+  </div>
+
+  <div class="proof">
+    <div class="ph">EXAMPLE · (3x+1)/(2x−5) = 4</div>
+    <div class="pline"><div class="eqn"><span class="e">3x + 1 = 4(2x − 5) = 8x − 20</span><button class="why">왜?</button></div>
+      <div class="ans"><b>십자곱.</b> 단 조건이 붙습니다 — <span class="m">2x − 5 ≠ 0</span>, 즉 <span class="hlo"><span class="m">x ≠ 5/2</span></span> 인 경우에만 유효합니다.<br>
+      Lang이 이 조건을 <b>명시적으로 적어둡니다.</b> 분모가 0이 되는 값은 애초에 후보에서 빠져야 하니까요.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">8x − 3x = 1 − (−20) = 21</span><button class="why">왜?</button></div>
+      <div class="ans"><span class="m">x</span> 항은 오른쪽으로, 상수는 왼쪽으로 모았습니다.<br>
+      <span class="m">1 − (−20) = 1 + 20 = 21</span> — §2 N4(마이너스 두 번은 플러스)입니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">5x = 21&nbsp; →&nbsp; x = 21/5</span><button class="why">왜?</button></div>
+      <div class="ans"><span class="m">8x − 3x = 5x</span>. 양변을 5로 나누면 끝.<br>
+      <b>검산</b>: <span class="m">21/5 ≠ 5/2</span> 이므로 조건을 만족합니다. 유효한 해예요.</div></div>
+  </div>
+
+  <h3 id="phys">8. 물리 세계의 예<small>d = st</small></h3>
+  <p>Lang이 실제 세계의 예를 하나 가져옵니다. 물체가 직선 위를 <b>일정한 속력</b>으로 움직인다고 하자.</p>
+  <div class="rule">
+    <span class="tag">공식</span>
+    <p style="margin-top:0"><span class="m">s</span> = 속력, <span class="m">d</span> = 이동 거리, <span class="m">t</span> = 걸린 시간</p>
+    <div class="mb">d = st</div>
+  </div>
+  <p>물론 수를 붙이려면 <b>시간과 거리의 단위를 먼저 정해야</b> 합니다. Lang의 예 — 거리가 5마일, 시간이 <span class="fr"><i>1</i><i>2</i></span> 시간이면:</p>
+  <div class="mb">s = <span class="fr"><i>d</i><i>t</i></span> = <span class="fr"><i>5</i><i>1/2</i></span> = 2 · 5 = 10 <span class="kw">mi/hr</span></div>
+  <div class="mine">
+    <span class="tag">내 설명 · 여기서 역원이 쓰였습니다</span>
+    <p><span class="fr" style="font-size:15px"><i>5</i><i>1/2</i></span> 을 계산할 때 무슨 일이 벌어졌나요?</p>
+    <p>정의에 따라 <span class="m">5 · (</span><span class="fr" style="font-size:14px"><i>1</i><i>2</i></span><span class="m">)<sup>−1</sup> = 5 · 2 = 10</span>. <b>분모를 뒤집어 곱한 겁니다.</b></p>
+    <p>"30분에 5마일이면 시속 10마일"은 직관적으로도 맞죠. <b>그 직관의 근거가 역원</b>이었던 겁니다.</p>
+  </div>
+
+  <div class="rule">
+    <span class="tag">Lang의 예제 · 여행</span>
+    <p style="margin-top:0">8시간 동안 400마일을 운전했다. 고속도로에서는 평균 시속 60마일, 시내에서는 시속 30마일이었다. <b>시내를 몇 시간 운전했는가?</b></p>
+  </div>
+  <ol class="steps">
+    <li><span class="m">x</span> = 시내 운전 시간이라 두면, 고속도로 시간은 <span class="m">8 − x</span></li>
+    <li>시내 이동 거리 = <span class="m">30x</span>, 고속도로 이동 거리 = <span class="m">60(8 − x)</span></li>
+    <li>총 거리가 400이므로 &nbsp; <span class="m">30x + 60(8 − x) = 400</span></li>
+    <li>분배법칙 &nbsp; <span class="m">30x + 480 − 60x = 400</span></li>
+    <li>정리하면 &nbsp; <span class="m">80 = 30x</span></li>
+    <li><span class="m">x = </span><span class="fr"><i>80</i><i>30</i></span> = <span class="fr"><i>8</i><i>3</i></span> <b>시간</b></li>
+  </ol>
+  <p>아래에서 <span class="m">x</span> 를 움직이며 총 거리가 400에 맞는 지점을 찾아보세요.</p>
+  <div class="fig" data-fig="trip"></div>
+
+  <h3 id="mix">9. 혼합 문제 ★<small>MIXTURE PROBLEMS</small></h3>
+  <div class="rule">
+    <span class="tag">Lang의 예제 · 부동액</span>
+    <p style="margin-top:0">자동차 라디에이터에 액체 8쿼트가 들어 있고, <b>40%가 부동액</b>(나머지는 물)이다. 결과 혼합물이 <b>90% 부동액</b>이 되려면 얼마를 빼내고 부동액으로 채워야 하는가?</p>
+  </div>
+  <ol class="steps">
+    <li><span class="m">x</span> = 빼낼 쿼트 수</li>
+    <li>빼내고 나면 <span class="m">8 − x</span> 쿼트가 남고, 그중 40%가 부동액 → 남은 부동액은 <span class="fr"><i>40</i><i>100</i></span><span class="m">(8 − x)</span> 쿼트</li>
+    <li>여기에 부동액 <span class="m">x</span> 쿼트를 넣으므로, 최종 부동액은 <span class="fr"><i>40</i><i>100</i></span><span class="m">(8 − x) + x</span></li>
+    <li>이것이 전체 8쿼트의 90%여야 한다 → <span class="fr"><i>40</i><i>100</i></span><span class="m">(8 − x) + x = </span><span class="fr"><i>90</i><i>100</i></span><span class="m"> · 8</span></li>
+    <li>정리하면 &nbsp; <span class="fr"><i>60</i><i>100</i></span><span class="m">x = </span><span class="fr"><i>50</i><i>100</i></span><span class="m"> · 8</span></li>
+    <li><span class="m">x = </span><span class="fr"><i>400</i><i>60</i></span> = <span class="fr"><i>20</i><i>3</i></span></li>
+  </ol>
+  <p>Lang은 <b>이것도 정답</b>이라고 하면서, 굳이 기약 형태로 말하자면 <b>6<span class="fr"><i>2</i><i>3</i></span> 쿼트</b>를 부동액으로 교체해야 한다고 덧붙입니다.</p>
+
+  <div class="mine">
+    <span class="tag">내 설명 · 혼합 문제의 만능 골격</span>
+    <p>연습문제 11, 14, 15, 17, 18번이 <b>전부 이 유형</b>입니다. 골격 하나만 외우면 다 풀려요.</p>
+    <p><b>핵심 원리 — 순수한 것의 양을 추적하라.</b> 퍼센트를 직접 다루려 하면 반드시 꼬입니다. <b>실제 양(그램, 쿼트)</b>으로 바꿔서 방정식을 세우세요.</p>
+    <table style="margin-top:10px">
+      <tr><th>단계</th><th>할 일</th></tr>
+      <tr><td class="c"><b>①</b></td><td><span class="m">x</span> 를 정한다 (빼낸 양 / 넣은 양)</td></tr>
+      <tr><td class="c"><b>②</b></td><td><b>처음</b> 순수량 = 총량 × 처음 농도</td></tr>
+      <tr><td class="c"><b>③</b></td><td><b>변화</b> 후 순수량 = ② ± 빼거나 더한 순수량</td></tr>
+      <tr><td class="c"><b>④</b></td><td><b>나중</b> 총량 = 처음 총량 ± 변화량</td></tr>
+      <tr><td class="c"><b>⑤</b></td><td>③ = ④ × 목표 농도 &nbsp;→&nbsp; 풀기</td></tr>
+    </table>
+    <p style="margin-top:10px"><span style="color:var(--orange)"><b>가장 흔한 실수</b></span> — <b>물만 더할 때는 순수량이 안 변한다</b>는 걸 놓치는 겁니다. 소금물에 물을 부으면 소금의 <b>양</b>은 그대로고 <b>전체 무게</b>만 늘어요. 그럼 ③은 그냥 ②와 같습니다.</p>
+    <p>Lang의 부동액 문제가 유독 까다로운 이유는 <b>빼기와 더하기가 동시에</b> 일어나기 때문입니다. 대부분의 연습문제는 이보다 쉬워요.</p>
+  </div>
+
+  <p>아래에서 부동액 문제를 직접 조절해 보세요. 90%가 되는 지점을 찾아보세요.</p>
+  <div class="fig" data-fig="mix"></div>
+
+  <div class="note">
+    <p><b>Lang의 Remark</b> — 위의 예제들과 연습문제는 <b>미지수 두 개로도</b> 풀 수 있습니다. 2장 §1 끝을 참고하라고 남깁니다.</p>
+  </div>
+
+  <h3 id="ex">10. 연습 문제<small>교재 48–51쪽</small></h3>
+  <p style="font-size:13px;color:var(--mut)">교재 §6 연습문제 1~18번을 유형별로 다뤘습니다.</p>
+
+  <div class="q"><div class="qt"><i>1번 유형</i><span class="m">2x + 5 = </span><span class="fr"><i>3x − 2</i><i>4</i></span> 를 푸세요.</div>
+    <button>답 보기</button><div class="sol">
+    <b>분모부터 털어냅니다.</b> 양변에 4를 곱하면<br>
+    <span class="m">4(2x + 5) = 3x − 2</span><br>
+    <span class="m">8x + 20 = 3x − 2</span><br>
+    <span class="m">5x = −22</span><br>
+    <span class="m">x = −</span><span class="fr"><i>22</i><i>5</i></span></div></div>
+
+  <div class="q"><div class="qt"><i>2번 b</i><span class="fr"><i>x<sup>3</sup> − 1</i><i>x − 1</i></span> = <span class="m">1 + x + x<sup>2</sup></span> 임을 증명하세요.</div>
+    <button>답 보기</button><div class="sol">
+    <b>십자곱</b>으로 갑니다. 보일 것은<br>
+    <span class="m">x<sup>3</sup> − 1 = (x − 1)(1 + x + x<sup>2</sup>)</span><br><br>
+    오른쪽을 <b>분배법칙</b>으로 전개하면<br>
+    <span class="m">= x(1 + x + x<sup>2</sup>) − 1(1 + x + x<sup>2</sup>)</span><br>
+    <span class="m">= x + x<sup>2</sup> + x<sup>3</sup> − 1 − x − x<sup>2</sup></span><br><br>
+    <span class="m">+x</span>와 <span class="m">−x</span>, <span class="m">+x<sup>2</sup></span>와 <span class="m">−x<sup>2</sup></span>가 서로 잡아먹습니다.<br>
+    <span class="m">= x<sup>3</sup> − 1</span> ∎<br>
+    <span style="color:var(--mut);font-size:12.5px">단 <span class="m">x ≠ 1</span> 이어야 합니다. 분모가 0이 되니까요.</span></div></div>
+
+  <div class="q"><div class="qt"><i>2번 d</i><span class="fr"><i>x<sup>n</sup> − 1</i><i>x − 1</i></span> = <span class="m">x<sup>n−1</sup> + x<sup>n−2</sup> + ⋯ + x + 1</span> 임을 증명하세요. <span style="color:var(--mut);font-size:12px">(Lang의 힌트: 십자곱하고 최대한 약분하라)</span></div>
+    <button>답 보기</button><div class="sol">
+    보일 것: <span class="m">x<sup>n</sup> − 1 = (x − 1)(x<sup>n−1</sup> + x<sup>n−2</sup> + ⋯ + x + 1)</span><br><br>
+    오른쪽을 전개합니다. <span class="m">x</span> 를 곱한 것과 <span class="m">−1</span> 을 곱한 것을 나란히 쓰면<br><br>
+    <span class="m">x<sup>n</sup> + x<sup>n−1</sup> + ⋯ + x<sup>2</sup> + x</span><br>
+    <span class="m">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; − x<sup>n−1</sup> − ⋯ − x<sup>2</sup> − x − 1</span><br><br>
+    <b>가운데가 전부 상쇄됩니다.</b> 위줄의 <span class="m">x<sup>n−1</sup></span> 과 아래줄의 <span class="m">−x<sup>n−1</sup></span>, 위줄의 <span class="m">x<sup>n−2</sup></span> 와 아래줄의 <span class="m">−x<sup>n−2</sup></span>… 이런 식으로요.<br><br>
+    <b>양 끝만 남습니다</b>: <span class="m">x<sup>n</sup> − 1</span> ∎<br>
+    <span style="color:var(--gold)">이런 걸 <b>망원급수(telescoping)</b>라고 합니다. 접었다 펴는 망원경처럼 중간이 다 접혀 사라져요. 16장 §3 등비급수에서 다시 만납니다.</span></div></div>
+
+  <div class="q"><div class="qt"><i>3번 a</i><span class="fr"><i>1</i><i>2x + y</i></span> + <span class="fr"><i>1</i><i>2x − y</i></span> = <span class="fr"><i>4x</i><i>4x<sup>2</sup> − y<sup>2</sup></i></span> 임을 증명하세요.</div>
+    <button>답 보기</button><div class="sol">
+    일반 덧셈 공식을 적용합니다.<br>
+    분자: <span class="m">1(2x − y) + 1(2x + y) = 4x</span><br>
+    분모: <span class="m">(2x + y)(2x − y) = (2x)<sup>2</sup> − y<sup>2</sup> = 4x<sup>2</sup> − y<sup>2</sup></span><br>
+    <span style="color:var(--mut);font-size:12.5px">§3의 <span class="m">(a+b)(a−b) = a<sup>2</sup>−b<sup>2</sup></span> 에 <span class="m">a = 2x</span> 를 넣은 것</span><br><br>
+    따라서 <span class="fr"><i>4x</i><i>4x<sup>2</sup>−y<sup>2</sup></i></span> ∎<br>
+    <span style="color:var(--gold)">c)도 완전히 같습니다. <span class="m">a = x, b = 3y</span> 로 두면 분모가 <span class="m">x<sup>2</sup> − 9y<sup>2</sup></span> 가 돼요.</span></div></div>
+
+  <div class="q"><div class="qt"><i>4번 a</i><span class="fr"><i>x<sup>3</sup> − y<sup>3</sup></i><i>x − y</i></span> = <span class="m">x<sup>2</sup> + xy + y<sup>2</sup></span> 임을 증명하세요.</div>
+    <button>답 보기</button><div class="sol">
+    십자곱: <span class="m">(x − y)(x<sup>2</sup> + xy + y<sup>2</sup>)</span> 를 전개합니다.<br><br>
+    <span class="m">x</span> 를 곱하면 &nbsp;<span class="m">x<sup>3</sup> + x<sup>2</sup>y + xy<sup>2</sup></span><br>
+    <span class="m">−y</span> 를 곱하면 &nbsp;<span class="m">− x<sup>2</sup>y − xy<sup>2</sup> − y<sup>3</sup></span><br><br>
+    가운데 네 항이 상쇄되고 <span class="m">x<sup>3</sup> − y<sup>3</sup></span> 만 남습니다 ∎<br>
+    <span style="color:var(--mut);font-size:12.5px">b)의 <span class="m">(x<sup>4</sup>−y<sup>4</sup>)/(x−y)</span> 도 같은 방식이고, 2번 d)의 일반형에서 1 대신 <span class="m">y</span> 를 쓴 것입니다.</span></div></div>
+
+  <div class="q"><div class="qt"><i>4번 c</i><span class="m">x = </span><span class="fr"><i>1 − t<sup>2</sup></i><i>1 + t<sup>2</sup></i></span>, <span class="m">y = </span><span class="fr"><i>2t</i><i>1 + t<sup>2</sup></i></span> 일 때 <span class="m">x<sup>2</sup> + y<sup>2</sup> = 1</span> 임을 보이세요.</div>
+    <button>답 보기</button><div class="sol">
+    분모가 같으므로 분자만 더하면 됩니다.<br><br>
+    <span class="m">x<sup>2</sup> + y<sup>2</sup> = </span><span class="fr"><i>(1 − t<sup>2</sup>)<sup>2</sup> + (2t)<sup>2</sup></i><i>(1 + t<sup>2</sup>)<sup>2</sup></i></span><br><br>
+    분자를 §3의 <span class="m">(a−b)<sup>2</sup></span> 공식으로 펴면<br>
+    <span class="m">= 1 − 2t<sup>2</sup> + t<sup>4</sup> + 4t<sup>2</sup></span><br>
+    <span class="m">= 1 + 2t<sup>2</sup> + t<sup>4</sup></span><br>
+    <span class="m">= (1 + t<sup>2</sup>)<sup>2</sup></span> &nbsp;<span style="color:var(--mut)">((a+b)² 공식을 거꾸로)</span><br><br>
+    따라서 <span class="fr"><i>(1+t<sup>2</sup>)<sup>2</sup></i><i>(1+t<sup>2</sup>)<sup>2</sup></i></span> = 1 ∎<br>
+    <span style="color:var(--gold)">이건 §5에서 나온 <b>원 위의 유리점</b>과 같은 이야기입니다. <span class="m">x<sup>2</sup>+y<sup>2</sup>=1</span> 은 단위원이고, <span class="m">t</span> 에 유리수를 넣으면 원 위의 유리점이 쏟아져 나와요. 8장 §4에서 정식으로 다룹니다.</span></div></div>
+
+  <div class="q"><div class="qt"><i>7번</i><span class="m">m = vd</span> (질량 = 부피 × 밀도). c) 질량이 15 lb, 밀도가 <span class="fr"><i>2</i><i>3</i></span> lb/in³ 일 때 부피는?</div>
+    <button>답 보기</button><div class="sol">
+    <span class="m">v = </span><span class="fr"><i>m</i><i>d</i></span> = <span class="fr"><i>15</i><i>2/3</i></span><br><br>
+    나눗셈은 <b>역원을 곱하는 것</b>이므로<br>
+    <span class="m">= 15 · </span><span class="fr"><i>3</i><i>2</i></span> = <span class="fr"><i>45</i><i>2</i></span> = <b>22.5 in³</b><br>
+    <span style="color:var(--mut);font-size:12.5px">밀도가 1보다 작으니 부피는 질량보다 커야 합니다. 답이 15보다 큰 게 맞아요 — 이런 상식 검산을 습관화하세요.</span></div></div>
+
+  <div class="q"><div class="qt"><i>8번</i><span class="m">C = </span><span class="fr"><i>5</i><i>9</i></span><span class="m">(F − 32)</span>. <span class="m">F</span> 가 32, 50, 99, 100, −40 일 때 <span class="m">C</span> 를 구하세요.</div>
+    <button>답 보기</button><div class="sol">
+    <b>F = 32</b> → <span class="fr"><i>5</i><i>9</i></span><span class="m">(0) = <b>0°C</b></span><br>
+    <b>F = 50</b> → <span class="fr"><i>5</i><i>9</i></span><span class="m">(18) = <b>10°C</b></span><br>
+    <b>F = 99</b> → <span class="fr"><i>5</i><i>9</i></span><span class="m">(67) = </span><span class="fr"><i>335</i><i>9</i></span> ≈ <b>37.2°C</b><br>
+    <b>F = 100</b> → <span class="fr"><i>5</i><i>9</i></span><span class="m">(68) = </span><span class="fr"><i>340</i><i>9</i></span> ≈ <b>37.8°C</b><br>
+    <b>F = −40</b> → <span class="fr"><i>5</i><i>9</i></span><span class="m">(−72) = <b>−40°C</b></span><br>
+    <span style="color:var(--gold)">마지막이 재밌습니다. <b>−40은 화씨와 섭씨가 일치하는 유일한 온도</b>예요. <span class="m">F = C</span> 로 놓고 풀면 나옵니다.</span></div></div>
+
+  <div class="q"><div class="qt"><i>9번</i>같은 식에서 <span class="m">C</span> 가 주어졌을 때 <span class="m">F</span> 를 구하세요. <span class="m">C</span> = 0, −10, −40, 37, 40, 100</div>
+    <button>답 보기</button><div class="sol">
+    <b>먼저 식을 뒤집습니다.</b> 양변에 <span class="fr"><i>9</i><i>5</i></span> (즉 <span class="fr"><i>5</i><i>9</i></span> 의 <b>역원</b>)을 곱하면<br>
+    <span class="fr"><i>9</i><i>5</i></span><span class="m">C = F − 32</span> → <span class="m">F = </span><span class="fr"><i>9</i><i>5</i></span><span class="m">C + 32</span><br><br>
+    <b>C = 0</b> → <b>32°F</b> &nbsp;&nbsp; <b>C = −10</b> → <b>14°F</b><br>
+    <b>C = −40</b> → <b>−40°F</b> &nbsp;&nbsp; <b>C = 37</b> → <b>98.6°F</b><br>
+    <b>C = 40</b> → <b>104°F</b> &nbsp;&nbsp; <b>C = 100</b> → <b>212°F</b><br>
+    <span style="color:var(--mut);font-size:12.5px">식을 뒤집는 데 쓴 게 정확히 §6의 주제인 <b>역원</b>입니다.</span></div></div>
+
+  <div class="q"><div class="qt"><i>11번</i>35% 알코올 용액 12 cm³ 가 있습니다. 알코올 농도를 a) 20% b) 10% 로 만들려면 물을 얼마나 넣어야 하나요?</div>
+    <button>답 보기</button><div class="sol">
+    <b>핵심</b>: 물만 넣으므로 <span style="color:var(--gold)">알코올의 <b>양</b>은 변하지 않습니다.</span><br>
+    알코올 양 = <span class="m">0.35 × 12 = 4.2 cm³</span> (고정)<br><br>
+    <b>a)</b> <span class="m">x</span> 를 넣을 물의 양이라 하면 총량은 <span class="m">12 + x</span><br>
+    <span class="fr"><i>4.2</i><i>12 + x</i></span> = 0.2<br>
+    십자곱: <span class="m">4.2 = 0.2(12 + x) = 2.4 + 0.2x</span><br>
+    <span class="m">1.8 = 0.2x</span> → <span class="m">x = <b>9 cm³</b></span><br><br>
+    <b>b)</b> <span class="fr"><i>4.2</i><i>12 + x</i></span> = 0.1 → <span class="m">4.2 = 1.2 + 0.1x</span><br>
+    <span class="m">x = <b>30 cm³</b></span><br>
+    <span style="color:var(--mut);font-size:12.5px">c) 5%면 <span class="m">x = 72 cm³</span>. 농도를 절반으로 줄일 때마다 필요한 물이 훨씬 급격히 늘어납니다.</span></div></div>
+
+  <div class="q"><div class="qt"><i>12번</i>비행기가 4시간에 3,000마일을 갑니다. 순풍일 때 평균 900 mph, 역풍일 때 500 mph. 순풍이었던 시간은?</div>
+    <button>답 보기</button><div class="sol">
+    Lang의 여행 예제와 <b>완전히 같은 골격</b>입니다.<br><br>
+    <span class="m">x</span> = 순풍 시간 → 역풍 시간은 <span class="m">4 − x</span><br>
+    <span class="m">900x + 500(4 − x) = 3000</span><br>
+    <span class="m">900x + 2000 − 500x = 3000</span><br>
+    <span class="m">400x = 1000</span><br>
+    <span class="m">x = </span><span class="fr"><i>5</i><i>2</i></span> = <b>2.5시간</b><br>
+    <span style="color:var(--mut);font-size:12.5px">16번(배와 강)도 숫자만 바뀐 같은 문제입니다.</span></div></div>
+
+  <div class="q"><div class="qt"><i>13번</i>$5 짜리와 $2 짜리 표를 팔아 총 $4,100을 걷었고, 표는 모두 1,300장입니다. 각각 몇 장 팔렸나요?</div>
+    <button>답 보기</button><div class="sol">
+    <span class="m">x</span> = $5 표의 수 → $2 표는 <span class="m">1300 − x</span><br>
+    <span class="m">5x + 2(1300 − x) = 4100</span><br>
+    <span class="m">5x + 2600 − 2x = 4100</span><br>
+    <span class="m">3x = 1500</span><br>
+    <span class="m">x = <b>500</b></span> → $5 표 <b>500장</b>, $2 표 <b>800장</b><br>
+    <span style="color:var(--mut);font-size:12.5px">검산: 500·5 + 800·2 = 2500 + 1600 = 4100 ✓</span></div></div>
+
+  <div class="q"><div class="qt"><i>14번</i>10% 소금물 80 g 이 있습니다. 순수한 물을 얼마나 더해야 농도가 a) 4% b) 8% 가 되나요?</div>
+    <button>답 보기</button><div class="sol">
+    소금 양 = <span class="m">0.1 × 80 = 8 g</span> (고정)<br><br>
+    <b>a)</b> <span class="fr"><i>8</i><i>80 + x</i></span> = 0.04 → <span class="m">8 = 3.2 + 0.04x</span><br>
+    <span class="m">x = </span><span class="fr"><i>4.8</i><i>0.04</i></span> = <b>120 g</b><br><br>
+    <b>b)</b> <span class="fr"><i>8</i><i>80 + x</i></span> = 0.08 → <span class="m">8 = 6.4 + 0.08x</span><br>
+    <span class="m">x = <b>20 g</b></span><br>
+    <span style="color:var(--mut);font-size:12.5px">c) 6%면 <span class="m">x = </span><span class="fr"><i>160</i><i>3</i></span> ≈ 53.3 g</span></div></div>
+
+  <div class="q"><div class="qt"><i>17번</i>25% 소금물 2 lb 에서 물을 <b>증발</b>시켜 a) 40% b) 60% 로 만들려면 얼마나 증발시켜야 하나요?</div>
+    <button>답 보기</button><div class="sol">
+    <b>증발도 소금 양을 바꾸지 않습니다.</b> 물만 날아가니까요.<br>
+    소금 양 = <span class="m">0.25 × 2 = 0.5 lb</span> (고정)<br><br>
+    <span class="m">x</span> = 증발시킬 물의 양 → 남는 총량은 <span class="m">2 − x</span><br><br>
+    <b>a)</b> <span class="fr"><i>0.5</i><i>2 − x</i></span> = 0.4 → <span class="m">0.5 = 0.8 − 0.4x</span><br>
+    <span class="m">0.4x = 0.3</span> → <span class="m">x = <b>0.75 lb</b></span><br><br>
+    <b>b)</b> <span class="fr"><i>0.5</i><i>2 − x</i></span> = 0.6 → <span class="m">0.5 = 1.2 − 0.6x</span><br>
+    <span class="m">x = </span><span class="fr"><i>7</i><i>6</i></span> ≈ <b>1.17 lb</b><br>
+    <span style="color:var(--orange)">11·14번과 부호가 반대입니다. 더하는 게 아니라 빼니까 분모가 <span class="m">2 + x</span> 가 아니라 <span class="m">2 − x</span> 예요.</span></div></div>
+
+  <div class="q"><div class="qt"><i>18번</i>라디에이터 용량은 10갤런. 지금 <b>절반만</b> 차 있고 60% 부동액 / 40% 물입니다. 물을 더 넣어 a) 40% 부동액 b) 10% 부동액 으로 만들려면? <b>라디에이터에 들어갈까요?</b></div>
+    <button>답 보기</button><div class="sol">
+    <b>현재 상태</b>: 액체 5갤런, 부동액 <span class="m">0.6 × 5 = 3</span>갤런 (고정)<br><br>
+    <b>a)</b> <span class="fr"><i>3</i><i>5 + x</i></span> = 0.4 → <span class="m">3 = 2 + 0.4x</span><br>
+    <span class="m">x = <b>2.5갤런</b></span> → 총 7.5갤런. <span style="color:var(--green)"><b>들어갑니다</b></span> (용량 10)<br><br>
+    <b>b)</b> <span class="fr"><i>3</i><i>5 + x</i></span> = 0.1 → <span class="m">3 = 0.5 + 0.1x</span><br>
+    <span class="m">x = <b>25갤런</b></span> → 총 30갤런. <span style="color:var(--orange)"><b>안 들어갑니다</b></span> (용량 10)<br>
+    <span style="color:var(--gold)">Lang이 "들어갈까요?"라고 물은 이유가 이겁니다. <b>수학적으로 맞는 답이 물리적으로 불가능할 수 있어요.</b> 답을 구한 뒤 현실성을 점검하라는 훈련입니다.</span></div></div>
+</section>
+
+<section style="border-bottom:none">
+  <h3 style="margin-top:10px">§6 한눈에</h3>
+  <table>
+    <tr><th>항목</th><th>내용</th><th>정체</th></tr>
+    <tr><td><b>역원</b></td><td><span class="m">a ≠ 0</span> 이면 <span class="m">a<sup>−1</sup>a = aa<sup>−1</sup> = 1</span> 인 <span class="m">a<sup>−1</sup></span> 존재</td><td style="color:var(--gold)">성질 ★</td></tr>
+    <tr><td>유일성</td><td><span class="m">ab = 1</span> ⟹ <span class="m">b = a<sup>−1</sup></span></td><td style="color:var(--green)">증명됨</td></tr>
+    <tr><td><b>영인자</b></td><td><span class="m">ab = 0</span> ⟹ <span class="m">a = 0</span> 또는 <span class="m">b = 0</span></td><td style="color:var(--green)">증명됨 ★</td></tr>
+    <tr><td>나눗셈</td><td><span class="m">a/b</span> 는 <span class="m">ab<sup>−1</sup></span> 의 줄임말</td><td>표기</td></tr>
+    <tr><td><b>십자곱</b></td><td><span class="m">a/b = c/d</span> ⟺ <span class="m">ad = bc</span></td><td style="color:var(--green)">증명됨 ★</td></tr>
+    <tr><td>곱셈 약분</td><td><span class="m">ab = ac</span>, <span class="m">a ≠ 0</span> ⟹ <span class="m">b = c</span></td><td style="color:var(--green)">증명됨</td></tr>
+    <tr><td>몫 약분</td><td><span class="fr"><i>ab</i><i>ac</i></span> = <span class="fr"><i>b</i><i>c</i></span></td><td style="color:var(--green)">증명됨</td></tr>
+    <tr><td>분수 덧셈</td><td><span class="fr"><i>a</i><i>b</i></span>+<span class="fr"><i>c</i><i>d</i></span> = <span class="fr"><i>ad+bc</i><i>bd</i></span></td><td style="color:var(--green)">유도됨</td></tr>
+    <tr><td>물리</td><td><span class="m">d = st</span></td><td>응용</td></tr>
+  </table>
+
+  <div class="mine">
+    <span class="tag">1장 전체 마무리 · 무엇을 지나왔나</span>
+    <p>여섯 개 절을 다 지났습니다. 뼈대만 세우면 이렇습니다.</p>
+    <table style="margin-top:10px">
+      <tr><th>절</th><th>한 일</th></tr>
+      <tr><td class="c"><b>§1</b></td><td>수를 <b>직선 위의 위치</b>로 보기 시작. 덧셈 = 걷기</td></tr>
+      <tr><td class="c"><b>§2</b></td><td>가정 4개에서 N3·N4·N5를 <b>증명</b>. 설명에서 증명으로</td></tr>
+      <tr><td class="c"><b>§3</b></td><td><b>분배법칙</b> 하나에서 곱셈 세계 전부를 뽑아냄</td></tr>
+      <tr><td class="c"><b>§4</b></td><td>말을 식으로 <b>번역</b>하는 기술(<span class="m">2n</span>, <span class="m">2n+1</span>)</td></tr>
+      <tr><td class="c"><b>§5</b></td><td>분수로 넓히고, 그래도 <span class="m">√2</span>가 <b>없음</b>을 증명</td></tr>
+      <tr><td class="c"><b>§6</b></td><td><b>역원</b> 하나에서 나눗셈·십자곱·방정식이 전부</td></tr>
+    </table>
+    <p style="margin-top:12px"><b>반복된 수법은 딱 하나입니다.</b> <span class="hlp">없애고 싶은 것의 역원을 양변에 적용한다.</span> 덧셈에서는 <span class="m">−a</span> 를 더했고, 곱셈에서는 <span class="m">a<sup>−1</sup></span> 을 곱했습니다. N3부터 십자곱까지 전부 이 한 수예요.</p>
+    <p><b>남은 빚이 하나 있습니다.</b> <span class="m">√2</span> 는 유리수가 아닌데, 그럼 <b>존재는 하나요?</b> 정사각형 대각선은 분명히 있는데 그 길이를 담을 수가 없습니다. 수직선에 뚫린 이 구멍을 메우는 것이 <b>3장 실수</b>입니다.</p>
+  </div>
+  <p style="color:var(--mut);font-size:13px">1장 끝. 다음은 2장 일차방정식 §1 (53쪽)입니다.</p>
+</section>
+
+<footer>
+  Serge Lang, <i>Basic Mathematics</i> (Addison-Wesley, 1971) §6 의 내용을 한국어로 재구성한 학습 노트입니다.
+  보라색 블록은 교재에 없는 보충 설명입니다. 원문 번역이 아니며, 정확한 표현은 교재를 참조하세요.
+</footer>
+</div>
+
+<script>
+const NS='http://www.w3.org/2000/svg';
+function el(t,a){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;}
+function tx(x,y,s,f,sz,an,fam){const e=el('text',{x:x,y:y,'text-anchor':an||'middle',
+  'font-family':fam||"ui-monospace,monospace",'font-size':sz||12,fill:f});e.textContent=s;return e;}
+function stepper(ctl,name,get,set,lo,hi,cb){
+  const g=document.createElement('div'); g.className='grp';
+  const s=document.createElement('span'); s.textContent=name;
+  const m=document.createElement('button'); m.textContent='−';
+  const p=document.createElement('button'); p.textContent='+';
+  m.onclick=()=>{if(get()>lo){set(get()-1);cb();}};
+  p.onclick=()=>{if(get()<hi){set(get()+1);cb();}};
+  g.appendChild(s);g.appendChild(m);g.appendChild(p);ctl.appendChild(g);
+}
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b];}return a||1;}
+function frac(n,d){const g=gcd(n,d); n/=g; d/=g; if(d<0){n=-n;d=-d;} return [n,d];}
+
+/* ── 역원 뒤집기 ── */
+function makeInv(host){
+  let m=+host.dataset.m,n=+host.dataset.n;
+  const sv=el('svg',{viewBox:'0 0 340 118',preserveAspectRatio:'xMidYMid meet'});
+  const ctl=document.createElement('div'); ctl.className='fctl';
+  const lbl=document.createElement('div'); lbl.className='lbl'; ctl.appendChild(lbl);
+  const go=()=>render();
+  stepper(ctl,'m',()=>m,v=>{if(v!==0)m=v; else m=(m>0?-1:1);},-9,9,go);
+  stepper(ctl,'n',()=>n,v=>{if(v!==0)n=v; else n=(n>0?-1:1);},-9,9,go);
+  host.appendChild(sv); host.appendChild(ctl);
+  function fr(x,y,a,b,col,big){
+    const s=big?22:18;
+    sv.appendChild(tx(x,y-4,String(a),col,s));
+    sv.appendChild(el('line',{x1:x-16,y1:y+2,x2:x+16,y2:y+2,stroke:col,'stroke-width':1.6}));
+    sv.appendChild(tx(x,y+22,String(b),col,s));
+  }
+  function render(){
+    sv.innerHTML='';
+    fr(62,44,m,n,'#6fa8dc',true);
+    sv.appendChild(tx(112,52,'×','#8d8d86',18));
+    fr(162,44,n,m,'#ffc93c',true);
+    sv.appendChild(tx(212,52,'=','#8d8d86',18));
+    sv.appendChild(tx(252,52,'1','#6ec98a',26));
+    sv.appendChild(el('path',{d:'M 62 82 C 90 104, 134 104, 162 82',
+      fill:'none',stroke:'#b48ce0','stroke-width':1.4,'stroke-dasharray':'4 3'}));
+    sv.appendChild(el('path',{d:'M 158 78 L 162 84 L 156 85 Z',fill:'#b48ce0'}));
+    sv.appendChild(tx(112,108,'분자·분모를 뒤집는다','#b48ce0',11,'middle',"-apple-system,sans-serif"));
+    sv.appendChild(tx(62,20,'a','#6fa8dc',13,'middle',"'Times New Roman',serif"));
+    sv.appendChild(tx(162,20,'a⁻¹','#ffc93c',13));
+    const [p,q]=frac(m*n,n*m);
+    lbl.innerHTML='<b>'+m+'/'+n+'</b> 의 역원은 <b style="color:var(--gold)">'+n+'/'+m+'</b> — 곱하면 <b style="color:var(--green)">'+
+      (p===q?'1':p+'/'+q)+'</b> 입니다. 분자와 분모가 통째로 자리를 바꾸므로 반드시 약분되어 1이 됩니다.';
+  }
+  render();
+}
+
+/* ── 여행 문제 ── */
+function makeTrip(host){
+  let x3=8;  /* x를 1/3 단위로: x = x3/3 */
+  const sv=el('svg',{viewBox:'0 0 340 122',preserveAspectRatio:'xMidYMid meet'});
+  const ctl=document.createElement('div'); ctl.className='fctl';
+  const lbl=document.createElement('div'); lbl.className='lbl'; ctl.appendChild(lbl);
+  const rg=document.createElement('input'); rg.type='range'; rg.min=0; rg.max=24; rg.step=1; rg.value=x3;
+  rg.oninput=()=>{x3=+rg.value; render();}; ctl.appendChild(rg);
+  host.appendChild(sv); host.appendChild(ctl);
+  function render(){
+    sv.innerHTML='';
+    const x=x3/3, town=30*x, free=60*(8-x), tot=town+free;
+    const X0=42,W=272;
+    /* 시간 막대 */
+    sv.appendChild(tx(X0-7,26,'시간','#8d8d86',10,'end',"-apple-system,sans-serif"));
+    sv.appendChild(el('rect',{x:X0,y:14,width:W*x/8,height:18,fill:'rgba(255,107,74,.35)',stroke:'#ff6b4a','stroke-width':1}));
+    sv.appendChild(el('rect',{x:X0+W*x/8,y:14,width:W*(8-x)/8,height:18,fill:'rgba(111,168,220,.3)',stroke:'#6fa8dc','stroke-width':1}));
+    sv.appendChild(tx(X0+W*x/16,27,'시내 '+x.toFixed(2)+'h','#ff6b4a',9.5,'middle',"-apple-system,sans-serif"));
+    sv.appendChild(tx(X0+W*x/8+W*(8-x)/16,27,'고속 '+(8-x).toFixed(2)+'h','#6fa8dc',9.5,'middle',"-apple-system,sans-serif"));
+    /* 거리 막대 */
+    const S=W/620;
+    sv.appendChild(tx(X0-7,64,'거리','#8d8d86',10,'end',"-apple-system,sans-serif"));
+    sv.appendChild(el('rect',{x:X0,y:52,width:town*S,height:18,fill:'rgba(255,107,74,.35)',stroke:'#ff6b4a','stroke-width':1}));
+    sv.appendChild(el('rect',{x:X0+town*S,y:52,width:free*S,height:18,fill:'rgba(111,168,220,.3)',stroke:'#6fa8dc','stroke-width':1}));
+    /* 목표선 */
+    sv.appendChild(el('line',{x1:X0+400*S,y1:44,x2:X0+400*S,y2:78,stroke:'#ffc93c','stroke-width':2,'stroke-dasharray':'4 3'}));
+    sv.appendChild(tx(X0+400*S,40,'400','#ffc93c',10));
+    const hit=Math.abs(tot-400)<0.5;
+    sv.appendChild(tx(170,100,'30·'+x.toFixed(2)+' + 60·'+(8-x).toFixed(2)+' = '+tot.toFixed(1),
+      hit?'#6ec98a':'#8d8d86',13));
+    if(hit) sv.appendChild(tx(170,116,'x = 8/3 시간 — 정답','#6ec98a',11,'middle',"-apple-system,sans-serif"));
+    lbl.innerHTML= hit
+      ? '<b style="color:var(--green)">총 거리가 정확히 400마일입니다.</b> 시내 운전 시간 <b>8/3 ≈ 2.67시간</b>'
+      : '총 거리 <b>'+tot.toFixed(1)+'</b>마일 — 목표 400보다 '+(tot>400?'<b style="color:var(--blue)">큽니다</b> (시내 시간을 늘리세요)':'<b style="color:var(--orange)">작습니다</b> (시내 시간을 줄이세요)');
+  }
+  render();
+}
+
+/* ── 혼합 문제 ── */
+function makeMix(host){
+  let x60=0;  /* x = x60/60 쿼트 */
+  const sv=el('svg',{viewBox:'0 0 340 130',preserveAspectRatio:'xMidYMid meet'});
+  const ctl=document.createElement('div'); ctl.className='fctl';
+  const lbl=document.createElement('div'); lbl.className='lbl'; ctl.appendChild(lbl);
+  const rg=document.createElement('input'); rg.type='range'; rg.min=0; rg.max=480; rg.step=1; rg.value=x60;
+  rg.oninput=()=>{x60=+rg.value; render();}; ctl.appendChild(rg);
+  host.appendChild(sv); host.appendChild(ctl);
+  function bar(y,label,anti,total,cap){
+    const X0=78,W=204,u=W/8;
+    sv.appendChild(tx(X0-8,y+13,label,'#8d8d86',10,'end',"-apple-system,sans-serif"));
+    sv.appendChild(el('rect',{x:X0,y:y,width:cap*u,height:19,fill:'#0b0b0b',stroke:'#3a3a3a','stroke-width':1}));
+    sv.appendChild(el('rect',{x:X0,y:y,width:anti*u,height:19,fill:'rgba(255,201,60,.42)',stroke:'#ffc93c','stroke-width':1}));
+    if(total>anti) sv.appendChild(el('rect',{x:X0+anti*u,y:y,width:(total-anti)*u,height:19,
+      fill:'rgba(111,168,220,.22)',stroke:'#6fa8dc','stroke-width':1}));
+    const pct=total>0?(anti/total*100):0;
+    sv.appendChild(tx(X0+cap*u+7,y+13,pct.toFixed(1)+'%',pct>=89.95&&pct<=90.05?'#6ec98a':'#c9c9c3',11,'start'));
+  }
+  function render(){
+    sv.innerHTML='';
+    const x=x60/60;
+    bar(12,'처음 8qt', 0.4*8, 8, 8);
+    bar(48, x.toFixed(2)+'qt 빼냄', 0.4*(8-x), 8-x, 8);
+    const anti=0.4*(8-x)+x;
+    bar(84,'부동액 채움', anti, 8, 8);
+    sv.appendChild(el('line',{x1:78+0.9*204,y1:80,x2:78+0.9*204,y2:107,
+      stroke:'#6ec98a','stroke-width':2,'stroke-dasharray':'3 3'}));
+    const pct=anti/8*100, hit=Math.abs(pct-90)<0.2;
+    lbl.innerHTML='<b>'+x.toFixed(2)+'qt</b> 를 빼고 부동액으로 채우면 → 부동액 <b style="color:'+(hit?'var(--green)':'var(--gold)')+'">'+
+      pct.toFixed(1)+'%</b>'+(hit?' &nbsp;<b style="color:var(--green)">정답! x = 20/3 ≈ 6.67</b>':'')+
+      '<br><span style="font-size:11px">노랑 = 부동액, 파랑 = 물. 초록 점선이 목표 90% 지점입니다.</span>';
+  }
+  render();
+}
+
+document.querySelectorAll('.fig').forEach(f=>{
+  const t=f.dataset.fig;
+  if(t==='inv') makeInv(f); else if(t==='trip') makeTrip(f); else if(t==='mix') makeMix(f);
+});
+document.querySelectorAll('.pline .why').forEach(b=>{
+  b.onclick=()=>{const a=b.closest('.pline').querySelector('.ans');
+    const on=a.classList.toggle('on'); b.classList.toggle('on',on); b.textContent=on?'닫기':'왜?';};
+});
+document.querySelectorAll('.q button').forEach(b=>{
+  b.onclick=()=>{const s=b.nextElementSibling;
+    const on=s.classList.toggle('on'); b.textContent=on?'접기':'답 보기';};
+});
+const bar=document.getElementById('bar');
+const links=[...document.querySelectorAll('.nv a')];
+const targets=links.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+function onScroll(){const h=document.documentElement;
+  bar.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+  let idx=0; targets.forEach((t,i)=>{if(t.getBoundingClientRect().top<=90) idx=i;});
+  links.forEach((a,i)=>a.classList.toggle('on',i===idx));}
+addEventListener('scroll',onScroll,{passive:true}); onScroll();
+</script>
+</body>
+</html>
