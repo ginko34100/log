@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Basic Mathematics · Ch.2 §1 미지수 두 개의 방정식</title>
+<style>
+:root{
+  --bg:#000; --surf:#0e0e0e; --surf2:#161616;
+  --line:#282828; --line2:#3a3a3a;
+  --tx:#eeeeea; --mut:#8d8d86;
+  --gold:#ffc93c; --orange:#ff6b4a; --blue:#6fa8dc; --green:#6ec98a; --purple:#b48ce0;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth;scroll-padding-top:56px}
+body{background:var(--bg);color:var(--tx);
+  font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+  line-height:1.78;font-size:15px;padding-bottom:60px;-webkit-text-size-adjust:100%}
+.wrap{max-width:600px;margin:0 auto;padding:0 16px}
+
+#bar{position:fixed;top:0;left:0;height:2px;background:var(--gold);z-index:60;width:0}
+nav{position:sticky;top:0;z-index:50;background:rgba(0,0,0,.94);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.nv{max-width:600px;margin:0 auto;display:flex;gap:4px;padding:9px 12px;overflow-x:auto;scrollbar-width:none}
+.nv::-webkit-scrollbar{display:none}
+.nv a{flex:0 0 auto;font-size:11.5px;color:var(--mut);text-decoration:none;
+  padding:5px 10px;border:1px solid var(--line);border-radius:2px;white-space:nowrap}
+.nv a.on{color:#000;background:var(--gold);border-color:var(--gold);font-weight:700}
+
+header{padding:30px 0 22px;border-bottom:1px solid var(--line)}
+h1{font-size:21px;font-weight:700;letter-spacing:-.01em;line-height:1.4}
+header p{font-size:11px;color:var(--mut);font-family:ui-monospace,monospace;letter-spacing:.1em;margin-top:7px}
+
+section{padding:34px 0 10px;border-bottom:1px solid var(--line)}
+h2{font-size:18px;font-weight:700;display:flex;align-items:baseline;gap:9px;margin-bottom:5px}
+h2 em{font-style:normal;font-family:ui-monospace,monospace;font-size:13px;color:var(--gold)}
+h2+.sub{font-size:12px;color:var(--mut);margin-bottom:18px}
+h3{font-size:15.5px;font-weight:700;margin:30px 0 9px;padding-left:11px;
+  border-left:3px solid var(--gold);line-height:1.45}
+h3 small{display:block;font-weight:500;font-size:11px;color:var(--mut);
+  font-family:ui-monospace,monospace;letter-spacing:.05em;margin-top:2px}
+p{margin:11px 0;color:#dcdcd7}
+b{color:#fff;font-weight:700}
+.hl{color:var(--gold);font-weight:700}
+.hlo{color:var(--orange);font-weight:700}
+.hlb{color:var(--blue);font-weight:700}
+.hlp{color:var(--purple);font-weight:700}
+
+.m{font-family:'Times New Roman',Georgia,serif;font-style:italic;font-size:17px;color:#fff;font-weight:500;white-space:nowrap}
+.mb{display:block;text-align:center;font-family:'Times New Roman',Georgia,serif;
+  font-style:italic;font-size:21px;color:#fff;margin:16px 0;line-height:1.7}
+.mb .kw{font-style:normal;font-family:-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+  font-size:15px;color:#c9c9c3;font-weight:600}
+sup{font-size:.62em;vertical-align:super;line-height:0}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;
+  font-family:'Times New Roman',Georgia,serif;font-style:italic;line-height:1.15;margin:0 3px}
+.fr i{font-style:italic;display:block;padding:0 5px}
+.fr i:first-child{border-bottom:1.4px solid currentColor}
+.mb .fr{font-size:19px}
+p .fr,td .fr,li .fr,.sol .fr,.ans .fr{font-size:15px}
+
+/* 연립 방정식 블록 */
+.sys{display:block;margin:16px auto;width:fit-content;border-left:3px solid var(--line2);
+  padding:8px 0 8px 16px}
+.sys .eq{font-family:'Times New Roman',Georgia,serif;font-style:italic;font-size:19px;
+  color:#fff;line-height:1.85;white-space:nowrap}
+.sys .eq b{color:var(--gold);font-weight:500}
+.sys.hit{border-left-color:var(--green)}
+.sys.hit .eq{color:#d6f0dd}
+
+/* ★ 주석 전용 블록 — 식과 완전히 분리 */
+.cmt{display:block;margin:8px 0 4px;padding:7px 11px;background:#111114;
+  border-left:3px solid #4a4a52;font-size:12.5px;line-height:1.75;color:#a8a8a2;
+  font-family:-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;font-style:normal}
+.cmt b{color:#d8d8d2}
+.cmt.warn2{border-left-color:#7a3a2a;background:#171010;color:#d4a897}
+.cmt.good{border-left-color:#39634a;background:#0f1512;color:#a9d3b6}
+.cmt .tt{display:block;font-size:10.5px;letter-spacing:.08em;color:#6d6d68;
+  font-family:ui-monospace,monospace;margin-bottom:3px}
+
+.rule{border:1px solid var(--gold);background:rgba(255,201,60,.06);padding:14px;margin:18px 0;border-radius:2px}
+.rule .tag{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.12em;
+  color:var(--gold);font-weight:700;display:block;margin-bottom:6px}
+.rule .mb{margin:9px 0 6px;font-size:22px}
+.rule p{margin:6px 0 0;font-size:13px;color:#c9c9c3}
+
+.thm{border:1px solid var(--green);background:rgba(110,201,138,.055);padding:14px;margin:18px 0;border-radius:2px}
+.thm .tag{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.12em;
+  color:var(--green);font-weight:700;display:block;margin-bottom:8px}
+.thm p{margin:5px 0;font-size:14px;color:#dfe9e2}
+
+.mine{border:1px solid #3d2b52;background:rgba(180,140,224,.07);padding:14px;margin:18px 0;border-radius:2px}
+.mine .tag{font-size:10.5px;letter-spacing:.1em;color:var(--purple);font-weight:700;
+  display:block;margin-bottom:6px;font-family:ui-monospace,monospace}
+.mine p{margin:7px 0 0;font-size:13.8px;color:#d3cade}
+.mine p:first-of-type{margin-top:0}
+
+.warn{border:1px solid #4a2418;background:rgba(255,107,74,.07);padding:13px 14px;margin:18px 0;border-radius:2px}
+.warn .tag{font-size:11px;letter-spacing:.08em;color:var(--orange);font-weight:700;display:block;margin-bottom:5px}
+.warn p{margin:5px 0 0;font-size:13.5px}
+
+ol.steps{list-style:none;counter-reset:s;margin:14px 0}
+ol.steps li{counter-increment:s;position:relative;padding-left:32px;margin:11px 0;font-size:14px;color:#dcdcd7}
+ol.steps li::before{content:counter(s);position:absolute;left:0;top:2px;width:21px;height:21px;
+  border:1px solid var(--line2);border-radius:50%;font-size:11px;font-family:ui-monospace,monospace;
+  color:var(--mut);display:flex;align-items:center;justify-content:center}
+
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+th,td{border:1px solid var(--line);padding:8px 9px;text-align:left;vertical-align:middle}
+th{background:var(--surf2);font-size:11.5px;color:var(--mut);font-weight:600}
+td .m{font-size:15px}
+td.c{text-align:center}
+
+.fig{background:var(--surf);border:1px solid var(--line);margin:18px 0;border-radius:2px;overflow:hidden}
+.fig svg{display:block;width:100%;height:auto}
+.fctl{display:flex;align-items:center;gap:6px;padding:9px 10px;border-top:1px solid var(--line);flex-wrap:wrap}
+.fctl .lbl{font-size:11.5px;color:var(--mut);flex:1 1 100%;order:-1;line-height:1.8}
+.fctl .lbl b{color:var(--tx)}
+.fctl .grp{display:flex;align-items:center;border:1px solid var(--line2);border-radius:2px;overflow:hidden}
+.fctl .grp span{padding:0 8px;font-size:11.5px;color:var(--mut);font-family:'Times New Roman',serif;font-style:italic}
+.fctl .grp button{width:28px;height:28px;background:var(--surf2);border:none;border-left:1px solid var(--line2);
+  color:var(--tx);font-size:14px;font-family:inherit;cursor:pointer}
+.fctl .grp button:active{background:var(--gold);color:#000}
+.fctl>button.tg{background:var(--surf2);border:1px solid var(--line2);color:var(--tx);
+  padding:7px 11px;font-size:11.5px;font-family:inherit;cursor:pointer;border-radius:2px}
+.fctl>button.tg.on{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700}
+
+/* 소거법 실행기 */
+.elim{background:var(--surf);border:1px solid var(--line);margin:18px 0;border-radius:2px;overflow:hidden}
+.elim .stage{padding:16px 14px;min-height:150px}
+.elim .stp{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.1em;
+  color:var(--gold);margin-bottom:10px}
+.elim .ebar{display:flex;gap:7px;padding:9px 10px;border-top:1px solid var(--line);flex-wrap:wrap}
+.elim .ebar button{background:var(--surf2);border:1px solid var(--line2);color:var(--tx);
+  padding:9px 13px;font-size:12px;font-family:inherit;cursor:pointer;border-radius:2px}
+.elim .ebar button.pri{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700}
+.elim .ebar button:disabled{opacity:.35;cursor:default}
+.elim .ebar .sp{margin-left:auto;font-family:ui-monospace,monospace;font-size:11px;color:var(--mut);align-self:center}
+
+.proof{background:var(--surf);border:1px solid var(--line);margin:18px 0;border-radius:2px;overflow:hidden}
+.proof>.ph{padding:10px 13px;border-bottom:1px solid var(--line);font-size:11px;
+  font-family:ui-monospace,monospace;letter-spacing:.1em;color:var(--green)}
+.pline{border-bottom:1px solid var(--line)}
+.pline:last-child{border-bottom:none}
+.pline .eqn{padding:12px 13px;font-family:'Times New Roman',Georgia,serif;font-style:italic;
+  font-size:16.5px;color:#fff;display:flex;align-items:center;gap:10px}
+.pline .eqn span.e{flex:1}
+.pline .why{flex:0 0 auto;background:transparent;border:1px solid var(--line2);color:var(--mut);
+  font-size:10.5px;padding:4px 9px;font-family:inherit;font-style:normal;cursor:pointer;border-radius:2px}
+.pline .why.on{color:var(--gold);border-color:var(--gold)}
+.pline .ans{display:none;padding:0 13px 13px;font-size:13px;color:#b6b6b0;line-height:1.75}
+.pline .ans.on{display:block}
+.pline .ans b{color:var(--gold)}
+
+.q{background:var(--surf);border:1px solid var(--line);padding:13px;margin:11px 0;border-radius:2px}
+.q .qt{font-size:14px;color:var(--tx)}
+.q .qt i{font-style:normal;font-family:ui-monospace,monospace;color:var(--mut);font-size:11px;margin-right:8px}
+.q button{margin-top:10px;background:transparent;border:1px solid var(--line2);color:var(--mut);
+  font-size:11.5px;padding:6px 11px;font-family:inherit;cursor:pointer;border-radius:2px}
+.q .sol{display:none;margin-top:11px;padding-top:11px;border-top:1px solid var(--line);
+  font-size:13.5px;color:#c9c9c3;line-height:1.9}
+.q .sol.on{display:block}
+.q .sol .m{font-size:15px}
+
+footer{padding:26px 0 0;font-size:11px;color:#5a5a55;line-height:1.9}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<nav><div class="nv">
+  <a href="#a1" class="on">문제</a>
+  <a href="#elim">소거법 ★</a>
+  <a href="#var">다른 순서</a>
+  <a href="#none">해가 없을 때</a>
+  <a href="#line">두 직선 ★</a>
+  <a href="#logic">논리 점검</a>
+  <a href="#word">활용 문제</a>
+  <a href="#det">ad−bc ★</a>
+  <a href="#ex">연습</a>
+</div></nav>
+
+<div class="wrap">
+<header>
+  <h1>미지수 두 개의 방정식</h1>
+  <p>SERGE LANG · BASIC MATHEMATICS · CH.2 §1 · pp.53–57</p>
+</header>
+
+<section>
+  <h2><em>§1</em> Equations in Two Unknowns</h2>
+  <div class="sub">이 절의 한 문장 : 미지수 하나를 <b>지워서</b> 문제를 한 단계 작게 만든다.</div>
+
+  <div class="mine">
+    <span class="tag">2장을 시작하며</span>
+    <p>1장이 <b>수 자체</b>를 다뤘다면, 2장은 그 수들로 만든 <b>방정식</b>을 다룹니다.</p>
+    <p>1장에서 이미 방정식을 풀긴 했습니다. 그런데 전부 <b>미지수가 하나</b>였어요. <span class="m">3a − 1 = 7</span> 같은 것들이죠.</p>
+    <p>이제 미지수가 <b>둘</b>입니다. 그럼 문제가 근본적으로 달라집니다. <span class="m">2x + y = 1</span> 하나만 주어지면 답이 <b>무수히 많거든요.</b> <span class="m">x = 0, y = 1</span> 도 되고 <span class="m">x = 1, y = −1</span> 도 됩니다.</p>
+    <p>답을 하나로 좁히려면 <b>식이 두 개</b> 필요합니다. 그리고 두 식을 동시에 다루는 기술이 이 절의 주제입니다.</p>
+    <div class="cmt">
+      <span class="tt">기억해둘 원칙</span>
+      미지수가 <b>n개</b>면 식도 <b>n개</b>가 있어야 답이 하나로 정해집니다. 이건 대략적인 감각이고, 정확한 조건은 이 절 뒤쪽의 <b>ad − bc</b> 에서 다룹니다.
+    </div>
+  </div>
+
+  <h3 id="a1">1. 주어진 문제</h3>
+  <p>Lang이 든 예입니다. 다음 두 식을 동시에 만족하는 <span class="m">x, y</span> 를 찾으려 합니다.</p>
+  <div class="sys">
+    <div class="eq">(1)&nbsp;&nbsp; 2x + y = 1</div>
+    <div class="eq">(2)&nbsp;&nbsp; 3x − 2y = 4</div>
+  </div>
+  <p>이때 쓰는 방법을 <span class="hl">소거법(elimination method)</span>이라고 합니다.</p>
+
+  <h3 id="elim">2. 소거법 ★<small>THE ELIMINATION METHOD</small></h3>
+  <p>Lang이 설명하는 순서를 그대로 따라가겠습니다.</p>
+  <ol class="steps">
+    <li>먼저 <span class="m">x</span> 를 <b>없애기로</b> 합니다. 그러면 <span class="m">y</span> 에 관한 식 하나만 남습니다</li>
+    <li>관찰합니다. <span class="m">x</span> 의 계수가 첫 식에서는 <b>2</b>, 둘째 식에서는 <b>3</b> 입니다</li>
+    <li>두 계수를 <b>같게</b> 만들 적당한 수를 각 식에 곱합니다. 첫 식에 3을, 둘째 식에 2를 곱합니다</li>
+  </ol>
+  <div class="sys">
+    <div class="eq"><b>6x</b> + 3y = 3</div>
+    <div class="eq"><b>6x</b> − 4y = 8</div>
+  </div>
+  <div class="cmt">
+    <span class="tt">왜 3과 2를 곱했나</span>
+    <b>2와 3의 공배수</b>를 만들려는 겁니다. 가장 작은 공배수가 6이니, 첫 식은 3배, 둘째 식은 2배가 됩니다. 계수가 같아지면 빼서 지울 수 있습니다.
+  </div>
+  <p>이제 <b>둘째 식을 첫째 식에서 뺍니다.</b> 좌변은 좌변끼리, 우변은 우변끼리 빼는 겁니다. 그러면 <span class="m">6x</span> 가 사라집니다.</p>
+  <div class="sys">
+    <div class="eq">3y − (−4y) = 3 − 8</div>
+    <div class="eq">3y + 4y = 7y = −5</div>
+  </div>
+  <div class="cmt warn2">
+    <span class="tt">가장 많이 틀리는 자리</span>
+    좌변이 <span class="m">3y − (−4y)</span> 입니다. 마이너스가 두 개라 <b>더하기</b>가 됩니다(1장 §2 N4). 여기서 <span class="m">3y − 4y = −y</span> 라고 쓰면 답이 통째로 틀립니다.
+  </div>
+  <p>따라서</p>
+  <div class="mb">y = <span class="fr"><i>−5</i><i>7</i></span></div>
+
+  <p>이제 <span class="m">y</span> 값을 알았으니 <b>(1)에 되돌려 넣어</b> <span class="m">x</span> 를 구합니다. (1)에서 <span class="m">2x = 1 − y</span> 이므로</p>
+  <div class="sys">
+    <div class="eq">2x = 1 − (−<span class="fr"><i>5</i><i>7</i></span>) = 1 + <span class="fr"><i>5</i><i>7</i></span> = <span class="fr"><i>12</i><i>7</i></span></div>
+    <div class="eq">x = <span class="fr"><i>1</i><i>2</i></span> · <span class="fr"><i>12</i><i>7</i></span> = <span class="fr"><i>12</i><i>14</i></span></div>
+  </div>
+  <div class="rule">
+    <span class="tag">답</span>
+    <div class="mb">y = <span class="fr"><i>−5</i><i>7</i></span> &nbsp;&nbsp;&nbsp;&nbsp; x = <span class="fr"><i>12</i><i>14</i></span></div>
+  </div>
+  <div class="cmt">
+    <span class="tt">Lang의 코멘트</span>
+    <span class="m">x</span> 를 기약 형태로 쓰고 싶다면 <span class="fr"><i>6</i><i>7</i></span> 이라고 쓸 수 있지만, <b><span class="fr"><i>12</i><i>14</i></span> 도 완전히 맞는 답</b>이라고 못박습니다. 1장 §5의 화학 문제에서도 같은 말을 했었죠.
+  </div>
+
+  <p>아래에서 이 과정을 한 단계씩 눌러가며 보세요.</p>
+  <div class="elim" id="elim1">
+    <div class="stage" id="eStage"></div>
+    <div class="ebar">
+      <button class="pri" id="eNext">다음 단계</button>
+      <button id="ePrev">이전</button>
+      <button id="eReset">처음부터</button>
+      <button class="tg" id="eMode">y부터 소거</button>
+      <span class="sp" id="eCount"></span>
+    </div>
+  </div>
+
+  <h3 id="var">3. 순서를 바꿔도 된다<small>ELIMINATING y FIRST</small></h3>
+  <p>Lang은 <b>변형</b>도 보여줍니다. <span class="m">y</span> 를 먼저 없애는 방법입니다.</p>
+  <p>첫 식에 2를 곱하고 둘째 식은 그대로 둔 다음, 두 식을 <b>더합니다.</b></p>
+  <div class="sys">
+    <div class="eq">4x + <b>2y</b> = 2</div>
+    <div class="eq">3x − <b>2y</b> = 4</div>
+  </div>
+  <div class="cmt">
+    <span class="tt">이번엔 왜 더하나</span>
+    계수가 <span class="m">+2</span> 와 <span class="m">−2</span> 로 <b>부호가 반대</b>입니다. 부호가 같으면 빼서 지우고, 부호가 반대면 더해서 지웁니다. 목표는 언제나 <b>사라지게 만드는 것</b>입니다.
+  </div>
+  <p>더하면</p>
+  <div class="sys">
+    <div class="eq">4x + 3x = 6</div>
+    <div class="eq">7x = 6,&nbsp; x = <span class="fr"><i>6</i><i>7</i></span></div>
+  </div>
+  <p>물론 위에서 구한 답과 같습니다. 그다음 첫 식으로 <span class="m">y</span> 를 구합니다. <span class="m">y = 1 − 2x</span> 이므로</p>
+  <div class="sys">
+    <div class="eq">y = 1 − <span class="fr"><i>12</i><i>7</i></span> = <span class="fr"><i>7 − 12</i><i>7</i></span> = <span class="fr"><i>−5</i><i>7</i></span></div>
+  </div>
+
+  <div class="mine">
+    <span class="tag">내 설명 · 어느 쪽을 먼저 없앨까</span>
+    <p>Lang은 두 방법을 다 보여주고 <b>어느 쪽이 낫다고 말하지 않습니다.</b> 실전에서는 기준이 있습니다.</p>
+    <table style="margin-top:10px">
+      <tr><th>상황</th><th>선택</th></tr>
+      <tr><td>계수가 <b>1이나 −1</b>인 항이 있다</td><td>그 미지수를 없앤다</td></tr>
+      <tr><td>부호가 <b>반대</b>인 항이 있다</td><td>그 미지수를 없앤다</td></tr>
+      <tr><td>한쪽 계수가 다른 쪽의 <b>배수</b>다</td><td>그 미지수를 없앤다</td></tr>
+    </table>
+    <p style="margin-top:10px">이유는 하나입니다. <b>곱하는 수가 작을수록 계산 실수가 줄어듭니다.</b> 위 예제에서 <span class="m">y</span> 를 먼저 없애는 쪽이 조금 더 편했던 것도, 곱한 수가 2 하나뿐이었기 때문이에요.</p>
+    <div class="cmt">
+      <span class="tt">실전 요령</span>
+      답을 구한 뒤에는 <b>반드시 두 식 모두에 대입해 검산하세요.</b> 한 식만 맞으면 계산 실수를 못 잡습니다. 뒤에 나오는 Lang의 마지막 언급이 정확히 이 이야기입니다.
+    </div>
+  </div>
+
+  <h3 id="none">4. 해가 없는 경우<small>NO SOLUTIONS</small></h3>
+  <p>Lang은 <b>연립방정식에 해가 없을 수도 있다</b>고 짚습니다. 두 가지 예를 듭니다.</p>
+
+  <p><b>첫 번째 예 (3)</b></p>
+  <div class="sys">
+    <div class="eq">2x − y = 5</div>
+    <div class="eq">2x − y = 7</div>
+  </div>
+  <p>Lang의 표현으로 <b>명백히</b> 해가 없습니다.</p>
+  <div class="cmt">
+    <span class="tt">왜 명백한가</span>
+    좌변이 완전히 같은 <span class="m">2x − y</span> 입니다. 같은 값이 동시에 5이면서 7일 수는 없습니다.
+  </div>
+
+  <p><b>두 번째 예 (4)</b></p>
+  <div class="sys">
+    <div class="eq">2x − y = 5</div>
+    <div class="eq">6x − 3y = 7</div>
+  </div>
+  <p>이것도 해가 없습니다. Lang의 논증은 이렇습니다. <span class="m">6x − 3y = 7</span> 의 해라면, 양변을 3으로 나눈 식의 해이기도 합니다.</p>
+  <div class="sys">
+    <div class="eq">2x − y = <span class="fr"><i>7</i><i>3</i></span></div>
+  </div>
+  <p>그런데 첫 식은 <span class="m">2x − y = 5</span> 라고 말합니다. 다시 <b>첫 번째 예와 똑같은 상황</b>이 되었으므로 동시해가 존재하지 않습니다.</p>
+  <div class="cmt warn2">
+    <span class="tt">두 예의 차이</span>
+    <b>(3)은 눈으로 바로 보입니다.</b> 좌변이 글자 그대로 같으니까요.<br>
+    <b>(4)는 한 단계 숨어 있습니다.</b> 3으로 나눠야 비로소 같은 좌변이 드러납니다. 실전에서 만나는 건 대부분 (4) 쪽이라, <b>계수가 비례하는지</b> 확인하는 습관이 필요합니다.
+  </div>
+
+  <div class="mine">
+    <span class="tag">Lang이 여기서 물러서는 지점</span>
+    <p>Lang이 이렇게 적습니다. <b>해가 존재하는 경우와 아닌 경우를 정확히 결정하는 이론을 여기서 강조하고 싶지는 않다.</b></p>
+    <p>해는 <b>"보통(usually)"</b> 존재하고, 위 예들과 본질적으로 같은 경우가 아니라면 그렇다는 겁니다. 이 절의 목적은 미지수 두 개짜리 간단한 방정식에 <b>익숙해지게 하는 것</b>이지, 부담을 주거나 걱정하게 만들려는 게 아니라고요.</p>
+    <p>다만 <b>연습문제 9번과 10번</b>을 풀면 해가 존재하는 일반 기준을 얻게 되며, 그 문제들이 여기서 말한 <b>"보통"의 의미를 정확하게 만든다</b>고 덧붙입니다.</p>
+    <div class="cmt">
+      <span class="tt">그 기준이 무엇인지 미리 말하면</span>
+      <span class="m">ad − bc ≠ 0</span> 입니다. 이 절 뒤쪽에서 다룹니다. 그리고 이 값에는 이름이 있습니다.
+    </div>
+  </div>
+
+  <h3 id="line">5. 두 직선의 만남 ★<small>THE GEOMETRIC PICTURE</small></h3>
+  <p>Lang이 앞을 내다보며 적습니다. <b>좌표를 배우고 나면</b>, 지금 다루는 연립방정식이 <b>직선</b>을 나타내며, 동시해를 찾는 것이 <b>두 직선의 교점의 좌표</b>를 구하는 일임을 알게 될 것이라고요. 원한다면 좌표와 12장 §1을 지금 바로 찾아봐도 좋다고 합니다.</p>
+
+  <div class="mine">
+    <span class="tag">내 설명 · 이 그림 하나면 전부 이해됩니다</span>
+    <p>Lang이 12장으로 미뤄뒀지만, <b>지금 보는 편이 훨씬 낫습니다.</b> 앞에서 나온 모든 경우가 한 그림으로 설명되거든요.</p>
+    <table style="margin-top:10px">
+      <tr><th>두 직선의 관계</th><th>해</th><th>해당 예</th></tr>
+      <tr><td>한 점에서 <b>만난다</b></td><td class="c" style="color:var(--green)">딱 하나</td><td>(1),(2)</td></tr>
+      <tr><td><b>평행</b>하다</td><td class="c" style="color:var(--orange)">없음</td><td>(3),(4)</td></tr>
+      <tr><td><b>완전히 겹친다</b></td><td class="c" style="color:var(--blue)">무수히 많음</td><td>연습 7번</td></tr>
+    </table>
+    <p style="margin-top:10px">식 하나는 직선 하나입니다. <span class="m">2x + y = 1</span> 을 만족하는 <span class="m">(x, y)</span> 를 전부 찍으면 직선이 그려져요. <b>두 식을 동시에 만족한다</b>는 건 <b>두 직선 위에 동시에 있다</b>는 뜻이고, 그게 바로 교점입니다.</p>
+    <p>해가 없다는 건 <b>만나지 않는다</b>는 뜻이고, 그건 <b>평행</b>하다는 뜻입니다. (4)에서 계수가 비례했던 이유가 이거예요. 기울기가 같으면 평행이니까요.</p>
+  </div>
+
+  <p>계수를 움직여가며 두 직선이 어떻게 되는지 직접 보세요.</p>
+  <div class="fig" data-fig="lines"></div>
+
+  <h3 id="logic">6. Lang의 마지막 언급<small>A LOGICAL POINT</small></h3>
+  <div class="warn">
+    <span class="tag">놓치기 쉬운 논리</span>
+    <p>Lang이 절 끝에 조용히 붙인 말인데, 실은 <b>매우 중요한 지적</b>입니다.</p>
+    <p>소거법 절차가 실제로 증명하는 것은 <b>"만약 <span class="m">x, y</span> 가 두 식을 동시에 만족한다면, 그 값은 이 방법으로 얻은 값이어야 한다"</b> 입니다.</p>
+    <p>거꾸로 <b>그 값들이 실제로 해가 된다</b>는 것은 <b>따로 확인해야</b> 합니다. 매번 명시적으로 검산할 수 있고, 일반적으로 증명하는 것도 쉽지만 편리한 표기와 일반 문자를 세팅해야 합니다(연습문제 11번). Lang은 <b>여기서 추상에 빠지고 싶지 않다</b>고 적습니다.</p>
+  </div>
+  <div class="mine">
+    <span class="tag">내 설명 · 왜 이 구분이 필요한가</span>
+    <p>소거법이 하는 말을 정확히 옮기면 이렇습니다.</p>
+    <div class="cmt">
+      <span class="tt">소거법이 증명하는 것</span>
+      해가 있다면 <b>반드시</b> <span class="m">x = 6/7, y = −5/7</span> 이다.
+    </div>
+    <div class="cmt">
+      <span class="tt">소거법이 증명하지 않는 것</span>
+      <span class="m">x = 6/7, y = −5/7</span> 이 <b>정말로</b> 해다.
+    </div>
+    <p>둘은 다른 진술입니다. 앞의 것은 <b>"후보를 좁혔다"</b>는 뜻이고, 뒤의 것은 <b>"그 후보가 진짜다"</b>는 뜻이에요.</p>
+    <p>보통은 둘이 같이 성립해서 신경 쓸 일이 없습니다. 하지만 <b>양변을 제곱</b>하거나 <b>분모를 곱해 없애는</b> 조작이 들어가면 가짜 해가 생깁니다. 그럴 때 검산을 안 하면 틀립니다.</p>
+    <div class="cmt good">
+      <span class="tt">결론</span>
+      구한 값을 <b>원래 두 식 모두에 대입해 보세요.</b> 30초면 되고, 이건 예의가 아니라 <b>논리적으로 필요한 단계</b>입니다.
+    </div>
+  </div>
+
+  <h3 id="word">7. 활용 문제<small>THE SAME TRIP, TWO UNKNOWNS</small></h3>
+  <p>Lang은 1장 §6 끝에서 <b>미지수 하나</b>로 풀었던 문제를, 이번엔 <b>미지수 둘</b>로 다시 풉니다.</p>
+  <div class="rule">
+    <span class="tag">문제</span>
+    <p style="margin-top:0">8시간 동안 400마일을 운전했다. 고속도로에서는 평균 시속 60마일, 시내에서는 시속 30마일이었다. <b>시내를 몇 시간 운전했는가?</b></p>
+  </div>
+  <ol class="steps">
+    <li><span class="m">x</span> = 고속도로 운전 시간, <span class="m">y</span> = 시내 운전 시간이라 둡니다</li>
+    <li>총 시간이 8시간이므로 첫 식을 얻습니다 &nbsp; <span class="m">x + y = 8</span></li>
+    <li>고속도로 거리는 <span class="m">60x</span>, 시내 거리는 <span class="m">30y</span> 입니다</li>
+    <li>총 거리가 400이므로 둘째 식을 얻습니다 &nbsp; <span class="m">60x + 30y = 400</span></li>
+  </ol>
+  <p>이제 소거법을 씁니다. 첫 식에 60을 곱하고 둘째 식을 뺍니다.</p>
+  <div class="sys">
+    <div class="eq">60y − 30y = 480 − 400</div>
+    <div class="eq">30y = 80</div>
+    <div class="eq">y = <span class="fr"><i>80</i><i>30</i></span> = <span class="fr"><i>8</i><i>3</i></span></div>
+  </div>
+  <p>따라서 시내를 <span class="fr"><i>8</i><i>3</i></span> 시간 운전했습니다. Lang의 말대로 <b>미지수 하나로 풀었을 때와 같은 답</b>입니다.</p>
+  <div class="cmt good">
+    <span class="tt">Lang의 권유</span>
+    이제 <b>1장 §6 끝의 연습문제들을 미지수 두 개로 다시 풀어보라</b>고 합니다. 그편이 문제를 다루기 더 쉬울 수 있다고요.
+  </div>
+  <div class="mine">
+    <span class="tag">내 설명 · 왜 미지수 둘이 더 쉬운가</span>
+    <p>1장 §6에서는 시내 시간을 <span class="m">x</span> 로 두고 고속도로 시간을 <span class="m">8 − x</span> 로 <b>머릿속에서 계산해</b> 넣었습니다.</p>
+    <p>미지수 둘을 쓰면 그 계산을 <b>안 해도 됩니다.</b> 문장을 읽으면서 나오는 대로 식을 적으면 끝이에요.</p>
+    <table style="margin-top:10px">
+      <tr><th>문장</th><th>식</th></tr>
+      <tr><td>8시간 운전했다</td><td class="c"><span class="m">x + y = 8</span></td></tr>
+      <tr><td>총 400마일을 갔다</td><td class="c"><span class="m">60x + 30y = 400</span></td></tr>
+    </table>
+    <p style="margin-top:10px"><b>번역이 기계적</b>이 됩니다. 대신 식이 두 개가 되어 푸는 단계가 하나 늘죠. 생각을 줄이고 계산을 늘린 셈입니다. 문제가 복잡해질수록 이쪽이 압도적으로 유리합니다.</p>
+  </div>
+
+  <h3 id="det">8. ad − bc 의 정체 ★<small>WHAT EXERCISES 9 TO 11 ARE ABOUT</small></h3>
+  <p>연습문제 9, 10, 11번에는 <span class="m">ad − bc ≠ 0</span> 이라는 조건이 계속 붙습니다. Lang이 <b>"보통"의 정확한 의미</b>라고 했던 그것입니다.</p>
+  <p>일반적인 연립방정식을 풀어보면 이 값이 왜 나오는지 보입니다.</p>
+  <div class="proof">
+    <div class="ph">일반 풀이 · ax + by = u, cx + dy = v</div>
+    <div class="pline"><div class="eqn"><span class="e">adx + bdy = ud</span><button class="why">왜?</button></div>
+      <div class="ans"><b>첫 식에 <span class="m">d</span> 를 곱했습니다.</b> <span class="m">y</span> 의 계수를 <span class="m">bd</span> 로 만드는 게 목표입니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">bcx + bdy = bv</span><button class="why">왜?</button></div>
+      <div class="ans"><b>둘째 식에 <span class="m">b</span> 를 곱했습니다.</b> <span class="m">y</span> 의 계수가 역시 <span class="m">bd</span> 가 되었습니다. 이제 두 식의 <span class="m">y</span> 항이 완전히 같습니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">(ad − bc)x = ud − bv</span><button class="why">왜?</button></div>
+      <div class="ans"><b>두 식을 뺐습니다.</b> <span class="m">bdy</span> 가 서로 지워지고 <span class="m">adx − bcx</span> 가 남습니다.<br>
+      분배법칙으로 <span class="m">x</span> 를 묶으면 <span class="m">(ad − bc)x</span> 입니다.<br>
+      <b>여기서 <span class="m">ad − bc</span> 가 태어납니다.</b> 억지로 만든 게 아니라 소거 과정에서 자연히 나온 것입니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">x = (ud − bv) / (ad − bc)</span><button class="why">왜?</button></div>
+      <div class="ans">양변을 <span class="m">ad − bc</span> 로 나눴습니다.<br>
+      <b>그런데 나누려면 이 값이 0이 아니어야 합니다.</b> 1장 §6에서 배운 그대로예요. 0은 역원이 없으니까요.<br>
+      Lang이 문제마다 <span class="m">ad − bc ≠ 0</span> 을 붙인 이유가 정확히 이것입니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">y = (av − uc) / (ad − bc)</span><button class="why">왜?</button></div>
+      <div class="ans">같은 방식으로 <span class="m">x</span> 를 소거하면 나옵니다. 첫 식에 <span class="m">c</span>, 둘째 식에 <span class="m">a</span> 를 곱해 빼면 됩니다.</div></div>
+  </div>
+
+  <div class="mine">
+    <span class="tag">내 설명 · 이 값에는 이름이 있습니다</span>
+    <p><span class="m">ad − bc</span> 를 <span class="hlp">행렬식(determinant)</span>이라고 부릅니다. 이 책의 <b>마지막 장인 17장</b>의 주제예요.</p>
+    <p>지금 여러분이 연습문제 9, 10, 11번에서 하고 있는 일이, 사실은 17장의 <b>크라메르 공식(Cramer's Rule)</b> 을 손으로 유도하는 것입니다. 1장 §4의 따름정리가 §5의 정리 4를 위한 부품이었듯, 여기서도 같은 일이 벌어지고 있어요.</p>
+    <div class="cmt">
+      <span class="tt">이름의 뜻</span>
+      determinant 는 <b>"결정하는 것"</b>이라는 뜻입니다. 무엇을 결정하냐면, <b>해가 하나로 정해지는지 아닌지</b>를 결정합니다.
+    </div>
+    <table style="margin-top:10px">
+      <tr><th><span class="m">ad − bc</span></th><th>두 직선</th><th>해</th></tr>
+      <tr><td class="c" style="color:var(--green)">≠ 0</td><td>한 점에서 만남</td><td>딱 하나</td></tr>
+      <tr><td class="c" style="color:var(--orange)">= 0</td><td>평행하거나 겹침</td><td>없거나 무수히 많음</td></tr>
+    </table>
+    <p style="margin-top:10px">위의 <b>두 직선 그림</b>에서 <span class="m">ad − bc</span> 값을 같이 표시해뒀습니다. 직선을 움직이며 이 값이 0에 가까워질 때 무슨 일이 생기는지 보세요.</p>
+  </div>
+
+  <h3 id="ex">9. 연습 문제<small>교재 56–57쪽</small></h3>
+  <p style="font-size:13px;color:var(--mut)">교재 §1 연습문제 1번부터 11번까지 전부 다뤘습니다.</p>
+
+  <div class="q"><div class="qt"><i>1번</i><span class="m">2x − y = 3</span>,&nbsp; <span class="m">x + y = 2</span></div>
+    <button>답 보기</button><div class="sol">
+    부호가 <span class="m">−y</span> 와 <span class="m">+y</span> 로 반대이므로 <b>그냥 더합니다.</b><br>
+    <span class="m">3x = 5</span> → <span class="m">x = </span><span class="fr"><i>5</i><i>3</i></span><br>
+    둘째 식에서 <span class="m">y = 2 − </span><span class="fr"><i>5</i><i>3</i></span> = <span class="fr"><i>1</i><i>3</i></span><br>
+    <div class="cmt good"><span class="tt">검산</span>
+    <span class="m">2(5/3) − 1/3 = 10/3 − 1/3 = 3</span> 이고 <span class="m">5/3 + 1/3 = 2</span> 입니다. 두 식 모두 만족합니다.</div></div></div>
+
+  <div class="q"><div class="qt"><i>2번</i><span class="m">−4x + 7y = −1</span>,&nbsp; <span class="m">x − 2y = −4</span></div>
+    <button>답 보기</button><div class="sol">
+    둘째 식의 <span class="m">x</span> 계수가 1이므로 <b>대입이 편합니다.</b><br>
+    <span class="m">x = 2y − 4</span> 를 첫 식에 넣으면<br>
+    <span class="m">−4(2y − 4) + 7y = −1</span><br>
+    <span class="m">−8y + 16 + 7y = −1</span><br>
+    <span class="m">−y = −17</span> → <span class="m">y = 17</span><br>
+    <span class="m">x = 2(17) − 4 = 30</span><br>
+    <div class="cmt"><span class="tt">소거법으로 하려면</span>
+    둘째 식에 4를 곱해 <span class="m">4x − 8y = −16</span> 으로 만든 뒤 첫 식과 더하면 됩니다. 결과는 같습니다.</div></div></div>
+
+  <div class="q"><div class="qt"><i>3번</i><span class="m">3x + 4y = −2</span>,&nbsp; <span class="m">−2x − 3y = 1</span></div>
+    <button>답 보기</button><div class="sol">
+    <span class="m">x</span> 를 없앱니다. 첫 식에 2, 둘째 식에 3을 곱하면<br>
+    <span class="m">6x + 8y = −4</span><br>
+    <span class="m">−6x − 9y = 3</span><br>
+    부호가 반대이므로 더합니다.<br>
+    <span class="m">−y = −1</span> → <span class="m">y = 1</span><br>
+    첫 식에 넣으면 <span class="m">3x + 4 = −2</span> → <span class="m">x = −2</span><br>
+    <div class="cmt good"><span class="tt">검산</span>
+    <span class="m">−2(−2) − 3(1) = 4 − 3 = 1</span> 입니다. 맞습니다.</div></div></div>
+
+  <div class="q"><div class="qt"><i>4번</i><span class="m">−3x + 2y = −1</span>,&nbsp; <span class="m">x − y = 2</span></div>
+    <button>답 보기</button><div class="sol">
+    둘째 식에 3을 곱하면 <span class="m">3x − 3y = 6</span><br>
+    첫 식과 더하면 <span class="m">−y = 5</span> → <span class="m">y = −5</span><br>
+    <span class="m">x = y + 2 = −3</span><br>
+    <div class="cmt good"><span class="tt">검산</span>
+    <span class="m">−3(−3) + 2(−5) = 9 − 10 = −1</span> 입니다.</div></div></div>
+
+  <div class="q"><div class="qt"><i>5번</i><span class="m">−3x + y = 0</span>,&nbsp; <span class="m">x − y = 1</span></div>
+    <button>답 보기</button><div class="sol">
+    <span class="m">+y</span> 와 <span class="m">−y</span> 이므로 더합니다.<br>
+    <span class="m">−2x = 1</span> → <span class="m">x = −</span><span class="fr"><i>1</i><i>2</i></span><br>
+    첫 식에서 <span class="m">y = 3x = −</span><span class="fr"><i>3</i><i>2</i></span><br>
+    <div class="cmt good"><span class="tt">검산</span>
+    <span class="m">−1/2 − (−3/2) = −1/2 + 3/2 = 1</span> 입니다.</div></div></div>
+
+  <div class="q"><div class="qt"><i>6번</i><span class="m">3x + 7y = 0</span>,&nbsp; <span class="m">x − y = 0</span></div>
+    <button>답 보기</button><div class="sol">
+    둘째 식에서 <span class="m">x = y</span>. 첫 식에 넣으면<br>
+    <span class="m">3y + 7y = 10y = 0</span> → <span class="m">y = 0</span>, 따라서 <span class="m">x = 0</span><br>
+    <div class="cmt"><span class="tt">이 문제가 특별한 이유</span>
+    우변이 둘 다 0인 연립방정식입니다. <b>연습문제 10번이 다루는 바로 그 형태</b>예요. <span class="m">ad − bc = 3(−1) − 7(1) = −10 ≠ 0</span> 이므로 해는 <span class="m">x = y = 0</span> 하나뿐입니다.</div></div></div>
+
+  <div class="q"><div class="qt"><i>7번</i><span class="m">7x − y = 2</span>,&nbsp; <span class="m">2x + 2y = 4</span></div>
+    <button>답 보기</button><div class="sol">
+    둘째 식을 2로 나누면 <span class="m">x + y = 2</span> 로 간단해집니다.<br>
+    첫 식과 더하면 <span class="m">8x = 4</span> → <span class="m">x = </span><span class="fr"><i>1</i><i>2</i></span><br>
+    <span class="m">y = 2 − </span><span class="fr"><i>1</i><i>2</i></span> = <span class="fr"><i>3</i><i>2</i></span><br>
+    <div class="cmt"><span class="tt">먼저 나누고 시작하는 습관</span>
+    계수에 공약수가 보이면 <b>곱하기 전에 먼저 나누세요.</b> 다루는 숫자가 작아져 실수가 줄어듭니다.</div></div></div>
+
+  <div class="q"><div class="qt"><i>8번</i><span class="m">−4x − 7y = 5</span>,&nbsp; <span class="m">2x + y = 6</span></div>
+    <button>답 보기</button><div class="sol">
+    둘째 식에 2를 곱하면 <span class="m">4x + 2y = 12</span><br>
+    첫 식과 더하면 <span class="m">−5y = 17</span> → <span class="m">y = −</span><span class="fr"><i>17</i><i>5</i></span><br>
+    <span class="m">2x = 6 − y = 6 + </span><span class="fr"><i>17</i><i>5</i></span> = <span class="fr"><i>47</i><i>5</i></span> → <span class="m">x = </span><span class="fr"><i>47</i><i>10</i></span><br>
+    <div class="cmt good"><span class="tt">검산</span>
+    <span class="m">−4(47/10) − 7(−17/5) = −18.8 + 23.8 = 5</span> 입니다.</div></div></div>
+
+  <div class="q"><div class="qt"><i>9번</i><span class="m">ad − bc ≠ 0</span> 일 때 다음을 <span class="m">a, b, c, d</span> 로 푸세요.<br>
+    a) <span class="m">ax + by = 1</span>, <span class="m">cx + dy = 2</span> &nbsp;&nbsp; b) <span class="m">ax + by = 3</span>, <span class="m">cx + dy = −4</span></div>
+    <button>답 보기</button><div class="sol">
+    위에서 유도한 일반 공식을 씁니다. <span class="m">ax + by = u</span>, <span class="m">cx + dy = v</span> 일 때<br>
+    <span class="m">x = </span><span class="fr"><i>ud − bv</i><i>ad − bc</i></span>,&nbsp;&nbsp; <span class="m">y = </span><span class="fr"><i>av − uc</i><i>ad − bc</i></span><br><br>
+    <b>a)</b> <span class="m">u = 1, v = 2</span><br>
+    <span class="m">x = </span><span class="fr"><i>d − 2b</i><i>ad − bc</i></span>,&nbsp;&nbsp; <span class="m">y = </span><span class="fr"><i>2a − c</i><i>ad − bc</i></span><br><br>
+    <b>b)</b> <span class="m">u = 3, v = −4</span><br>
+    <span class="m">x = </span><span class="fr"><i>3d + 4b</i><i>ad − bc</i></span>,&nbsp;&nbsp; <span class="m">y = </span><span class="fr"><i>−4a − 3c</i><i>ad − bc</i></span><br>
+    <div class="cmt warn2"><span class="tt">부호 조심</span>
+    b)에서 <span class="m">v = −4</span> 이므로 <span class="m">−bv = −b(−4) = +4b</span> 가 됩니다. 마이너스 두 개가 플러스로 바뀌는 자리입니다.</div></div></div>
+
+  <div class="q"><div class="qt"><i>9번 c·d</i>c) <span class="m">ax + by = −2</span>, <span class="m">cx + dy = 3</span> &nbsp;&nbsp; d) <span class="m">ax + by = 5</span>, <span class="m">cx + dy = 1</span></div>
+    <button>답 보기</button><div class="sol">
+    <b>c)</b> <span class="m">u = −2, v = 3</span><br>
+    <span class="m">x = </span><span class="fr"><i>−2d − 3b</i><i>ad − bc</i></span>,&nbsp;&nbsp; <span class="m">y = </span><span class="fr"><i>3a + 2c</i><i>ad − bc</i></span><br><br>
+    <b>d)</b> <span class="m">u = 5, v = 1</span><br>
+    <span class="m">x = </span><span class="fr"><i>5d − b</i><i>ad − bc</i></span>,&nbsp;&nbsp; <span class="m">y = </span><span class="fr"><i>a − 5c</i><i>ad − bc</i></span><br>
+    <div class="cmt"><span class="tt">패턴이 보이나요</span>
+    분모는 항상 <span class="m">ad − bc</span> 로 <b>고정</b>이고, 분자만 우변 값에 따라 바뀝니다. 17장에서 이 구조가 정식으로 정리됩니다.</div></div></div>
+
+  <div class="q"><div class="qt"><i>10번</i>같은 가정에서 <span class="m">ax + by = 0</span>, <span class="m">cx + dy = 0</span> 의 해가 반드시 <span class="m">x = 0</span>, <span class="m">y = 0</span> 임을 보이세요.</div>
+    <button>답 보기</button><div class="sol">
+    앞의 유도를 그대로 따라갑니다.<br>
+    첫 식에 <span class="m">d</span>, 둘째 식에 <span class="m">b</span> 를 곱해 빼면<br>
+    <span class="m">(ad − bc)x = 0 · d − b · 0 = 0</span><br><br>
+    여기서 <span class="m">ad − bc ≠ 0</span> 이므로 <b>역원이 존재합니다</b>(1장 §6).<br>
+    양변에 <span class="m">(ad − bc)<sup>−1</sup></span> 을 곱하면 <span class="m">x = 0</span><br>
+    같은 방식으로 <span class="m">y = 0</span> ∎<br>
+    <div class="cmt"><span class="tt">다른 증명</span>
+    1장 §6의 <span class="m">ab = 0</span> 정리를 써도 됩니다. <span class="m">(ad − bc)x = 0</span> 이고 <span class="m">ad − bc ≠ 0</span> 이므로 <span class="m">x = 0</span> 이어야 합니다.</div>
+    <div class="cmt good"><span class="tt">기하적 의미</span>
+    우변이 둘 다 0이면 두 직선이 <b>모두 원점을 지납니다.</b> 평행하지 않다면(<span class="m">ad − bc ≠ 0</span>) 만나는 곳은 원점 하나뿐이에요.</div></div></div>
+
+  <div class="q"><div class="qt"><i>11번</i><span class="m">ad − bc ≠ 0</span> 일 때 <span class="m">ax + by = u</span>, <span class="m">cx + dy = v</span> 를 풀고, <b>얻은 답이 실제로 해임을 검증</b>하세요.</div>
+    <button>답 보기</button><div class="sol">
+    <b>풀이</b>는 위에서 유도한 그대로입니다.<br>
+    <span class="m">x = </span><span class="fr"><i>ud − bv</i><i>ad − bc</i></span>,&nbsp;&nbsp; <span class="m">y = </span><span class="fr"><i>av − uc</i><i>ad − bc</i></span><br><br>
+    <b>검증</b>이 이 문제의 진짜 요구사항입니다. 첫 식에 대입해 봅니다. 편의상 <span class="m">D = ad − bc</span> 로 둡니다.<br><br>
+    <span class="m">ax + by</span><br>
+    = <span class="fr"><i>a(ud − bv) + b(av − uc)</i><i>D</i></span><br>
+    = <span class="fr"><i>aud − abv + abv − buc</i><i>D</i></span><br><br>
+    가운데 <span class="m">−abv</span> 와 <span class="m">+abv</span> 가 서로 지워집니다.<br>
+    = <span class="fr"><i>aud − buc</i><i>D</i></span> = <span class="fr"><i>u(ad − bc)</i><i>D</i></span> = <span class="fr"><i>uD</i><i>D</i></span> = <span class="m">u</span> ✓<br><br>
+    둘째 식도 같은 방식으로 <span class="m">cx + dy = v</span> 가 확인됩니다.<br>
+    <div class="cmt good"><span class="tt">이 문제의 요점</span>
+    Lang이 절 끝에서 말한 <b>"거꾸로도 확인해야 한다"</b>를 실제로 해보는 문제입니다. 소거법은 후보를 좁힐 뿐이고, 그 후보가 진짜인지는 <b>대입해서 확인</b>해야 합니다. 이 계산이 그 확인이에요.</div></div></div>
+</section>
+
+<section style="border-bottom:none">
+  <h3 style="margin-top:10px">§1 한눈에</h3>
+  <table>
+    <tr><th>항목</th><th>내용</th></tr>
+    <tr><td><b>소거법</b></td><td>한 미지수의 계수를 같게 만든 뒤 빼거나 더해서 지운다</td></tr>
+    <tr><td>계수 맞추기</td><td>부호가 같으면 <b>빼고</b>, 반대면 <b>더한다</b></td></tr>
+    <tr><td>되돌리기</td><td>구한 값을 원래 식에 넣어 나머지 미지수를 구한다</td></tr>
+    <tr><td>해가 없는 경우</td><td>좌변이 비례하는데 우변 비율이 다르면 없다</td></tr>
+    <tr><td>기하</td><td>식 하나 = 직선 하나, 동시해 = <b>교점</b></td></tr>
+    <tr><td><b>ad − bc</b></td><td>0이 아니면 해가 하나. 0이면 평행이거나 겹침</td></tr>
+    <tr><td>일반해</td><td><span class="m">x = </span><span class="fr"><i>ud − bv</i><i>ad − bc</i></span>, <span class="m">y = </span><span class="fr"><i>av − uc</i><i>ad − bc</i></span></td></tr>
+    <tr><td>논리</td><td>소거법은 후보를 좁힐 뿐, <b>검산이 필요</b>하다</td></tr>
+  </table>
+  <div class="mine">
+    <span class="tag">마무리 · 이 절이 남긴 것</span>
+    <p><b>기술 하나</b>와 <b>씨앗 하나</b>입니다.</p>
+    <p><b>기술</b>은 소거법입니다. 미지수를 하나 지워 문제를 한 단계 작게 만드는 것. 다음 절에서 미지수 세 개로 확장되는데, <b>방법은 똑같습니다.</b> 세 개를 두 개로 줄이고, 두 개를 하나로 줄이는 거예요.</p>
+    <p><b>씨앗</b>은 <span class="m">ad − bc</span> 입니다. 지금은 그저 "나눗셈이 가능하려면 0이 아니어야 하는 값"이지만, 17장에서 <b>행렬식</b>이라는 이름으로 돌아옵니다. 이 책의 마지막 도착점이 여기서 이미 싹을 틔우고 있습니다.</p>
+  </div>
+  <p style="color:var(--mut);font-size:13px">다음은 §2 미지수 세 개의 방정식 (57쪽)입니다.</p>
+</section>
+
+<footer>
+  Serge Lang, <i>Basic Mathematics</i> (Addison-Wesley, 1971) 2장 §1 의 내용을 한국어로 재구성한 학습 노트입니다.
+  보라색 블록은 교재에 없는 보충 설명입니다. 원문 번역이 아니며, 정확한 표현은 교재를 참조하세요.
+</footer>
+</div>
+
+<script>
+const NS='http://www.w3.org/2000/svg';
+function el(t,a){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;}
+function tx(x,y,s,f,sz,an,fam){const e=el('text',{x:x,y:y,'text-anchor':an||'middle',
+  'font-family':fam||"ui-monospace,monospace",'font-size':sz||12,fill:f});e.textContent=s;return e;}
+function stepper(ctl,name,get,set,lo,hi,cb){
+  const g=document.createElement('div'); g.className='grp';
+  const s=document.createElement('span'); s.textContent=name;
+  const m=document.createElement('button'); m.textContent='−';
+  const p=document.createElement('button'); p.textContent='+';
+  m.onclick=()=>{if(get()>lo){set(get()-1);cb();}};
+  p.onclick=()=>{if(get()<hi){set(get()+1);cb();}};
+  g.appendChild(s);g.appendChild(m);g.appendChild(p);ctl.appendChild(g);
+}
+
+/* ══════ 두 직선 ══════ */
+function makeLines(host){
+  let A=2,B=1,E=1, C=3,D=-2,F=4;
+  const sv=el('svg',{viewBox:'0 0 340 260',preserveAspectRatio:'xMidYMid meet'});
+  const ctl=document.createElement('div'); ctl.className='fctl';
+  const lbl=document.createElement('div'); lbl.className='lbl'; ctl.appendChild(lbl);
+  const go=()=>render();
+  stepper(ctl,'a',()=>A,v=>A=v,-6,6,go); stepper(ctl,'b',()=>B,v=>B=v,-6,6,go);
+  stepper(ctl,'e',()=>E,v=>E=v,-9,9,go);
+  stepper(ctl,'c',()=>C,v=>C=v,-6,6,go); stepper(ctl,'d',()=>D,v=>D=v,-6,6,go);
+  stepper(ctl,'f',()=>F,v=>F=v,-9,9,go);
+  host.appendChild(sv); host.appendChild(ctl);
+
+  const R=5.5, W=340, H=250, PAD=18;
+  const S=(W-2*PAD)/(2*R);
+  const px=x=>PAD+(x+R)*S, py=y=>PAD+(R-y)*S;
+
+  function drawLine(a,b,e,col,dash){
+    if(a===0&&b===0) return;
+    const pts=[];
+    if(b!==0){
+      pts.push([-R,(e-a*(-R))/b]); pts.push([R,(e-a*R)/b]);
+    }else{
+      pts.push([e/a,-R]); pts.push([e/a,R]);
+    }
+    sv.appendChild(el('line',{x1:px(pts[0][0]),y1:py(pts[0][1]),
+      x2:px(pts[1][0]),y2:py(pts[1][1]),stroke:col,'stroke-width':2,
+      'clip-path':'url(#plotclip)','stroke-dasharray':dash||''}));
+  }
+  function render(){
+    sv.innerHTML='';
+    const cp=el('clipPath',{id:'plotclip'});
+    cp.appendChild(el('rect',{x:PAD,y:PAD,width:W-2*PAD,height:H-2*PAD}));
+    sv.appendChild(cp);
+    sv.appendChild(el('rect',{x:PAD,y:PAD,width:W-2*PAD,height:H-2*PAD,fill:'#0a0a0a',stroke:'#282828'}));
+    for(let i=-R+1;i<R;i++){
+      if(i===0)continue;
+      sv.appendChild(el('line',{x1:px(i),y1:PAD,x2:px(i),y2:H-PAD,stroke:'#1a1a1a','stroke-width':1}));
+      sv.appendChild(el('line',{x1:PAD,y1:py(i),x2:W-PAD,y2:py(i),stroke:'#1a1a1a','stroke-width':1}));
+    }
+    sv.appendChild(el('line',{x1:PAD,y1:py(0),x2:W-PAD,y2:py(0),stroke:'#4a4a4a','stroke-width':1.4}));
+    sv.appendChild(el('line',{x1:px(0),y1:PAD,x2:px(0),y2:H-PAD,stroke:'#4a4a4a','stroke-width':1.4}));
+    sv.appendChild(tx(px(0)-7,py(0)+13,'0','#6d6d68',9,'middle'));
+
+    drawLine(A,B,E,'#6fa8dc');
+    drawLine(C,D,F,'#ffc93c');
+
+    const det=A*D-B*C;
+    let msg;
+    if(det!==0){
+      const x=(E*D-B*F)/det, y=(A*F-E*C)/det;
+      if(Math.abs(x)<=R&&Math.abs(y)<=R){
+        sv.appendChild(el('circle',{cx:px(x),cy:py(y),r:6,fill:'none',stroke:'#6ec98a','stroke-width':2}));
+        sv.appendChild(el('circle',{cx:px(x),cy:py(y),r:2.5,fill:'#6ec98a'}));
+      }
+      msg='<b style="color:var(--green)">해가 하나</b> &nbsp; x = '+fmt(x)+', y = '+fmt(y);
+    }else{
+      const same=(A*F===C*E)&&(B*F===D*E);
+      msg = same
+        ? '<b style="color:var(--blue)">두 직선이 완전히 겹칩니다</b> &nbsp; 해가 무수히 많습니다'
+        : '<b style="color:var(--orange)">두 직선이 평행합니다</b> &nbsp; 해가 없습니다';
+    }
+    sv.appendChild(tx(W-PAD-4,H-PAD-8,'ad − bc = '+det, det?'#6ec98a':'#ff6b4a',13,'end'));
+    const co=(v,sym,first)=>{
+      if(v===0) return '';
+      const sign = v<0 ? (first?'−':' − ') : (first?'':' + ');
+      const mag = Math.abs(v)===1 ? '' : String(Math.abs(v));
+      return sign+mag+sym;
+    };
+    const eqs=(p,q,r)=>{
+      let s=co(p,'x',true); const t=co(q,'y',s==='');
+      s+= (s===''? t.replace(/^ ([+−]) /,'$1'==='−'?'−':'') : t);
+      if(s==='') s='0';
+      return s+' = '+r;
+    };
+    lbl.innerHTML='<span style="color:#6fa8dc">'+eqs(A,B,E)+'</span> &nbsp;&nbsp;&nbsp; '+
+      '<span style="color:#ffc93c">'+eqs(C,D,F)+'</span><br>'+msg;
+  }
+  function fmt(v){
+    const r=Math.round(v*1000)/1000;
+    const s=Number.isInteger(r)?String(r):r.toFixed(3).replace(/0+$/,'').replace(/\.$/,'');
+    return s.replace('-','−');
+  }
+  render();
+}
+
+/* ══════ 소거법 실행기 ══════ */
+(function(){
+  const stage=document.getElementById('eStage');
+  const cnt=document.getElementById('eCount');
+  let mode=0, i=0;
+  const SX=[
+    {t:'STEP 1 · 주어진 문제', eq:['2x + y = 1','3x − 2y = 4'], c:'미지수가 둘이므로 식이 둘 필요합니다. x 를 먼저 없애기로 합니다.'},
+    {t:'STEP 2 · 계수 맞추기', eq:['(2x + y = 1) × 3','(3x − 2y = 4) × 2'], c:'x 의 계수 2와 3의 최소공배수는 6입니다. 첫 식에 3, 둘째 식에 2를 곱합니다.'},
+    {t:'STEP 3 · 계수가 같아졌다', eq:['6x + 3y = 3','6x − 4y = 8'], c:'x 의 계수가 둘 다 6이 되었습니다. 부호가 같으므로 빼면 지워집니다.'},
+    {t:'STEP 4 · 빼기', eq:['3y − (−4y) = 3 − 8'], c:'좌변은 좌변끼리, 우변은 우변끼리 뺍니다. 마이너스가 두 개라 더하기가 되는 자리입니다.'},
+    {t:'STEP 5 · y 를 구했다', eq:['7y = −5','y = −5/7'], c:'미지수 하나짜리 방정식이 되었으므로 바로 풀립니다.'},
+    {t:'STEP 6 · 되돌려 넣기', eq:['2x = 1 − y = 1 + 5/7','2x = 12/7'], c:'구한 y 를 원래 첫 식에 대입합니다.'},
+    {t:'STEP 7 · 답', eq:['x = 12/14 = 6/7','y = −5/7'], c:'두 식 모두에 대입해 검산하면 끝입니다.', ok:1}
+  ];
+  const SY=[
+    {t:'STEP 1 · 주어진 문제', eq:['2x + y = 1','3x − 2y = 4'], c:'이번에는 y 를 먼저 없앱니다.'},
+    {t:'STEP 2 · 계수 맞추기', eq:['(2x + y = 1) × 2','3x − 2y = 4'], c:'첫 식에 2를 곱하면 y 의 계수가 +2 와 −2 가 됩니다. 둘째 식은 그대로 둡니다.'},
+    {t:'STEP 3 · 부호가 반대다', eq:['4x + 2y = 2','3x − 2y = 4'], c:'부호가 반대이므로 이번에는 더해서 지웁니다.'},
+    {t:'STEP 4 · 더하기', eq:['4x + 3x = 2 + 4'], c:'y 항이 서로 잡아먹었습니다.'},
+    {t:'STEP 5 · x 를 구했다', eq:['7x = 6','x = 6/7'], c:'곱한 수가 2 하나뿐이라 이 경로가 조금 더 간단했습니다.'},
+    {t:'STEP 6 · 되돌려 넣기', eq:['y = 1 − 2x = 1 − 12/7'], c:'구한 x 를 첫 식에 대입합니다.'},
+    {t:'STEP 7 · 답', eq:['x = 6/7','y = −5/7'], c:'앞의 경로와 같은 답입니다. 순서는 결과를 바꾸지 않습니다.', ok:1}
+  ];
+  function cur(){return mode?SY:SX;}
+  function draw(){
+    const S=cur()[i];
+    let h='<div class="stp">'+S.t+'</div><div class="sys'+(S.ok?' hit':'')+'">';
+    S.eq.forEach(e=>{h+='<div class="eq">'+e+'</div>';});
+    h+='</div><div class="cmt'+(S.ok?' good':'')+'"><span class="tt">설명</span>'+S.c+'</div>';
+    stage.innerHTML=h;
+    cnt.textContent=(i+1)+' / '+cur().length;
+    document.getElementById('ePrev').disabled=(i===0);
+    document.getElementById('eNext').disabled=(i===cur().length-1);
+  }
+  document.getElementById('eNext').onclick=()=>{if(i<cur().length-1){i++;draw();}};
+  document.getElementById('ePrev').onclick=()=>{if(i>0){i--;draw();}};
+  document.getElementById('eReset').onclick=()=>{i=0;draw();};
+  document.getElementById('eMode').onclick=e=>{
+    mode=1-mode; i=0; e.target.classList.toggle('on',!!mode);
+    e.target.textContent=mode?'x부터 소거':'y부터 소거'; draw();
+  };
+  draw();
+})();
+
+document.querySelectorAll('.fig').forEach(f=>{
+  if(f.dataset.fig==='lines') makeLines(f);
+});
+document.querySelectorAll('.pline .why').forEach(b=>{
+  b.onclick=()=>{const a=b.closest('.pline').querySelector('.ans');
+    const on=a.classList.toggle('on'); b.classList.toggle('on',on); b.textContent=on?'닫기':'왜?';};
+});
+document.querySelectorAll('.q > button').forEach(b=>{
+  b.onclick=()=>{const s=b.nextElementSibling;
+    const on=s.classList.toggle('on'); b.textContent=on?'접기':'답 보기';};
+});
+const bar=document.getElementById('bar');
+const links=[...document.querySelectorAll('.nv a')];
+const targets=links.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+function onScroll(){const h=document.documentElement;
+  bar.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+  let idx=0; targets.forEach((t,i)=>{if(t.getBoundingClientRect().top<=90) idx=i;});
+  links.forEach((a,i)=>a.classList.toggle('on',i===idx));}
+addEventListener('scroll',onScroll,{passive:true}); onScroll();
+</script>
+</body>
+</html>
