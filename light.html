@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>스톱 · 프레임 · ND필터 — 기초부터</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#000000;
+    --ink:#EDEAE4;
+    --ink-dim:#9A948C;
+    --ink-faint:#5E5952;
+    --light:#FFC24D;
+    --light-soft:#8A6A2C;
+    --line:#221F1B;
+    --line-soft:#161412;
+    --panel:#0B0A09;
+    --note:#0E1216;
+    --note-edge:#1E2933;
+    --note-ink:#7FA8C4;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{ -webkit-text-size-adjust:100%; }
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'IBM Plex Sans KR', system-ui, sans-serif;
+    font-weight:300;
+    font-size:17px;
+    line-height:1.85;
+    letter-spacing:-0.01em;
+    padding:0 0 100px;
+  }
+
+  .wrap{
+    max-width:660px;
+    margin:0 auto;
+    padding:0 22px;
+  }
+
+  /* ---------- 헤더 ---------- */
+
+  header{
+    padding:64px 0 40px;
+  }
+
+  h1{
+    font-size:34px;
+    line-height:1.3;
+    font-weight:600;
+    letter-spacing:-0.03em;
+    margin:0 0 18px;
+  }
+
+  .sub{
+    color:var(--ink-dim);
+    font-size:16px;
+    line-height:1.8;
+    margin:0;
+    max-width:34em;
+  }
+
+  /* ---------- 히어로: 빛이 반으로 줄어드는 계단 ---------- */
+
+  .ladder{
+    margin:44px 0 0;
+  }
+
+  .ladder-row{
+    display:flex;
+    gap:4px;
+    height:96px;
+  }
+
+  .ladder-cell{
+    flex:1;
+    border-radius:2px;
+    position:relative;
+  }
+
+  .ladder-labels{
+    display:flex;
+    gap:4px;
+    margin-top:10px;
+  }
+
+  .ladder-label{
+    flex:1;
+    text-align:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--ink-faint);
+    line-height:1.5;
+  }
+
+  .ladder-label b{
+    display:block;
+    color:var(--ink-dim);
+    font-weight:500;
+    font-size:12px;
+  }
+
+  .ladder-cap{
+    margin-top:22px;
+    color:var(--ink-dim);
+    font-size:15px;
+    line-height:1.8;
+  }
+
+  /* ---------- 파트 ---------- */
+
+  .part{
+    margin-top:88px;
+    padding-top:34px;
+    border-top:1px solid var(--line);
+  }
+
+  .part-no{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    font-weight:500;
+    color:var(--light-soft);
+    display:block;
+    margin-bottom:10px;
+  }
+
+  h2{
+    font-size:26px;
+    line-height:1.4;
+    font-weight:600;
+    letter-spacing:-0.025em;
+    margin:0 0 8px;
+  }
+
+  .part-lead{
+    color:var(--ink-dim);
+    font-size:15px;
+    margin:0;
+  }
+
+  /* ---------- 단계 ---------- */
+
+  .step{
+    margin-top:46px;
+  }
+
+  h3{
+    font-size:19px;
+    font-weight:600;
+    line-height:1.5;
+    margin:0 0 14px;
+    letter-spacing:-0.02em;
+  }
+
+  .step-num{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--light);
+    font-weight:500;
+    margin-right:9px;
+  }
+
+  p{
+    margin:0 0 16px;
+  }
+
+  strong{ font-weight:600; color:#fff; }
+
+  em{
+    font-style:normal;
+    color:var(--light);
+    font-weight:500;
+  }
+
+  /* ---------- 수식 블록 ---------- */
+
+  .formula{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:20px 18px;
+    margin:22px 0;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:15px;
+    line-height:2.1;
+    color:#fff;
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+
+  .formula .op{ color:var(--ink-faint); }
+  .formula .hi{ color:var(--light); }
+
+  /* ---------- 메모 블록 (수식과 완전히 분리) ---------- */
+
+  .note{
+    background:var(--note);
+    border-left:2px solid var(--note-edge);
+    border-radius:0 4px 4px 0;
+    padding:16px 18px;
+    margin:22px 0;
+    font-size:15px;
+    line-height:1.8;
+    color:#B9C7D2;
+  }
+
+  .note-head{
+    display:block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    font-weight:500;
+    color:var(--note-ink);
+    margin-bottom:9px;
+    letter-spacing:0.06em;
+  }
+
+  .note p:last-child{ margin-bottom:0; }
+
+  /* ---------- 표 ---------- */
+
+  .tbl{
+    width:100%;
+    border-collapse:collapse;
+    margin:22px 0;
+    font-size:14px;
+  }
+
+  .tbl th{
+    text-align:left;
+    font-weight:500;
+    font-size:12px;
+    color:var(--ink-faint);
+    padding:0 10px 10px 0;
+    border-bottom:1px solid var(--line);
+    font-family:'IBM Plex Mono', monospace;
+  }
+
+  .tbl td{
+    padding:11px 10px 11px 0;
+    border-bottom:1px solid var(--line-soft);
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--ink-dim);
+    white-space:nowrap;
+  }
+
+  .tbl td:first-child{ color:#fff; font-weight:500; }
+  .tbl tr:last-child td{ border-bottom:none; }
+  .tbl .mark{ color:var(--light); }
+
+  .tbl-scroll{ overflow-x:auto; }
+
+  /* ---------- 시각 비교: 셔터 시간 막대 ---------- */
+
+  .bars{ margin:24px 0; }
+
+  .bar-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:9px;
+  }
+
+  .bar-name{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--ink-dim);
+    width:66px;
+    flex-shrink:0;
+    text-align:right;
+  }
+
+  .bar-track{
+    flex:1;
+    height:14px;
+    background:var(--line-soft);
+    border-radius:2px;
+    overflow:hidden;
+  }
+
+  .bar-fill{
+    height:100%;
+    background:var(--light);
+    border-radius:2px;
+  }
+
+  .bar-val{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--ink-faint);
+    width:58px;
+    flex-shrink:0;
+  }
+
+  /* ---------- 인터랙션: ND 계산기 ---------- */
+
+  .calc{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:24px 20px;
+    margin:28px 0;
+  }
+
+  .calc-title{
+    font-size:15px;
+    font-weight:600;
+    color:#fff;
+    margin:0 0 4px;
+  }
+
+  .calc-hint{
+    font-size:13px;
+    color:var(--ink-faint);
+    margin:0 0 22px;
+  }
+
+  .swatch{
+    height:64px;
+    border-radius:3px;
+    margin-bottom:20px;
+    transition:background-color .18s ease;
+  }
+
+  input[type=range]{
+    width:100%;
+    margin:0 0 18px;
+    accent-color:var(--light);
+    height:26px;
+  }
+
+  input[type=range]:focus-visible{
+    outline:2px solid var(--light);
+    outline-offset:4px;
+  }
+
+  .readout{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px 10px;
+  }
+
+  .ro-item{}
+
+  .ro-k{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--ink-faint);
+    display:block;
+    margin-bottom:3px;
+  }
+
+  .ro-v{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:20px;
+    font-weight:500;
+    color:var(--light);
+  }
+
+  .ro-v.plain{ color:#fff; }
+
+  /* ---------- 마지막 요약 ---------- */
+
+  .recipe{
+    margin:26px 0 0;
+    padding:0;
+    list-style:none;
+    counter-reset:r;
+  }
+
+  .recipe li{
+    counter-increment:r;
+    position:relative;
+    padding:0 0 20px 40px;
+    border-left:1px solid var(--line);
+    margin-left:11px;
+  }
+
+  .recipe li:last-child{ border-left:1px solid transparent; padding-bottom:0; }
+
+  .recipe li::before{
+    content:counter(r);
+    position:absolute;
+    left:-11px;
+    top:2px;
+    width:22px;
+    height:22px;
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:50%;
+    color:var(--light);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .recipe b{
+    display:block;
+    color:#fff;
+    font-weight:600;
+    font-size:16px;
+    margin-bottom:2px;
+  }
+
+  .recipe span{
+    color:var(--ink-dim);
+    font-size:15px;
+  }
+
+  footer{
+    margin-top:90px;
+    padding-top:28px;
+    border-top:1px solid var(--line);
+    color:var(--ink-faint);
+    font-size:13px;
+  }
+
+  @media (max-width:520px){
+    body{ font-size:16px; }
+    h1{ font-size:27px; }
+    h2{ font-size:22px; }
+    h3{ font-size:17.5px; }
+    .ladder-row{ height:72px; }
+    .ladder-label{ font-size:9.5px; }
+    .ladder-label b{ font-size:11px; }
+    .formula{ font-size:13.5px; padding:16px 14px; }
+    .bar-name{ width:56px; font-size:12px; }
+    .bar-val{ width:50px; }
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *{ transition:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header>
+  <h1>스톱, 프레임, ND필터</h1>
+  <p class="sub">사진과 영상에서 쓰는 숫자들이 왜 그렇게 생겼는지, 맨 처음부터 하나씩 쌓아 올립니다. 앞 단계를 모르면 다음 단계가 안 되므로 순서대로 읽으세요.</p>
+
+  <div class="ladder">
+    <div class="ladder-row">
+      <div class="ladder-cell" style="background:rgb(255,194,77)"></div>
+      <div class="ladder-cell" style="background:rgb(128,97,39)"></div>
+      <div class="ladder-cell" style="background:rgb(64,49,19)"></div>
+      <div class="ladder-cell" style="background:rgb(32,24,10)"></div>
+      <div class="ladder-cell" style="background:rgb(16,12,5)"></div>
+      <div class="ladder-cell" style="background:rgb(8,6,2)"></div>
+    </div>
+    <div class="ladder-labels">
+      <div class="ladder-label"><b>0</b>빛 전부</div>
+      <div class="ladder-label"><b>1</b>1/2</div>
+      <div class="ladder-label"><b>2</b>1/4</div>
+      <div class="ladder-label"><b>3</b>1/8</div>
+      <div class="ladder-label"><b>4</b>1/16</div>
+      <div class="ladder-label"><b>5</b>1/32</div>
+    </div>
+    <p class="ladder-cap">위 숫자가 <em>스톱</em>입니다. 한 칸 갈 때마다 빛이 정확히 절반으로 줄어듭니다. 이 페이지의 나머지는 전부 이 계단 하나로 설명됩니다.</p>
+  </div>
+</header>
+
+
+<!-- ================= 파트 1 ================= -->
+<section class="part">
+  <span class="part-no">파트 1</span>
+  <h2>빛의 양</h2>
+  <p class="part-lead">먼저 무엇을 세고 있는지부터 정합니다.</p>
+
+  <div class="step">
+    <h3><span class="step-num">1.1</span>사진은 빛을 모아서 만듭니다</h3>
+    <p>카메라 안에는 센서라는 판이 있습니다. 렌즈를 통해 들어온 빛이 이 판에 닿으면, 판이 그 빛의 세기를 기록합니다.</p>
+    <p>빛이 <strong>너무 적게</strong> 닿으면 사진이 캄캄하게 나옵니다. <strong>너무 많이</strong> 닿으면 하얗게 타버립니다. 그래서 우리가 하는 일은 딱 하나입니다. <strong>센서에 닿는 빛의 양을 적당하게 맞추는 것.</strong></p>
+    <p>사진에서 하는 모든 조작은 결국 이 한 가지를 위한 것입니다.</p>
+  </div>
+
+  <div class="step">
+    <h3><span class="step-num">1.2</span>빛의 양을 어떻게 셀까요</h3>
+    <p>여기서 문제가 생깁니다. 빛의 양은 상황에 따라 엄청나게 차이가 납니다.</p>
+    <p>한낮 야외의 빛은 어두운 실내의 빛보다 <strong>수천 배에서 수만 배</strong> 밝습니다. 1배, 2배, 3배 이렇게 세면 숫자가 감당이 안 됩니다.</p>
+
+    <div class="formula">한낮 야외 <span class="op">=</span> 어두운 실내 <span class="op">×</span> <span class="hi">약 30,000배</span></div>
+
+    <div class="note">
+      <span class="note-head">메모</span>
+      <p>사람 눈은 이 어마어마한 차이를 못 느낍니다. 뇌가 자동으로 조절해서 둘 다 "그냥 보인다"고 느끼게 만들기 때문입니다. 카메라에는 그 기능이 없어서 우리가 대신 맞춰줘야 합니다.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ================= 파트 2 ================= -->
+<section class="part">
+  <span class="part-no">파트 2</span>
+  <h2>스톱</h2>
+  <p class="part-lead">숫자가 감당이 안 되니 세는 방법을 바꿉니다.</p>
+
+  <div class="step">
+    <h3><span class="step-num">2.1</span>1배씩 말고 2배씩 셉니다</h3>
+    <p>사진에서는 빛을 이렇게 셉니다.</p>
+
+    <div class="formula">1 <span class="op">→</span> 2 <span class="op">→</span> 4 <span class="op">→</span> 8 <span class="op">→</span> 16 <span class="op">→</span> 32 <span class="op">→</span> 64 <span class="op">→</span> 128</div>
+
+    <p>한 칸 옮길 때마다 <strong>2배</strong>가 됩니다. 반대로 가면 <strong>절반</strong>이 됩니다.</p>
+    <p><strong>이 한 칸을 스톱이라고 부릅니다.</strong> 스톱은 "몇 배"라는 뜻이 아니라 "몇 칸"이라는 뜻입니다.</p>
+  </div>
+
+  <div class="step">
+    <h3><span class="step-num">2.2</span>2배씩 세면 뭐가 좋은가</h3>
+    <p>아까 그 30,000배를 스톱으로 세어봅니다.</p>
+
+    <div class="tbl-scroll">
+    <table class="tbl">
+      <tr><th>스톱</th><th>몇 배</th></tr>
+      <tr><td>1</td><td>2배</td></tr>
+      <tr><td>2</td><td>4배</td></tr>
+      <tr><td>5</td><td>32배</td></tr>
+      <tr><td>10</td><td>1,024배</td></tr>
+      <tr><td class="mark">15</td><td class="mark">32,768배</td></tr>
+    </table>
+    </div>
+
+    <p>30,000배가 <strong>15칸</strong>이 됩니다. 한 자리 숫자 두 개로 줄었습니다. 이래서 사진에서는 전부 스톱으로 말합니다.</p>
+
+    <div class="note">
+      <span class="note-head">메모</span>
+      <p>계단을 오르는 장면을 떠올리세요. 1층에서 15층까지 갈 때 "9,000걸음 올라갔다"고 말하지 않고 "15층 올라갔다"고 말하는 것과 같습니다. 스톱은 층수입니다.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <h3><span class="step-num">2.3</span>스톱은 방향이 있습니다</h3>
+    <p>같은 한 칸이라도 어느 쪽으로 가느냐에 따라 반대가 됩니다.</p>
+
+    <div class="formula">밝게 <span class="op">←</span> <span class="hi">+1 스톱</span> <span class="op">=</span> 빛 2배<br>어둡게 <span class="op">←</span> <span class="hi">−1 스톱</span> <span class="op">=</span> 빛 1/2배</div>
+
+    <p>실제 대화에서는 이렇게 씁니다. "한 스톱 열어라" = 밝게. "한 스톱 조여라" = 어둡게.</p>
+  </div>
+</section>
+
+
+<!-- ================= 파트 3 ================= -->
+<section class="part">
+  <span class="part-no">파트 3</span>
+  <h2>빛을 조절하는 손잡이 세 개</h2>
+  <p class="part-lead">스톱을 올리고 내리는 방법은 딱 세 가지뿐입니다.</p>
+
+  <div class="step">
+    <h3><span class="step-num">3.1</span>손잡이 1 — 셔터스피드 (시간)</h3>
+    <p>센서 앞에 셔터라는 덮개가 있습니다. 사진을 찍으면 이 덮개가 잠깐 열렸다 닫힙니다. <strong>열려 있는 시간</strong>이 셔터스피드입니다.</p>
+    <p>창문을 여는 시간이라고 생각하세요. 오래 열면 빛이 많이 들어오고, 짧게 열면 적게 들어옵니다.</p>
+
+    <div class="bars">
+      <div class="bar-row"><div class="bar-name">1/30</div><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><div class="bar-val">가장 김</div></div>
+      <div class="bar-row"><div class="bar-name">1/60</div><div class="bar-track"><div class="bar-fill" style="width:50%"></div></div><div class="bar-val">절반</div></div>
+      <div class="bar-row"><div class="bar-name">1/125</div><div class="bar-track"><div class="bar-fill" style="width:25%"></div></div><div class="bar-val">1/4</div></div>
+      <div class="bar-row"><div class="bar-name">1/250</div><div class="bar-track"><div class="bar-fill" style="width:12.5%"></div></div><div class="bar-val">1/8</div></div>
+      <div class="bar-row"><div class="bar-name">1/500</div><div class="bar-track"><div class="bar-fill" style="width:6.25%"></div></div><div class="bar-val">1/16</div></div>
+    </div>
+
+    <p>막대 길이가 실제 열려 있는 시간입니다. 한 줄 내려갈 때마다 정확히 절반이 됩니다. 즉 <strong>한 줄이 1스톱</strong>입니다.</p>
+
+    <div class="note">
+      <span class="note-head">메모 — 분수 읽는 법</span>
+      <p>1/500이 1/30보다 커 보이지만 실제로는 훨씬 짧습니다. 분모가 클수록 짧은 시간입니다.</p>
+      <p>1초를 30조각으로 나눈 것(1/30)과 500조각으로 나눈 것(1/500)을 비교하면, 500조각짜리 한 조각이 훨씬 작습니다. 피자를 30조각으로 자를 때와 500조각으로 자를 때를 생각하시면 됩니다.</p>
+    </div>
+
+    <div class="formula">셔터 <span class="hi">느리게</span> (1/500 → 1/250) <span class="op">=</span> 밝아짐<br>셔터 <span class="hi">빠르게</span> (1/250 → 1/500) <span class="op">=</span> 어두워짐</div>
+  </div>
+
+  <div class="step">
+    <h3><span class="step-num">3.2</span>손잡이 2 — 조리개 (구멍 크기)</h3>
+    <p>렌즈 안에는 얇은 날개 여러 장이 원을 만들고 있습니다. 이 날개들이 오므라들었다 벌어지면서 <strong>빛이 지나가는 구멍 크기</strong>를 바꿉니다. 이게 조리개입니다.</p>
+    <p>수도꼭지를 여는 정도라고 생각하세요. 많이 열면 물이 콸콸, 조금 열면 졸졸 나옵니다.</p>
+
+    <div class="formula">f/1.4 <span class="op">→</span> f/2 <span class="op">→</span> f/2.8 <span class="op">→</span> f/4 <span class="op">→</span> f/5.6 <span class="op">→</span> f/8 <span class="op">→</span> f/11 <span class="op">→</span> f/16</div>
+
+    <p>이 줄에서 한 칸이 1스톱입니다. 오른쪽으로 갈수록 구멍이 작아지고 어두워집니다.</p>
+
+    <div class="note">
+      <span class="note-head">메모 — 왜 숫자가 이상한가</span>
+      <p>1.4, 2, 2.8, 4처럼 어중간한 숫자가 나오는 이유가 있습니다.</p>
+      <p>구멍의 넓이를 절반으로 줄이려면 지름을 절반으로 줄이면 안 되고, 약 0.707배(1을 √2로 나눈 값)로 줄여야 합니다. 지름을 절반으로 줄이면 넓이는 1/4이 되어버리기 때문입니다.</p>
+      <p>그래서 f값이 1.4배씩(√2배씩) 커지는 순서가 나옵니다. 1 × 1.4 = 1.4, 1.4 × 1.4 = 2, 2 × 1.4 = 2.8 이런 식입니다.</p>
+      <p>외우실 필요는 없습니다. 1.4 / 2 / 2.8 / 4 / 5.6 / 8 / 11 / 16 이 줄만 기억하시면 됩니다.</p>
+    </div>
+
+    <p>조리개에는 밝기 말고 <strong>또 하나의 효과</strong>가 있습니다. 구멍이 클수록 초점이 맞는 앞뒤 범위가 좁아집니다. 그래서 f/2.8은 배경이 뭉개지고, f/8은 앞뒤가 다 선명합니다.</p>
+    <p>이 두 번째 효과 때문에 조리개는 밝기 조절용으로 함부로 못 씁니다. 밝기를 맞추려고 조였더니 배경 흐림이 사라지는 일이 생기기 때문입니다.</p>
+  </div>
+
+  <div class="step">
+    <h3><span class="step-num">3.3</span>손잡이 3 — ISO (증폭)</h3>
+    <p>앞의 두 개는 빛을 실제로 더 넣거나 덜 넣는 방법이었습니다. ISO는 다릅니다. <strong>이미 들어온 빛의 신호를 전기적으로 키우는 것</strong>입니다.</p>
+    <p>라디오 볼륨을 올리는 것과 같습니다. 소리를 키우면 잘 들리지만, 같이 <strong>지직거리는 잡음</strong>도 커집니다.</p>
+
+    <div class="formula">ISO 100 <span class="op">→</span> 200 <span class="op">→</span> 400 <span class="op">→</span> 800 <span class="op">→</span> 1600 <span class="op">→</span> 3200</div>
+
+    <p>여기서도 한 칸이 1스톱입니다. 숫자가 2배가 될 때마다 한 칸입니다.</p>
+
+    <div class="note">
+      <span class="note-head">메모</span>
+      <p>ISO로 생기는 잡음을 노이즈라고 부릅니다. 어두운 부분에 오돌토돌한 알갱이가 끼는 현상입니다.</p>
+      <p>그래서 ISO는 <strong>마지막 수단</strong>입니다. 셔터와 조리개로 먼저 맞추고, 그래도 모자랄 때만 올리는 순서로 씁니다.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <h3><span class="step-num">3.4</span>세 손잡이는 서로 맞바꿀 수 있습니다</h3>
+    <p>세 개 모두 단위가 스톱으로 같기 때문에, <strong>한쪽에서 뺀 만큼 다른 쪽에서 채우면</strong> 밝기가 그대로 유지됩니다.</p>
+
+    <div class="formula">조리개를 <span class="hi">1스톱 조임</span> <span class="op">(어두워짐)</span><br>셔터를 <span class="hi">1스톱 느리게</span> <span class="op">(밝아짐)</span><br><span class="op">──────────────</span><br>결과 밝기 <span class="op">=</span> 그대로</div>
+
+    <p>이게 사진의 가장 기본적인 조작입니다. 밝기는 유지하면서 그림만 바꾸고 싶을 때 이 방식을 씁니다.</p>
+  </div>
+</section>
+
+
+<!-- ================= 파트 4 ================= -->
+<section class="part">
+  <span class="part-no">파트 4</span>
+  <h2>프레임</h2>
+  <p class="part-lead">여기서부터는 영상 이야기입니다. 사진과 규칙이 달라집니다.</p>
+
+  <div class="step">
+    <h3><span class="step-num">4.1</span>영상은 사진 여러 장입니다</h3>
+    <p>영상은 움직이는 것처럼 보이지만, 실제로는 <strong>사진을 아주 빠르게 여러 장 찍어서 이어붙인 것</strong>입니다.</p>
+    <p>1초에 몇 장을 찍는지를 <strong>프레임레이트</strong>라고 합니다. 단위는 fps 또는 p입니다.</p>
+
+    <div class="tbl-scroll">
+    <table class="tbl">
+      <tr><th>표기</th><th>1초에 찍는 장수</th><th>쓰이는 곳</th></tr>
+      <tr><td>24p</td><td>24장</td><td>영화</td></tr>
+      <tr><td>30p</td><td>30장</td><td>일반 영상, 유튜브</td></tr>
+      <tr><td>60p</td><td>60장</td><td>스포츠, 부드러운 움직임</td></tr>
+      <tr><td>120p</td><td>120장</td><td>슬로우모션용</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <div class="step">
+    <h3><span class="step-num">4.2</span>한 장 한 장에도 셔터스피드가 있습니다</h3>
+    <p>여기가 헷갈리는 지점입니다. 프레임레이트와 셔터스피드는 <strong>다른 것</strong>입니다.</p>
+
+    <div class="formula">프레임레이트 <span class="op">=</span> 1초에 <span class="hi">몇 장</span> 찍는가<br>셔터스피드 <span class="op">=</span> 그 한 장을 <span class="hi">얼마나 오래</span> 노출하는가</div>
+
+    <p>30p로 찍는다는 건 1초를 30등분해서 각 칸마다 한 장씩 찍는다는 뜻입니다. 한 칸의 길이는 1/30초입니다.</p>
+    <p>그 1/30초 칸 안에서, 셔터를 <strong>얼마나 열어둘지</strong>는 따로 정할 수 있습니다. 칸 전체를 다 쓸 수도 있고(1/30), 칸의 절반만 쓸 수도 있고(1/60), 아주 짧게만 쓸 수도 있습니다(1/1000).</p>
+  </div>
+
+  <div class="step">
+    <h3><span class="step-num">4.3</span>셔터 길이가 움직임의 느낌을 만듭니다</h3>
+    <p>셔터가 열려 있는 동안 피사체가 움직이면, 그 움직인 자국이 사진 한 장에 <strong>흐릿하게 번져서</strong> 기록됩니다. 이걸 모션블러라고 합니다.</p>
+
+    <div class="tbl-scroll">
+    <table class="tbl">
+      <tr><th>셔터</th><th>한 장의 모습</th><th>이어붙인 느낌</th></tr>
+      <tr><td>1/30</td><td>많이 번짐</td><td>흐리멍덩함</td></tr>
+      <tr><td class="mark">1/60</td><td class="mark">적당히 번짐</td><td class="mark">자연스러움</td></tr>
+      <tr><td>1/1000</td><td>칼같이 선명</td><td>뚝뚝 끊김</td></tr>
+    </table>
+    </div>
+
+    <div class="note">
+      <span class="note-head">메모 — 왜 선명한데 끊겨 보이는가</span>
+      <p>한 장 한 장은 더 선명한데 왜 이어붙이면 어색할까요.</p>
+      <p>사람 눈은 빠르게 움직이는 것을 볼 때 원래 잔상이 남습니다. 손을 빠르게 흔들면 손가락이 여러 개로 번져 보이는 그것입니다.</p>
+      <p>영상에 모션블러가 없으면 그 잔상이 없는 상태가 되어, 뇌가 "이건 실제로 보는 움직임이 아니다"라고 느낍니다. 그래서 파바박 튀어 보입니다.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <h3><span class="step-num">4.4</span>그래서 나온 규칙 — 셔터는 프레임레이트의 2배</h3>
+    <p>모션블러가 딱 자연스러운 지점이 경험적으로 정해져 있습니다.</p>
+
+    <div class="formula">셔터스피드 <span class="op">=</span> 프레임레이트 <span class="op">×</span> <span class="hi">2</span></div>
+
+    <div class="tbl-scroll">
+    <table class="tbl">
+      <tr><th>프레임레이트</th><th>맞춰야 할 셔터</th></tr>
+      <tr><td>24p</td><td>1/48 (없으면 1/50)</td></tr>
+      <tr><td class="mark">30p</td><td class="mark">1/60</td></tr>
+      <tr><td>60p</td><td>1/120 (없으면 1/125)</td></tr>
+    </table>
+    </div>
+
+    <p>이걸 180도 룰이라고 부릅니다. 필름 카메라 시절 회전 셔터가 반원(180도) 모양이어서 붙은 이름입니다.</p>
+    <p>중요한 건 <strong>이 셔터값을 촬영 내내 바꾸면 안 된다</strong>는 점입니다. 바꾸면 움직임의 느낌이 장면마다 달라져서 이어붙였을 때 어색해집니다.</p>
+  </div>
+</section>
+
+
+<!-- ================= 파트 5 ================= -->
+<section class="part">
+  <span class="part-no">파트 5</span>
+  <h2>여기서 문제가 터집니다</h2>
+  <p class="part-lead">손잡이 세 개 중 하나가 묶여버렸습니다.</p>
+
+  <div class="step">
+    <h3><span class="step-num">5.1</span>사진과 영상의 결정적 차이</h3>
+
+    <div class="formula">사진 <span class="op">:</span> 셔터 <span class="hi">자유</span> · 조리개 자유 · ISO 자유<br>영상 <span class="op">:</span> 셔터 <span class="hi">고정</span> · 조리개 자유 · ISO 자유</div>
+
+    <p>사진은 밝으면 셔터를 확 올려버리면 됩니다. 1/8000까지 올릴 수 있으니 웬만큼 밝아도 다 잡힙니다.</p>
+    <p>영상은 그 탈출구가 막혀 있습니다. 30p면 1/60에 묶여 있고, 이건 <strong>상당히 느린 셔터</strong>입니다. 빛이 많이 들어오는 상태예요.</p>
+  </div>
+
+  <div class="step">
+    <h3><span class="step-num">5.2</span>실제로 얼마나 넘치는지 계산해봅니다</h3>
+    <p>한여름 대낮 야외에서, 조리개 f/2.8, ISO 100으로 찍는다고 해봅시다.</p>
+
+    <div class="formula">적정 셔터 <span class="op">=</span> 1/3200<br>써야 하는 셔터 <span class="op">=</span> <span class="hi">1/60</span></div>
+
+    <p>1/3200에서 1/60까지 가려면 몇 칸을 가야 하는지 세어봅니다. 한 칸마다 2배씩입니다.</p>
+
+    <div class="formula">1/3200 <span class="op">→</span> 1/1600 <span class="op">→</span> 1/800 <span class="op">→</span> 1/400<br>1/400 <span class="op">→</span> 1/200 <span class="op">→</span> 1/100 <span class="op">→</span> <span class="hi">1/50</span><br><span class="op">──────────────</span><br>총 <span class="hi">6칸 = 6스톱</span></div>
+
+    <p><strong>빛이 필요한 양의 64배로 들어오고 있습니다.</strong> 그대로 찍으면 화면이 새하얗게 타버립니다.</p>
+  </div>
+
+  <div class="step">
+    <h3><span class="step-num">5.3</span>남은 손잡이로 해결이 되는가</h3>
+    <p>셔터가 막혔으니 남은 건 조리개와 ISO입니다. 하나씩 따져봅니다.</p>
+    <p><strong>ISO는 이미 최저입니다.</strong> ISO 100이 바닥이라 더 내릴 곳이 없습니다.</p>
+    <p><strong>조리개를 조이면 되긴 합니다.</strong> f/2.8에서 6스톱 조이면 f/22입니다. 그런데 이러면 두 가지 문제가 생깁니다.</p>
+    <p>첫째, 배경 흐림이 완전히 사라집니다. f/2.8 렌즈를 산 이유가 없어집니다. 둘째, f/16을 넘어가면 회절이라는 현상 때문에 화질 자체가 떨어지기 시작합니다.</p>
+    <p>즉 <strong>세 손잡이로는 해결이 안 됩니다.</strong> 네 번째 수단이 필요합니다.</p>
+  </div>
+</section>
+
+
+<!-- ================= 파트 6 ================= -->
+<section class="part">
+  <span class="part-no">파트 6</span>
+  <h2>ND 필터</h2>
+  <p class="part-lead">렌즈 앞에서 빛을 미리 깎아내는 방법입니다.</p>
+
+  <div class="step">
+    <h3><span class="step-num">6.1</span>렌즈에 씌우는 선글라스</h3>
+    <p>ND 필터는 <strong>회색으로 어둡게 만든 유리</strong>입니다. 렌즈 앞에 나사로 물립니다. 빛이 카메라에 들어가기 전에 이 유리를 지나면서 일부가 깎여 나갑니다.</p>
+    <p>ND는 Neutral Density의 약자입니다. Neutral은 <strong>색을 바꾸지 않는다</strong>는 뜻이고, Density는 <strong>진하기</strong>라는 뜻입니다.</p>
+
+    <div class="note">
+      <span class="note-head">메모 — 왜 회색이어야 하는가</span>
+      <p>파란 유리를 대면 빛은 줄어들지만 화면이 파랗게 물듭니다. 회색은 빨강, 초록, 파랑을 <strong>똑같은 비율로</strong> 깎기 때문에 색은 그대로 두고 밝기만 줄입니다.</p>
+      <p>싸구려 ND 필터가 색이 틀어진다는 말은, 이 세 색을 정확히 같은 비율로 못 깎는다는 뜻입니다.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <h3><span class="step-num">6.2</span>ND 숫자 읽는 법</h3>
+    <p>ND 뒤에 붙는 숫자는 <strong>빛이 몇 분의 1로 줄어드는지</strong>를 뜻합니다.</p>
+
+    <div class="formula">ND8 <span class="op">=</span> 빛이 <span class="hi">1/8</span>로 줄어듦</div>
+
+    <p>이걸 스톱으로 바꾸려면, 그 숫자가 2를 몇 번 곱한 값인지 세면 됩니다.</p>
+
+    <div class="formula">8 <span class="op">=</span> 2 <span class="op">×</span> 2 <span class="op">×</span> 2 <span class="op">→</span> 2를 <span class="hi">3번</span> <span class="op">→</span> <span class="hi">3스톱</span></div>
+
+    <div class="tbl-scroll">
+    <table class="tbl">
+      <tr><th>표기</th><th>빛이 줄어드는 비율</th><th>스톱</th></tr>
+      <tr><td>ND2</td><td>1/2</td><td>1</td></tr>
+      <tr><td>ND4</td><td>1/4</td><td>2</td></tr>
+      <tr><td>ND8</td><td>1/8</td><td>3</td></tr>
+      <tr><td>ND16</td><td>1/16</td><td>4</td></tr>
+      <tr><td class="mark">ND32</td><td class="mark">1/32</td><td class="mark">5</td></tr>
+      <tr><td>ND64</td><td>1/64</td><td>6</td></tr>
+      <tr><td>ND1000</td><td>1/1000</td><td>10</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <div class="step">
+    <h3><span class="step-num">6.3</span>직접 돌려보기</h3>
+    <p>손잡이를 움직여서 ND가 실제로 무슨 일을 하는지 확인해보세요. 왼쪽 색판이 실제 어두워지는 정도입니다.</p>
+
+    <div class="calc">
+      <p class="calc-title">ND 계산기</p>
+      <p class="calc-hint">필터 없이 1/2000이 적정인 밝은 야외 기준</p>
+
+      <div class="swatch" id="sw"></div>
+
+      <input type="range" id="sl" min="0" max="6" step="1" value="0" aria-label="ND 스톱 수">
+
+      <div class="readout">
+        <div class="ro-item"><span class="ro-k">ND 표기</span><span class="ro-v" id="nd">없음</span></div>
+        <div class="ro-item"><span class="ro-k">몇 스톱</span><span class="ro-v" id="st">0</span></div>
+        <div class="ro-item"><span class="ro-k">빛이 남는 비율</span><span class="ro-v plain" id="fr">1</span></div>
+        <div class="ro-item"><span class="ro-k">쓸 수 있는 셔터</span><span class="ro-v plain" id="sh">1/2000</span></div>
+      </div>
+    </div>
+
+    <p>손잡이를 <strong>5칸</strong>까지 밀어보세요. 셔터가 1/2000에서 1/60 근처까지 내려옵니다. 이게 앞에서 계산한 그 6스톱 문제를 푸는 방식입니다.</p>
+  </div>
+
+  <div class="step">
+    <h3><span class="step-num">6.4</span>고정형과 가변형</h3>
+    <p>ND 필터는 두 종류입니다.</p>
+    <p><strong>고정형</strong>은 유리 한 장에 진하기가 정해져 있습니다. ND8이면 언제나 3스톱입니다. 화질이 가장 깨끗합니다.</p>
+    <p><strong>가변형(VND)</strong>은 편광유리 두 장을 겹쳐 놓고, 앞쪽 한 장을 돌려서 진하기를 바꿉니다. 필터를 갈아끼우지 않고 손잡이만 돌리면 되니 영상에서 편합니다.</p>
+
+    <div class="note">
+      <span class="note-head">메모 — 가변형의 두 가지 함정</span>
+      <p>첫째, <strong>0으로 못 내립니다.</strong> 구조상 두 장이 겹쳐 있는 상태가 최소값이라, "필터 없음" 상태를 만들 수 없습니다. ND2-32라고 적혀 있으면 최소가 1스톱이라는 뜻입니다.</p>
+      <p>둘째, <strong>끝까지 돌리면 X자 얼룩이 생깁니다.</strong> 두 편광판이 거의 직각이 되면서 화면에 검은 X 모양이 나타납니다. 최대치 근처는 안 쓰는 게 안전합니다.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <h3><span class="step-num">6.5</span>ND가 아닌 필터들</h3>
+    <p>같이 붙어 나오는 경우가 많아 헷갈리는 두 가지를 구분해둡니다.</p>
+    <p><strong>CPL(편광 필터)</strong>은 밝기를 줄이는 게 목적이 아닙니다. <strong>반사된 빛만 골라서 걸러내는</strong> 필터입니다. 유리창 반사, 수면 반사, 나뭇잎의 번들거림이 사라지고 하늘이 진해집니다. 부수적으로 1.3스톱 정도 어두워집니다. 돌려서 각도를 맞춰 쓰고, 후보정으로는 흉내낼 수 없습니다.</p>
+    <p><strong>블랙미스트</strong>는 유리 안에 아주 미세한 검은 알갱이가 박혀 있어서, 밝은 부분의 빛을 살짝 번지게 만듭니다. 가로등이나 역광에 부드러운 빛무리가 생기고 콘트라스트가 조금 풀립니다. 1/8, 1/4, 1/2, 1로 강도가 나뉘고 숫자가 작을수록 약합니다.</p>
+
+    <div class="note">
+      <span class="note-head">메모</span>
+      <p>세 기능을 한 장에 넣은 3-in-1 필터가 있습니다. 편하지만 <strong>블랙미스트만 끌 수 없다</strong>는 점을 알고 사셔야 합니다. ND는 최소로 내릴 수 있고 CPL은 각도를 돌려 효과를 없앨 수 있는데, 미스트는 유리에 박혀 있어 항상 걸립니다.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ================= 파트 7 ================= -->
+<section class="part">
+  <span class="part-no">파트 7</span>
+  <h2>실전 순서</h2>
+  <p class="part-lead">영상을 찍을 때 이 순서로 정하면 됩니다. 순서가 바뀌면 안 됩니다.</p>
+
+  <ol class="recipe">
+    <li>
+      <b>프레임레이트를 정합니다</b>
+      <span>보통 30p. 슬로우모션을 쓸 장면이면 60p나 120p.</span>
+    </li>
+    <li>
+      <b>셔터를 프레임레이트의 2배로 고정합니다</b>
+      <span>30p면 1/60. 촬영이 끝날 때까지 건드리지 않습니다.</span>
+    </li>
+    <li>
+      <b>조리개로 그림을 정합니다</b>
+      <span>배경을 흐리고 싶으면 f/2.8. 앞뒤 다 선명하게 하려면 f/5.6에서 f/8. 밝기 때문에 정하는 게 아니라 원하는 그림 때문에 정합니다.</span>
+    </li>
+    <li>
+      <b>ISO를 최저로 둡니다</b>
+      <span>보통 ISO 100. 노이즈가 가장 적은 상태에서 시작합니다.</span>
+    </li>
+    <li>
+      <b>ND로 밝기를 맞춥니다</b>
+      <span>여기서 비로소 노출을 맞춥니다. 화면을 보면서 필터를 돌려 적정 노출이 되는 지점을 찾습니다.</span>
+    </li>
+    <li>
+      <b>그래도 어두우면 ISO를 올립니다</b>
+      <span>ND를 최소로 내렸는데도 부족할 때만. 이게 마지막 수단입니다.</span>
+    </li>
+  </ol>
+
+  <div class="note">
+    <span class="note-head">메모 — 이 순서가 중요한 이유</span>
+    <p>밝다고 조리개부터 조여버리면, 장면마다 배경 흐림 정도가 달라집니다. 이어붙였을 때 어떤 컷은 배경이 뭉개지고 어떤 컷은 선명해서 통일감이 깨집니다.</p>
+    <p>조리개는 <strong>그림을 정하는 손잡이</strong>이고, 밝기는 <strong>ND로 맞추는 것</strong>입니다. 이 두 역할을 섞지 않는 게 핵심입니다.</p>
+  </div>
+</section>
+
+<footer>
+  스톱 하나만 이해하면 나머지는 전부 그 위에 얹힌 것입니다. 셔터도, 조리개도, ISO도, ND도 전부 같은 계단을 오르내리는 방법일 뿐입니다.
+</footer>
+
+</div>
+
+<script>
+(function(){
+  var sl = document.getElementById('sl');
+  var sw = document.getElementById('sw');
+  var nd = document.getElementById('nd');
+  var st = document.getElementById('st');
+  var fr = document.getElementById('fr');
+  var sh = document.getElementById('sh');
+
+  var ndName = ['없음','ND2','ND4','ND8','ND16','ND32','ND64'];
+  var fracTx = ['1','1/2','1/4','1/8','1/16','1/32','1/64'];
+  var shutter = ['1/2000','1/1000','1/500','1/250','1/125','1/60','1/30'];
+
+  function draw(){
+    var n = parseInt(sl.value, 10);
+    var k = Math.pow(0.5, n);
+
+    var r = Math.round(255 * k);
+    var g = Math.round(194 * k);
+    var b = Math.round(77  * k);
+
+    sw.style.backgroundColor = 'rgb(' + r + ',' + g + ',' + b + ')';
+
+    nd.textContent = ndName[n];
+    st.textContent = n;
+    fr.textContent = fracTx[n];
+    sh.textContent = shutter[n];
+  }
+
+  sl.addEventListener('input', draw);
+  draw();
+})();
+</script>
+
+</body>
+</html>
