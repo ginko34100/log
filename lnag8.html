@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Basic Mathematics · Ch.2 §2 미지수 세 개의 방정식</title>
+<style>
+:root{
+  --bg:#000; --surf:#0e0e0e; --surf2:#161616;
+  --line:#282828; --line2:#3a3a3a;
+  --tx:#eeeeea; --mut:#8d8d86;
+  --gold:#ffc93c; --orange:#ff6b4a; --blue:#6fa8dc; --green:#6ec98a; --purple:#b48ce0;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth;scroll-padding-top:56px}
+body{background:var(--bg);color:var(--tx);
+  font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+  line-height:1.78;font-size:15px;padding-bottom:60px;-webkit-text-size-adjust:100%}
+.wrap{max-width:600px;margin:0 auto;padding:0 16px}
+
+#bar{position:fixed;top:0;left:0;height:2px;background:var(--gold);z-index:60;width:0}
+nav{position:sticky;top:0;z-index:50;background:rgba(0,0,0,.94);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.nv{max-width:600px;margin:0 auto;display:flex;gap:4px;padding:9px 12px;overflow-x:auto;scrollbar-width:none}
+.nv::-webkit-scrollbar{display:none}
+.nv a{flex:0 0 auto;font-size:11.5px;color:var(--mut);text-decoration:none;
+  padding:5px 10px;border:1px solid var(--line);border-radius:2px;white-space:nowrap}
+.nv a.on{color:#000;background:var(--gold);border-color:var(--gold);font-weight:700}
+
+header{padding:30px 0 22px;border-bottom:1px solid var(--line)}
+h1{font-size:21px;font-weight:700;letter-spacing:-.01em;line-height:1.4}
+header p{font-size:11px;color:var(--mut);font-family:ui-monospace,monospace;letter-spacing:.1em;margin-top:7px}
+
+section{padding:34px 0 10px;border-bottom:1px solid var(--line)}
+h2{font-size:18px;font-weight:700;display:flex;align-items:baseline;gap:9px;margin-bottom:5px}
+h2 em{font-style:normal;font-family:ui-monospace,monospace;font-size:13px;color:var(--gold)}
+h2+.sub{font-size:12px;color:var(--mut);margin-bottom:18px}
+h3{font-size:15.5px;font-weight:700;margin:30px 0 9px;padding-left:11px;
+  border-left:3px solid var(--gold);line-height:1.45}
+h3 small{display:block;font-weight:500;font-size:11px;color:var(--mut);
+  font-family:ui-monospace,monospace;letter-spacing:.05em;margin-top:2px}
+h4{font-size:14px;font-weight:700;margin:22px 0 7px;color:#fff}
+p{margin:11px 0;color:#dcdcd7}
+b{color:#fff;font-weight:700}
+.hl{color:var(--gold);font-weight:700}
+.hlo{color:var(--orange);font-weight:700}
+.hlb{color:var(--blue);font-weight:700}
+.hlp{color:var(--purple);font-weight:700}
+
+.m{font-family:'Times New Roman',Georgia,serif;font-style:italic;font-size:17px;color:#fff;font-weight:500;white-space:nowrap}
+.mb{display:block;text-align:center;font-family:'Times New Roman',Georgia,serif;
+  font-style:italic;font-size:20px;color:#fff;margin:16px 0;line-height:1.7}
+.mb .kw{font-style:normal;font-family:-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+  font-size:14px;color:#c9c9c3;font-weight:600}
+sup{font-size:.62em;vertical-align:super;line-height:0}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;
+  font-family:'Times New Roman',Georgia,serif;font-style:italic;line-height:1.15;margin:0 3px}
+.fr i{font-style:italic;display:block;padding:0 5px}
+.fr i:first-child{border-bottom:1.4px solid currentColor}
+.mb .fr{font-size:18px}
+p .fr,td .fr,li .fr,.sol .fr,.ans .fr,.sys .fr{font-size:15px}
+
+/* 연립 방정식 블록 */
+.sys{display:block;margin:16px auto;width:fit-content;border-left:3px solid var(--line2);
+  padding:9px 0 9px 16px}
+.sys .eq{font-family:'Times New Roman',Georgia,serif;font-style:italic;font-size:18px;
+  color:#fff;line-height:1.9;white-space:nowrap}
+.sys .eq .n{font-style:normal;font-family:ui-monospace,monospace;font-size:11px;
+  color:var(--mut);margin-right:12px}
+.sys .eq b{color:var(--gold);font-weight:500}
+.sys .eq s{text-decoration:none;color:var(--orange)}
+.sys.hit{border-left-color:var(--green)}
+.sys.blue{border-left-color:var(--blue)}
+
+/* 주석 전용 블록 */
+.cmt{display:block;margin:9px 0 5px;padding:8px 12px;background:#111114;
+  border-left:3px solid #4a4a52;font-size:12.8px;line-height:1.8;color:#a8a8a2;
+  font-family:-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;font-style:normal}
+.cmt b{color:#d8d8d2}
+.cmt.warn2{border-left-color:#7a3a2a;background:#171010;color:#d4a897}
+.cmt.good{border-left-color:#39634a;background:#0f1512;color:#a9d3b6}
+.cmt.step{border-left-color:#4a4326;background:#141208;color:#cfc39a}
+.cmt .tt{display:block;font-size:10.5px;letter-spacing:.08em;color:#6d6d68;
+  font-family:ui-monospace,monospace;margin-bottom:4px}
+
+.rule{border:1px solid var(--gold);background:rgba(255,201,60,.06);padding:14px;margin:18px 0;border-radius:2px}
+.rule .tag{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.12em;
+  color:var(--gold);font-weight:700;display:block;margin-bottom:6px}
+.rule .mb{margin:9px 0 6px;font-size:20px}
+.rule p{margin:6px 0 0;font-size:13px;color:#c9c9c3}
+
+.thm{border:1px solid var(--green);background:rgba(110,201,138,.055);padding:14px;margin:18px 0;border-radius:2px}
+.thm .tag{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.12em;
+  color:var(--green);font-weight:700;display:block;margin-bottom:8px}
+.thm p{margin:5px 0;font-size:14px;color:#dfe9e2}
+
+.mine{border:1px solid #3d2b52;background:rgba(180,140,224,.07);padding:14px;margin:18px 0;border-radius:2px}
+.mine .tag{font-size:10.5px;letter-spacing:.1em;color:var(--purple);font-weight:700;
+  display:block;margin-bottom:6px;font-family:ui-monospace,monospace}
+.mine p{margin:7px 0 0;font-size:13.8px;color:#d3cade}
+.mine p:first-of-type{margin-top:0}
+
+.warn{border:1px solid #4a2418;background:rgba(255,107,74,.07);padding:13px 14px;margin:18px 0;border-radius:2px}
+.warn .tag{font-size:11px;letter-spacing:.08em;color:var(--orange);font-weight:700;display:block;margin-bottom:5px}
+.warn p{margin:5px 0 0;font-size:13.5px}
+
+ol.steps{list-style:none;counter-reset:s;margin:14px 0}
+ol.steps li{counter-increment:s;position:relative;padding-left:32px;margin:11px 0;font-size:14px;color:#dcdcd7}
+ol.steps li::before{content:counter(s);position:absolute;left:0;top:2px;width:21px;height:21px;
+  border:1px solid var(--line2);border-radius:50%;font-size:11px;font-family:ui-monospace,monospace;
+  color:var(--mut);display:flex;align-items:center;justify-content:center}
+
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+th,td{border:1px solid var(--line);padding:8px 9px;text-align:left;vertical-align:middle}
+th{background:var(--surf2);font-size:11.5px;color:var(--mut);font-weight:600}
+td .m{font-size:15px}
+td.c{text-align:center}
+
+.fig{background:var(--surf);border:1px solid var(--line);margin:18px 0;border-radius:2px;overflow:hidden}
+.fig svg{display:block;width:100%;height:auto}
+.fctl{display:flex;align-items:center;gap:6px;padding:9px 10px;border-top:1px solid var(--line);flex-wrap:wrap}
+.fctl .lbl{font-size:11.5px;color:var(--mut);flex:1 1 100%;order:-1;line-height:1.8}
+.fctl .lbl b{color:var(--tx)}
+.fctl .grp{display:flex;align-items:center;border:1px solid var(--line2);border-radius:2px;overflow:hidden}
+.fctl .grp span{padding:0 8px;font-size:11.5px;color:var(--mut);font-family:'Times New Roman',serif;font-style:italic}
+.fctl .grp button{width:28px;height:28px;background:var(--surf2);border:none;border-left:1px solid var(--line2);
+  color:var(--tx);font-size:14px;font-family:inherit;cursor:pointer}
+.fctl .grp button:active{background:var(--gold);color:#000}
+
+/* 단계 실행기 */
+.elim{background:var(--surf);border:1px solid var(--line);margin:18px 0;border-radius:2px;overflow:hidden}
+.elim .stage{padding:15px 13px;min-height:230px}
+.elim .stp{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.1em;
+  color:var(--gold);margin-bottom:9px}
+.elim .ebar{display:flex;gap:7px;padding:9px 10px;border-top:1px solid var(--line);flex-wrap:wrap}
+.elim .ebar button{background:var(--surf2);border:1px solid var(--line2);color:var(--tx);
+  padding:9px 13px;font-size:12px;font-family:inherit;cursor:pointer;border-radius:2px}
+.elim .ebar button.pri{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700}
+.elim .ebar button:disabled{opacity:.35;cursor:default}
+.elim .ebar .sp{margin-left:auto;font-family:ui-monospace,monospace;font-size:11px;color:var(--mut);align-self:center}
+
+/* 분모 없애기 도구 */
+.clr{background:var(--surf);border:1px solid var(--line);margin:18px 0;border-radius:2px;padding:14px}
+.clr .row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.clr .row .lb{font-size:11.5px;color:var(--mut);width:60px;flex:0 0 auto}
+.clr .out{font-family:'Times New Roman',serif;font-style:italic;font-size:17px;color:#fff;flex:1}
+.clr .grp{display:flex;align-items:center;border:1px solid var(--line2);border-radius:2px;overflow:hidden}
+.clr .grp span{padding:0 8px;font-size:11px;color:var(--mut);font-family:ui-monospace,monospace}
+.clr .grp button{width:28px;height:27px;background:var(--surf2);border:none;border-left:1px solid var(--line2);
+  color:var(--tx);font-size:14px;font-family:inherit;cursor:pointer}
+.clr .grp button:active{background:var(--gold);color:#000}
+
+.proof{background:var(--surf);border:1px solid var(--line);margin:18px 0;border-radius:2px;overflow:hidden}
+.proof>.ph{padding:10px 13px;border-bottom:1px solid var(--line);font-size:11px;
+  font-family:ui-monospace,monospace;letter-spacing:.1em;color:var(--green)}
+.pline{border-bottom:1px solid var(--line)}
+.pline:last-child{border-bottom:none}
+.pline .eqn{padding:12px 13px;font-family:'Times New Roman',Georgia,serif;font-style:italic;
+  font-size:16.5px;color:#fff;display:flex;align-items:center;gap:10px}
+.pline .eqn span.e{flex:1}
+.pline .why{flex:0 0 auto;background:transparent;border:1px solid var(--line2);color:var(--mut);
+  font-size:10.5px;padding:4px 9px;font-family:inherit;font-style:normal;cursor:pointer;border-radius:2px}
+.pline .why.on{color:var(--gold);border-color:var(--gold)}
+.pline .ans{display:none;padding:0 13px 13px;font-size:13px;color:#b6b6b0;line-height:1.8}
+.pline .ans.on{display:block}
+.pline .ans b{color:var(--gold)}
+
+.q{background:var(--surf);border:1px solid var(--line);padding:13px;margin:11px 0;border-radius:2px}
+.q .qt{font-size:14px;color:var(--tx)}
+.q .qt i{font-style:normal;font-family:ui-monospace,monospace;color:var(--mut);font-size:11px;margin-right:8px}
+.q > button{margin-top:10px;background:transparent;border:1px solid var(--line2);color:var(--mut);
+  font-size:11.5px;padding:6px 11px;font-family:inherit;cursor:pointer;border-radius:2px}
+.q .sol{display:none;margin-top:11px;padding-top:11px;border-top:1px solid var(--line);
+  font-size:13.5px;color:#c9c9c3;line-height:1.95}
+.q .sol.on{display:block}
+.q .sol .m{font-size:15px}
+
+footer{padding:26px 0 0;font-size:11px;color:#5a5a55;line-height:1.9}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<nav><div class="nv">
+  <a href="#why" class="on">기초 다지기 ★</a>
+  <a href="#prob">문제</a>
+  <a href="#plan">전략</a>
+  <a href="#run">단계 실행 ★</a>
+  <a href="#full">풀이 전체</a>
+  <a href="#order">순서 고르기</a>
+  <a href="#geo">기하적 의미</a>
+  <a href="#clear">분모 없애기 ★</a>
+  <a href="#ex">연습</a>
+</div></nav>
+
+<div class="wrap">
+<header>
+  <h1>미지수 세 개의 방정식</h1>
+  <p>SERGE LANG · BASIC MATHEMATICS · CH.2 §2 · pp.57–59</p>
+</header>
+
+<section>
+  <h2><em>§2</em> Equations in Three Unknowns</h2>
+  <div class="sub">이 절의 한 문장 : 셋을 둘로 줄이고, 둘을 하나로 줄인다. <b>새 기술은 없다.</b></div>
+
+  <div class="mine">
+    <span class="tag">먼저 · 이 절은 새로운 게 없습니다</span>
+    <p>§1에서 배운 <b>소거법</b>을 그대로 씁니다. 다른 점은 <b>횟수</b>뿐이에요.</p>
+    <table style="margin-top:10px">
+      <tr><th>절</th><th>미지수</th><th>소거 횟수</th></tr>
+      <tr><td class="c">§1</td><td class="c">2개</td><td class="c">1번</td></tr>
+      <tr><td class="c">§2</td><td class="c">3개</td><td class="c"><b>2번</b></td></tr>
+    </table>
+    <p style="margin-top:10px">그래서 이 절의 진짜 난이도는 <b>계산량</b>에 있습니다. 분수가 많이 나오고 단계가 길어져요. 개념이 어려운 게 아니라 <b>실수하기 쉬운 것</b>입니다.</p>
+    <p>그래서 이 페이지에서는 <b>계산을 한 줄도 생략하지 않겠습니다.</b></p>
+  </div>
+
+  <h3 id="why">1. 기초 다지기 : 방정식끼리 더해도 되나 ★<small>WHY WE MAY ADD EQUATIONS</small></h3>
+  <p>본론에 들어가기 전에 <b>당연해 보이지만 실은 근거가 필요한 것</b> 두 개를 확실히 해두겠습니다. 이걸 모르면 다음 단계가 마법처럼 보입니다.</p>
+
+  <h4>궁금증 1 : 왜 방정식에 수를 곱해도 되나</h4>
+  <p><span class="m">2x + y = 1</span> 의 양변에 3을 곱해 <span class="m">6x + 3y = 3</span> 으로 바꿨습니다. 이게 왜 정당할까요?</p>
+  <div class="rule">
+    <span class="tag">근거</span>
+    <div class="mb"><span class="kw">만약</span> A = B <span class="kw">이면</span> kA = kB</div>
+  </div>
+  <div class="cmt">
+    <span class="tt">왜 그런가</span>
+    <span class="m">A = B</span> 라는 말은 <b><span class="m">A</span> 와 <span class="m">B</span> 가 같은 수</b>라는 뜻입니다. 이름만 두 개일 뿐 실체는 하나예요.<br><br>
+    같은 수에 <span class="m">k</span> 를 곱하면 <b>당연히 같은 결과</b>가 나옵니다. 그래서 <span class="m">kA</span> 와 <span class="m">kB</span> 도 같은 수입니다.
+  </div>
+  <div class="cmt warn2">
+    <span class="tt">주의</span>
+    <span class="m">k = 0</span> 이면 안 됩니다. 양변에 0을 곱하면 <span class="m">0 = 0</span> 이 되어 <b>정보가 통째로 사라집니다.</b> 1장 §6에서 0만 역원이 없었던 것과 같은 이유로, 0을 곱하면 되돌릴 수 없습니다.
+  </div>
+
+  <h4>궁금증 2 : 왜 두 방정식을 더해도 되나</h4>
+  <p>이게 §2의 핵심 도구입니다. 식 두 개를 통째로 더하는 조작이요.</p>
+  <div class="rule">
+    <span class="tag">근거</span>
+    <div class="mb"><span class="kw">만약</span> A = B <span class="kw">이고</span> C = D <span class="kw">이면</span> A + C = B + D</div>
+  </div>
+  <p>증명을 <b>두 걸음</b>으로 나눠 보겠습니다.</p>
+  <div class="proof">
+    <div class="ph">PROOF · 방정식끼리 더하기</div>
+    <div class="pline"><div class="eqn"><span class="e">A + C = B + C</span><button class="why">왜?</button></div>
+      <div class="ans"><b>첫 번째 조건 <span class="m">A = B</span> 를 썼습니다.</b><br><br>
+      <span class="m">A</span> 와 <span class="m">B</span> 가 같은 수이므로, 양쪽에 똑같이 <span class="m">C</span> 를 더하면 결과도 같습니다.<br><br>
+      1장 §2에서 계속 쓰던 <b>"양변에 같은 수 더하기"</b> 그대로예요.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">B + C = B + D</span><button class="why">왜?</button></div>
+      <div class="ans"><b>두 번째 조건 <span class="m">C = D</span> 를 썼습니다.</b><br><br>
+      이번엔 <span class="m">C</span> 와 <span class="m">D</span> 가 같은 수이므로, 양쪽에 똑같이 <span class="m">B</span> 를 더하면 결과도 같습니다.<br><br>
+      방향만 바뀌었을 뿐 같은 원리입니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">∴ A + C = B + D</span><button class="why">왜?</button></div>
+      <div class="ans">두 줄을 이어 붙였습니다.<br><br>
+      <span class="m">A + C</span> 는 <span class="m">B + C</span> 와 같고, <span class="m">B + C</span> 는 <span class="m">B + D</span> 와 같습니다.<br>
+      따라서 <span class="m">A + C</span> 와 <span class="m">B + D</span> 도 같습니다.<br><br>
+      <b>증명 끝.</b></div></div>
+  </div>
+  <div class="cmt good">
+    <span class="tt">그래서 실제로는</span>
+    <b>좌변은 좌변끼리, 우변은 우변끼리</b> 더하면 됩니다. 뺄셈도 마찬가지입니다. 뺄셈은 음수를 더하는 것이니까요(1장 §2의 약속).
+  </div>
+  <div class="mine">
+    <span class="tag">내 설명 · 저울 두 개로 보기</span>
+    <p>저울 하나가 방정식 하나입니다.</p>
+    <p><b>저울 A</b> : 왼쪽 접시에 <span class="m">A</span>, 오른쪽 접시에 <span class="m">B</span>. 균형이 맞습니다.<br>
+    <b>저울 C</b> : 왼쪽 접시에 <span class="m">C</span>, 오른쪽 접시에 <span class="m">D</span>. 역시 균형입니다.</p>
+    <p>이제 <b>저울 C의 내용물을 통째로 저울 A에 옮겨 담습니다.</b> 왼쪽 것은 왼쪽에, 오른쪽 것은 오른쪽에요.</p>
+    <p>왼쪽에 <span class="m">C</span> 만큼, 오른쪽에 <span class="m">D</span> 만큼 늘었는데 <b><span class="m">C</span> 와 <span class="m">D</span> 는 무게가 같으므로</b> 저울은 여전히 균형입니다.</p>
+  </div>
+
+  <h3 id="prob">2. 주어진 문제</h3>
+  <p>Lang이 든 예입니다. 다음 세 식을 동시에 만족하는 <span class="m">x, y, z</span> 를 찾습니다.</p>
+  <div class="sys">
+    <div class="eq"><span class="n">(1)</span>&nbsp; 3x + 2y + 4z = 1</div>
+    <div class="eq"><span class="n">&nbsp;</span>&nbsp; −x + &nbsp;y + 2z = 2</div>
+    <div class="eq"><span class="n">&nbsp;</span>&nbsp; &nbsp;x − 3y + &nbsp;z = −1</div>
+  </div>
+  <div class="cmt">
+    <span class="tt">번호 표기에 대하여</span>
+    Lang은 이 <b>세 식 묶음 전체</b>를 (1)이라고 부릅니다. 나중에 나오는 (2), (3)은 <b>소거해서 새로 만든 식</b>들이에요. 헷갈리기 쉬우니 이 페이지에서는 원래 세 식을 <b>첫째 식, 둘째 식, 셋째 식</b>이라고 부르겠습니다.
+  </div>
+
+  <h3 id="plan">3. 전략 세우기<small>THE PLAN</small></h3>
+  <p>Lang이 적은 방침은 이렇습니다. <b>앞에서와 같은 패턴을 따라, <span class="m">x</span> 와 <span class="m">y</span> 를 차례로 소거하고 <span class="m">z</span> 를 구한다.</b> 그리고 소거 순서는 <b>스스로 편하도록 고른다</b>고 덧붙입니다.</p>
+  <div class="rule">
+    <span class="tag">전체 흐름</span>
+    <p style="margin-top:0"><b>1단계</b> &nbsp; 식 3개에서 <span class="m">x</span> 를 없앤다 → 식 2개가 남는다</p>
+    <p><b>2단계</b> &nbsp; 남은 식 2개에서 <span class="m">y</span> 를 없앤다 → 식 1개가 남는다</p>
+    <p><b>3단계</b> &nbsp; 그 식으로 <span class="m">z</span> 를 구한다</p>
+    <p><b>4단계</b> &nbsp; 거꾸로 올라가며 <span class="m">y</span>, <span class="m">x</span> 를 구한다</p>
+  </div>
+  <div class="cmt warn2">
+    <span class="tt">1단계에서 자주 하는 실수</span>
+    <span class="m">x</span> 를 없앨 때 <b>두 번 소거해야 합니다.</b> 식이 셋이니까요.<br><br>
+    <b>첫째와 둘째</b>에서 한 번, <b>둘째와 셋째</b>에서 또 한 번. 그래야 <span class="m">x</span> 없는 식이 <b>두 개</b> 생깁니다. 한 번만 하면 식이 하나뿐이라 미지수 둘을 못 구합니다.
+  </div>
+
+  <p>흐름을 그림으로 보면 이렇습니다.</p>
+  <div class="fig" data-fig="flow"></div>
+
+  <h3 id="run">4. 단계별로 실행하기 ★<small>STEP BY STEP</small></h3>
+  <p>아래에서 한 단계씩 눌러가며 보세요. <b>계산을 하나도 생략하지 않았습니다.</b></p>
+  <div class="elim" id="elimBox">
+    <div class="stage" id="eStage"></div>
+    <div class="ebar">
+      <button class="pri" id="eNext">다음 단계</button>
+      <button id="ePrev">이전</button>
+      <button id="eReset">처음부터</button>
+      <span class="sp" id="eCount"></span>
+    </div>
+  </div>
+
+  <h3 id="full">5. 풀이 전체를 글로 다시<small>THE FULL SOLUTION</small></h3>
+
+  <h4>1단계 앞부분 : 둘째와 셋째를 더해 x 없애기</h4>
+  <p>Lang의 관찰입니다. <b>둘째 식과 셋째 식을 더하면 이미 <span class="m">x</span> 가 사라진다.</b></p>
+  <div class="sys">
+    <div class="eq">−x + &nbsp;y + 2z = &nbsp;2</div>
+    <div class="eq">&nbsp;x − 3y + &nbsp;z = −1</div>
+  </div>
+  <div class="cmt">
+    <span class="tt">왜 그냥 더하면 되나</span>
+    <span class="m">x</span> 의 계수가 하나는 <span class="m">−1</span>, 다른 하나는 <span class="m">+1</span> 입니다. <b>부호가 반대이고 크기가 같습니다.</b><br><br>
+    그래서 곱할 필요 없이 그냥 더하면 <span class="m">−x + x = 0</span> 이 되어 사라집니다. 계수를 맞추는 수고가 없으니 <b>가장 편한 경로</b>예요.
+  </div>
+  <p>실제로 더해 봅니다. 좌변은 좌변끼리, 우변은 우변끼리입니다.</p>
+  <div class="sys">
+    <div class="eq">y − 3y + 3z = 2 − 1</div>
+  </div>
+  <div class="cmt step">
+    <span class="tt">이 줄이 어떻게 나왔는지 항별로</span>
+    <b><span class="m">x</span> 항</b> &nbsp; <span class="m">−x + x = 0</span> 이므로 사라짐<br>
+    <b><span class="m">y</span> 항</b> &nbsp; <span class="m">y</span> 와 <span class="m">−3y</span> 를 더해서 <span class="m">y − 3y</span><br>
+    <b><span class="m">z</span> 항</b> &nbsp; <span class="m">2z</span> 와 <span class="m">z</span> 를 더해서 <span class="m">3z</span><br>
+    <b>우변</b> &nbsp; <span class="m">2</span> 와 <span class="m">−1</span> 을 더해서 <span class="m">2 − 1</span>
+  </div>
+  <p>이제 좌우변을 정리합니다. <span class="m">y − 3y = −2y</span> 이고 <span class="m">2 − 1 = 1</span> 입니다.</p>
+  <div class="sys blue">
+    <div class="eq"><span class="n">(2)</span>&nbsp; −2y + 3z = 1</div>
+  </div>
+
+  <h4>1단계 뒷부분 : 첫째와 둘째로 x 없애기</h4>
+  <p>Lang의 표현대로 <b>다시 (1)로 돌아가</b> 이번엔 첫 두 식에서 <span class="m">x</span> 를 없앱니다. 방법은 <b>둘째 식에 3을 곱해 첫째 식에 더하는 것</b>입니다.</p>
+  <div class="cmt">
+    <span class="tt">왜 3을 곱하나</span>
+    첫째 식의 <span class="m">x</span> 계수는 <span class="m">3</span>, 둘째 식은 <span class="m">−1</span> 입니다.<br><br>
+    둘째 식에 3을 곱하면 <span class="m">x</span> 계수가 <span class="m">−3</span> 이 됩니다. 첫째 식의 <span class="m">+3</span> 과 <b>부호가 반대이고 크기가 같아지므로</b> 더하면 사라집니다.
+  </div>
+  <p>먼저 둘째 식에 3을 곱합니다. <b>모든 항에 곱해야 합니다.</b></p>
+  <div class="sys">
+    <div class="eq">3 × (−x + y + 2z) = 3 × 2</div>
+    <div class="eq">−3x + 3y + 6z = 6</div>
+  </div>
+  <div class="cmt step">
+    <span class="tt">항별로 확인</span>
+    <span class="m">3 × (−x) = −3x</span><br>
+    <span class="m">3 × y = 3y</span><br>
+    <span class="m">3 × 2z = 6z</span><br>
+    <span class="m">3 × 2 = 6</span> &nbsp;(우변도 잊지 말 것)
+  </div>
+  <p>이제 첫째 식과 더합니다.</p>
+  <div class="sys">
+    <div class="eq">&nbsp;3x + 2y + 4z = 1</div>
+    <div class="eq">−3x + 3y + 6z = 6</div>
+  </div>
+  <p>더하면</p>
+  <div class="sys">
+    <div class="eq">2y + 3y + 4z + 6z = 1 + 6</div>
+  </div>
+  <div class="cmt step">
+    <span class="tt">항별로</span>
+    <b><span class="m">x</span> 항</b> &nbsp; <span class="m">3x + (−3x) = 0</span> 이므로 사라짐<br>
+    <b><span class="m">y</span> 항</b> &nbsp; <span class="m">2y + 3y</span><br>
+    <b><span class="m">z</span> 항</b> &nbsp; <span class="m">4z + 6z</span><br>
+    <b>우변</b> &nbsp; <span class="m">1 + 6</span>
+  </div>
+  <p>정리하면</p>
+  <div class="sys blue">
+    <div class="eq"><span class="n">(3)</span>&nbsp; 5y + 10z = 7</div>
+  </div>
+
+  <h4>2단계 : 이제 미지수가 둘이다</h4>
+  <p>Lang이 적습니다. <b>식 (2)와 (3)은 미지수 두 개짜리 한 쌍을 이루며, 이 장의 §1에서 한 방식으로 풀 수 있다.</b></p>
+  <div class="sys">
+    <div class="eq"><span class="n">(2)</span>&nbsp; −2y + &nbsp;3z = 1</div>
+    <div class="eq"><span class="n">(3)</span>&nbsp; &nbsp;5y + 10z = 7</div>
+  </div>
+  <div class="cmt good">
+    <span class="tt">여기가 이 절의 요점입니다</span>
+    <b>세 개짜리 문제가 두 개짜리 문제로 바뀌었습니다.</b> 그리고 두 개짜리는 §1에서 이미 풀 줄 압니다.<br><br>
+    이렇게 <b>모르는 문제를 아는 문제로 바꾸는 것</b>이 수학의 기본 전략입니다.
+  </div>
+  <p>Lang의 방법입니다. <b>(2)에 5를 곱하고 (3)에 2를 곱한 뒤 더합니다.</b></p>
+  <div class="cmt">
+    <span class="tt">왜 5와 2인가</span>
+    <span class="m">y</span> 의 계수가 <span class="m">−2</span> 와 <span class="m">5</span> 입니다. 크기를 같게 만들려면 <b>2와 5의 공배수</b>인 10이 필요합니다.<br><br>
+    <span class="m">−2</span> 를 <span class="m">−10</span> 으로 만들려면 5를 곱하고, <span class="m">5</span> 를 <span class="m">10</span> 으로 만들려면 2를 곱합니다. 그러면 <span class="m">−10y</span> 와 <span class="m">+10y</span> 가 되어 더하면 사라집니다.
+  </div>
+  <p>(2)에 5를 곱하면</p>
+  <div class="sys">
+    <div class="eq">5 × (−2y + 3z) = 5 × 1</div>
+    <div class="eq">−10y + 15z = 5</div>
+  </div>
+  <p>(3)에 2를 곱하면</p>
+  <div class="sys">
+    <div class="eq">2 × (5y + 10z) = 2 × 7</div>
+    <div class="eq">10y + 20z = 14</div>
+  </div>
+  <p>두 식을 더합니다.</p>
+  <div class="sys">
+    <div class="eq">15z + 20z = 5 + 14</div>
+    <div class="eq">35z = 19</div>
+  </div>
+  <div class="mb">z = <span class="fr"><i>19</i><i>35</i></span></div>
+
+  <h4>3단계 : 되돌아가서 y 구하기</h4>
+  <p>Lang이 적습니다. <span class="m">z</span> 값을 찾았으니 <b>(2)나 (3)으로 돌아가</b> <span class="m">y</span> 값을 찾을 수 있습니다. (2)를 쓰겠습니다.</p>
+  <p>(2)는 <span class="m">−2y + 3z = 1</span> 입니다. <span class="m">y</span> 만 남기려고 정리하면</p>
+  <div class="sys">
+    <div class="eq">−2y = 1 − 3z</div>
+    <div class="eq">&nbsp;2y = 3z − 1</div>
+  </div>
+  <div class="cmt step">
+    <span class="tt">두 줄 사이에 무슨 일이</span>
+    첫 줄의 양변에 <span class="m">−1</span> 을 곱했습니다.<br><br>
+    좌변 &nbsp; <span class="m">−1 × (−2y) = 2y</span><br>
+    우변 &nbsp; <span class="m">−1 × (1 − 3z) = −1 + 3z = 3z − 1</span><br><br>
+    마이너스를 없애 계산을 편하게 만든 것입니다.
+  </div>
+  <p>이제 <span class="m">z = </span><span class="fr"><i>19</i><i>35</i></span> 를 대입합니다.</p>
+  <div class="sys">
+    <div class="eq">2y = 3 · <span class="fr"><i>19</i><i>35</i></span> − 1</div>
+  </div>
+  <p>오른쪽을 계산합니다. <b>한 단계씩 보겠습니다.</b></p>
+  <div class="sys">
+    <div class="eq">3 · <span class="fr"><i>19</i><i>35</i></span> = <span class="fr"><i>57</i><i>35</i></span></div>
+    <div class="eq">1 = <span class="fr"><i>35</i><i>35</i></span></div>
+    <div class="eq"><span class="fr"><i>57</i><i>35</i></span> − <span class="fr"><i>35</i><i>35</i></span> = <span class="fr"><i>57 − 35</i><i>35</i></span> = <span class="fr"><i>22</i><i>35</i></span></div>
+  </div>
+  <div class="cmt step">
+    <span class="tt">각 줄의 근거</span>
+    <b>첫 줄</b> &nbsp; 1장 §5의 곱셈 공식입니다. 분자에만 곱합니다. <span class="m">3 × 19 = 57</span><br>
+    <b>둘째 줄</b> &nbsp; 분모를 맞추려고 1을 <span class="fr"><i>35</i><i>35</i></span> 로 바꿔 썼습니다. 값은 그대로 1입니다<br>
+    <b>셋째 줄</b> &nbsp; 분모가 같으므로 분자끼리 뺍니다. 1장 §5의 덧셈 규칙입니다
+  </div>
+  <p>따라서 <span class="m">2y = </span><span class="fr"><i>22</i><i>35</i></span> 입니다. Lang의 표현대로 <b>2로 나누면</b></p>
+  <div class="mb">y = <span class="fr"><i>11</i><i>35</i></span></div>
+  <div class="cmt">
+    <span class="tt">2로 나누는 계산</span>
+    <span class="fr"><i>22</i><i>35</i></span> <span class="m"> ÷ 2 = </span><span class="fr"><i>22</i><i>35</i></span><span class="m"> × </span><span class="fr"><i>1</i><i>2</i></span><span class="m"> = </span><span class="fr"><i>22</i><i>70</i></span><br><br>
+    분자와 분모를 2로 약분하면 <span class="fr"><i>11</i><i>35</i></span> 입니다.<br><br>
+    나눗셈이 <b>역원을 곱하는 것</b>이라는 게 1장 §6의 내용이었습니다.
+  </div>
+
+  <h4>4단계 : 되돌아가서 x 구하기</h4>
+  <p>Lang이 적습니다. <b>마지막으로 (1)의 세 식 중 아무거나 하나를 써서 <span class="m">x</span> 를 구할 수 있습니다.</b> 셋째 식을 쓰겠습니다.</p>
+  <p>셋째 식은 <span class="m">x − 3y + z = −1</span> 입니다. <span class="m">x</span> 만 남기면</p>
+  <div class="sys">
+    <div class="eq">x = −1 + 3y − z</div>
+  </div>
+  <div class="cmt step">
+    <span class="tt">이항 과정</span>
+    양변에 <span class="m">3y</span> 를 더하고 <span class="m">z</span> 를 뺐습니다.<br><br>
+    <span class="m">x − 3y + z = −1</span><br>
+    <span class="m">x = −1 + 3y − z</span><br><br>
+    부호가 바뀌는 이유는 반대 연산을 했기 때문입니다. 1장 §2에서 배운 그대로입니다.
+  </div>
+  <p>이제 <span class="m">y = </span><span class="fr"><i>11</i><i>35</i></span> 와 <span class="m">z = </span><span class="fr"><i>19</i><i>35</i></span> 를 넣습니다.</p>
+  <div class="sys">
+    <div class="eq">x = −1 + 3 · <span class="fr"><i>11</i><i>35</i></span> − <span class="fr"><i>19</i><i>35</i></span></div>
+  </div>
+  <p>세 항을 <b>전부 분모 35로</b> 맞춥니다.</p>
+  <div class="sys">
+    <div class="eq">−1 = −<span class="fr"><i>35</i><i>35</i></span></div>
+    <div class="eq">3 · <span class="fr"><i>11</i><i>35</i></span> = <span class="fr"><i>33</i><i>35</i></span></div>
+    <div class="eq">− <span class="fr"><i>19</i><i>35</i></span> <span class="kw">는 그대로</span></div>
+  </div>
+  <p>이제 분자끼리 계산합니다.</p>
+  <div class="sys">
+    <div class="eq">x = <span class="fr"><i>−35 + 33 − 19</i><i>35</i></span></div>
+  </div>
+  <div class="cmt step">
+    <span class="tt">분자 계산을 순서대로</span>
+    <span class="m">−35 + 33 = −2</span><br>
+    <span class="m">−2 − 19 = −21</span>
+  </div>
+  <div class="mb">x = <span class="fr"><i>−21</i><i>35</i></span></div>
+
+  <h4>최종 답</h4>
+  <div class="sys hit">
+    <div class="eq">x = <span class="fr"><i>−21</i><i>35</i></span></div>
+    <div class="eq">y = <span class="fr"><i>11</i><i>35</i></span></div>
+    <div class="eq">z = <span class="fr"><i>19</i><i>35</i></span></div>
+  </div>
+  <div class="cmt">
+    <span class="tt">기약으로 쓰고 싶다면</span>
+    <span class="fr"><i>−21</i><i>35</i></span> 는 분자와 분모가 둘 다 7로 나누어떨어집니다. 약분하면 <span class="m">−</span><span class="fr"><i>3</i><i>5</i></span> 입니다.<br><br>
+    다만 1장 §5에서 Lang이 말했듯 <b>약분하지 않은 형태도 완전히 맞는 답</b>입니다. 세 값의 분모를 35로 통일해 두면 오히려 비교하기 좋습니다.
+  </div>
+
+  <h4>검산</h4>
+  <p>§1에서 Lang이 강조했듯 <b>구한 값이 실제로 해인지는 따로 확인해야</b> 합니다. 세 식 전부에 넣어 봅니다.</p>
+  <p><b>첫째 식</b> <span class="m">3x + 2y + 4z = 1</span> 인지</p>
+  <div class="sys">
+    <div class="eq">3(−21) + 2(11) + 4(19) = −63 + 22 + 76 = 35</div>
+    <div class="eq"><span class="fr"><i>35</i><i>35</i></span> = 1 ✓</div>
+  </div>
+  <div class="cmt">
+    <span class="tt">분자만 계산하는 요령</span>
+    세 값의 분모가 전부 35로 같으므로, <b>분자만 계산한 뒤 마지막에 35로 나누면</b> 됩니다. 분수를 매번 쓰지 않아도 돼서 훨씬 빠릅니다.
+  </div>
+  <p><b>둘째 식</b> <span class="m">−x + y + 2z = 2</span> 인지</p>
+  <div class="sys">
+    <div class="eq">−(−21) + 11 + 2(19) = 21 + 11 + 38 = 70</div>
+    <div class="eq"><span class="fr"><i>70</i><i>35</i></span> = 2 ✓</div>
+  </div>
+  <p><b>셋째 식</b> <span class="m">x − 3y + z = −1</span> 인지</p>
+  <div class="sys">
+    <div class="eq">−21 − 3(11) + 19 = −21 − 33 + 19 = −35</div>
+    <div class="eq"><span class="fr"><i>−35</i><i>35</i></span> = −1 ✓</div>
+  </div>
+  <div class="cmt good">
+    <span class="tt">세 식 모두 통과</span>
+    이제 이 값들이 <b>진짜 해</b>임이 확인되었습니다.
+  </div>
+
+  <h3 id="order">6. 소거 순서를 고르는 법<small>CHOOSING THE ORDER</small></h3>
+  <p>Lang이 <b>스스로 편하도록 순서를 고른다</b>고 했는데, 실전 기준을 정리하면 이렇습니다.</p>
+  <div class="rule">
+    <span class="tag">우선순위</span>
+    <p style="margin-top:0"><b>1순위</b> &nbsp; 계수가 <span class="m">+1</span> 과 <span class="m">−1</span> 처럼 <b>부호만 반대</b>인 짝. 곱할 필요 없이 바로 더하면 된다</p>
+    <p><b>2순위</b> &nbsp; 계수가 <span class="m">1</span> 이나 <span class="m">−1</span> 인 항. 다른 쪽 계수를 그대로 곱하면 된다</p>
+    <p><b>3순위</b> &nbsp; 한쪽 계수가 다른 쪽의 <b>배수</b>인 경우</p>
+    <p><b>마지막</b> &nbsp; 아무것도 안 맞으면 두 계수의 공배수를 만든다</p>
+  </div>
+  <div class="cmt">
+    <span class="tt">이 문제에서는</span>
+    둘째 식과 셋째 식의 <span class="m">x</span> 계수가 <span class="m">−1</span> 과 <span class="m">+1</span> 이었습니다. <b>1순위 상황</b>이라 Lang이 그걸 먼저 잡은 것입니다.<br><br>
+    Lang의 원문 표현이 정확히 이겁니다. <b>둘째와 셋째 식을 더하면 이미 <span class="m">x</span> 가 사라진다.</b>
+  </div>
+  <div class="mine">
+    <span class="tag">내 설명 · 계수가 0인 항을 노려라</span>
+    <p>연습문제를 풀다 보면 <b>어떤 식에 특정 미지수가 아예 없는</b> 경우를 만납니다. 예를 들어 <span class="m">2x + 3z = 5</span> 처럼 <span class="m">y</span> 가 없는 식이요.</p>
+    <p>그건 <span class="m">y</span> 의 계수가 <b>0</b>이라는 뜻이고, <b>이미 절반은 소거된 상태</b>입니다. 그런 식이 보이면 <span class="m">y</span> 를 소거 대상으로 잡으세요. 일이 확 줄어듭니다.</p>
+  </div>
+
+  <h3 id="geo">7. 기하적 의미<small>WHAT IT LOOKS LIKE</small></h3>
+  <div class="mine">
+    <span class="tag">내 보충 · 교재에는 없는 이야기</span>
+    <p>§1에서 Lang은 <b>미지수 두 개짜리 식 하나가 직선 하나</b>라고 했습니다. 그리고 동시해는 <b>두 직선의 교점</b>이었죠.</p>
+    <p>미지수가 셋이 되면 무대가 <b>평면에서 공간으로</b> 올라갑니다.</p>
+    <table style="margin-top:10px">
+      <tr><th>미지수</th><th>식 하나가 뜻하는 것</th><th>동시해</th></tr>
+      <tr><td class="c">2개</td><td>평면 위의 <b>직선</b></td><td>두 직선의 교점</td></tr>
+      <tr><td class="c">3개</td><td>공간 속의 <b>평면</b></td><td>세 평면이 만나는 점</td></tr>
+    </table>
+    <p style="margin-top:10px"><span class="m">3x + 2y + 4z = 1</span> 을 만족하는 점 <span class="m">(x, y, z)</span> 를 공간에 전부 찍으면 <b>평면 한 장</b>이 됩니다.</p>
+    <p>세 식을 동시에 만족한다는 건 <b>세 평면 위에 동시에 있다</b>는 뜻이고, 보통은 그런 점이 <b>딱 하나</b>입니다.</p>
+    <div class="cmt">
+      <span class="tt">머릿속에 그리는 법</span>
+      방의 구석을 보세요. <b>바닥 한 장, 벽 두 장</b>이 만나는 곳입니다.<br><br>
+      세 면이 만나는 지점이 <b>점 하나</b>죠. 그게 미지수 세 개짜리 연립방정식의 해입니다.
+    </div>
+    <p><b>해가 없거나 무수히 많은 경우</b>도 §1과 마찬가지로 생깁니다. 세 평면이 책의 페이지처럼 <b>한 직선을 공유</b>하면 해가 무수히 많고, 삼각기둥처럼 <b>서로 어긋나면</b> 해가 없습니다.</p>
+    <div class="cmt">
+      <span class="tt">이 책에서 다루는 곳</span>
+      공간 좌표는 이 책에서 본격적으로 다루지 않지만, 판별 기준인 <b>3차 행렬식</b>은 17장 §4에서 나옵니다. §1에서 본 <span class="m">ad − bc</span> 의 3차 버전이에요.
+    </div>
+  </div>
+
+  <h3 id="clear">8. 분모 없애기 ★<small>CLEARING DENOMINATORS</small></h3>
+  <p>Lang이 연습문제 9번 앞에 이렇게 적어둡니다. <b>다음 문제들에서는 풀기 전에 분모를 없애는 것이 가장 쉬울 것이다.</b></p>
+  <p>이 기술을 처음부터 설명하겠습니다.</p>
+
+  <h4>왜 분모를 없애나</h4>
+  <p>이런 식이 있다고 합시다.</p>
+  <div class="sys">
+    <div class="eq"><span class="fr"><i>1</i><i>2</i></span>x + y − <span class="fr"><i>3</i><i>4</i></span>z = 1</div>
+  </div>
+  <p>계산은 되지만 <b>분수를 계속 끌고 다녀야</b> 합니다. 소거할 때마다 통분해야 하고, 실수가 늘어납니다.</p>
+  <div class="cmt">
+    <span class="tt">해결 아이디어</span>
+    <b>양변에 적당한 수를 곱하면</b> 분모가 전부 사라집니다. 이 조작이 정당한 근거는 이 페이지 맨 앞에서 확인한 <span class="m">A = B ⟹ kA = kB</span> 입니다.
+  </div>
+
+  <h4>무슨 수를 곱하나</h4>
+  <div class="rule">
+    <span class="tag">방법</span>
+    <p style="margin-top:0">식에 나오는 <b>모든 분모의 최소공배수</b>를 양변에 곱한다</p>
+  </div>
+  <p>위 식의 분모는 <b>2</b>와 <b>4</b>입니다. 최소공배수는 <b>4</b>입니다.</p>
+  <p>양변에 4를 곱합니다. <b>모든 항에 곱해야 합니다.</b></p>
+  <div class="sys">
+    <div class="eq">4 × <span class="fr"><i>1</i><i>2</i></span>x = <span class="fr"><i>4</i><i>2</i></span>x = 2x</div>
+    <div class="eq">4 × y = 4y</div>
+    <div class="eq">4 × <span class="fr"><i>3</i><i>4</i></span>z = <span class="fr"><i>12</i><i>4</i></span>z = 3z</div>
+    <div class="eq">4 × 1 = 4</div>
+  </div>
+  <p>따라서 원래 식은 이렇게 바뀝니다.</p>
+  <div class="sys hit">
+    <div class="eq">2x + 4y − 3z = 4</div>
+  </div>
+  <div class="cmt good">
+    <span class="tt">결과</span>
+    분수가 전부 사라지고 <b>정수 계수만</b> 남았습니다. 이제 §1과 똑같이 다루면 됩니다.
+  </div>
+  <div class="cmt warn2">
+    <span class="tt">가장 흔한 실수 두 가지</span>
+    <b>①</b> 분수가 있는 항에만 곱하고 <span class="m">y</span> 같은 정수 항을 빼먹는 것<br>
+    <b>②</b> <b>우변에 곱하는 걸 잊는 것</b><br><br>
+    양변의 <b>모든 항</b>에 빠짐없이 곱해야 합니다.
+  </div>
+
+  <h4>식마다 곱하는 수가 다를 수 있다</h4>
+  <div class="cmt">
+    <span class="tt">중요</span>
+    연립방정식에서는 <b>각 식을 따로 처리합니다.</b> 첫째 식의 분모가 2, 4라면 4를 곱하고, 둘째 식의 분모가 3이라면 3을 곱합니다.<br><br>
+    <b>세 식에 같은 수를 곱할 필요가 없습니다.</b> 각 식은 독립적인 저울이니까요.
+  </div>
+
+  <p>아래에서 직접 해보세요. 분모를 바꾸면 곱할 수와 결과가 바뀝니다.</p>
+  <div class="clr" id="clrBox">
+    <div class="row">
+      <span class="lb">원래 식</span>
+      <div class="out" id="cOrig"></div>
+    </div>
+    <div class="row">
+      <span class="lb">분모들</span>
+      <div class="out" id="cDens" style="font-family:ui-monospace,monospace;font-size:14px;color:var(--mut)"></div>
+    </div>
+    <div class="row">
+      <span class="lb">곱할 수</span>
+      <div class="out" id="cLcm" style="color:var(--gold)"></div>
+    </div>
+    <div class="row">
+      <span class="lb">결과</span>
+      <div class="out" id="cRes" style="color:var(--green)"></div>
+    </div>
+    <div class="row" style="margin-top:4px" id="cCtl"></div>
+    <div class="cmt" id="cWork" style="margin-top:6px"></div>
+  </div>
+
+  <h3 id="ex">9. 연습 문제<small>교재 59쪽</small></h3>
+  <p style="font-size:13px;color:var(--mut)">교재 §2 연습문제 1번부터 12번까지 전부 다뤘습니다. 9번부터는 Lang의 지시대로 <b>분모를 먼저 없애고</b> 풉니다.</p>
+
+  <div class="q"><div class="qt"><i>1번</i><span class="m">2x − 3y + z = 0</span><br><span class="m">x + y + z = 1</span><br><span class="m">x − 2y − 4z = 2</span></div>
+    <button>답 보기</button><div class="sol">
+    <b>1단계 앞</b> 둘째에서 셋째를 뺍니다. <span class="m">x</span> 계수가 둘 다 1이라 부호가 같으므로 뺍니다.<br>
+    <span class="m">(x + y + z) − (x − 2y − 4z) = 1 − 2</span><br>
+    <span class="m">3y + 5z = −1</span> &nbsp;(A)<br><br>
+    <b>1단계 뒤</b> 첫째에서 둘째의 2배를 뺍니다.<br>
+    <span class="m">(2x − 3y + z) − 2(x + y + z) = 0 − 2</span><br>
+    <span class="m">−5y − z = −2</span>, 양변에 <span class="m">−1</span> 을 곱해 <span class="m">5y + z = 2</span> &nbsp;(B)<br><br>
+    <b>2단계</b> (B)에서 <span class="m">z = 2 − 5y</span>. (A)에 대입<br>
+    <span class="m">3y + 5(2 − 5y) = −1</span><br>
+    <span class="m">3y + 10 − 25y = −1</span><br>
+    <span class="m">−22y = −11</span> → <span class="m">y = </span><span class="fr"><i>1</i><i>2</i></span><br><br>
+    <b>3단계</b> <span class="m">z = 2 − 5·</span><span class="fr"><i>1</i><i>2</i></span><span class="m"> = 2 − </span><span class="fr"><i>5</i><i>2</i></span><span class="m"> = −</span><span class="fr"><i>1</i><i>2</i></span><br><br>
+    <b>4단계</b> 둘째 식에서 <span class="m">x = 1 − y − z = 1 − </span><span class="fr"><i>1</i><i>2</i></span><span class="m"> + </span><span class="fr"><i>1</i><i>2</i></span><span class="m"> = 1</span><br>
+    <div class="cmt good"><span class="tt">답과 검산</span>
+    <span class="m">x = 1</span>, <span class="m">y = </span><span class="fr"><i>1</i><i>2</i></span>, <span class="m">z = −</span><span class="fr"><i>1</i><i>2</i></span><br>
+    첫째 식 &nbsp; <span class="m">2 − </span><span class="fr"><i>3</i><i>2</i></span><span class="m"> − </span><span class="fr"><i>1</i><i>2</i></span><span class="m"> = 0</span> ✓<br>
+    셋째 식 &nbsp; <span class="m">1 − 1 + 2 = 2</span> ✓</div></div></div>
+
+  <div class="q"><div class="qt"><i>2번</i><span class="m">2x − y + z = 1</span><br><span class="m">4x + y + z = 2</span><br><span class="m">x − y − 2z = 0</span></div>
+    <button>답 보기</button><div class="sol">
+    <b>관찰</b> 첫째와 둘째의 <span class="m">y</span> 계수가 <span class="m">−1</span> 과 <span class="m">+1</span> 입니다. <b>1순위 상황</b>이라 <span class="m">y</span> 부터 없앱니다.<br><br>
+    <b>더하면</b> <span class="m">6x + 2z = 3</span> &nbsp;(A)<br><br>
+    첫째에서 셋째를 뺍니다. <span class="m">y</span> 계수가 둘 다 <span class="m">−1</span> 이라 사라집니다.<br>
+    <span class="m">(2x − y + z) − (x − y − 2z) = 1 − 0</span><br>
+    <span class="m">x + 3z = 1</span> &nbsp;(B)<br><br>
+    <b>(B)에서</b> <span class="m">x = 1 − 3z</span>. (A)에 대입<br>
+    <span class="m">6(1 − 3z) + 2z = 3</span><br>
+    <span class="m">6 − 18z + 2z = 3</span><br>
+    <span class="m">−16z = −3</span> → <span class="m">z = </span><span class="fr"><i>3</i><i>16</i></span><br><br>
+    <span class="m">x = 1 − 3·</span><span class="fr"><i>3</i><i>16</i></span><span class="m"> = 1 − </span><span class="fr"><i>9</i><i>16</i></span><span class="m"> = </span><span class="fr"><i>7</i><i>16</i></span><br><br>
+    셋째 식에서 <span class="m">y = x − 2z = </span><span class="fr"><i>7</i><i>16</i></span><span class="m"> − </span><span class="fr"><i>6</i><i>16</i></span><span class="m"> = </span><span class="fr"><i>1</i><i>16</i></span><br>
+    <div class="cmt good"><span class="tt">답과 검산</span>
+    <span class="m">x = </span><span class="fr"><i>7</i><i>16</i></span>, <span class="m">y = </span><span class="fr"><i>1</i><i>16</i></span>, <span class="m">z = </span><span class="fr"><i>3</i><i>16</i></span><br>
+    분모가 전부 16이므로 분자로만 검산합니다.<br>
+    첫째 &nbsp; <span class="m">2(7) − 1 + 3 = 16</span>, <span class="fr"><i>16</i><i>16</i></span> = 1 ✓<br>
+    둘째 &nbsp; <span class="m">4(7) + 1 + 3 = 32</span>, <span class="fr"><i>32</i><i>16</i></span> = 2 ✓</div></div></div>
+
+  <div class="q"><div class="qt"><i>3번</i><span class="m">x + 4y − 4z = 1</span><br><span class="m">x + 2y + z = 2</span><br><span class="m">4x − 3y − 2z = 1</span></div>
+    <button>답 보기</button><div class="sol">
+    <b>1단계 앞</b> 첫째에서 둘째를 뺍니다. <span class="m">x</span> 계수가 둘 다 1입니다.<br>
+    <span class="m">2y − 5z = −1</span> &nbsp;(A)<br><br>
+    <b>1단계 뒤</b> 둘째의 4배에서 셋째를 뺍니다.<br>
+    <span class="m">4(x + 2y + z) = 4x + 8y + 4z = 8</span><br>
+    <span class="m">(4x + 8y + 4z) − (4x − 3y − 2z) = 8 − 1</span><br>
+    <span class="m">11y + 6z = 7</span> &nbsp;(B)<br><br>
+    <b>2단계</b> (A)에 6, (B)에 5를 곱해 더합니다. <span class="m">z</span> 계수를 <span class="m">−30</span> 과 <span class="m">+30</span> 으로 맞춘 것입니다.<br>
+    <span class="m">12y − 30z = −6</span><br>
+    <span class="m">55y + 30z = 35</span><br>
+    더하면 <span class="m">67y = 29</span> → <span class="m">y = </span><span class="fr"><i>29</i><i>67</i></span><br><br>
+    (A)에서 <span class="m">5z = 2y + 1 = </span><span class="fr"><i>58</i><i>67</i></span><span class="m"> + </span><span class="fr"><i>67</i><i>67</i></span><span class="m"> = </span><span class="fr"><i>125</i><i>67</i></span> → <span class="m">z = </span><span class="fr"><i>25</i><i>67</i></span><br><br>
+    둘째 식에서 <span class="m">x = 2 − 2y − z = </span><span class="fr"><i>134 − 58 − 25</i><i>67</i></span><span class="m"> = </span><span class="fr"><i>51</i><i>67</i></span><br>
+    <div class="cmt good"><span class="tt">답</span>
+    <span class="m">x = </span><span class="fr"><i>51</i><i>67</i></span>, <span class="m">y = </span><span class="fr"><i>29</i><i>67</i></span>, <span class="m">z = </span><span class="fr"><i>25</i><i>67</i></span><br>
+    검산 첫째 &nbsp; <span class="m">51 + 4(29) − 4(25) = 51 + 116 − 100 = 67</span> ✓</div></div></div>
+
+  <div class="q"><div class="qt"><i>4번</i><span class="m">x + y + z = 0</span><br><span class="m">x − y + z = 0</span><br><span class="m">2x − y − z = 0</span></div>
+    <button>답 보기</button><div class="sol">
+    <b>우변이 전부 0</b>인 특별한 형태입니다. §1 연습문제 10번과 같은 유형이에요.<br><br>
+    첫째에서 둘째를 빼면<br>
+    <span class="m">2y = 0</span> → <span class="m">y = 0</span><br><br>
+    첫째 식에 넣으면 <span class="m">x + z = 0</span>, 즉 <span class="m">z = −x</span><br><br>
+    셋째 식에 넣으면<br>
+    <span class="m">2x − 0 − (−x) = 3x = 0</span> → <span class="m">x = 0</span><br>
+    따라서 <span class="m">z = 0</span><br>
+    <div class="cmt"><span class="tt">기하적 의미</span>
+    우변이 전부 0이면 <b>세 평면이 모두 원점을 지납니다.</b> 그러니 원점은 항상 해예요.<br><br>
+    문제는 <b>다른 해도 있느냐</b>인데, 이 경우엔 없습니다. 원점 하나뿐입니다.</div>
+    <div class="cmt good"><span class="tt">답</span><span class="m">x = y = z = 0</span></div></div></div>
+
+  <div class="q"><div class="qt"><i>5번</i><span class="m">5x + 3y − z = 0</span><br><span class="m">x + 2y + 2z = 1</span><br><span class="m">x − 2y − 2z = 0</span></div>
+    <button>답 보기</button><div class="sol">
+    <b>관찰</b> 둘째와 셋째를 보면 <span class="m">y</span> 항과 <span class="m">z</span> 항이 통째로 부호만 반대입니다. 더하면 둘 다 사라집니다.<br><br>
+    <span class="m">2x = 1</span> → <span class="m">x = </span><span class="fr"><i>1</i><i>2</i></span><br><br>
+    이번엔 둘째에서 셋째를 뺍니다.<br>
+    <span class="m">4y + 4z = 1</span> → <span class="m">y + z = </span><span class="fr"><i>1</i><i>4</i></span> &nbsp;(A)<br><br>
+    첫째 식에 <span class="m">x = </span><span class="fr"><i>1</i><i>2</i></span> 를 넣으면<br>
+    <span class="m">3y − z = −</span><span class="fr"><i>5</i><i>2</i></span> &nbsp;(B)<br><br>
+    (A)와 (B)를 더하면 <span class="m">z</span> 가 사라집니다.<br>
+    <span class="m">4y = </span><span class="fr"><i>1</i><i>4</i></span><span class="m"> − </span><span class="fr"><i>10</i><i>4</i></span><span class="m"> = −</span><span class="fr"><i>9</i><i>4</i></span> → <span class="m">y = −</span><span class="fr"><i>9</i><i>16</i></span><br><br>
+    (A)에서 <span class="m">z = </span><span class="fr"><i>4</i><i>16</i></span><span class="m"> + </span><span class="fr"><i>9</i><i>16</i></span><span class="m"> = </span><span class="fr"><i>13</i><i>16</i></span><br>
+    <div class="cmt good"><span class="tt">답</span>
+    <span class="m">x = </span><span class="fr"><i>1</i><i>2</i></span>, <span class="m">y = −</span><span class="fr"><i>9</i><i>16</i></span>, <span class="m">z = </span><span class="fr"><i>13</i><i>16</i></span></div></div></div>
+
+  <div class="q"><div class="qt"><i>6번</i><span class="m">2x + 2y − 3z = 0</span><br><span class="m">x − 3y + z = 3</span><br><span class="m">2x + y − 4z = 0</span></div>
+    <button>답 보기</button><div class="sol">
+    <b>관찰</b> 첫째와 셋째의 <span class="m">x</span> 계수가 둘 다 2입니다. 빼면 바로 사라집니다.<br><br>
+    <span class="m">(2x + 2y − 3z) − (2x + y − 4z) = 0 − 0</span><br>
+    <span class="m">y + z = 0</span> → <span class="m">y = −z</span> &nbsp;(A)<br><br>
+    둘째 식에 (A)를 넣으면<br>
+    <span class="m">x − 3(−z) + z = 3</span><br>
+    <span class="m">x + 4z = 3</span> → <span class="m">x = 3 − 4z</span> &nbsp;(B)<br><br>
+    첫째 식에 (A)와 (B)를 넣으면<br>
+    <span class="m">2(3 − 4z) + 2(−z) − 3z = 0</span><br>
+    <span class="m">6 − 8z − 2z − 3z = 0</span><br>
+    <span class="m">6 = 13z</span> → <span class="m">z = </span><span class="fr"><i>6</i><i>13</i></span><br><br>
+    <span class="m">y = −</span><span class="fr"><i>6</i><i>13</i></span>, &nbsp; <span class="m">x = 3 − </span><span class="fr"><i>24</i><i>13</i></span><span class="m"> = </span><span class="fr"><i>15</i><i>13</i></span><br>
+    <div class="cmt good"><span class="tt">답과 검산</span>
+    <span class="m">x = </span><span class="fr"><i>15</i><i>13</i></span>, <span class="m">y = −</span><span class="fr"><i>6</i><i>13</i></span>, <span class="m">z = </span><span class="fr"><i>6</i><i>13</i></span><br>
+    둘째 &nbsp; <span class="m">15 + 18 + 6 = 39</span>, <span class="fr"><i>39</i><i>13</i></span> = 3 ✓</div></div></div>
+
+  <div class="q"><div class="qt"><i>7번</i><span class="m">4x − 2y + 5z = 1</span><br><span class="m">x + y + z = 0</span><br><span class="m">−x + y − 2z = 2</span></div>
+    <button>답 보기</button><div class="sol">
+    <b>관찰</b> 둘째와 셋째의 <span class="m">x</span> 계수가 <span class="m">+1</span> 과 <span class="m">−1</span> 입니다. <b>1순위 상황</b>이라 그냥 더합니다.<br><br>
+    <span class="m">2y − z = 2</span> &nbsp;(A)<br><br>
+    둘째의 4배에서 첫째를 뺍니다.<br>
+    <span class="m">4(x + y + z) = 4x + 4y + 4z = 0</span><br>
+    <span class="m">(4x + 4y + 4z) − (4x − 2y + 5z) = 0 − 1</span><br>
+    <span class="m">6y − z = −1</span> &nbsp;(B)<br><br>
+    (B)에서 (A)를 뺍니다. <span class="m">z</span> 계수가 둘 다 <span class="m">−1</span> 이라 사라집니다.<br>
+    <span class="m">4y = −3</span> → <span class="m">y = −</span><span class="fr"><i>3</i><i>4</i></span><br><br>
+    (A)에서 <span class="m">z = 2y − 2 = −</span><span class="fr"><i>3</i><i>2</i></span><span class="m"> − 2 = −</span><span class="fr"><i>7</i><i>2</i></span><br><br>
+    둘째 식에서 <span class="m">x = −y − z = </span><span class="fr"><i>3</i><i>4</i></span><span class="m"> + </span><span class="fr"><i>14</i><i>4</i></span><span class="m"> = </span><span class="fr"><i>17</i><i>4</i></span><br>
+    <div class="cmt good"><span class="tt">답</span>
+    <span class="m">x = </span><span class="fr"><i>17</i><i>4</i></span>, <span class="m">y = −</span><span class="fr"><i>3</i><i>4</i></span>, <span class="m">z = −</span><span class="fr"><i>7</i><i>2</i></span></div></div></div>
+
+  <div class="q"><div class="qt"><i>8번</i><span class="m">x + y + z = 0</span><br><span class="m">x − y − z = 1</span><br><span class="m">x + y − z = 1</span></div>
+    <button>답 보기</button><div class="sol">
+    <b>관찰</b> 계수가 전부 <span class="m">±1</span> 이라 매우 쉽습니다.<br><br>
+    첫째와 둘째를 더하면 <span class="m">y</span> 와 <span class="m">z</span> 가 동시에 사라집니다.<br>
+    <span class="m">2x = 1</span> → <span class="m">x = </span><span class="fr"><i>1</i><i>2</i></span><br><br>
+    첫째에서 셋째를 빼면 <span class="m">x</span> 와 <span class="m">y</span> 가 사라집니다.<br>
+    <span class="m">(x + y + z) − (x + y − z) = 0 − 1</span><br>
+    <span class="m">2z = −1</span> → <span class="m">z = −</span><span class="fr"><i>1</i><i>2</i></span><br><br>
+    첫째 식에서 <span class="m">y = −x − z = −</span><span class="fr"><i>1</i><i>2</i></span><span class="m"> + </span><span class="fr"><i>1</i><i>2</i></span><span class="m"> = 0</span><br>
+    <div class="cmt good"><span class="tt">답과 검산</span>
+    <span class="m">x = </span><span class="fr"><i>1</i><i>2</i></span>, <span class="m">y = 0</span>, <span class="m">z = −</span><span class="fr"><i>1</i><i>2</i></span><br>
+    둘째 &nbsp; <span class="fr"><i>1</i><i>2</i></span><span class="m"> − 0 + </span><span class="fr"><i>1</i><i>2</i></span><span class="m"> = 1</span> ✓</div></div></div>
+
+  <div class="q"><div class="qt"><i>9번</i><span class="fr"><i>1</i><i>2</i></span><span class="m">x + y − </span><span class="fr"><i>3</i><i>4</i></span><span class="m">z = 1</span><br>
+    <span class="fr"><i>2</i><i>3</i></span><span class="m">x − </span><span class="fr"><i>1</i><i>3</i></span><span class="m">y + z = 2</span><br>
+    <span class="m">x − </span><span class="fr"><i>1</i><i>5</i></span><span class="m">y + 2z = 1</span></div>
+    <button>답 보기</button><div class="sol">
+    <b>0단계 · 분모 없애기</b><br>
+    첫째 식 분모는 2, 4 → 최소공배수 <b>4</b><br>
+    <span class="m">2x + 4y − 3z = 4</span> &nbsp;(가)<br><br>
+    둘째 식 분모는 3, 3 → <b>3</b><br>
+    <span class="m">2x − y + 3z = 6</span> &nbsp;(나)<br><br>
+    셋째 식 분모는 5 → <b>5</b><br>
+    <span class="m">5x − y + 10z = 5</span> &nbsp;(다)<br>
+    <div class="cmt"><span class="tt">여기서부터는 정수 문제</span>분수가 사라졌으니 §1과 똑같이 다루면 됩니다.</div>
+    <b>1단계</b> (가)와 (나)를 더합니다. <span class="m">x</span> 계수가 같으니 빼야 할 것 같지만, <span class="m">y</span> 를 없애는 게 더 쉽습니다. <span class="m">4y</span> 와 <span class="m">−y</span> 이므로 (나)에 4를 곱해 더합니다.<br>
+    <span class="m">(2x + 4y − 3z) + (8x − 4y + 12z) = 4 + 24</span><br>
+    <span class="m">10x + 9z = 28</span> &nbsp;(A)<br><br>
+    (나)에서 (다)를 뺍니다. <span class="m">y</span> 계수가 둘 다 <span class="m">−1</span> 입니다.<br>
+    <span class="m">−3x − 7z = 1</span> &nbsp;(B)<br><br>
+    <b>2단계</b> (A)에 7, (B)에 9를 곱해 더합니다.<br>
+    <span class="m">70x + 63z = 196</span><br>
+    <span class="m">−27x − 63z = 9</span><br>
+    <span class="m">43x = 205</span> → <span class="m">x = </span><span class="fr"><i>205</i><i>43</i></span><br><br>
+    (B)에서 <span class="m">7z = −3x − 1 = −</span><span class="fr"><i>615</i><i>43</i></span><span class="m"> − </span><span class="fr"><i>43</i><i>43</i></span><span class="m"> = −</span><span class="fr"><i>658</i><i>43</i></span> → <span class="m">z = −</span><span class="fr"><i>94</i><i>43</i></span><br><br>
+    (나)에서 <span class="m">y = 2x + 3z − 6 = </span><span class="fr"><i>410 − 282 − 258</i><i>43</i></span><span class="m"> = −</span><span class="fr"><i>130</i><i>43</i></span><br>
+    <div class="cmt good"><span class="tt">답</span>
+    <span class="m">x = </span><span class="fr"><i>205</i><i>43</i></span>, <span class="m">y = −</span><span class="fr"><i>130</i><i>43</i></span>, <span class="m">z = −</span><span class="fr"><i>94</i><i>43</i></span></div></div></div>
+
+  <div class="q"><div class="qt"><i>10번</i><span class="fr"><i>1</i><i>2</i></span><span class="m">x − y + z = 1</span><br>
+    <span class="m">x + </span><span class="fr"><i>1</i><i>3</i></span><span class="m">y − </span><span class="fr"><i>2</i><i>3</i></span><span class="m">z = 2</span><br>
+    <span class="m">x + y − z = 3</span></div>
+    <button>답 보기</button><div class="sol">
+    <b>0단계 · 분모 없애기</b><br>
+    첫째에 <b>2</b> → <span class="m">x − 2y + 2z = 2</span> &nbsp;(가)<br>
+    둘째에 <b>3</b> → <span class="m">3x + y − 2z = 6</span> &nbsp;(나)<br>
+    셋째는 분수 없음 → <span class="m">x + y − z = 3</span> &nbsp;(다)<br><br>
+    <b>1단계</b> (가)와 (나)를 더합니다. <span class="m">z</span> 계수가 <span class="m">+2</span> 와 <span class="m">−2</span> 로 딱 맞습니다.<br>
+    <span class="m">4x − y = 8</span> &nbsp;(A)<br><br>
+    (가)에 (다)의 2배를 더합니다.<br>
+    <span class="m">2(x + y − z) = 2x + 2y − 2z = 6</span><br>
+    <span class="m">(x − 2y + 2z) + (2x + 2y − 2z) = 2 + 6</span><br>
+    <span class="m">3x = 8</span> → <span class="m">x = </span><span class="fr"><i>8</i><i>3</i></span><br>
+    <div class="cmt"><span class="tt">운이 좋은 경우</span>여기서는 <span class="m">y</span> 와 <span class="m">z</span> 가 <b>동시에</b> 사라져 바로 <span class="m">x</span> 가 나왔습니다.</div>
+    (A)에서 <span class="m">y = 4x − 8 = </span><span class="fr"><i>32</i><i>3</i></span><span class="m"> − </span><span class="fr"><i>24</i><i>3</i></span><span class="m"> = </span><span class="fr"><i>8</i><i>3</i></span><br><br>
+    (다)에서 <span class="m">z = x + y − 3 = </span><span class="fr"><i>8 + 8 − 9</i><i>3</i></span><span class="m"> = </span><span class="fr"><i>7</i><i>3</i></span><br>
+    <div class="cmt good"><span class="tt">답과 검산</span>
+    <span class="m">x = </span><span class="fr"><i>8</i><i>3</i></span>, <span class="m">y = </span><span class="fr"><i>8</i><i>3</i></span>, <span class="m">z = </span><span class="fr"><i>7</i><i>3</i></span><br>
+    (가) &nbsp; <span class="m">8 − 16 + 14 = 6</span>, <span class="fr"><i>6</i><i>3</i></span> = 2 ✓</div></div></div>
+
+  <div class="q"><div class="qt"><i>11번</i><span class="fr"><i>3</i><i>4</i></span><span class="m">x − y + z = 1</span><br>
+    <span class="m">x − </span><span class="fr"><i>1</i><i>2</i></span><span class="m">y + z = 0</span><br>
+    <span class="m">x + y − </span><span class="fr"><i>1</i><i>3</i></span><span class="m">z = 1</span></div>
+    <button>답 보기</button><div class="sol">
+    <b>0단계 · 분모 없애기</b><br>
+    첫째에 <b>4</b> → <span class="m">3x − 4y + 4z = 4</span> &nbsp;(가)<br>
+    둘째에 <b>2</b> → <span class="m">2x − y + 2z = 0</span> &nbsp;(나)<br>
+    셋째에 <b>3</b> → <span class="m">3x + 3y − z = 3</span> &nbsp;(다)<br><br>
+    <b>1단계</b> (가)에서 (다)를 뺍니다. <span class="m">x</span> 계수가 둘 다 3입니다.<br>
+    <span class="m">−7y + 5z = 1</span> &nbsp;(A)<br><br>
+    (나)에 3, (다)에 2를 곱해 뺍니다.<br>
+    <span class="m">6x − 3y + 6z = 0</span><br>
+    <span class="m">6x + 6y − 2z = 6</span><br>
+    <span class="m">−9y + 8z = −6</span> &nbsp;(B)<br><br>
+    <b>2단계</b> (A)에 8, (B)에 5를 곱해 뺍니다.<br>
+    <span class="m">−56y + 40z = 8</span><br>
+    <span class="m">−45y + 40z = −30</span><br>
+    <span class="m">−11y = 38</span> → <span class="m">y = −</span><span class="fr"><i>38</i><i>11</i></span><br><br>
+    (A)에서 <span class="m">5z = 1 + 7y = </span><span class="fr"><i>11 − 266</i><i>11</i></span><span class="m"> = −</span><span class="fr"><i>255</i><i>11</i></span> → <span class="m">z = −</span><span class="fr"><i>51</i><i>11</i></span><br><br>
+    (나)에서 <span class="m">2x = y − 2z = </span><span class="fr"><i>−38 + 102</i><i>11</i></span><span class="m"> = </span><span class="fr"><i>64</i><i>11</i></span> → <span class="m">x = </span><span class="fr"><i>32</i><i>11</i></span><br>
+    <div class="cmt good"><span class="tt">답</span>
+    <span class="m">x = </span><span class="fr"><i>32</i><i>11</i></span>, <span class="m">y = −</span><span class="fr"><i>38</i><i>11</i></span>, <span class="m">z = −</span><span class="fr"><i>51</i><i>11</i></span><br>
+    검산 (다) &nbsp; <span class="m">3(32) + 3(−38) − (−51) = 96 − 114 + 51 = 33</span>, <span class="fr"><i>33</i><i>11</i></span> = 3 ✓</div></div></div>
+
+  <div class="q"><div class="qt"><i>12번</i><span class="fr"><i>1</i><i>2</i></span><span class="m">x − </span><span class="fr"><i>2</i><i>3</i></span><span class="m">y + z = 1</span><br>
+    <span class="m">x − </span><span class="fr"><i>1</i><i>5</i></span><span class="m">y + z = 0</span><br>
+    <span class="m">2x − </span><span class="fr"><i>1</i><i>3</i></span><span class="m">y + </span><span class="fr"><i>2</i><i>5</i></span><span class="m">z = 1</span></div>
+    <button>답 보기</button><div class="sol">
+    <b>0단계 · 분모 없애기</b><br>
+    첫째 분모는 2, 3 → 최소공배수 <b>6</b><br>
+    <span class="m">3x − 4y + 6z = 6</span> &nbsp;(가)<br><br>
+    둘째 분모는 5 → <b>5</b><br>
+    <span class="m">5x − y + 5z = 0</span> &nbsp;(나)<br><br>
+    셋째 분모는 3, 5 → 최소공배수 <b>15</b><br>
+    <span class="m">30x − 5y + 6z = 15</span> &nbsp;(다)<br><br>
+    <b>1단계</b> (가)에 5, (나)에 6을 곱해 뺍니다. <span class="m">z</span> 계수를 30으로 맞추는 것입니다.<br>
+    <span class="m">15x − 20y + 30z = 30</span><br>
+    <span class="m">30x − 6y + 30z = 0</span><br>
+    빼면 <span class="m">−15x − 14y = 30</span> &nbsp;(A)<br><br>
+    (가)에서 (다)를 뺍니다. <span class="m">z</span> 계수가 둘 다 6입니다.<br>
+    <span class="m">−27x + y = −9</span> &nbsp;(B)<br><br>
+    <b>2단계</b> (B)에서 <span class="m">y = 27x − 9</span>. (A)에 대입<br>
+    <span class="m">−15x − 14(27x − 9) = 30</span><br>
+    <span class="m">−15x − 378x + 126 = 30</span><br>
+    <span class="m">−393x = −96</span> → <span class="m">x = </span><span class="fr"><i>96</i><i>393</i></span><span class="m"> = </span><span class="fr"><i>32</i><i>131</i></span><br>
+    <div class="cmt"><span class="tt">약분</span>96과 393은 둘 다 3으로 나누어떨어집니다. <span class="m">96 ÷ 3 = 32</span>, <span class="m">393 ÷ 3 = 131</span></div>
+    <span class="m">y = 27·</span><span class="fr"><i>32</i><i>131</i></span><span class="m"> − 9 = </span><span class="fr"><i>864 − 1179</i><i>131</i></span><span class="m"> = −</span><span class="fr"><i>315</i><i>131</i></span><br><br>
+    (나)에서 <span class="m">5z = y − 5x = </span><span class="fr"><i>−315 − 160</i><i>131</i></span><span class="m"> = −</span><span class="fr"><i>475</i><i>131</i></span> → <span class="m">z = −</span><span class="fr"><i>95</i><i>131</i></span><br>
+    <div class="cmt good"><span class="tt">답</span>
+    <span class="m">x = </span><span class="fr"><i>32</i><i>131</i></span>, <span class="m">y = −</span><span class="fr"><i>315</i><i>131</i></span>, <span class="m">z = −</span><span class="fr"><i>95</i><i>131</i></span><br>
+    검산 (가) &nbsp; <span class="m">3(32) + 4(315) − 6(95) = 96 + 1260 − 570 = 786</span>, <span class="fr"><i>786</i><i>131</i></span> = 6 ✓</div></div></div>
+</section>
+
+<section style="border-bottom:none">
+  <h3 style="margin-top:10px">§2 한눈에</h3>
+  <table>
+    <tr><th>항목</th><th>내용</th></tr>
+    <tr><td>기본 원리 ①</td><td><span class="m">A = B ⟹ kA = kB</span> &nbsp;(<span class="m">k ≠ 0</span>)</td></tr>
+    <tr><td>기본 원리 ②</td><td><span class="m">A = B</span>, <span class="m">C = D ⟹ A + C = B + D</span></td></tr>
+    <tr><td><b>전략</b></td><td>3개 → 2개 → 1개로 줄인 뒤 거꾸로 올라간다</td></tr>
+    <tr><td>주의</td><td><span class="m">x</span> 를 없앨 때 <b>두 번</b> 소거해야 식이 둘 남는다</td></tr>
+    <tr><td>순서 고르기</td><td>계수가 <span class="m">+1</span>, <span class="m">−1</span> 인 짝을 먼저 노린다</td></tr>
+    <tr><td>분모 없애기</td><td>각 식마다 분모의 최소공배수를 <b>모든 항</b>에 곱한다</td></tr>
+    <tr><td>기하</td><td>식 하나 = <b>평면 한 장</b>, 동시해 = 세 평면이 만나는 점</td></tr>
+    <tr><td>검산</td><td>세 식 <b>전부</b>에 대입해 확인한다</td></tr>
+  </table>
+  <div class="mine">
+    <span class="tag">2장 마무리</span>
+    <p>2장은 <b>절이 두 개뿐</b>인 짧은 장이었습니다. 그리고 두 절이 하는 말은 사실 하나예요.</p>
+    <p><span class="hlp">모르는 문제를 아는 문제로 바꿔라.</span></p>
+    <p>§1은 미지수 둘을 <b>하나</b>로 줄였고, §2는 셋을 <b>둘</b>로 줄여 §1의 상황을 만들었습니다. 미지수가 넷이라도 마찬가지입니다. 넷을 셋으로 줄이면 §2가 되니까요.</p>
+    <p>이 발상은 나중에 <b>17장 행렬식</b>에서 정식으로 정리됩니다. 거기서는 이 지루한 소거 과정을 <b>공식 하나</b>로 대체합니다.</p>
+  </div>
+  <p style="color:var(--mut);font-size:13px">2장 끝. 다음은 3장 실수 §1 (61쪽)입니다.</p>
+</section>
+
+<footer>
+  Serge Lang, <i>Basic Mathematics</i> (Addison-Wesley, 1971) 2장 §2 의 내용을 한국어로 재구성한 학습 노트입니다.
+  보라색 블록은 교재에 없는 보충 설명입니다. 원문 번역이 아니며, 정확한 표현은 교재를 참조하세요.
+</footer>
+</div>
+
+<script>
+const NS='http://www.w3.org/2000/svg';
+function el(t,a){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;}
+function tx(x,y,s,f,sz,an,fam){const e=el('text',{x:x,y:y,'text-anchor':an||'middle',
+  'font-family':fam||"-apple-system,sans-serif",'font-size':sz||12,fill:f});e.textContent=s;return e;}
+
+/* ══════ 축소 흐름도 ══════ */
+function makeFlow(host){
+  const sv=el('svg',{viewBox:'0 0 340 210',preserveAspectRatio:'xMidYMid meet'});
+  const box=(x,y,w,h,col,fill)=>sv.appendChild(el('rect',{x:x,y:y,width:w,height:h,rx:3,
+    fill:fill||'transparent',stroke:col,'stroke-width':1.4}));
+  const arrow=(x1,y1,x2,y2,col)=>{
+    sv.appendChild(el('line',{x1:x1,y1:y1,x2:x2,y2:y2,stroke:col,'stroke-width':1.6}));
+    const a=Math.atan2(y2-y1,x2-x1);
+    sv.appendChild(el('path',{d:`M ${x2} ${y2} L ${x2-8*Math.cos(a-0.4)} ${y2-8*Math.sin(a-0.4)} L ${x2-8*Math.cos(a+0.4)} ${y2-8*Math.sin(a+0.4)} Z`,fill:col}));
+  };
+  /* 3식 */
+  box(18,18,96,58,'#6fa8dc','rgba(111,168,220,.08)');
+  sv.appendChild(tx(66,34,'식 3개','#6fa8dc',12));
+  sv.appendChild(tx(66,50,'x, y, z','#c9c9c3',12,'middle',"'Times New Roman',serif"));
+  sv.appendChild(tx(66,66,'미지수 3','#6d6d68',10));
+  /* 2식 */
+  box(122,18,96,58,'#ffc93c','rgba(255,201,60,.08)');
+  sv.appendChild(tx(170,34,'식 2개','#ffc93c',12));
+  sv.appendChild(tx(170,50,'y, z','#c9c9c3',12,'middle',"'Times New Roman',serif"));
+  sv.appendChild(tx(170,66,'미지수 2','#6d6d68',10));
+  /* 1식 */
+  box(226,18,96,58,'#6ec98a','rgba(110,201,138,.08)');
+  sv.appendChild(tx(274,34,'식 1개','#6ec98a',12));
+  sv.appendChild(tx(274,50,'z','#c9c9c3',12,'middle',"'Times New Roman',serif"));
+  sv.appendChild(tx(274,66,'미지수 1','#6d6d68',10));
+
+  arrow(114,47,122,47,'#8d8d86');
+  arrow(218,47,226,47,'#8d8d86');
+  sv.appendChild(tx(118,88,'x 소거','#ff6b4a',10.5));
+  sv.appendChild(tx(222,88,'y 소거','#ff6b4a',10.5));
+
+  /* 되돌아가기 */
+  sv.appendChild(el('path',{d:'M 274 76 L 274 116 L 66 116 L 66 140',
+    fill:'none',stroke:'#b48ce0','stroke-width':1.5,'stroke-dasharray':'5 4'}));
+  arrow(66,132,66,142,'#b48ce0');
+  sv.appendChild(tx(170,110,'z 를 구한 뒤 거꾸로 올라간다','#b48ce0',10.5));
+
+  box(18,146,304,46,'#b48ce0','rgba(180,140,224,.07)');
+  sv.appendChild(tx(170,164,'z → y → x 순서로 대입해 나머지를 구한다','#d3cade',11.5));
+  sv.appendChild(tx(170,182,'마지막에 세 식 모두로 검산','#8d8d86',10.5));
+  host.appendChild(sv);
+}
+document.querySelectorAll('.fig').forEach(f=>{ if(f.dataset.fig==='flow') makeFlow(f); });
+
+/* ══════ 단계 실행기 ══════ */
+(function(){
+  const stage=document.getElementById('eStage');
+  const cnt=document.getElementById('eCount');
+  let i=0;
+  const S=[
+   {t:'STEP 1 · 주어진 문제', eq:['3x + 2y + 4z = 1','−x + &nbsp;y + 2z = 2','&nbsp;x − 3y + &nbsp;z = −1'],
+    c:'미지수가 셋이므로 식이 셋 필요합니다. x 와 y 를 차례로 없애 z 를 먼저 구할 계획입니다.'},
+   {t:'STEP 2 · 어디를 먼저 볼까', eq:['−x + y + 2z = 2','&nbsp;x − 3y + z = −1'],
+    c:'둘째 식과 셋째 식의 x 계수가 −1 과 +1 입니다. 부호만 반대이고 크기가 같으므로 곱할 것 없이 그냥 더하면 사라집니다.'},
+   {t:'STEP 3 · 그냥 더한다', eq:['y − 3y + 3z = 2 − 1'],
+    c:'x 항은 −x + x = 0 이 되어 사라졌습니다. y 항은 y 와 −3y 를, z 항은 2z 와 z 를 더했습니다. 우변도 2 와 −1 을 더합니다.'},
+   {t:'STEP 4 · 정리하면 식 (2)', eq:['(2)&nbsp; −2y + 3z = 1'], blue:1,
+    c:'y − 3y = −2y 이고 2 − 1 = 1 입니다. x 가 없는 식 하나를 얻었습니다.'},
+   {t:'STEP 5 · 다시 원래 식으로', eq:['&nbsp;3x + 2y + 4z = 1','−x + &nbsp;y + 2z = 2'],
+    c:'x 없는 식이 하나 더 필요합니다. 이번엔 첫째 식과 둘째 식을 씁니다. x 계수가 3 과 −1 이므로 둘째 식에 3을 곱합니다.'},
+   {t:'STEP 6 · 둘째 식에 3을 곱한다', eq:['3 × (−x + y + 2z) = 3 × 2','−3x + 3y + 6z = 6'],
+    c:'모든 항에 곱합니다. 3×(−x)=−3x, 3×y=3y, 3×2z=6z, 그리고 우변 3×2=6 입니다.'},
+   {t:'STEP 7 · 첫째 식과 더한다', eq:['2y + 3y + 4z + 6z = 1 + 6'],
+    c:'x 항은 3x + (−3x) = 0 이 되어 사라집니다. 나머지를 항별로 더했습니다.'},
+   {t:'STEP 8 · 정리하면 식 (3)', eq:['(3)&nbsp; 5y + 10z = 7'], blue:1,
+    c:'2y + 3y = 5y 이고 4z + 6z = 10z, 우변은 1 + 6 = 7 입니다.'},
+   {t:'STEP 9 · 미지수가 둘로 줄었다', eq:['(2)&nbsp; −2y + &nbsp;3z = 1','(3)&nbsp; &nbsp;5y + 10z = 7'], blue:1,
+    c:'이제 2장 §1 에서 풀 줄 아는 형태입니다. 셋짜리 문제가 둘짜리 문제로 바뀌었습니다.'},
+   {t:'STEP 10 · 계수 맞추기', eq:['(2) × 5 :&nbsp; −10y + 15z = 5','(3) × 2 :&nbsp; &nbsp;10y + 20z = 14'],
+    c:'y 계수가 −2 와 5 입니다. 2와 5의 최소공배수 10 으로 맞춥니다. −10 과 +10 이 되어 더하면 사라집니다.'},
+   {t:'STEP 11 · 더해서 z 구하기', eq:['15z + 20z = 5 + 14','35z = 19','z = 19/35'], 
+    c:'y 항이 서로 잡아먹었습니다. 남은 것은 z 하나짜리 방정식이므로 바로 풀립니다.'},
+   {t:'STEP 12 · 식 (2)로 돌아가 y 구하기', eq:['−2y + 3z = 1','2y = 3z − 1'],
+    c:'양변에 −1 을 곱해 마이너스를 없앴습니다. 좌변은 2y, 우변은 −1+3z 즉 3z−1 이 됩니다.'},
+   {t:'STEP 13 · z 를 대입하고 계산', eq:['2y = 3 · 19/35 − 1','= 57/35 − 35/35','= 22/35'],
+    c:'3 × 19/35 는 분자에만 곱해 57/35 입니다. 1 을 35/35 로 바꿔 분모를 맞춘 뒤 분자끼리 뺐습니다.'},
+   {t:'STEP 14 · 2로 나눠 y 확정', eq:['y = 11/35'], 
+    c:'22/35 를 2로 나누면 22/70 이고, 분자와 분모를 2로 약분하면 11/35 입니다.'},
+   {t:'STEP 15 · 셋째 식으로 x 구하기', eq:['x − 3y + z = −1','x = −1 + 3y − z','x = −35/35 + 33/35 − 19/35'],
+    c:'셋 중 아무 식이나 써도 됩니다. 세 항을 모두 분모 35 로 맞췄습니다. −1 은 −35/35, 3×11/35 는 33/35 입니다.'},
+   {t:'STEP 16 · 최종 답', eq:['x = −21/35','y = 11/35','z = 19/35'], ok:1,
+    c:'분자 계산은 −35 + 33 = −2 이고 −2 − 19 = −21 입니다. 이제 세 식 모두에 대입해 검산하면 끝입니다.'}
+  ];
+  function draw(){
+    const s=S[i];
+    let h='<div class="stp">'+s.t+'</div><div class="sys'+(s.ok?' hit':(s.blue?' blue':''))+'">';
+    s.eq.forEach(e=>{h+='<div class="eq">'+e+'</div>';});
+    h+='</div><div class="cmt'+(s.ok?' good':' step')+'"><span class="tt">설명</span>'+s.c+'</div>';
+    stage.innerHTML=h;
+    cnt.textContent=(i+1)+' / '+S.length;
+    document.getElementById('ePrev').disabled=(i===0);
+    document.getElementById('eNext').disabled=(i===S.length-1);
+  }
+  document.getElementById('eNext').onclick=()=>{if(i<S.length-1){i++;draw();}};
+  document.getElementById('ePrev').onclick=()=>{if(i>0){i--;draw();}};
+  document.getElementById('eReset').onclick=()=>{i=0;draw();};
+  draw();
+})();
+
+/* ══════ 분모 없애기 도구 ══════ */
+(function(){
+  let d1=2, d2=1, d3=4;   /* x, y, z 계수의 분모 */
+  const n1=1, n2=1, n3=3; /* 분자 고정 */
+  function gcd(a,b){while(b){[a,b]=[b,a%b];}return a;}
+  function lcm(a,b){return a*b/gcd(a,b);}
+  function frac(n,d){ return d===1? String(n) : '<span class="fr"><i>'+n+'</i><i>'+d+'</i></span>'; }
+  function term(n,d,v,first){
+    const s = n<0 ? ' − ' : (first?'':' + ');
+    const a = Math.abs(n);
+    if(d===1) return s + (a===1?'':a) + v;
+    return s + frac(a,d) + v;
+  }
+  const ctl=document.getElementById('cCtl');
+  [['x 분모',()=>d1,v=>d1=v],['y 분모',()=>d2,v=>d2=v],['z 분모',()=>d3,v=>d3=v]].forEach(([nm,get,set])=>{
+    const g=document.createElement('div'); g.className='grp';
+    const s=document.createElement('span'); s.textContent=nm;
+    const m=document.createElement('button'); m.textContent='−';
+    const p=document.createElement('button'); p.textContent='+';
+    m.onclick=()=>{if(get()>1){set(get()-1);render();}};
+    p.onclick=()=>{if(get()<9){set(get()+1);render();}};
+    g.appendChild(s);g.appendChild(m);g.appendChild(p);ctl.appendChild(g);
+  });
+  function render(){
+    document.getElementById('cOrig').innerHTML =
+      term(n1,d1,'x',true) + term(n2,d2,'y',false) + term(-n3,d3,'z',false) + ' = 1';
+    document.getElementById('cDens').textContent = [d1,d2,d3].filter(d=>d>1).join(', ') || '없음';
+    const L = lcm(lcm(d1,d2),d3);
+    document.getElementById('cLcm').innerHTML = '<b style="color:var(--gold)">'+L+'</b>';
+    const a=L*n1/d1, b=L*n2/d2, c=L*n3/d3, r=L;
+    const t=(v,sym,first)=>{
+      const s = v<0 ? ' − ' : (first?'':' + ');
+      const m = Math.abs(v)===1?'':String(Math.abs(v));
+      return s+m+sym;
+    };
+    document.getElementById('cRes').innerHTML = t(a,'x',true)+t(b,'y',false)+t(-c,'z',false)+' = '+r;
+    document.getElementById('cWork').innerHTML =
+      '<span class="tt">항별 계산</span>'+
+      L+' × '+(d1===1?'':frac(n1,d1))+'x = '+a+'x<br>'+
+      L+' × '+(d2===1?'':frac(n2,d2))+'y = '+b+'y<br>'+
+      L+' × '+(d3===1?'':frac(n3,d3))+'z = '+c+'z<br>'+
+      L+' × 1 = '+r+' &nbsp;<b>(우변도 잊지 말 것)</b>';
+  }
+  render();
+})();
+
+document.querySelectorAll('.pline .why').forEach(b=>{
+  b.onclick=()=>{const a=b.closest('.pline').querySelector('.ans');
+    const on=a.classList.toggle('on'); b.classList.toggle('on',on); b.textContent=on?'닫기':'왜?';};
+});
+document.querySelectorAll('.q > button').forEach(b=>{
+  b.onclick=()=>{const s=b.nextElementSibling;
+    const on=s.classList.toggle('on'); b.textContent=on?'접기':'답 보기';};
+});
+const bar=document.getElementById('bar');
+const links=[...document.querySelectorAll('.nv a')];
+const targets=links.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+function onScroll(){const h=document.documentElement;
+  bar.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+  let idx=0; targets.forEach((t,i)=>{if(t.getBoundingClientRect().top<=90) idx=i;});
+  links.forEach((a,i)=>a.classList.toggle('on',i===idx));}
+addEventListener('scroll',onScroll,{passive:true}); onScroll();
+</script>
+</body>
+</html>
