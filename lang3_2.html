@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Basic Mathematics · Ch.3 §2 실수의 양수성</title>
+<style>
+:root{
+  --bg:#000; --surf:#0e0e0e; --surf2:#161616;
+  --line:#282828; --line2:#3a3a3a;
+  --tx:#eeeeea; --mut:#8d8d86;
+  --gold:#ffc93c; --orange:#ff6b4a; --blue:#6fa8dc; --green:#6ec98a; --purple:#b48ce0;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth;scroll-padding-top:56px}
+body{background:var(--bg);color:var(--tx);
+  font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+  line-height:1.78;font-size:15px;padding-bottom:60px;-webkit-text-size-adjust:100%}
+.wrap{max-width:600px;margin:0 auto;padding:0 16px}
+
+#bar{position:fixed;top:0;left:0;height:2px;background:var(--gold);z-index:60;width:0}
+nav{position:sticky;top:0;z-index:50;background:rgba(0,0,0,.94);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.nv{max-width:600px;margin:0 auto;display:flex;gap:4px;padding:9px 12px;overflow-x:auto;scrollbar-width:none}
+.nv::-webkit-scrollbar{display:none}
+.nv a{flex:0 0 auto;font-size:11.5px;color:var(--mut);text-decoration:none;
+  padding:5px 10px;border:1px solid var(--line);border-radius:2px;white-space:nowrap}
+.nv a.on{color:#000;background:var(--gold);border-color:var(--gold);font-weight:700}
+
+header{padding:30px 0 22px;border-bottom:1px solid var(--line)}
+h1{font-size:21px;font-weight:700;letter-spacing:-.01em;line-height:1.4}
+header p{font-size:11px;color:var(--mut);font-family:ui-monospace,monospace;letter-spacing:.1em;margin-top:7px}
+
+section{padding:34px 0 10px;border-bottom:1px solid var(--line)}
+h2{font-size:18px;font-weight:700;display:flex;align-items:baseline;gap:9px;margin-bottom:5px}
+h2 em{font-style:normal;font-family:ui-monospace,monospace;font-size:13px;color:var(--gold)}
+h2+.sub{font-size:12px;color:var(--mut);margin-bottom:18px}
+h3{font-size:15.5px;font-weight:700;margin:30px 0 9px;padding-left:11px;
+  border-left:3px solid var(--gold);line-height:1.45}
+h3 small{display:block;font-weight:500;font-size:11px;color:var(--mut);
+  font-family:ui-monospace,monospace;letter-spacing:.05em;margin-top:2px}
+h4{font-size:14px;font-weight:700;margin:22px 0 7px;color:#fff}
+p{margin:11px 0;color:#dcdcd7}
+b{color:#fff;font-weight:700}
+.hl{color:var(--gold);font-weight:700}
+.hlo{color:var(--orange);font-weight:700}
+.hlb{color:var(--blue);font-weight:700}
+.hlp{color:var(--purple);font-weight:700}
+
+.m{font-family:'Times New Roman',Georgia,serif;font-style:italic;font-size:17px;color:#fff;font-weight:500;white-space:nowrap}
+.mb{display:block;text-align:center;font-family:'Times New Roman',Georgia,serif;
+  font-style:italic;font-size:20px;color:#fff;margin:16px 0;line-height:1.7}
+.mb .kw{font-style:normal;font-family:-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+  font-size:14px;color:#c9c9c3;font-weight:600}
+sup{font-size:.62em;vertical-align:super;line-height:0}
+.rt{border-top:1.3px solid currentColor;padding:0 2px 0 1px;margin-left:1px}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;
+  font-family:'Times New Roman',Georgia,serif;font-style:italic;line-height:1.15;margin:0 3px}
+.fr i{font-style:italic;display:block;padding:0 5px}
+.fr i:first-child{border-bottom:1.4px solid currentColor}
+.mb .fr{font-size:18px}
+p .fr,td .fr,li .fr,.sol .fr,.ans .fr{font-size:15px}
+
+.cmt{display:block;margin:9px 0 5px;padding:8px 12px;background:#111114;
+  border-left:3px solid #4a4a52;font-size:12.8px;line-height:1.8;color:#a8a8a2;
+  font-family:-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;font-style:normal}
+.cmt b{color:#d8d8d2}
+.cmt.warn2{border-left-color:#7a3a2a;background:#171010;color:#d4a897}
+.cmt.good{border-left-color:#39634a;background:#0f1512;color:#a9d3b6}
+.cmt.step{border-left-color:#4a4326;background:#141208;color:#cfc39a}
+.cmt .tt{display:block;font-size:10.5px;letter-spacing:.08em;color:#6d6d68;
+  font-family:ui-monospace,monospace;margin-bottom:4px}
+
+.rule{border:1px solid var(--gold);background:rgba(255,201,60,.06);padding:14px;margin:18px 0;border-radius:2px}
+.rule .tag{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.12em;
+  color:var(--gold);font-weight:700;display:block;margin-bottom:6px}
+.rule .mb{margin:9px 0 6px;font-size:20px}
+.rule p{margin:6px 0 0;font-size:13px;color:#c9c9c3}
+
+.thm{border:1px solid var(--green);background:rgba(110,201,138,.055);padding:14px;margin:18px 0;border-radius:2px}
+.thm .tag{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.12em;
+  color:var(--green);font-weight:700;display:block;margin-bottom:8px}
+.thm p{margin:5px 0;font-size:14px;color:#dfe9e2}
+
+.mine{border:1px solid #3d2b52;background:rgba(180,140,224,.07);padding:14px;margin:18px 0;border-radius:2px}
+.mine .tag{font-size:10.5px;letter-spacing:.1em;color:var(--purple);font-weight:700;
+  display:block;margin-bottom:6px;font-family:ui-monospace,monospace}
+.mine p{margin:7px 0 0;font-size:13.8px;color:#d3cade}
+.mine p:first-of-type{margin-top:0}
+
+.warn{border:1px solid #4a2418;background:rgba(255,107,74,.07);padding:13px 14px;margin:18px 0;border-radius:2px}
+.warn .tag{font-size:11px;letter-spacing:.08em;color:var(--orange);font-weight:700;display:block;margin-bottom:5px}
+.warn p{margin:5px 0 0;font-size:13.5px}
+
+ol.steps{list-style:none;counter-reset:s;margin:14px 0}
+ol.steps li{counter-increment:s;position:relative;padding-left:32px;margin:11px 0;font-size:14px;color:#dcdcd7}
+ol.steps li::before{content:counter(s);position:absolute;left:0;top:2px;width:21px;height:21px;
+  border:1px solid var(--line2);border-radius:50%;font-size:11px;font-family:ui-monospace,monospace;
+  color:var(--mut);display:flex;align-items:center;justify-content:center}
+
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+th,td{border:1px solid var(--line);padding:8px 9px;text-align:left;vertical-align:middle}
+th{background:var(--surf2);font-size:11.5px;color:var(--mut);font-weight:600}
+td .m{font-size:15px}
+td.c{text-align:center}
+
+.fig{background:var(--surf);border:1px solid var(--line);margin:18px 0;border-radius:2px;overflow:hidden}
+.fig svg{display:block;width:100%;height:auto}
+.fctl{display:flex;align-items:center;gap:7px;padding:9px 10px;border-top:1px solid var(--line);flex-wrap:wrap}
+.fctl .lbl{font-size:11.5px;color:var(--mut);flex:1 1 100%;order:-1;line-height:1.8}
+.fctl .lbl b{color:var(--tx)}
+.fctl input[type=range]{flex:1 1 160px;accent-color:var(--gold);height:28px}
+.fctl>button.tg{background:var(--surf2);border:1px solid var(--line2);color:var(--tx);
+  padding:8px 12px;font-size:11.5px;font-family:inherit;cursor:pointer;border-radius:2px}
+.fctl>button.tg.on{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700}
+
+.elim{background:var(--surf);border:1px solid var(--line);margin:18px 0;border-radius:2px;overflow:hidden}
+.elim .stage{padding:15px 13px;min-height:190px}
+.elim .stp{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.1em;
+  color:var(--gold);margin-bottom:9px}
+.elim .eq2{font-family:'Times New Roman',Georgia,serif;font-style:italic;font-size:18px;
+  color:#fff;line-height:2;text-align:center}
+.elim .ebar{display:flex;gap:7px;padding:9px 10px;border-top:1px solid var(--line);flex-wrap:wrap}
+.elim .ebar button{background:var(--surf2);border:1px solid var(--line2);color:var(--tx);
+  padding:9px 13px;font-size:12px;font-family:inherit;cursor:pointer;border-radius:2px}
+.elim .ebar button.pri{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700}
+.elim .ebar button:disabled{opacity:.35;cursor:default}
+.elim .ebar .sp{margin-left:auto;font-family:ui-monospace,monospace;font-size:11px;color:var(--mut);align-self:center}
+
+.proof{background:var(--surf);border:1px solid var(--line);margin:18px 0;border-radius:2px;overflow:hidden}
+.proof>.ph{padding:10px 13px;border-bottom:1px solid var(--line);font-size:11px;
+  font-family:ui-monospace,monospace;letter-spacing:.1em;color:var(--green)}
+.pline{border-bottom:1px solid var(--line)}
+.pline:last-child{border-bottom:none}
+.pline .eqn{padding:12px 13px;font-family:'Times New Roman',Georgia,serif;font-style:italic;
+  font-size:16.5px;color:#fff;display:flex;align-items:center;gap:10px}
+.pline .eqn span.e{flex:1}
+.pline .why{flex:0 0 auto;background:transparent;border:1px solid var(--line2);color:var(--mut);
+  font-size:10.5px;padding:4px 9px;font-family:inherit;font-style:normal;cursor:pointer;border-radius:2px}
+.pline .why.on{color:var(--gold);border-color:var(--gold)}
+.pline .ans{display:none;padding:0 13px 13px;font-size:13px;color:#b6b6b0;line-height:1.8}
+.pline .ans.on{display:block}
+.pline .ans b{color:var(--gold)}
+
+.q{background:var(--surf);border:1px solid var(--line);padding:13px;margin:11px 0;border-radius:2px}
+.q .qt{font-size:14px;color:var(--tx)}
+.q .qt i{font-style:normal;font-family:ui-monospace,monospace;color:var(--mut);font-size:11px;margin-right:8px}
+.q > button{margin-top:10px;background:transparent;border:1px solid var(--line2);color:var(--mut);
+  font-size:11.5px;padding:6px 11px;font-family:inherit;cursor:pointer;border-radius:2px}
+.q .sol{display:none;margin-top:11px;padding-top:11px;border-top:1px solid var(--line);
+  font-size:13.5px;color:#c9c9c3;line-height:1.95}
+.q .sol.on{display:block}
+.q .sol .m{font-size:15px}
+
+footer{padding:26px 0 0;font-size:11px;color:#5a5a55;line-height:1.9}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<nav><div class="nv">
+  <a href="#why" class="on">왜 필요한가</a>
+  <a href="#pos">POS 1·2 ★</a>
+  <a href="#one">1은 양수</a>
+  <a href="#sqrt">제곱근 공리 ★</a>
+  <a href="#two">해는 정확히 둘</a>
+  <a href="#conv">√ 약속</a>
+  <a href="#abs">절댓값 ★</a>
+  <a href="#rat">유리화 ★</a>
+  <a href="#ex">연습</a>
+</div></nav>
+
+<div class="wrap">
+<header>
+  <h1>실수의 양수성</h1>
+  <p>SERGE LANG · BASIC MATHEMATICS · CH.3 §2 · pp.64–70</p>
+</header>
+
+<section>
+  <h2><em>§2</em> Real Numbers: Positivity</h2>
+  <div class="sub">이 절의 한 문장 : 규칙 <b>두 개</b>를 더 얹어 실수를 특정하고, 드디어 <span class="m">√2</span> 를 <b>손에 넣는다</b>.</div>
+
+  <h3 id="why">1. §1이 남긴 숙제<small>WHAT §1 LEFT UNFINISHED</small></h3>
+  <div class="mine">
+    <span class="tag">§1의 Remark를 기억하시나요</span>
+    <p>§1 마지막에 Lang이 이렇게 말했습니다.</p>
+    <div class="cmt">
+      <span class="tt">§1 Remark</span>
+      <span class="m">E</span> 와 <span class="m">I</span> 두 개짜리 체계도 덧셈과 곱셈의 기본 성질을 <b>전부 만족한다</b>. 따라서 <b>실수만이 유일한 체계가 아니다.</b>
+    </div>
+    <p>즉 §1까지의 규칙만으로는 <b>실수를 특정할 수 없습니다.</b> 규칙이 더 필요해요.</p>
+    <p>그 부족한 규칙이 <span class="hlp">양수성(positivity)</span> 입니다.</p>
+    <div class="cmt good">
+      <span class="tt">확인해 보면</span>
+      <span class="m">E</span> 와 <span class="m">I</span> 체계에는 <b>"어느 쪽이 양수인가"</b> 를 정할 방법이 없습니다.<br><br>
+      <span class="m">E</span> 는 0 역할이니 후보에서 빠지고, 남은 건 <span class="m">I</span> 뿐입니다. 그런데 <span class="m">I</span> 의 덧셈 역원이 <b>자기 자신</b>이었죠(<span class="m">I + I = E</span>).<br><br>
+      그러면 <span class="m">I</span> 와 <span class="m">−I</span> 가 <b>같은 것</b>이 되어, "둘 중 정확히 하나만 양수"라는 조건을 만족시킬 수가 없습니다.
+    </div>
+    <p>그래서 <b>양수성을 얹는 순간 <span class="m">E</span>·<span class="m">I</span> 체계는 탈락합니다.</b> 실수 쪽으로 한 걸음 좁혀진 거예요.</p>
+  </div>
+
+  <h3 id="pos">2. 양수와 두 개의 규칙 ★<small>POS 1 AND POS 2</small></h3>
+  <p>Lang이 먼저 <b>기하적으로</b> 설명합니다.</p>
+  <div class="rule">
+    <span class="tag">양수란</span>
+    <p style="margin-top:0"><b>양수</b>란 직선 위에서 <b>0이 아니면서 0의 오른쪽에</b> 놓인 수들이다.</p>
+    <p style="margin-top:8px"><span class="m">a</span> 가 양수일 때 <span class="m">a > 0</span> 이라고 쓴다.</p>
+  </div>
+  <div class="cmt">
+    <span class="tt">두 조건이 모두 필요합니다</span>
+    <b>①</b> 0이 아닐 것<br>
+    <b>②</b> 0의 오른쪽에 있을 것<br><br>
+    0 자신은 0의 오른쪽이 아니므로 양수가 아닙니다.
+  </div>
+  <p>이어서 Lang은 <b>양수성의 기본 성질</b>을 나열합니다. 다른 성질들은 이 둘로부터 증명됩니다.</p>
+
+  <div class="rule">
+    <span class="tag">POS 1</span>
+    <p style="margin-top:0"><span class="m">a, b</span> 가 양수면, <b>곱 <span class="m">ab</span> 와 합 <span class="m">a + b</span> 도 양수</b>다.</p>
+  </div>
+  <div class="cmt">
+    <span class="tt">쉽게 말하면</span>
+    양수끼리 더해도 양수, 곱해도 양수. <b>양수의 세계는 닫혀 있습니다.</b>
+  </div>
+
+  <div class="rule">
+    <span class="tag">POS 2</span>
+    <p style="margin-top:0"><span class="m">a</span> 가 실수면, 다음 셋 중 <b>정확히 하나</b>가 성립한다.</p>
+    <p style="margin-top:8px">① <span class="m">a</span> 가 양수 &nbsp;&nbsp; ② <span class="m">a = 0</span> &nbsp;&nbsp; ③ <span class="m">−a</span> 가 양수</p>
+    <p style="margin-top:8px">그리고 이 가능성들은 <b>서로 배타적</b>이다.</p>
+  </div>
+  <div class="cmt warn2">
+    <span class="tt">"서로 배타적" 이 무슨 뜻인가</span>
+    <b>두 개가 동시에 성립할 수 없다</b>는 뜻입니다.<br><br>
+    <span class="m">a</span> 가 양수이면서 동시에 <span class="m">−a</span> 도 양수인 일은 없습니다. 어느 수도 <b>0의 양쪽에 동시에 있을 수 없으니까요.</b><br><br>
+    이 배타성이 뒤에서 <b>모순을 끌어내는 도구</b>가 됩니다.
+  </div>
+
+  <div class="rule">
+    <span class="tag">정의 · 음수</span>
+    <p style="margin-top:0">양수도 아니고 0도 아닌 수를 <b>음수(negative)</b> 라고 한다.</p>
+    <p style="margin-top:6px">POS 2에 의해, <span class="m">a</span> 가 음수면 <span class="m">−a</span> 는 양수다.</p>
+  </div>
+
+  <p>아래에서 <span class="m">a</span> 를 움직이며 POS 2의 세 경우를 확인해 보세요.</p>
+  <div class="fig" data-fig="pos2"></div>
+
+  <h3 id="one">3. 1이 양수임을 증명하기<small>PROVING 1 &gt; 0</small></h3>
+  <p>Lang이 이렇게 적습니다. <b>우리는 이미 1이 양수임을 안다. 하지만 이것은 두 성질과 덧셈·곱셈의 기본 규칙만으로 증명될 수 있다.</b> 그리고 <b>증명이 매우 간단하니 보면 흥미로울 것</b>이라고 덧붙입니다.</p>
+
+  <div class="mine">
+    <span class="tag">내 설명 · 왜 당연한 걸 증명하나</span>
+    <p>"1이 양수다"는 너무 당연해서 증명할 게 없어 보입니다. 그런데 왜 증명할까요?</p>
+    <p><b>규칙 목록에 없기 때문</b>입니다. POS 1과 POS 2 어디에도 "1은 양수다"라는 말이 없어요.</p>
+    <p>규칙에 없는데 사실이라면, <b>규칙에서 끌어낼 수 있어야</b> 합니다. 못 끌어내면 규칙을 하나 더 추가해야 하고요.</p>
+    <div class="cmt good">
+      <span class="tt">이 책이 계속 하는 일</span>
+      가정은 최소로 줄이고, 나머지는 증명한다. 1장 §3에서 "가정은 빚"이라고 했던 그 태도입니다.
+    </div>
+  </div>
+
+  <div class="proof">
+    <div class="ph">PROOF · 1은 양수다</div>
+    <div class="pline"><div class="eqn"><span class="e">1 또는 −1 중 하나가 양수다</span><button class="why">왜?</button></div>
+      <div class="ans"><b>POS 2</b>를 <span class="m">a = 1</span> 에 적용했습니다.<br><br>
+      세 경우는 "1이 양수" 또는 "<span class="m">1 = 0</span>" 또는 "<span class="m">−1</span> 이 양수" 입니다.<br><br>
+      그런데 <span class="m">1 ≠ 0</span> 이므로 가운데는 탈락합니다. 남은 두 경우 중 하나가 참입니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">1이 양수가 아니라고 하자. 그러면 −1이 양수다</span><button class="why">왜?</button></div>
+      <div class="ans"><b>귀류법</b>을 시작합니다. 보이고 싶은 것의 <b>반대</b>를 가정하고 모순을 찾습니다.<br><br>
+      1이 양수가 아니라면, 앞 줄의 두 경우 중 남는 것은 <span class="m">−1</span> 이 양수라는 쪽뿐입니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">(−1)(−1) 은 양수다</span><button class="why">왜?</button></div>
+      <div class="ans"><b>POS 1</b>입니다. 양수끼리 곱하면 양수예요.<br><br>
+      <span class="m">−1</span> 이 양수라고 가정했으니, <span class="m">−1</span> 과 <span class="m">−1</span> 을 곱한 것도 양수입니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">그런데 (−1)(−1) = 1 이다</span><button class="why">왜?</button></div>
+      <div class="ans"><b>1장 §3에서 증명한 것</b>입니다. N8과 N4를 써서 <span class="m">(−1)(−1) = −(−1) = 1</span> 을 보였죠.<br><br>
+      §1에서 "기본 성질만으로 증명한 것은 실수에서도 유효하다"고 했으므로, 이 결과를 그대로 가져다 쓸 수 있습니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">∴ 1이 양수다 (모순)</span><button class="why">왜?</button></div>
+      <div class="ans">앞 두 줄을 합치면 <b>1이 양수</b>라는 결론이 나옵니다.<br><br>
+      그런데 우리는 <b>1이 양수가 아니라고 가정</b>했습니다. 모순입니다.<br><br>
+      따라서 가정이 틀렸고, <b>1은 양수입니다.</b> 그리고 POS 2의 배타성에 의해 <span class="m">−1</span> 은 양수가 <b>아닙니다.</b><br><br>
+      <b>증명 끝.</b></div></div>
+  </div>
+
+  <h4>그다음 자연스럽게</h4>
+  <p>Lang이 이어서 적습니다. <b>POS 1을 쓰면 <span class="m">1 + 1 = 2</span> 가 양수이고, <span class="m">2 + 1 = 3</span> 이 양수이며, 계속 그렇다</b>고 결론지을 수 있습니다.</p>
+  <div class="mb">1, 2, 3, …</div>
+  <p>따라서 이들을 <b>양의 정수</b>라고 불러온 것이 <b>POS 1, POS 2 두 규칙과 모순되지 않습니다.</b></p>
+  <div class="cmt">
+    <span class="tt">왜 이걸 확인하나</span>
+    1장에서 우리는 <span class="m">1, 2, 3, …</span> 을 <b>"양의 정수"라고 이름 붙였습니다.</b> 그때는 그냥 이름이었어요.<br><br>
+    이제 <b>"양수"라는 개념을 규칙으로 정의</b>했으니, <b>옛 이름과 새 정의가 어긋나지 않는지</b> 확인해야 합니다. 어긋나면 큰일이니까요.
+  </div>
+
+  <h4>연습으로 남긴 네 가지</h4>
+  <p>Lang은 나머지 기본 성질들이 <b>두 규칙으로부터 쉽게 증명된다</b>며 연습문제 1, 2, 3번으로 남깁니다.</p>
+  <div class="rule">
+    <span class="tag">연습문제로 남긴 것</span>
+    <p style="margin-top:0"><span class="m">a</span> 양수, <span class="m">b</span> 음수면 <span class="m">ab</span> 는 음수다</p>
+    <p><span class="m">a</span> 음수, <span class="m">b</span> 음수면 <span class="m">ab</span> 는 양수다</p>
+    <p><span class="m">a</span> 양수면 <span class="m">1/a</span> 은 양수다</p>
+    <p><span class="m">a</span> 음수면 <span class="m">1/a</span> 은 음수다</p>
+  </div>
+  <div class="cmt">
+    <span class="tt">아래 연습문제에서 전부 풉니다</span>
+    1번 b·c 와 2번, 3번이 정확히 이 넷입니다.
+  </div>
+
+  <h3 id="sqrt">4. 제곱근 공리 ★ 구멍을 메우는 순간<small>THE SQUARE ROOT AXIOM</small></h3>
+  <p>여기가 <b>3장 전체에서 가장 중요한 한 줄</b>입니다.</p>
+  <div class="rule">
+    <span class="tag">증명 없이 가정하는 성질</span>
+    <p style="margin-top:0"><b>모든 양의 실수는 제곱근을 갖는다.</b></p>
+    <p style="margin-top:8px">즉 <span class="m">a > 0</span> 이면, <span class="m">b<sup>2</sup> = a</span> 를 만족하는 수 <span class="m">b</span> 가 <b>존재한다.</b></p>
+  </div>
+
+  <div class="mine">
+    <span class="tag">내 설명 · 이 한 줄이 하는 일</span>
+    <p>1장 §5로 돌아가 봅시다. 거기서 우리가 알아낸 것은 이랬습니다.</p>
+    <div class="cmt warn2">
+      <span class="tt">§5 정리 4</span>
+      제곱해서 2가 되는 <b>유리수는 없다</b>
+    </div>
+    <p>그때 제가 이렇게 적었었죠. <b>"정리 4가 말한 건 유리수 중에는 없다는 것뿐입니다. <span class="m">√2</span> 라는 수가 존재하는지 자체는 아직 증명하지 않았습니다."</b></p>
+    <p><span class="hlp">이제 그 존재를 선언합니다.</span> 제곱근 공리가 정확히 그 일을 해요.</p>
+    <div class="cmt good">
+      <span class="tt">순서를 정리하면</span>
+      <b>①</b> §5 정리 4 : 제곱이 2인 <b>유리수</b>는 없다<br>
+      <b>②</b> §2 제곱근 공리 : 제곱이 2인 <b>실수</b>는 있다<br>
+      <b>③</b> 따라서 그 수는 <b>유리수가 아닌 실수</b>, 즉 무리수다
+    </div>
+  </div>
+
+  <p>Lang이 정확히 이 결론을 적습니다.</p>
+  <div class="warn">
+    <span class="tag">Lang의 결론</span>
+    <p>이 성질과 1장 §5의 정리 4에 의해, 우리는 이제 <b>제곱이 2인 수가 무리수이지만 실수로서 존재한다</b>는 것을 알게 되었다.</p>
+  </div>
+  <div class="cmt">
+    <span class="tt">"공리로 가정한다" 는 말의 무게</span>
+    Lang은 이걸 <b>증명하지 않고 받아들입니다.</b> 실수를 엄밀하게 구성하면 증명할 수 있지만, §1에서 말했듯 그 과정은 길고 지루하기 때문입니다.<br><br>
+    대신 <b>"실수는 이런 성질을 갖는 것"</b> 이라고 규정하고 넘어갑니다.
+  </div>
+
+  <h3 id="two">5. 제곱해서 2가 되는 수는 정확히 둘<small>PRECISELY TWO</small></h3>
+  <p>Lang이 자연스러운 질문을 던집니다. <b>주어진 양수에 대해, 제곱이 그 수가 되는 수는 몇 개인가?</b> 예를 들어 <span class="m">x<sup>2</sup> = 2</span> 를 만족하는 실수 <span class="m">x</span> 는 전부 무엇인가?</p>
+  <div class="thm">
+    <span class="tag">답</span>
+    <p><b>정확히 두 개</b>다. 하나는 양수, 다른 하나는 음수다.</p>
+  </div>
+
+  <div class="proof">
+    <div class="ph">PROOF · 해는 정확히 둘</div>
+    <div class="pline"><div class="eqn"><span class="e">b<sup>2</sup> = 2 인 b 를 하나 잡는다</span><button class="why">왜?</button></div>
+      <div class="ans"><b>제곱근 공리</b> 덕분에 이런 <span class="m">b</span> 가 존재합니다. 방금 받아들인 성질이에요.<br><br>
+      그리고 <span class="m">x</span> 를 <span class="m">x<sup>2</sup> = 2</span> 를 만족하는 <b>아무 실수</b>라고 둡니다. <span class="m">x</span> 가 결국 무엇인지 알아내는 게 목표입니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">x<sup>2</sup> − b<sup>2</sup> = 0</span><button class="why">왜?</button></div>
+      <div class="ans"><span class="m">x<sup>2</sup> = 2</span> 이고 <span class="m">b<sup>2</sup> = 2</span> 이므로 <b>둘은 같은 수</b>입니다.<br><br>
+      한쪽에서 다른 쪽을 빼면 0이 됩니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">(x + b)(x − b) = 0</span><button class="why">왜?</button></div>
+      <div class="ans"><b>1장 §3의 세 번째 암기 공식</b>을 거꾸로 썼습니다.<br><br>
+      <span class="m">(a + b)(a − b) = a<sup>2</sup> − b<sup>2</sup></span> 이었죠. 오른쪽에서 왼쪽으로 읽은 것입니다.<br><br>
+      "반드시 외우라"던 그 공식이 여기서 쓰입니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">x + b = 0 &nbsp;또는&nbsp; x − b = 0</span><button class="why">왜?</button></div>
+      <div class="ans"><b>1장 §6의 정리</b>입니다. 두 수의 곱이 0이면 <b>둘 중 하나가 0</b>이어야 합니다.<br><br>
+      §6에서 이 정리를 소개하며 제가 이렇게 적었었죠. <b>"이게 4장 이차방정식 전체를 떠받치는 기둥"</b> 이라고요.<br><br>
+      바로 여기서 처음 쓰입니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">x = −b &nbsp;또는&nbsp; x = b</span><button class="why">왜?</button></div>
+      <div class="ans">각 식에서 <span class="m">x</span> 를 남겼습니다.<br><br>
+      <span class="m">x + b = 0</span> 이면 양변에서 <span class="m">b</span> 를 빼서 <span class="m">x = −b</span><br>
+      <span class="m">x − b = 0</span> 이면 양변에 <span class="m">b</span> 를 더해서 <span class="m">x = b</span></div></div>
+    <div class="pline"><div class="eqn"><span class="e">(−b)<sup>2</sup> = (−b)(−b) = b<sup>2</sup> = 2</span><button class="why">왜?</button></div>
+      <div class="ans"><b>확인 단계</b>입니다. <span class="m">−b</span> 도 <b>정말로 해가 맞는지</b> 봐야 합니다.<br><br>
+      <span class="m">(−b)(−b) = b<sup>2</sup></span> 은 1장 §3의 N10입니다. 음수 곱하기 음수는 양수죠.<br><br>
+      그래서 <span class="m">−b</span> 의 제곱도 2입니다. <b>둘 다 진짜 해입니다.</b><br><br>
+      <b>증명 끝.</b></div></div>
+  </div>
+
+  <div class="cmt good">
+    <span class="tt">이 증명이 보여준 것</span>
+    <b>①</b> 해는 <span class="m">b</span> 와 <span class="m">−b</span> <b>말고는 없다</b> (앞의 네 줄이 이걸 보였습니다)<br>
+    <b>②</b> 그 둘은 <b>정말로 해다</b> (마지막 줄이 이걸 보였습니다)<br><br>
+    2장 §1에서 Lang이 강조했던 <b>"후보를 좁히는 것과 진짜인지 확인하는 것은 다르다"</b> 가 여기서도 지켜졌습니다.
+  </div>
+
+  <h3 id="conv">6. √ 기호의 약속<small>THE CONVENTION</small></h3>
+  <p>제곱이 2인 두 수 중 <b>POS 2에 의해 정확히 하나만 양수</b>입니다. 여기서 Lang이 약속을 하나 합니다.</p>
+  <div class="rule">
+    <span class="tag">수학 전체에서 통용되는 약속</span>
+    <p style="margin-top:0">제곱이 2인 두 수 중 <b>양수인 쪽만</b> "2의 제곱근"이라 부르기로 한다. 그 양수를 <span class="m"><span class="rt">√</span>2</span> 로 나타낸다.</p>
+  </div>
+  <p>따라서 제곱이 2인 두 수는 이렇게 씁니다.</p>
+  <div class="mb"><span class="rt">√</span>2 &nbsp;&nbsp;<span class="kw">와</span>&nbsp;&nbsp; −<span class="rt">√</span>2</div>
+  <p>그리고 <span class="m"><span class="rt">√</span>2 > 0</span> 입니다.</p>
+  <div class="cmt warn2">
+    <span class="tt">왜 이런 약속이 필요한가</span>
+    해가 둘인데 기호는 하나입니다. <b>기호가 두 값을 동시에 가리키면 계산이 불가능해집니다.</b><br><br>
+    그래서 <b>양수 쪽 하나만</b> 지목하기로 정한 겁니다. 자연의 법칙이 아니라 <b>사람이 정한 약속</b>이에요.
+  </div>
+
+  <p>같은 논증이 <b>임의의 양수 <span class="m">a</span></b> 에 대해서도 그대로 성립합니다. 앞의 논증에서 2를 <span class="m">a</span> 로 바꾸기만 하면 됩니다.</p>
+  <div class="rule">
+    <span class="tag">일반화</span>
+    <p style="margin-top:0"><span class="m"><span class="rt">√</span>a</span> 는 <b>제곱이 <span class="m">a</span> 인 유일한 양수</b>를 나타낸다.</p>
+    <p style="margin-top:6px">제곱이 <span class="m">a</span> 인 다른 수는 <span class="m">−<span class="rt">√</span>a</span> 이다.</p>
+    <p style="margin-top:6px">따라서 <span class="m">x<sup>2</sup> = a</span> 의 해는</p>
+    <div class="mb" style="margin:8px 0">x = ±<span class="rt">√</span>a</div>
+    <p>이라 쓰고, <b>"x는 플러스 마이너스 루트 a"</b> 라고 읽는다.</p>
+  </div>
+
+  <p>이걸 다르게 표현하면 이렇습니다.</p>
+  <div class="thm">
+    <span class="tag">다른 표현</span>
+    <p><span class="m">x, y</span> 가 <span class="m">x<sup>2</sup> = y<sup>2</sup></span> 을 만족하는 수라면, <span class="m">x = y</span> 이거나 <span class="m">x = −y</span> 이다.</p>
+  </div>
+  <div class="warn">
+    <span class="tag">⚠ Lang이 명시한 함정</span>
+    <p>하지만 <b><span class="m">x = y</span> 라고 결론지을 수는 없습니다.</b></p>
+  </div>
+  <div class="cmt">
+    <span class="tt">구체적으로</span>
+    <span class="m">3<sup>2</sup> = 9</span> 이고 <span class="m">(−3)<sup>2</sup> = 9</span> 입니다. 제곱이 같죠.<br><br>
+    그렇다고 <span class="m">3 = −3</span> 은 아닙니다. <b>제곱이 같다고 원래 수가 같은 건 아닙니다.</b>
+  </div>
+
+  <p>아래에서 <span class="m">a</span> 를 움직이며 두 해가 어떻게 놓이는지 보세요.</p>
+  <div class="fig" data-fig="pm"></div>
+
+  <h3 id="abs">7. 절댓값 ★<small>ABSOLUTE VALUE</small></h3>
+  <p>Lang이 이어서 짚습니다. <b>임의의 수 <span class="m">x</span> 에 대해, <span class="m"><span class="rt">√</span>(x<sup>2</sup>)</span> 는 0 이상이다.</b></p>
+  <div class="cmt">
+    <span class="tt">왜 0 이상인가</span>
+    <span class="rt">√</span> 기호는 <b>양수 쪽만 가리키기로 약속</b>했기 때문입니다. 방금 정한 그 약속이죠.
+  </div>
+  <p>Lang의 예입니다.</p>
+  <div class="mb"><span class="rt">√</span>((−3)<sup>2</sup>) = <span class="rt">√</span>9 = 3</div>
+  <div class="cmt step">
+    <span class="tt">한 단계씩</span>
+    <b>①</b> <span class="m">(−3)<sup>2</sup> = 9</span> &nbsp;(음수의 제곱은 양수)<br>
+    <b>②</b> <span class="m"><span class="rt">√</span>9 = 3</span> &nbsp;(제곱이 9인 두 수는 3과 −3인데, 약속에 따라 <b>양수 쪽</b>을 취함)<br><br>
+    결과가 <b>−3이 아니라 3</b>입니다. 부호가 사라졌어요.
+  </div>
+
+  <div class="rule">
+    <span class="tag">정의 · 절댓값</span>
+    <p style="margin-top:0"><span class="m"><span class="rt">√</span>(x<sup>2</sup>)</span> 를 <span class="m">x</span> 의 <b>절댓값(absolute value)</b> 이라 하고 이렇게 쓴다.</p>
+    <div class="mb">|x| = <span class="rt">√</span>(x<sup>2</sup>)</div>
+  </div>
+  <p>따라서</p>
+  <div class="mb">|−3| = 3 &nbsp;&nbsp;&nbsp;&nbsp; |−5| = 5</div>
+  <p>물론 양수 <span class="m">a</span> 에 대해서는 <span class="m">|a| = a</span> 입니다. 그래서</p>
+  <div class="mb">|3| = 3 &nbsp;&nbsp;&nbsp;&nbsp; |5| = 5</div>
+
+  <div class="mine">
+    <span class="tag">내 설명 · 절댓값을 세 가지로 보기</span>
+    <p><b>① 정의대로</b> 제곱했다가 제곱근을 취하는 것</p>
+    <div class="cmt">
+      <span class="tt">무슨 일이 벌어지나</span>
+      제곱하면 <b>부호가 사라집니다.</b> 음수든 양수든 제곱은 양수니까요.<br><br>
+      그다음 제곱근을 취하면 크기는 원래대로 돌아오는데, <b>부호는 돌아오지 않습니다.</b> 약속상 양수만 취하니까요.<br><br>
+      결과적으로 <b>부호만 떼어내는 장치</b>가 됩니다.
+    </div>
+    <p><b>② 수직선에서</b> 0으로부터의 <b>거리</b></p>
+    <div class="cmt">
+      <span class="tt">거리로 보면</span>
+      <span class="m">−3</span> 은 0에서 왼쪽으로 3칸 떨어져 있습니다. 거리는 <b>3칸</b>이죠. 방향은 거리에 포함되지 않습니다.<br><br>
+      그래서 <span class="m">|−3| = 3</span> 입니다.
+    </div>
+    <p><b>③ 실용적으로</b> 부호를 떼는 것</p>
+    <div class="cmt">
+      <span class="tt">계산할 때는</span>
+      안에 든 것이 양수면 그대로, 음수면 부호를 뗍니다. 그게 전부입니다.
+    </div>
+  </div>
+
+  <div class="warn">
+    <span class="tag">⚠ 가장 흔한 실수</span>
+    <p><span class="m"><span class="rt">√</span>(x<sup>2</sup>) = x</span> 라고 쓰면 <b>틀립니다.</b></p>
+    <p><span class="m">x = −3</span> 을 넣어 보세요. 좌변은 3이고 우변은 −3입니다. 다릅니다.</p>
+    <p>올바른 식은 <span class="m"><span class="rt">√</span>(x<sup>2</sup>) = |x|</span> 입니다.</p>
+  </div>
+
+  <h4>절댓값 방정식</h4>
+  <p>Lang이 이렇게 적습니다. <b>이 책에서 절댓값을 많이 다루지는 않을 것이고, 여기서 지나치게 강조하고 싶지도 않다.</b> 다만 가끔 필요하고, <span class="m">−3</span> 의 절댓값이 3이라는 건 알아야 하니, <b>정의를 확실히 하기 위해</b> 예제를 하나 준다고 합니다.</p>
+  <div class="rule">
+    <span class="tag">Lang의 예제</span>
+    <p style="margin-top:0"><span class="m">|x + 5| = 2</span> 를 만족하는 모든 <span class="m">x</span> 를 구하라.</p>
+  </div>
+  <div class="proof">
+    <div class="ph">SOLUTION</div>
+    <div class="pline"><div class="eqn"><span class="e">x + 5 = 2 &nbsp;또는&nbsp; x + 5 = −2</span><button class="why">왜?</button></div>
+      <div class="ans"><b>절댓값이 2라는 말은 무슨 뜻인가</b>를 풀어쓴 것입니다.<br><br>
+      절댓값은 <b>부호를 뗀 크기</b>입니다. 부호를 떼고 2가 되는 수는 <b>2와 −2 두 개</b>뿐이에요.<br><br>
+      그러니 <span class="m">x + 5</span> 라는 덩어리가 2이거나 −2여야 합니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">x = 2 − 5 = −3</span><button class="why">왜?</button></div>
+      <div class="ans">첫 번째 경우입니다. 양변에서 5를 뺐습니다.</div></div>
+    <div class="pline"><div class="eqn"><span class="e">x = −5 − 2 = −7</span><button class="why">왜?</button></div>
+      <div class="ans">두 번째 경우입니다. <span class="m">x + 5 = −2</span> 에서 양변에서 5를 빼면 <span class="m">x = −2 − 5 = −7</span> 입니다.<br><br>
+      <b>답은 두 개입니다.</b> <span class="m">x = −3</span> 과 <span class="m">x = −7</span>.</div></div>
+  </div>
+  <div class="cmt good">
+    <span class="tt">검산</span>
+    <span class="m">|−3 + 5| = |2| = 2</span> ✓<br>
+    <span class="m">|−7 + 5| = |−2| = 2</span> ✓
+  </div>
+
+  <h3 id="rat">8. 유리화 ★<small>RATIONALIZING</small></h3>
+
+  <h4>먼저 · 1/√2 = √2/2 인 이유</h4>
+  <p>Lang이 관찰 하나를 던집니다.</p>
+  <div class="mb"><span class="fr"><i>1</i><i><span class="rt">√</span>2</i></span> = <span class="fr"><i><span class="rt">√</span>2</i><i>2</i></span></div>
+  <p>이유는 <span class="m">2 = <span class="rt">√</span>2 · <span class="rt">√</span>2</span> 이고, <b>십자곱</b>에 의해 성립하기 때문입니다.</p>
+  <div class="cmt step">
+    <span class="tt">십자곱으로 확인</span>
+    좌변 분자 × 우변 분모 = <span class="m">1 × 2 = 2</span><br>
+    우변 분자 × 좌변 분모 = <span class="m"><span class="rt">√</span>2 × <span class="rt">√</span>2 = 2</span><br><br>
+    <b>양쪽이 같으므로 두 분수는 같은 수입니다.</b> 1장 §5의 십자곱 규칙 그대로예요.
+  </div>
+
+  <h4>Lang의 의견</h4>
+  <div class="warn">
+    <span class="tag">Lang의 솔직한 견해</span>
+    <p>초등 교육에서는 <span class="m">1/<span class="rt">√</span>2</span> 같은 몫을 <b>분모에 제곱근이 없는 형태로 바꾸는 것이 전통</b>이다.</p>
+    <p>하지만 <b>우리로서는 이것이 일반적으로 특별히 유용하지 않다.</b> 특수한 경우에는 유용할 수 있으나, 몫을 다루는 다른 조작들보다 더하지도 덜하지도 않으며, <b>필요에 따라 그때그때 판단할 일</b>이다.</p>
+    <p>실제로 <b>많은 경우 제곱근을 분모에 두는 편이 유용하다.</b></p>
+  </div>
+  <div class="mine">
+    <span class="tag">내 설명 · 이 말이 왜 중요한가</span>
+    <p>학교에서는 "분모에 루트가 있으면 무조건 없애라"고 배웁니다. 그래서 <b>규칙인 줄 알기 쉬워요.</b></p>
+    <p>Lang은 <b>그건 규칙이 아니라 관습</b>이라고 말합니다. 필요할 때만 하라는 거예요.</p>
+    <div class="cmt">
+      <span class="tt">실제로 분자를 유리화하는 게 나은 경우</span>
+      아래 두 번째 예제가 그렇습니다. 미적분에서는 <b>분모에 루트를 남기는 쪽</b>이 훨씬 유용합니다.
+    </div>
+  </div>
+
+  <p>두 예제 모두 <b>1장 §3의 오래된 규칙</b>에 기반합니다.</p>
+  <div class="mb">(x + y)(x − y) = x<sup>2</sup> − y<sup>2</sup></div>
+  <div class="cmt">
+    <span class="tt">왜 이 공식인가</span>
+    이 공식의 오른쪽에는 <b>제곱만</b> 남습니다. 그리고 <span class="m">(<span class="rt">√</span>5)<sup>2</sup> = 5</span> 처럼 <b>제곱하면 루트가 사라집니다.</b><br><br>
+    그래서 이 공식이 <b>루트를 없애는 도구</b>가 됩니다.
+  </div>
+
+  <h4>예제 1 · 분모의 유리화</h4>
+  <div class="rule">
+    <span class="tag">문제</span>
+    <p style="margin-top:0"><span class="fr"><i>3</i><i>2 + <span class="rt">√</span>5</i></span> 를 <b>분모가 유리수인</b> 몫으로 나타내라.</p>
+  </div>
+  <p>분자와 분모에 <span class="m">2 − <span class="rt">√</span>5</span> 를 곱합니다.</p>
+  <div class="cmt">
+    <span class="tt">왜 하필 2 − √5 인가</span>
+    분모가 <span class="m">2 + <span class="rt">√</span>5</span> 입니다. 위 공식에서 <span class="m">x = 2</span>, <span class="m">y = <span class="rt">√</span>5</span> 로 보면 <span class="m">(x + y)</span> 꼴이에요.<br><br>
+    <span class="m">(x − y)</span> 에 해당하는 <span class="m">2 − <span class="rt">√</span>5</span> 를 곱하면 <span class="m">x<sup>2</sup> − y<sup>2</sup></span> 이 되어 <b>루트가 사라집니다.</b>
+  </div>
+  <p>단계별로 실행해 보세요.</p>
+  <div class="elim" id="ratBox">
+    <div class="stage" id="rStage"></div>
+    <div class="ebar">
+      <button class="pri" id="rNext">다음 단계</button>
+      <button id="rPrev">이전</button>
+      <button id="rReset">처음부터</button>
+      <button id="rMode">두 번째 예제로</button>
+      <span class="sp" id="rCount"></span>
+    </div>
+  </div>
+
+  <h4>예제 2 · 분자의 유리화</h4>
+  <p>Lang이 이 예제를 소개하며 이렇게 적습니다. <b>이 예제는 미적분학의 더 고급 과정에서 실제로 등장하는 상황과 같은 표기를 쓴다.</b></p>
+  <div class="rule">
+    <span class="tag">문제</span>
+    <p style="margin-top:0"><span class="m">x</span> 와 <span class="m">x + h</span> 가 양수일 때, 다음 몫을 <b>제곱근이 분모에만 나타나도록</b> 쓰라.</p>
+    <div class="mb"><span class="fr"><i><span class="rt">√</span>(x+h) − <span class="rt">√</span>x</i><i>h</i></span></div>
+  </div>
+  <p>분자와 분모에 <span class="m">(<span class="rt">√</span>(x+h) + <span class="rt">√</span>x)</span> 를 곱하면 결과는 이렇습니다.</p>
+  <div class="mb"><span class="fr"><i><span class="rt">√</span>(x+h) − <span class="rt">√</span>x</i><i>h</i></span> = <span class="fr"><i>1</i><i><span class="rt">√</span>(x+h) + <span class="rt">√</span>x</i></span></div>
+  <div class="cmt">
+    <span class="tt">위 실행기에서 "두 번째 예제로" 를 누르면 단계별로 볼 수 있습니다</span>
+  </div>
+
+  <div class="mine">
+    <span class="tag">내 보충 · 이걸 왜 하는가</span>
+    <p>Lang이 "미적분에서 등장한다"고만 하고 넘어가는데, <b>왜 유용한지</b>를 알면 훨씬 와닿습니다.</p>
+    <p>미적분에서는 <span class="m">h</span> 를 <b>0에 한없이 가깝게</b> 보내는 계산을 합니다.</p>
+    <p><b>원래 형태</b>에 <span class="m">h = 0</span> 을 넣으면</p>
+    <div class="cmt warn2">
+      <span class="tt">문제 발생</span>
+      분자는 <span class="m"><span class="rt">√</span>x − <span class="rt">√</span>x = 0</span><br>
+      분모는 <span class="m">h = 0</span><br><br>
+      <span class="m">0/0</span> 이 되어 <b>계산이 불가능합니다.</b>
+    </div>
+    <p><b>유리화한 형태</b>에 넣으면</p>
+    <div class="cmt good">
+      <span class="tt">해결</span>
+      <span class="fr"><i>1</i><i><span class="rt">√</span>(x+0) + <span class="rt">√</span>x</i></span> = <span class="fr"><i>1</i><i>2<span class="rt">√</span>x</i></span><br><br>
+      <b>깔끔하게 계산됩니다.</b> 분모의 <span class="m">h</span> 가 약분으로 사라졌기 때문입니다.
+    </div>
+    <p>그래서 여기서는 <b>분모에 루트를 남기는 쪽이 옳습니다.</b> Lang이 "분모에 루트를 두는 게 유용한 경우가 많다"고 한 이유가 이겁니다.</p>
+    <div class="cmt">
+      <span class="tt">참고</span>
+      이 결과 <span class="fr"><i>1</i><i>2<span class="rt">√</span>x</i></span> 가 바로 <span class="m"><span class="rt">√</span>x</span> 의 <b>도함수</b>입니다. 미적분 첫 시간에 만나게 됩니다.
+    </div>
+  </div>
+
+  <h4>용어</h4>
+  <div class="rule">
+    <span class="tag">이름</span>
+    <p style="margin-top:0"><b>분모의 유리화</b> : 몫을 같은 값의 다른 몫으로 바꾸되, <b>분모에 제곱근이 나타나지 않게</b> 하는 것</p>
+    <p style="margin-top:6px"><b>분자의 유리화</b> : 같은 방식으로 <b>분자에 제곱근이 나타나지 않게</b> 하는 것</p>
+    <p style="margin-top:6px">Lang의 말로 <b>둘 다 실전에서 유용합니다.</b></p>
+  </div>
+  <div class="cmt">
+    <span class="tt">Lang의 마지막 안내</span>
+    제곱근은 <b>피타고라스 정리</b>와 <b>8장 §2의 두 점 사이 거리</b>를 다룰 때 쓰이게 됩니다. 지금 그 부분을 찾아봐도 좋다고 권합니다.
+  </div>
+
+  <h3 id="ex">9. 연습 문제<small>교재 68–70쪽</small></h3>
+  <p style="font-size:13px;color:var(--mut)">교재 §2 연습문제 1번부터 20번까지 다뤘습니다.</p>
+
+  <div class="q"><div class="qt"><i>1번 a</i><span class="m">a</span> 가 실수면 <span class="m">a<sup>2</sup></span> 이 양수임을 증명하세요.</div>
+    <button>답 보기</button><div class="sol">
+    <div class="cmt warn2"><span class="tt">먼저 조건 하나</span>
+    <span class="m">a = 0</span> 이면 <span class="m">a<sup>2</sup> = 0</span> 이라 양수가 아닙니다. 따라서 <b><span class="m">a ≠ 0</span></b> 인 경우로 읽어야 합니다.</div>
+    <b>POS 2</b>에 의해 <span class="m">a</span> 는 양수이거나 <span class="m">−a</span> 가 양수입니다. 두 경우를 봅니다.<br><br>
+    <b>경우 ① <span class="m">a</span> 가 양수</b><br>
+    POS 1에 의해 <span class="m">a · a = a<sup>2</sup></span> 도 양수입니다.<br><br>
+    <b>경우 ② <span class="m">−a</span> 가 양수</b><br>
+    POS 1에 의해 <span class="m">(−a)(−a)</span> 가 양수입니다.<br>
+    그런데 1장 §3의 N10에 의해 <span class="m">(−a)(−a) = a<sup>2</sup></span> 입니다.<br>
+    따라서 <span class="m">a<sup>2</sup></span> 이 양수입니다.<br><br>
+    두 경우 모두 <span class="m">a<sup>2</sup></span> 이 양수입니다 ∎</div></div>
+
+  <div class="q"><div class="qt"><i>1번 b</i><span class="m">a</span> 가 양수이고 <span class="m">b</span> 가 음수면 <span class="m">ab</span> 가 음수임을 증명하세요.</div>
+    <button>답 보기</button><div class="sol">
+    <b>번역</b> <span class="m">b</span> 가 음수이므로 <b><span class="m">−b</span> 는 양수</b>입니다 (POS 2).<br><br>
+    <b>POS 1 적용</b> <span class="m">a</span> 와 <span class="m">−b</span> 가 둘 다 양수이므로<br>
+    <span class="m">a(−b)</span> 도 양수입니다.<br><br>
+    <b>모양 바꾸기</b> 1장 §3의 N9에 의해<br>
+    <span class="m">a(−b) = −(ab)</span><br><br>
+    따라서 <span class="m">−(ab)</span> 가 양수입니다.<br>
+    <b>음수의 정의</b>가 "그것의 마이너스가 양수인 것" 이므로, <span class="m">ab</span> 는 음수입니다 ∎</div></div>
+
+  <div class="q"><div class="qt"><i>1번 c</i><span class="m">a</span> 와 <span class="m">b</span> 가 둘 다 음수면 <span class="m">ab</span> 가 양수임을 증명하세요.</div>
+    <button>답 보기</button><div class="sol">
+    <span class="m">−a</span> 와 <span class="m">−b</span> 가 둘 다 양수입니다 (POS 2).<br><br>
+    POS 1에 의해 <span class="m">(−a)(−b)</span> 가 양수입니다.<br><br>
+    1장 §3의 N10에 의해 <span class="m">(−a)(−b) = ab</span> 입니다.<br><br>
+    따라서 <span class="m">ab</span> 가 양수입니다 ∎
+    <div class="cmt"><span class="tt">이게 바로</span>1장 §3에서 세 가지 방식으로 설명했던 <b>음수 곱하기 음수는 양수</b>입니다. 이제 POS 규칙으로도 확인됐습니다.</div></div></div>
+
+  <div class="q"><div class="qt"><i>2번</i><span class="m">a</span> 가 양수면 <span class="m">a<sup>−1</sup></span> 도 양수임을 증명하세요.</div>
+    <button>답 보기</button><div class="sol">
+    <b>귀류법</b>으로 갑니다.<br><br>
+    먼저 <span class="m">a<sup>−1</sup> ≠ 0</span> 입니다. 만약 0이면 <span class="m">a · a<sup>−1</sup> = 0</span> 이 되는데, 실제로는 1이어야 하니까요.<br><br>
+    <b>가정</b> <span class="m">a<sup>−1</sup></span> 이 양수가 아니라고 하자.<br>
+    POS 2에 의해 <span class="m">−a<sup>−1</sup></span> 이 양수입니다.<br><br>
+    <b>POS 1 적용</b> <span class="m">a</span> 와 <span class="m">−a<sup>−1</sup></span> 이 둘 다 양수이므로<br>
+    <span class="m">a(−a<sup>−1</sup>)</span> 이 양수입니다.<br><br>
+    <b>계산</b> N9에 의해<br>
+    <span class="m">a(−a<sup>−1</sup>) = −(a · a<sup>−1</sup>) = −1</span><br><br>
+    즉 <span class="m">−1</span> 이 양수라는 결론입니다.<br>
+    그런데 앞에서 <b>1이 양수</b>임을 증명했고, POS 2의 배타성에 의해 <span class="m">−1</span> 은 양수일 수 없습니다. <b>모순</b>입니다.<br><br>
+    따라서 <span class="m">a<sup>−1</sup></span> 은 양수입니다 ∎</div></div>
+
+  <div class="q"><div class="qt"><i>3번</i><span class="m">a</span> 가 음수면 <span class="m">a<sup>−1</sup></span> 도 음수임을 증명하세요.</div>
+    <button>답 보기</button><div class="sol">
+    <span class="m">a</span> 가 음수이므로 <span class="m">−a</span> 는 양수입니다.<br><br>
+    2번 결과를 <span class="m">−a</span> 에 적용하면 <span class="m">(−a)<sup>−1</sup></span> 이 양수입니다.<br><br>
+    <b>여기서 확인할 것</b> <span class="m">(−a)<sup>−1</sup> = −(a<sup>−1</sup>)</span> 인가?<br>
+    곱해서 1이 되는지 보면 됩니다 (1장 §6의 유일성).<br>
+    <span class="m">(−a) · (−(a<sup>−1</sup>)) = a · a<sup>−1</sup> = 1</span> ✓<br>
+    <span style="color:var(--mut);font-size:12.5px">마이너스 두 개가 서로 상쇄되었습니다 (N10)</span><br><br>
+    따라서 <span class="m">−(a<sup>−1</sup>)</span> 이 양수이고, 이는 <span class="m">a<sup>−1</sup></span> 이 <b>음수</b>라는 뜻입니다 ∎</div></div>
+
+  <div class="q"><div class="qt"><i>4번</i><span class="m">a, b</span> 가 양수일 때 <span class="m"><span class="rt">√</span>(a/b) = <span class="rt">√</span>a / <span class="rt">√</span>b</span> 임을 증명하세요.</div>
+    <button>답 보기</button><div class="sol">
+    <b>전략</b> <span class="rt">√</span> 는 <b>제곱이 그것이 되는 유일한 양수</b>입니다. 그러니 두 가지만 보이면 됩니다.<br>
+    <b>①</b> 우변이 양수인가<br>
+    <b>②</b> 우변을 제곱하면 <span class="m">a/b</span> 가 되는가<br><br>
+    <b>① 확인</b><br>
+    <span class="m"><span class="rt">√</span>a</span> 와 <span class="m"><span class="rt">√</span>b</span> 는 정의상 양수입니다.<br>
+    2번에 의해 <span class="m">1/<span class="rt">√</span>b</span> 도 양수이고, POS 1에 의해 그 곱도 양수입니다 ✓<br><br>
+    <b>② 확인</b><br>
+    <span class="m">(<span class="rt">√</span>a / <span class="rt">√</span>b)<sup>2</sup> = (<span class="rt">√</span>a)<sup>2</sup> / (<span class="rt">√</span>b)<sup>2</sup> = a/b</span> ✓<br>
+    <span style="color:var(--mut);font-size:12.5px">1장 §5의 거듭제곱 규칙 <span class="m">(m/n)<sup>k</sup> = m<sup>k</sup>/n<sup>k</sup></span> 을 썼습니다</span><br><br>
+    제곱이 <span class="m">a/b</span> 인 양수는 <b>유일</b>하므로, 우변이 곧 <span class="m"><span class="rt">√</span>(a/b)</span> 입니다 ∎</div></div>
+
+  <div class="q"><div class="qt"><i>5번</i><span class="fr"><i>1</i><i>1 − <span class="rt">√</span>2</i></span> = <span class="m">−(1 + <span class="rt">√</span>2)</span> 임을 증명하세요.</div>
+    <button>답 보기</button><div class="sol">
+    분자와 분모에 <span class="m">(1 + <span class="rt">√</span>2)</span> 를 곱합니다.<br><br>
+    <b>분모 계산</b> 공식 <span class="m">(x+y)(x−y) = x<sup>2</sup> − y<sup>2</sup></span> 에서 <span class="m">x = 1, y = <span class="rt">√</span>2</span><br>
+    <span class="m">(1 − <span class="rt">√</span>2)(1 + <span class="rt">√</span>2) = 1<sup>2</sup> − (<span class="rt">√</span>2)<sup>2</sup> = 1 − 2 = −1</span><br><br>
+    <b>따라서</b><br>
+    <span class="fr"><i>1 + <span class="rt">√</span>2</i><i>−1</i></span> = <span class="m">−(1 + <span class="rt">√</span>2)</span> ∎
+    <div class="cmt"><span class="tt">핵심 계산</span><span class="m">(<span class="rt">√</span>2)<sup>2</sup> = 2</span> 입니다. 루트와 제곱이 서로 지웁니다.</div></div></div>
+
+  <div class="q"><div class="qt"><i>6번</i><span class="m">2 + <span class="rt">√</span>3</span> 의 곱셈 역원이 <span class="m">c + d<span class="rt">√</span>3</span> 꼴(<span class="m">c, d</span> 유리수)로 표현됨을 증명하세요.</div>
+    <button>답 보기</button><div class="sol">
+    역원은 <span class="fr"><i>1</i><i>2 + <span class="rt">√</span>3</i></span> 입니다. 분자·분모에 <span class="m">(2 − <span class="rt">√</span>3)</span> 을 곱합니다.<br><br>
+    <b>분모</b> <span class="m">2<sup>2</sup> − (<span class="rt">√</span>3)<sup>2</sup> = 4 − 3 = 1</span><br><br>
+    <b>따라서</b> <span class="fr"><i>2 − <span class="rt">√</span>3</i><i>1</i></span> = <span class="m">2 − <span class="rt">√</span>3</span><br><br>
+    <span class="m">c = 2</span>, <span class="m">d = −1</span>. 둘 다 유리수입니다 ∎
+    <div class="cmt good"><span class="tt">검산</span><span class="m">(2 + <span class="rt">√</span>3)(2 − <span class="rt">√</span>3) = 4 − 3 = 1</span> ✓ 곱해서 1이니 역원이 맞습니다.</div></div></div>
+
+  <div class="q"><div class="qt"><i>7번</i><span class="m">3 + <span class="rt">√</span>5</span> 의 곱셈 역원을 <span class="m">c + d<span class="rt">√</span>5</span> 꼴로 나타내세요.</div>
+    <button>답 보기</button><div class="sol">
+    분자·분모에 <span class="m">(3 − <span class="rt">√</span>5)</span> 를 곱합니다.<br><br>
+    <b>분모</b> <span class="m">3<sup>2</sup> − (<span class="rt">√</span>5)<sup>2</sup> = 9 − 5 = 4</span><br><br>
+    <b>따라서</b> <span class="fr"><i>3 − <span class="rt">√</span>5</i><i>4</i></span> = <span class="fr"><i>3</i><i>4</i></span> <span class="m">−</span> <span class="fr"><i>1</i><i>4</i></span><span class="m"><span class="rt">√</span>5</span><br><br>
+    <span class="m">c = </span><span class="fr"><i>3</i><i>4</i></span>, <span class="m">d = −</span><span class="fr"><i>1</i><i>4</i></span> ∎</div></div>
+
+  <div class="q"><div class="qt"><i>8번</i><span class="m">a, b</span> 가 유리수일 때 <span class="m">a + b<span class="rt">√</span>2</span> 의 곱셈 역원이 <span class="m">c + d<span class="rt">√</span>2</span> 꼴임을 증명하세요.</div>
+    <button>답 보기</button><div class="sol">
+    분자·분모에 <span class="m">(a − b<span class="rt">√</span>2)</span> 를 곱합니다.<br><br>
+    <b>분모</b> <span class="m">a<sup>2</sup> − (b<span class="rt">√</span>2)<sup>2</sup> = a<sup>2</sup> − 2b<sup>2</sup></span><br><br>
+    <b>따라서</b><br>
+    <span class="fr"><i>a − b<span class="rt">√</span>2</i><i>a<sup>2</sup> − 2b<sup>2</sup></i></span> = <span class="fr"><i>a</i><i>a<sup>2</sup>−2b<sup>2</sup></i></span> <span class="m">+</span> <span class="m">(</span><span class="fr"><i>−b</i><i>a<sup>2</sup>−2b<sup>2</sup></i></span><span class="m">)<span class="rt">√</span>2</span><br><br>
+    두 계수 모두 <b>유리수끼리의 사칙연산</b>이므로 유리수입니다 ∎
+    <div class="cmt warn2"><span class="tt">빠뜨리기 쉬운 확인</span>
+    분모 <span class="m">a<sup>2</sup> − 2b<sup>2</sup></span> 이 <b>0이 아니어야</b> 합니다.<br><br>
+    만약 <span class="m">a<sup>2</sup> = 2b<sup>2</sup></span> 이라면 <span class="m">(a/b)<sup>2</sup> = 2</span> 가 되는데, 이는 <b>1장 §5 정리 4에 의해 불가능</b>합니다. <span class="m">a, b</span> 가 유리수니까요.<br><br>
+    따라서 <span class="m">a</span> 와 <span class="m">b</span> 가 둘 다 0이 아닌 한 분모는 0이 아닙니다. <b>정리 4가 여기서 또 쓰입니다.</b></div></div></div>
+
+  <div class="q"><div class="qt"><i>9번</i>8번에서 <span class="m"><span class="rt">√</span>2</span> 를 <span class="m"><span class="rt">√</span>3</span> 으로 바꿔 같은 것을 보이세요.</div>
+    <button>답 보기</button><div class="sol">
+    완전히 같은 방식입니다. 분자·분모에 <span class="m">(a − b<span class="rt">√</span>3)</span> 을 곱하면<br><br>
+    <b>분모</b> <span class="m">a<sup>2</sup> − 3b<sup>2</sup></span><br><br>
+    <span class="fr"><i>a − b<span class="rt">√</span>3</i><i>a<sup>2</sup> − 3b<sup>2</sup></i></span> 이고 두 계수는 유리수입니다 ∎
+    <div class="cmt"><span class="tt">분모가 0이 아닌 근거</span>
+    이번에는 <b>1장 §5 연습문제 10번</b>(제곱이 3인 유리수는 없다)이 근거가 됩니다. 그 문제를 풀 때 §4 연습 26번을 썼었죠.</div></div></div>
+
+  <div class="q"><div class="qt"><i>10번</i><span class="m">x, y, z, w</span> 가 유리수일 때 <span class="m">(x + y<span class="rt">√</span>5)(z + w<span class="rt">√</span>5)</span> 가 <span class="m">c + d<span class="rt">√</span>5</span> 꼴임을 보이세요.</div>
+    <button>답 보기</button><div class="sol">
+    <b>두 괄호의 곱</b>이므로 분배법칙을 두 번 씁니다. 앞의 두 항 각각을 뒤의 두 항 각각에 곱하면 항이 넷 나옵니다.<br><br>
+    <span class="m">xz</span><br>
+    <span class="m">xw<span class="rt">√</span>5</span><br>
+    <span class="m">yz<span class="rt">√</span>5</span><br>
+    <span class="m">yw(<span class="rt">√</span>5)(<span class="rt">√</span>5) = yw · 5 = 5yw</span><br><br>
+    <b>루트 없는 항끼리, 루트 있는 항끼리</b> 모읍니다.<br>
+    <span class="m">= (xz + 5yw) + (xw + yz)<span class="rt">√</span>5</span><br><br>
+    <span class="m">c = xz + 5yw</span>, <span class="m">d = xw + yz</span>. 유리수끼리의 곱과 합이므로 유리수입니다 ∎
+    <div class="cmt good"><span class="tt">핵심 한 걸음</span>
+    <span class="m">(<span class="rt">√</span>5)(<span class="rt">√</span>5) = 5</span> 입니다. <b>루트 두 개가 만나면 루트가 사라집니다.</b> 그래서 결과가 다시 같은 꼴로 돌아옵니다.</div></div></div>
+
+  <div class="q"><div class="qt"><i>11번</i>10번을 <span class="m"><span class="rt">√</span>5</span> 대신 임의의 양의 정수 <span class="m">a</span> 에 대한 <span class="m"><span class="rt">√</span>a</span> 로 일반화하세요.</div>
+    <button>답 보기</button><div class="sol">
+    같은 계산에서 5 자리에 <span class="m">a</span> 를 넣으면 됩니다.<br><br>
+    <span class="m">(x + y<span class="rt">√</span>a)(z + w<span class="rt">√</span>a) = (xz + a·yw) + (xw + yz)<span class="rt">√</span>a</span> ∎
+    <div class="cmt"><span class="tt">근거</span><span class="m">(<span class="rt">√</span>a)(<span class="rt">√</span>a) = a</span> 이기 때문입니다. 제곱근의 정의 그대로입니다.</div></div></div>
+
+  <div class="q"><div class="qt"><i>12번 a·b</i>분자를 유리화하세요.<br>
+    a) <span class="fr"><i><span class="rt">√</span>(2x+3) + 1</i><i>4</i></span> &nbsp;&nbsp; b) <span class="fr"><i><span class="rt">√</span>(1+x) − 3</i><i>2</i></span></div>
+    <button>답 보기</button><div class="sol">
+    <b>a)</b> 분자·분모에 <span class="m">(<span class="rt">√</span>(2x+3) − 1)</span> 을 곱합니다.<br>
+    분자 &nbsp; <span class="m">(2x+3) − 1<sup>2</sup> = 2x + 2</span><br>
+    분모 &nbsp; <span class="m">4(<span class="rt">√</span>(2x+3) − 1)</span><br><br>
+    <span class="fr"><i>2x + 2</i><i>4(<span class="rt">√</span>(2x+3) − 1)</i></span> = <span class="fr"><i>x + 1</i><i>2(<span class="rt">√</span>(2x+3) − 1)</i></span><br>
+    <span style="color:var(--mut);font-size:12.5px">분자와 분모를 2로 약분했습니다</span><br><br>
+    <b>b)</b> 분자·분모에 <span class="m">(<span class="rt">√</span>(1+x) + 3)</span> 을 곱합니다.<br>
+    분자 &nbsp; <span class="m">(1+x) − 9 = x − 8</span><br><br>
+    <span class="fr"><i>x − 8</i><i>2(<span class="rt">√</span>(1+x) + 3)</i></span></div></div>
+
+  <div class="q"><div class="qt"><i>12번 c~f</i>c) <span class="fr"><i><span class="rt">√</span>(x−h) − <span class="rt">√</span>x</i><i>h</i></span> &nbsp; d) <span class="fr"><i><span class="rt">√</span>(x−h) + <span class="rt">√</span>x</i><i>h</i></span> &nbsp; e) <span class="fr"><i><span class="rt">√</span>(x+h) + <span class="rt">√</span>x</i><i>h</i></span> &nbsp; f) <span class="fr"><i><span class="rt">√</span>(x+2h) − <span class="rt">√</span>x</i><i>h</i></span></div>
+    <button>답 보기</button><div class="sol">
+    <div class="cmt"><span class="tt">공통 요령</span>부호를 <b>뒤집은 것</b>을 곱합니다. 뺄셈이면 덧셈을, 덧셈이면 뺄셈을 곱하세요.</div>
+    <b>c)</b> <span class="m">(<span class="rt">√</span>(x−h) + <span class="rt">√</span>x)</span> 를 곱합니다.<br>
+    분자 &nbsp; <span class="m">(x−h) − x = −h</span><br>
+    답 &nbsp; <span class="fr"><i>−h</i><i>h(<span class="rt">√</span>(x−h) + <span class="rt">√</span>x)</i></span> = <span class="fr"><i>−1</i><i><span class="rt">√</span>(x−h) + <span class="rt">√</span>x</i></span><br><br>
+    <b>d)</b> <span class="m">(<span class="rt">√</span>(x−h) − <span class="rt">√</span>x)</span> 를 곱합니다.<br>
+    분자 &nbsp; <span class="m">(x−h) − x = −h</span><br>
+    답 &nbsp; <span class="fr"><i>−1</i><i><span class="rt">√</span>(x−h) − <span class="rt">√</span>x</i></span><br><br>
+    <b>e)</b> <span class="m">(<span class="rt">√</span>(x+h) − <span class="rt">√</span>x)</span> 를 곱합니다.<br>
+    분자 &nbsp; <span class="m">(x+h) − x = h</span><br>
+    답 &nbsp; <span class="fr"><i>1</i><i><span class="rt">√</span>(x+h) − <span class="rt">√</span>x</i></span><br><br>
+    <b>f)</b> <span class="m">(<span class="rt">√</span>(x+2h) + <span class="rt">√</span>x)</span> 를 곱합니다.<br>
+    분자 &nbsp; <span class="m">(x+2h) − x = 2h</span><br>
+    답 &nbsp; <span class="fr"><i>2</i><i><span class="rt">√</span>(x+2h) + <span class="rt">√</span>x</i></span></div></div>
+
+  <div class="q"><div class="qt"><i>13번</i>다음을 만족하는 <span class="m">x</span> 를 모두 구하세요.<br>
+    a) <span class="m">|x − 1| = 2</span> &nbsp; b) <span class="m">|x| = 5</span> &nbsp; c) <span class="m">|x − 3| = 4</span><br>
+    d) <span class="m">|x + 1| = 6</span> &nbsp; e) <span class="m">|x + 4| = 3</span> &nbsp; f) <span class="m">|x − 2| = 1</span></div>
+    <button>답 보기</button><div class="sol">
+    <div class="cmt"><span class="tt">푸는 방법</span>절댓값 안의 덩어리가 <b>양수 쪽이거나 음수 쪽</b> 두 경우로 나눕니다.</div>
+    <b>a)</b> <span class="m">x − 1 = 2</span> 또는 <span class="m">x − 1 = −2</span> → <span class="m">x = 3</span> 또는 <span class="m">x = −1</span><br><br>
+    <b>b)</b> <span class="m">x = 5</span> 또는 <span class="m">x = −5</span><br><br>
+    <b>c)</b> <span class="m">x − 3 = ±4</span> → <span class="m">x = 7</span> 또는 <span class="m">x = −1</span><br><br>
+    <b>d)</b> <span class="m">x + 1 = ±6</span> → <span class="m">x = 5</span> 또는 <span class="m">x = −7</span><br><br>
+    <b>e)</b> <span class="m">x + 4 = ±3</span> → <span class="m">x = −1</span> 또는 <span class="m">x = −7</span><br><br>
+    <b>f)</b> <span class="m">x − 2 = ±1</span> → <span class="m">x = 3</span> 또는 <span class="m">x = 1</span>
+    <div class="cmt good"><span class="tt">해가 항상 두 개인 이유</span>
+    <span class="m">|덩어리| = 양수</span> 꼴이면 덩어리가 될 수 있는 값이 <b>양수 쪽과 음수 쪽 두 개</b>이기 때문입니다.<br><br>
+    참고로 우변이 0이면 해가 하나, 우변이 음수면 해가 없습니다.</div></div></div>
+
+  <div class="q"><div class="qt"><i>14번</i>a) <span class="m">|2x − 1| = 3</span> &nbsp; b) <span class="m">|3x + 1| = 2</span> &nbsp; c) <span class="m">|2x + 1| = 4</span><br>
+    d) <span class="m">|3x − 1| = 1</span> &nbsp; e) <span class="m">|4x − 5| = 6</span></div>
+    <button>답 보기</button><div class="sol">
+    <div class="cmt"><span class="tt">13번과 다른 점</span>
+    안의 덩어리에 <span class="m">x</span> 의 계수가 붙어 있습니다. 두 경우로 나눈 뒤 <b>계수로 한 번 더 나눠야</b> 합니다.</div>
+    <b>a)</b> <span class="m">2x − 1 = 3</span> → <span class="m">2x = 4</span> → <span class="m">x = 2</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp; <span class="m">2x − 1 = −3</span> → <span class="m">2x = −2</span> → <span class="m">x = −1</span><br><br>
+    <b>b)</b> <span class="m">3x + 1 = 2</span> → <span class="m">x = </span><span class="fr"><i>1</i><i>3</i></span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp; <span class="m">3x + 1 = −2</span> → <span class="m">3x = −3</span> → <span class="m">x = −1</span><br><br>
+    <b>c)</b> <span class="m">2x + 1 = 4</span> → <span class="m">x = </span><span class="fr"><i>3</i><i>2</i></span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp; <span class="m">2x + 1 = −4</span> → <span class="m">x = −</span><span class="fr"><i>5</i><i>2</i></span><br><br>
+    <b>d)</b> <span class="m">3x − 1 = 1</span> → <span class="m">x = </span><span class="fr"><i>2</i><i>3</i></span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp; <span class="m">3x − 1 = −1</span> → <span class="m">x = 0</span><br><br>
+    <b>e)</b> <span class="m">4x − 5 = 6</span> → <span class="m">x = </span><span class="fr"><i>11</i><i>4</i></span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp; <span class="m">4x − 5 = −6</span> → <span class="m">x = −</span><span class="fr"><i>1</i><i>4</i></span></div></div>
+
+  <div class="q"><div class="qt"><i>15번</i>분자를 유리화하세요. a) <span class="fr"><i><span class="rt">√</span>x + <span class="rt">√</span>y</i><i><span class="rt">√</span>x − <span class="rt">√</span>y</i></span> &nbsp;&nbsp; b) <span class="fr"><i><span class="rt">√</span>(x+y) − <span class="rt">√</span>y</i><i><span class="rt">√</span>(x+y) + <span class="rt">√</span>y</i></span></div>
+    <button>답 보기</button><div class="sol">
+    <div class="cmt warn2"><span class="tt">주의</span>
+    분자를 유리화하려면 <b>분자의 부호를 뒤집은 것</b>을 곱합니다. 그러면 분모에는 루트가 남게 되는데, <b>그게 이 문제가 요구하는 것</b>입니다.</div>
+    <b>a)</b> 분자·분모에 <span class="m">(<span class="rt">√</span>x − <span class="rt">√</span>y)</span> 를 곱합니다.<br>
+    분자 &nbsp; <span class="m">(<span class="rt">√</span>x)<sup>2</sup> − (<span class="rt">√</span>y)<sup>2</sup> = x − y</span><br>
+    분모 &nbsp; <span class="m">(<span class="rt">√</span>x − <span class="rt">√</span>y)<sup>2</sup> = x − 2<span class="rt">√</span>(xy) + y</span><br>
+    <span style="color:var(--mut);font-size:12.5px">§3의 <span class="m">(a−b)<sup>2</sup></span> 공식을 썼습니다</span><br><br>
+    답 &nbsp; <span class="fr"><i>x − y</i><i>x + y − 2<span class="rt">√</span>(xy)</i></span><br><br>
+    <b>b)</b> 분자·분모에 <span class="m">(<span class="rt">√</span>(x+y) + <span class="rt">√</span>y)</span> 를 곱합니다.<br>
+    분자 &nbsp; <span class="m">(x+y) − y = x</span><br>
+    분모 &nbsp; <span class="m">(<span class="rt">√</span>(x+y) + <span class="rt">√</span>y)<sup>2</sup> = (x+y) + 2<span class="rt">√</span>(y(x+y)) + y</span><br><br>
+    답 &nbsp; <span class="fr"><i>x</i><i>x + 2y + 2<span class="rt">√</span>(y(x+y))</i></span><br>
+    <div class="cmt"><span class="tt">c~f 도 같은 방식</span>분자의 부호를 뒤집은 것을 곱하면 됩니다. 계산만 길어질 뿐 방법은 동일합니다.</div></div></div>
+
+  <div class="q"><div class="qt"><i>16번</i>15번의 각 경우에서 <b>분모</b>를 유리화하세요.</div>
+    <button>답 보기</button><div class="sol">
+    이번엔 <b>분모의 부호를 뒤집은 것</b>을 곱합니다.<br><br>
+    <b>a)</b> 분자·분모에 <span class="m">(<span class="rt">√</span>x + <span class="rt">√</span>y)</span> 를 곱합니다.<br>
+    분모 &nbsp; <span class="m">(<span class="rt">√</span>x − <span class="rt">√</span>y)(<span class="rt">√</span>x + <span class="rt">√</span>y) = x − y</span><br>
+    분자 &nbsp; <span class="m">(<span class="rt">√</span>x + <span class="rt">√</span>y)<sup>2</sup> = x + 2<span class="rt">√</span>(xy) + y</span><br><br>
+    답 &nbsp; <span class="fr"><i>x + y + 2<span class="rt">√</span>(xy)</i><i>x − y</i></span>
+    <div class="cmt good"><span class="tt">15번과 비교하면</span>
+    <b>분자와 분모가 정확히 뒤바뀌었습니다.</b> 같은 곱셈을 어느 쪽 기준으로 하느냐의 차이뿐입니다.</div></div></div>
+
+  <div class="q"><div class="qt"><i>17번</i><span class="m"><span class="rt">√</span>(x−1) = 3 + <span class="rt">√</span>x</span> 를 만족하는 실수 <span class="m">x</span> 가 없음을 증명하세요. <span style="color:var(--mut);font-size:12px">(힌트: 양변을 제곱하며 시작하라)</span></div>
+    <button>답 보기</button><div class="sol">
+    <b>양변을 제곱합니다.</b><br>
+    좌변 &nbsp; <span class="m">(<span class="rt">√</span>(x−1))<sup>2</sup> = x − 1</span><br>
+    우변 &nbsp; <span class="m">(3 + <span class="rt">√</span>x)<sup>2</sup> = 9 + 6<span class="rt">√</span>x + x</span><br>
+    <span style="color:var(--mut);font-size:12.5px">§3의 <span class="m">(a+b)<sup>2</sup></span> 공식입니다. 가운데 항 <span class="m">2·3·<span class="rt">√</span>x = 6<span class="rt">√</span>x</span> 를 빠뜨리지 마세요</span><br><br>
+    <b>등식으로 놓으면</b><br>
+    <span class="m">x − 1 = 9 + 6<span class="rt">√</span>x + x</span><br><br>
+    양변에서 <span class="m">x</span> 를 뺍니다.<br>
+    <span class="m">−1 = 9 + 6<span class="rt">√</span>x</span><br><br>
+    양변에서 9를 뺍니다.<br>
+    <span class="m">−10 = 6<span class="rt">√</span>x</span><br>
+    <span class="m"><span class="rt">√</span>x = −</span><span class="fr"><i>5</i><i>3</i></span><br><br>
+    <b>모순</b> <span class="rt">√</span> 는 정의상 <b>0 이상</b>인데 음수가 나왔습니다.<br>
+    따라서 그런 실수 <span class="m">x</span> 는 존재하지 않습니다 ∎</div></div>
+
+  <div class="q"><div class="qt"><i>18번</i><span class="m"><span class="rt">√</span>(x−1) = 3 − <span class="rt">√</span>x</span> 이면 <span class="m">x = </span><span class="fr"><i>25</i><i>9</i></span> 임을 증명하세요.</div>
+    <button>답 보기</button><div class="sol">
+    <b>양변을 제곱합니다.</b><br>
+    <span class="m">x − 1 = 9 − 6<span class="rt">√</span>x + x</span><br>
+    <span style="color:var(--mut);font-size:12.5px">이번엔 <span class="m">(a−b)<sup>2</sup></span> 공식이라 가운데가 <span class="m">−6<span class="rt">√</span>x</span> 입니다</span><br><br>
+    양변에서 <span class="m">x</span> 를 뺍니다.<br>
+    <span class="m">−1 = 9 − 6<span class="rt">√</span>x</span><br><br>
+    정리하면<br>
+    <span class="m">6<span class="rt">√</span>x = 10</span><br>
+    <span class="m"><span class="rt">√</span>x = </span><span class="fr"><i>5</i><i>3</i></span><br><br>
+    양변을 제곱하면<br>
+    <span class="m">x = </span><span class="fr"><i>25</i><i>9</i></span> ∎
+    <div class="cmt good"><span class="tt">검산이 꼭 필요합니다</span>
+    양변을 제곱하는 조작은 <b>가짜 해</b>를 만들 수 있습니다.<br><br>
+    좌변 &nbsp; <span class="m"><span class="rt">√</span>(25/9 − 1) = <span class="rt">√</span>(16/9) = </span><span class="fr"><i>4</i><i>3</i></span><br>
+    우변 &nbsp; <span class="m">3 − </span><span class="fr"><i>5</i><i>3</i></span><span class="m"> = </span><span class="fr"><i>4</i><i>3</i></span> ✓<br><br>
+    일치하므로 진짜 해입니다.</div></div></div>
+
+  <div class="q"><div class="qt"><i>19번 a·c·d</i>실수 해가 있는지 판정하고, 있으면 구하세요.<br>
+    a) <span class="m"><span class="rt">√</span>(x−2) = 3 + 2<span class="rt">√</span>x</span> &nbsp; c) <span class="m"><span class="rt">√</span>(x+3) = 1 + <span class="rt">√</span>x</span> &nbsp; d) <span class="m"><span class="rt">√</span>(x+3) = 1 − <span class="rt">√</span>x</span></div>
+    <button>답 보기</button><div class="sol">
+    <b>a)</b> 제곱하면<br>
+    <span class="m">x − 2 = 9 + 12<span class="rt">√</span>x + 4x</span><br>
+    <span class="m">−3x − 11 = 12<span class="rt">√</span>x</span><br>
+    <span class="rt">√</span>(x−2) 가 정의되려면 <span class="m">x ≥ 2</span> 이고, 그러면 좌변은 <b>음수</b>입니다. 우변은 <b>0 이상</b>이고요.<br>
+    <b>해 없음</b><br><br>
+    <b>c)</b> 제곱하면<br>
+    <span class="m">x + 3 = 1 + 2<span class="rt">√</span>x + x</span><br>
+    <span class="m">2 = 2<span class="rt">√</span>x</span> → <span class="m"><span class="rt">√</span>x = 1</span> → <span class="m">x = 1</span><br>
+    검산 &nbsp; <span class="m"><span class="rt">√</span>4 = 2</span> 이고 <span class="m">1 + <span class="rt">√</span>1 = 2</span> ✓<br>
+    <b>x = 1</b><br><br>
+    <b>d)</b> 제곱하면<br>
+    <span class="m">x + 3 = 1 − 2<span class="rt">√</span>x + x</span><br>
+    <span class="m">2 = −2<span class="rt">√</span>x</span> → <span class="m"><span class="rt">√</span>x = −1</span><br>
+    <span class="rt">√</span> 는 음수가 될 수 없으므로 <b>해 없음</b></div></div>
+
+  <div class="q"><div class="qt"><i>19번 e·f·b</i>e) <span class="m"><span class="rt">√</span>(x−4) = 3 + <span class="rt">√</span>x</span> &nbsp; f) <span class="m"><span class="rt">√</span>(x−4) = 3 − <span class="rt">√</span>x</span> &nbsp; b) <span class="m"><span class="rt">√</span>(x−2) = 3 − 2<span class="rt">√</span>x</span></div>
+    <button>답 보기</button><div class="sol">
+    <b>e)</b> 제곱하면<br>
+    <span class="m">x − 4 = 9 + 6<span class="rt">√</span>x + x</span><br>
+    <span class="m">−13 = 6<span class="rt">√</span>x</span> → <span class="rt">√</span>x 가 음수가 되어야 함<br>
+    <b>해 없음</b><br><br>
+    <b>f)</b> 제곱하면<br>
+    <span class="m">x − 4 = 9 − 6<span class="rt">√</span>x + x</span><br>
+    <span class="m">6<span class="rt">√</span>x = 13</span> → <span class="m"><span class="rt">√</span>x = </span><span class="fr"><i>13</i><i>6</i></span> → <span class="m">x = </span><span class="fr"><i>169</i><i>36</i></span><br>
+    검산 &nbsp; <span class="m"><span class="rt">√</span>(169/36 − 144/36) = <span class="rt">√</span>(25/36) = </span><span class="fr"><i>5</i><i>6</i></span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="m">3 − </span><span class="fr"><i>13</i><i>6</i></span><span class="m"> = </span><span class="fr"><i>5</i><i>6</i></span> ✓<br>
+    <b>x = </b><span class="fr"><i>169</i><i>36</i></span><br><br>
+    <b>b)</b> 계산이 가장 깁니다. 제곱하면<br>
+    <span class="m">x − 2 = 9 − 12<span class="rt">√</span>x + 4x</span><br>
+    <span class="m">3x + 11 = 12<span class="rt">√</span>x</span><br>
+    <b>한 번 더 제곱합니다.</b><br>
+    <span class="m">9x<sup>2</sup> + 66x + 121 = 144x</span><br>
+    <span class="m">9x<sup>2</sup> − 78x + 121 = 0</span><br>
+    근의 공식으로 <span class="m">x = </span><span class="fr"><i>13 ± 4<span class="rt">√</span>3</i><i>3</i></span><br><br>
+    <div class="cmt warn2"><span class="tt">둘 중 하나는 가짜입니다</span>
+    우변 <span class="m">3 − 2<span class="rt">√</span>x</span> 가 <b>0 이상</b>이어야 합니다. 좌변이 <span class="rt">√</span> 라서 음수가 될 수 없으니까요.<br><br>
+    그 조건은 <span class="m">x ≤ 9/4 = 2.25</span> 입니다.<br><br>
+    <span class="m">(13 + 4<span class="rt">√</span>3)/3 ≈ 6.64</span> → 조건 위반, <b>탈락</b><br>
+    <span class="m">(13 − 4<span class="rt">√</span>3)/3 ≈ 2.02</span> → 조건 만족, <b>채택</b></div>
+    <b>x = </b><span class="fr"><i>13 − 4<span class="rt">√</span>3</i><i>3</i></span></div></div>
+
+  <div class="q"><div class="qt"><i>20번</i><span class="m">a, b</span> 가 수일 때 <span class="m">|a − b| = |b − a|</span> 임을 증명하세요.</div>
+    <button>답 보기</button><div class="sol">
+    <b>정의로 돌아갑니다.</b><br>
+    <span class="m">|a − b| = <span class="rt">√</span>((a − b)<sup>2</sup>)</span><br>
+    <span class="m">|b − a| = <span class="rt">√</span>((b − a)<sup>2</sup>)</span><br><br>
+    <b>두 제곱이 같은지 봅니다.</b><br>
+    <span class="m">b − a = −(a − b)</span> 입니다.<br>
+    <span style="color:var(--mut);font-size:12.5px">1장 §2의 N5를 쓰면 <span class="m">−(a−b) = −a + b = b − a</span></span><br><br>
+    따라서<br>
+    <span class="m">(b − a)<sup>2</sup> = (−(a − b))<sup>2</sup> = (a − b)<sup>2</sup></span><br>
+    <span style="color:var(--mut);font-size:12.5px">N10에 의해 마이너스가 제곱되면서 사라집니다</span><br><br>
+    두 절댓값은 <b>같은 수의 제곱근</b>이고, <span class="rt">√</span> 는 유일하게 정해지므로 서로 같습니다 ∎
+    <div class="cmt good"><span class="tt">뜻으로 보면</span>
+    절댓값은 <b>두 점 사이의 거리</b>입니다. 서울에서 부산까지의 거리와 부산에서 서울까지의 거리가 같은 것과 마찬가지예요.<br><br>
+    이 사실은 <b>8장 §2 두 점 사이의 거리</b>에서 다시 쓰입니다.</div></div></div>
+</section>
+
+<section style="border-bottom:none">
+  <h3 style="margin-top:10px">§2 한눈에</h3>
+  <table>
+    <tr><th>항목</th><th>내용</th></tr>
+    <tr><td><b>POS 1</b></td><td><span class="m">a, b</span> 양수면 <span class="m">ab</span> 와 <span class="m">a+b</span> 도 양수</td></tr>
+    <tr><td><b>POS 2</b></td><td><span class="m">a</span> 양수 / <span class="m">a = 0</span> / <span class="m">−a</span> 양수 중 <b>정확히 하나</b></td></tr>
+    <tr><td>음수</td><td>양수도 0도 아닌 수</td></tr>
+    <tr><td>1은 양수</td><td>POS 1, POS 2로 <b>증명됨</b></td></tr>
+    <tr><td><b>제곱근 공리</b></td><td><span class="m">a > 0</span> 이면 <span class="m">b<sup>2</sup> = a</span> 인 <span class="m">b</span> 가 <b>존재</b> (가정)</td></tr>
+    <tr><td>해의 개수</td><td><span class="m">x<sup>2</sup> = a</span> 의 해는 <b>정확히 둘</b>, <span class="m">±<span class="rt">√</span>a</span></td></tr>
+    <tr><td>√ 약속</td><td><span class="m"><span class="rt">√</span>a</span> 는 <b>양수 쪽</b>만 가리킨다</td></tr>
+    <tr><td>절댓값</td><td><span class="m">|x| = <span class="rt">√</span>(x<sup>2</sup>)</span>, 0으로부터의 <b>거리</b></td></tr>
+    <tr><td>유리화</td><td><span class="m">(x+y)(x−y) = x<sup>2</sup> − y<sup>2</sup></span> 으로 루트를 없앤다</td></tr>
+  </table>
+  <div class="mine">
+    <span class="tag">마무리 · 이 절이 한 일</span>
+    <p><b>①</b> 규칙 두 개(POS 1, POS 2)를 얹어 §1의 Remark가 남긴 숙제를 풀었습니다. <span class="m">E</span>·<span class="m">I</span> 체계는 이제 탈락합니다.</p>
+    <p><b>②</b> 제곱근 공리로 <b>1장 §5의 구멍을 메웠습니다.</b> <span class="m"><span class="rt">√</span>2</span> 가 드디어 손에 들어왔어요.</p>
+    <p><b>③</b> 1장에서 만든 도구들이 여기서 대거 회수되었습니다.</p>
+    <table style="margin-top:8px">
+      <tr><th>쓰인 도구</th><th>어디서</th></tr>
+      <tr><td><span class="m">(−1)(−1) = 1</span></td><td>1이 양수임을 증명할 때</td></tr>
+      <tr><td><span class="m">(a+b)(a−b) = a<sup>2</sup>−b<sup>2</sup></span></td><td>해가 둘임을 증명할 때, 유리화할 때</td></tr>
+      <tr><td><span class="m">ab = 0 ⟹ a = 0</span> 또는 <span class="m">b = 0</span></td><td>해가 둘임을 증명할 때</td></tr>
+      <tr><td>§5 정리 4</td><td>연습 8번 분모가 0이 아님을 보일 때</td></tr>
+    </table>
+  </div>
+  <p style="color:var(--mut);font-size:13px">다음은 §3 거듭제곱과 근 (70쪽)입니다.</p>
+</section>
+
+<footer>
+  Serge Lang, <i>Basic Mathematics</i> (Addison-Wesley, 1971) 3장 §2 의 내용을 한국어로 재구성한 학습 노트입니다.
+  보라색 블록은 교재에 없는 보충 설명입니다. 원문 번역이 아니며, 정확한 표현은 교재를 참조하세요.
+</footer>
+</div>
+
+<script>
+const NS='http://www.w3.org/2000/svg';
+function el(t,a){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;}
+function tx(x,y,s,f,sz,an,fam){const e=el('text',{x:x,y:y,'text-anchor':an||'middle',
+  'font-family':fam||"-apple-system,sans-serif",'font-size':sz||12,fill:f});e.textContent=s;return e;}
+
+/* ══════ POS 2 삼분법 ══════ */
+function makePos2(host){
+  let v=24;   /* -60 .. 60  →  a = v/10 */
+  const sv=el('svg',{viewBox:'0 0 340 130',preserveAspectRatio:'xMidYMid meet'});
+  const ctl=document.createElement('div'); ctl.className='fctl';
+  const lbl=document.createElement('div'); lbl.className='lbl'; ctl.appendChild(lbl);
+  const rg=document.createElement('input'); rg.type='range'; rg.min=-60; rg.max=60; rg.step=1; rg.value=v;
+  rg.oninput=()=>{v=+rg.value; render();}; ctl.appendChild(rg);
+  host.appendChild(sv); host.appendChild(ctl);
+  const U=42, OX=170, OY=74;
+  const X=t=>OX+t*U;
+  function render(){
+    sv.innerHTML='';
+    const a=v/10;
+    /* 양수 영역 */
+    sv.appendChild(el('rect',{x:OX,y:OY-24,width:340-OX-8,height:48,fill:'rgba(255,201,60,.06)'}));
+    sv.appendChild(tx(OX+70,OY-32,'양수 영역','#8a7420',10.5));
+    sv.appendChild(el('line',{x1:10,y1:OY,x2:332,y2:OY,stroke:'#8d8d86','stroke-width':1.6}));
+    for(let t=-3;t<=3;t++){
+      sv.appendChild(el('line',{x1:X(t),y1:OY-6,x2:X(t),y2:OY+6,
+        stroke:t===0?'#ffc93c':'#8d8d86','stroke-width':t===0?2.4:1.2}));
+      sv.appendChild(tx(X(t),OY+21,String(t),t===0?'#ffc93c':'#8d8d86',11,'middle',"ui-monospace,monospace"));
+    }
+    const pa=X(a), pn=X(-a);
+    sv.appendChild(el('circle',{cx:pa,cy:OY,r:6.5,fill:'#6fa8dc'}));
+    sv.appendChild(tx(pa,OY-14,'a','#6fa8dc',14,'middle',"'Times New Roman',serif"));
+    if(Math.abs(a)>0.05){
+      sv.appendChild(el('circle',{cx:pn,cy:OY,r:5,fill:'none',stroke:'#ff6b4a','stroke-width':2}));
+      sv.appendChild(tx(pn,OY+40,'−a','#ff6b4a',13,'middle',"'Times New Roman',serif"));
+    }
+    let msg;
+    if(Math.abs(a)<0.05){
+      msg='<b style="color:var(--gold)">경우 ② &nbsp; a = 0</b><br>0 은 양수도 음수도 아닙니다.';
+    }else if(a>0){
+      msg='<b style="color:var(--blue)">경우 ① &nbsp; a 가 양수</b><br>a 는 0의 오른쪽, −a 는 왼쪽에 있습니다. <b>−a 는 양수가 아닙니다.</b>';
+    }else{
+      msg='<b style="color:var(--orange)">경우 ③ &nbsp; −a 가 양수</b><br>a 는 0의 왼쪽에 있으므로 <b>음수</b>입니다. 뒤집은 −a 가 오른쪽으로 갑니다.';
+    }
+    lbl.innerHTML='<b>a = '+(a.toFixed(1).replace('-','−'))+'</b><br>'+msg+
+      '<br><span style="font-size:11px">a 를 어디에 두어도 <b>세 경우 중 정확히 하나</b>만 성립합니다. 이것이 POS 2 입니다.</span>';
+  }
+  render();
+}
+
+/* ══════ x² = a 의 두 해 ══════ */
+function makePM(host){
+  let v=20;   /* a = v/10, 0.1 .. 9 */
+  const sv=el('svg',{viewBox:'0 0 340 130',preserveAspectRatio:'xMidYMid meet'});
+  const ctl=document.createElement('div'); ctl.className='fctl';
+  const lbl=document.createElement('div'); lbl.className='lbl'; ctl.appendChild(lbl);
+  const rg=document.createElement('input'); rg.type='range'; rg.min=1; rg.max=90; rg.step=1; rg.value=v;
+  rg.oninput=()=>{v=+rg.value; render();}; ctl.appendChild(rg);
+  host.appendChild(sv); host.appendChild(ctl);
+  const U=48, OX=170, OY=76;
+  const X=t=>OX+t*U;
+  function render(){
+    sv.innerHTML='';
+    const a=v/10, r=Math.sqrt(a);
+    sv.appendChild(el('line',{x1:10,y1:OY,x2:332,y2:OY,stroke:'#8d8d86','stroke-width':1.6}));
+    for(let t=-3;t<=3;t++){
+      sv.appendChild(el('line',{x1:X(t),y1:OY-6,x2:X(t),y2:OY+6,
+        stroke:t===0?'#ffc93c':'#8d8d86','stroke-width':t===0?2.4:1.2}));
+      sv.appendChild(tx(X(t),OY+21,String(t),t===0?'#ffc93c':'#8d8d86',11,'middle',"ui-monospace,monospace"));
+    }
+    /* 대칭 표시 */
+    sv.appendChild(el('line',{x1:X(-r),y1:OY-26,x2:X(r),y2:OY-26,
+      stroke:'#4a4a52','stroke-width':1,'stroke-dasharray':'4 3'}));
+    sv.appendChild(el('line',{x1:X(0),y1:OY-32,x2:X(0),y2:OY-20,stroke:'#ffc93c','stroke-width':1.4}));
+    sv.appendChild(el('circle',{cx:X(r),cy:OY,r:6.5,fill:'#6ec98a'}));
+    sv.appendChild(el('circle',{cx:X(-r),cy:OY,r:6.5,fill:'#ff6b4a'}));
+    sv.appendChild(tx(X(r),OY-40,'√a','#6ec98a',14,'middle',"'Times New Roman',serif"));
+    sv.appendChild(tx(X(-r),OY-40,'−√a','#ff6b4a',14,'middle',"'Times New Roman',serif"));
+    sv.appendChild(tx(X(r),OY+38,r.toFixed(3),'#6ec98a',10.5,'middle',"ui-monospace,monospace"));
+    sv.appendChild(tx(X(-r),OY+38,'−'+r.toFixed(3),'#ff6b4a',10.5,'middle',"ui-monospace,monospace"));
+    lbl.innerHTML='<b>x² = '+a.toFixed(1)+'</b> 의 해는 두 개입니다.<br>'+
+      '<span style="color:var(--green)">√'+a.toFixed(1)+' ≈ '+r.toFixed(4)+'</span> &nbsp;와&nbsp; '+
+      '<span style="color:var(--orange)">−√'+a.toFixed(1)+' ≈ −'+r.toFixed(4)+'</span><br>'+
+      '<span style="font-size:11px">두 해는 <b>0을 기준으로 대칭</b>입니다. 0으로부터의 거리가 같고 방향만 반대예요. '+
+      '그래서 <b>절댓값이 같습니다.</b></span>';
+  }
+  render();
+}
+
+document.querySelectorAll('.fig').forEach(f=>{
+  if(f.dataset.fig==='pos2') makePos2(f);
+  else if(f.dataset.fig==='pm') makePM(f);
+});
+
+/* ══════ 유리화 단계 실행기 ══════ */
+(function(){
+  const stage=document.getElementById('rStage'), cnt=document.getElementById('rCount');
+  let mode=0, i=0;
+  const A=[
+   {t:'STEP 1 · 주어진 몫', eq:['3 / (2 + √5)'],
+    c:'분모에 루트가 있습니다. 이것을 유리수로 바꾸는 것이 목표입니다.'},
+   {t:'STEP 2 · 무엇을 곱할까', eq:['(2 − √5) / (2 − √5)'],
+    c:'분모가 2 + √5 이므로 부호를 뒤집은 2 − √5 를 곱합니다. 분자와 분모에 같은 것을 곱하므로 값은 변하지 않습니다.'},
+   {t:'STEP 3 · 분모 계산', eq:['(2 + √5)(2 − √5)','= 2² − (√5)²'],
+    c:'공식 (x+y)(x−y) = x² − y² 를 씁니다. 여기서 x = 2, y = √5 입니다.'},
+   {t:'STEP 4 · 루트가 사라진다', eq:['= 4 − 5 = −1'],
+    c:'(√5)² = 5 이므로 루트가 없어졌습니다. 분모가 유리수가 되었습니다.'},
+   {t:'STEP 5 · 분자 계산', eq:['3(2 − √5) = 6 − 3√5'],
+    c:'분배법칙으로 3을 두 항에 각각 곱했습니다.'},
+   {t:'STEP 6 · 정리', eq:['(6 − 3√5) / (−1)','= −6 + 3√5'], ok:1,
+    c:'분모가 −1 이므로 분자의 부호를 뒤집으면 끝입니다. 분모에 루트가 없어졌습니다.'}
+  ];
+  const B=[
+   {t:'STEP 1 · 주어진 몫', eq:['(√(x+h) − √x) / h'],
+    c:'이번엔 분자에 루트가 있습니다. 분자를 유리수로 만드는 것이 목표입니다.'},
+   {t:'STEP 2 · 무엇을 곱할까', eq:['(√(x+h) + √x) / (√(x+h) + √x)'],
+    c:'분자가 뺄셈이므로 덧셈으로 뒤집은 것을 곱합니다. 값은 변하지 않습니다.'},
+   {t:'STEP 3 · 분자 계산', eq:['(√(x+h))² − (√x)²','= (x + h) − x'],
+    c:'같은 공식 (x+y)(x−y) = x² − y² 입니다. 제곱하면 루트가 사라집니다.'},
+   {t:'STEP 4 · 분자가 h 로 줄었다', eq:['= h'],
+    c:'x 와 −x 가 서로 지워지고 h 만 남았습니다.'},
+   {t:'STEP 5 · 분모는 그대로', eq:['h(√(x+h) + √x)'],
+    c:'원래 분모 h 에 곱한 것이 그대로 붙어 있습니다.'},
+   {t:'STEP 6 · h 를 약분', eq:['h / [h(√(x+h) + √x)]','= 1 / (√(x+h) + √x)'], ok:1,
+    c:'분자와 분모의 h 가 약분됩니다. 이 h 가 사라진 것이 미적분에서 결정적으로 중요합니다.'}
+  ];
+  function cur(){return mode?B:A;}
+  function draw(){
+    const s=cur()[i];
+    let h='<div class="stp">'+s.t+'</div><div class="eq2">';
+    s.eq.forEach(e=>{h+=e+'<br>';});
+    h+='</div><div class="cmt'+(s.ok?' good':' step')+'"><span class="tt">설명</span>'+s.c+'</div>';
+    stage.innerHTML=h;
+    cnt.textContent=(i+1)+' / '+cur().length;
+    document.getElementById('rPrev').disabled=(i===0);
+    document.getElementById('rNext').disabled=(i===cur().length-1);
+  }
+  document.getElementById('rNext').onclick=()=>{if(i<cur().length-1){i++;draw();}};
+  document.getElementById('rPrev').onclick=()=>{if(i>0){i--;draw();}};
+  document.getElementById('rReset').onclick=()=>{i=0;draw();};
+  document.getElementById('rMode').onclick=e=>{
+    mode=1-mode; i=0; e.target.textContent=mode?'첫 번째 예제로':'두 번째 예제로'; draw();};
+  draw();
+})();
+
+document.querySelectorAll('.pline .why').forEach(b=>{
+  b.onclick=()=>{const a=b.closest('.pline').querySelector('.ans');
+    const on=a.classList.toggle('on'); b.classList.toggle('on',on); b.textContent=on?'닫기':'왜?';};
+});
+document.querySelectorAll('.q > button').forEach(b=>{
+  b.onclick=()=>{const s=b.nextElementSibling;
+    const on=s.classList.toggle('on'); b.textContent=on?'접기':'답 보기';};
+});
+const bar=document.getElementById('bar');
+const links=[...document.querySelectorAll('.nv a')];
+const targets=links.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+function onScroll(){const h=document.documentElement;
+  bar.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+  let idx=0; targets.forEach((t,i)=>{if(t.getBoundingClientRect().top<=90) idx=i;});
+  links.forEach((a,i)=>a.classList.toggle('on',i===idx));}
+addEventListener('scroll',onScroll,{passive:true}); onScroll();
+</script>
+</body>
+</html>
