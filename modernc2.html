@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<!-- ↑ 이 문서는 HTML5 형식으로 작성되었음을 브라우저에 알려줍니다. -->
+
+<html lang="ko">
+<!-- ↑ lang="ko"는 이 문서의 주 언어가 한국어임을 의미합니다. -->
+
+<head>
+    <!-- ↑ head 태그 안에는 화면에 직접 보이지 않는 문서의 설정 정보가 들어갑니다. -->
+    <meta charset="UTF-8">
+    <!-- ↑ 글자가 깨지지 않도록 UTF-8 인코딩을 사용합니다. -->
+    
+    <!-- ★★★ 모바일 최적화의 핵심 코드 ★★★ -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ↑ 이 코드가 있어야 아이폰, 갤럭시 등 모바일 기기에서 화면 크기에 맞게 자동으로 조절됩니다. -->
+    
+    <title>Chapter 2.2: The General Form of a Simple Program</title>
+    <!-- ↑ 브라우저 탭에 표시될 제목입니다. -->
+
+    <style>
+        /* =========================================================
+           여기서부터는 CSS(디자인) 코드입니다. 
+           모바일 화면(아이폰 17 프로 맥스 등)에 최적화되도록 작성했습니다.
+           ========================================================= */
+        
+        /* 1. 전체 기본 설정 */
+        body {
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; /* 한글 폰트 설정 */
+            line-height: 1.8; /* 줄 간격을 넓혀 가독성을 높입니다 */
+            color: #333; /* 글자색을 진한 회색으로 설정 */
+            background-color: #f4f6f8; /* 배경색을 아주 연한 회색으로 설정 */
+            margin: 0;
+            padding: 0;
+            /* 모바일에서 폰트가 너무 작아지지 않도록 기본 크기 설정 */
+            -webkit-text-size-adjust: 100%; 
+        }
+
+        /* 2. 콘텐츠를 감싸는 컨테이너 (모바일 최적화) */
+        .container {
+            max-width: 800px; /* PC에서는 최대 800px까지만 넓어짐 */
+            margin: 0 auto; /* 위아래 여백 없이 가운데 정렬 */
+            background-color: #ffffff; /* 콘텐츠 배경은 흰색 */
+            padding: 20px; /* 모바일에서는 여백을 줄임 (PC에선 미디어 쿼리로 늘림) */
+            border-radius: 0; /* 모바일에서는 모서리를 둥글게 하지 않음 (화면 꽉 차게) */
+            box-shadow: none; 
+        }
+
+        /* ★★★ 미디어 쿼리: 화면 너비가 600px 이상일 때 (PC나 태블릿) ★★★ */
+        @media (min-width: 600px) {
+            .container {
+                margin: 40px auto; /* 위아래 여백을 주고 가운데 정렬 */
+                padding: 50px; /* 내부 여백을 넓힘 */
+                border-radius: 12px; /* 모서리를 둥글게 깎음 */
+                box-shadow: 0 10px 30px rgba(0,0,0,0.08); /* 그림자를 넣어 입체감 부여 */
+            }
+        }
+
+        /* 3. 제목 스타일 */
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            border-bottom: 4px solid #3498db; /* 제목 아래 파란색 밑줄 */
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 1.5em; /* 모바일에서 제목 크기 조정 */
+        }
+        h2 {
+            color: #2980b9;
+            margin-top: 40px;
+            border-left: 5px solid #2980b9;
+            padding-left: 15px;
+            font-size: 1.3em;
+        }
+        h3 {
+            color: #34495e;
+            margin-top: 30px;
+            font-size: 1.1em;
+        }
+
+        /* 4. 코드 블록 스타일 (모바일에서 가로 스크롤 가능하게) */
+        pre {
+            background-color: #282c34; /* 어두운 배경 */
+            color: #abb2bf; /* 밝은 회색 글씨 */
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto; /* ★ 코드가 길면 가로 스크롤 생성 (모바일 필수) */
+            font-family: 'Consolas', 'Courier New', monospace; /* 고정폭 글꼴 */
+            font-size: 14px;
+            line-height: 1.5;
+            /* 모바일에서 코드가 화면 밖으로 튀어나가지 않도록 설정 */
+            word-wrap: normal; 
+            -webkit-overflow-scrolling: touch; /* 아이폰에서 부드러운 스크롤 */
+        }
+        
+        /* 인라인 코드 (문장 중간에 들어가는 코드) */
+        .inline-code {
+            background-color: #e8f0fe;
+            color: #d63384;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.95em;
+            word-break: break-all; /* 긴 코드가 줄바꿈 되도록 설정 */
+        }
+
+        /* 5. 설명 박스 스타일 */
+        .info-box {
+            background-color: #e8f4fd;
+            border-left: 5px solid #3498db;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .warning-box {
+            background-color: #fff3cd;
+            border-left: 5px solid #f1c40f;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* 6. SVG 그래픽 중앙 정렬 (모바일 최적화) */
+        .svg-container {
+            text-align: center;
+            margin: 30px 0;
+            padding: 10px;
+            background-color: #fafafa;
+            border-radius: 10px;
+            border: 1px dashed #ddd;
+            /* SVG가 컨테이너 크기에 맞춰지도록 설정 */
+            overflow: hidden; 
+        }
+        
+        /* SVG 태그 자체의 스타일 (반응형) */
+        .svg-container svg {
+            width: 100%; /* 컨테이너 너비에 맞춤 */
+            height: auto; /* 비율 유지 */
+            max-width: 600px; /* 최대 크기 제한 */
+        }
+
+        /* 7. 요약 및 문제 박스 스타일 */
+        .summary-box {
+            background-color: #e8f8f5;
+            border: 1px solid #1abc9c;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 40px;
+        }
+        .exercise-box {
+            background-color: #fdedec;
+            border: 1px solid #e74c3c;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .exercise-box ol {
+            padding-left: 20px;
+        }
+        .exercise-box li {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+<!-- ↑ body 태그 안에는 실제로 화면에 보이는 모든 내용이 들어갑니다. -->
+
+    <div class="container">
+        <!-- ↓ 메인 제목 -->
+        <h1>Chapter 2: C Fundamentals</h1>
+        
+        <!-- ========================================== -->
+        <!-- Section 2.2 시작 -->
+        <!-- ========================================== -->
+        <h2>2.2 The General Form of a Simple Program (간단한 프로그램의 일반적인 형태)</h2>
+        
+        <p>이제 <code class="inline-code">pun.c</code>를 자세히 살펴보고, 이를 조금 일반화해 보겠습니다. 간단한 C 프로그램은 다음과 같은 형태를 가집니다.</p>
+
+        <!-- 프로그램의 기본 구조를 보여주는 코드 블록 -->
+        <pre><code>directives (지시어)
+
+int main(void)
+{
+    statements (명령문)
+}</code></pre>
+
+        <p>이 템플릿(그리고 이 책의 다른 곳에 있는 유사한 템플릿)에서 Courier 글꼴로 인쇄된 항목은 C 프로그램에 표시된 그대로 나타납니다. 이탤릭체로 된 항목은 프로그래머가 제공해야 하는 텍스트를 나타냅니다.</p>
+        
+        <p>중괄호가 <code class="inline-code">main</code>이 시작하고 끝나는 위치를 보여주는 방식을 주목하세요. C는 다른 언어에서 <code class="inline-code">begin</code>과 <code class="inline-code">end</code>와 같은 단어를 사용하는 것과 거의 같은 방식으로 <code class="inline-code">{</code>와 <code class="inline-code">}</code>를 사용합니다. 이는 C에 대한 일반적인 점을 보여줍니다. C는 약어와 특수 기호에 크게 의존하며, 이는 C 프로그램이 간결하거나(좋게 말하면) 난해한 이유 중 하나입니다.</p>
+
+        <p>가장 간단한 C 프로그램조차도 세 가지 핵심 언어 기능에 의존합니다. <strong>지시어(Directives)</strong>(컴파일 전에 프로그램을 수정하는 편집 명령), <strong>함수(Functions)</strong>(실행 가능한 코드 블록으로, <code class="inline-code">main</code>이 그 예입니다), 그리고 <strong>명령문(Statements)</strong>(프로그램이 실행될 때 수행되는 명령)입니다. 이제 이러한 기능들을 자세히 살펴보겠습니다.</p>
+
+        <h3>Directives (지시어)</h3>
+        <p>C 프로그램이 컴파일되기 전에 먼저 전처리기에 의해 편집됩니다. 전처리기를 위한 명령을 <strong>지시어(Directives)</strong>라고 합니다. 14장과 15장에서 지시어를 자세히 다룹니다. 지금은 <code class="inline-code">#include</code> 지시어에만 관심이 있습니다.</p>
+        
+        <p><code class="inline-code">pun.c</code> 프로그램은 다음과 같은 줄로 시작합니다.</p>
+        <pre><code>#include &lt;stdio.h&gt;</code></pre>
+        
+        <p>이 지시어는 <code class="inline-code">&lt;stdio.h&gt;</code>의 정보가 컴파일되기 전에 프로그램에 "포함(include)"되어야 함을 나타냅니다. <code class="inline-code">&lt;stdio.h&gt;</code>에는 C의 표준 I/O 라이브러리에 대한 정보가 포함되어 있습니다. C에는 <code class="inline-code">&lt;stdio.h&gt;</code>와 같은 여러 헤더가 있으며, 각각은 표준 라이브러리의 일부에 대한 정보를 포함합니다. <code class="inline-code">&lt;stdio.h&gt;</code>를 포함하는 이유는 C가 일부 프로그래밍 언어와 달리 내장된 "읽기" 및 "쓰기" 명령이 없기 때문입니다. 대신 입출력을 수행하는 기능은 표준 라이브러리의 함수에 의해 제공됩니다.</p>
+        
+        <p>지시어는 항상 <code class="inline-code">#</code> 문자로 시작하며, 이는 C 프로그램의 다른 항목과 구별됩니다. 기본적으로 지시어는 한 줄 길이이며, 끝에 세미콜론이나 기타 특수 표시가 없습니다.</p>
+
+        <h3>Functions (함수)</h3>
+        <p>함수는 다른 프로그래밍 언어의 "프로시저(procedure)"나 "서브루틴(subroutine)"과 같습니다. 함수는 프로그램을 구성하는 빌딩 블록입니다. 실제로 C 프로그램은 함수의 집합에 불과합니다. 함수는 프로그래머가 작성한 함수와 C 구현의 일부로 제공되는 함수의 두 가지 범주로 나뉩니다. 후자는 컴파일러와 함께 제공되는 함수 "라이브러리"에 속하므로 <strong>라이브러리 함수(library functions)</strong>라고 부르겠습니다.</p>
+        
+        <p>"함수(function)"라는 용어는 수학에서 유래했으며, 수학에서 함수는 하나 이상의 인수(argument)가 주어졌을 때 값을 계산하는 규칙입니다. C는 "함수"라는 용어를 더 느슨하게 사용합니다. C에서 함수는 단순히 함께 그룹화되고 이름이 지정된 일련의 명령문입니다. 일부 함수는 값을 계산하고, 일부는 계산하지 않습니다. 값을 계산하는 함수는 <code class="inline-code">return</code> 문을 사용하여 "반환(return)"할 값을 지정합니다. 예를 들어, 인수에 1을 더하는 함수는 다음과 같은 명령문을 실행할 수 있습니다.</p>
+        <pre><code>return x + 1;</code></pre>
+        <p>반면에 인수의 제곱의 차이를 계산하는 함수는 다음과 같은 명령문을 실행할 수 있습니다.</p>
+        <pre><code>return y * y - z * z;</code></pre>
+        
+        <p>C 프로그램은 많은 함수로 구성될 수 있지만 <code class="inline-code">main</code> 함수만 필수입니다. <code class="inline-code">main</code>은 특별합니다. 프로그램이 실행될 때 자동으로 호출됩니다. 다른 함수를 작성하는 방법을 배우게 될 9장까지는 <code class="inline-code">main</code>이 프로그램의 유일한 함수가 될 것입니다.</p>
+        
+        <div class="info-box">
+            <strong>중요:</strong> <code class="inline-code">main</code>이라는 이름은 매우 중요합니다. <code class="inline-code">begin</code>이나 <code class="inline-code">start</code>, 심지어 <code class="inline-code">MAIN</code>도 될 수 없습니다.
+        </div>
+
+        <p>만약 <code class="inline-code">main</code>이 함수라면, 값을 반환할까요? 네. 프로그램이 종료될 때 운영체제에 제공되는 상태 코드(status code)를 반환합니다. <code class="inline-code">pun.c</code> 프로그램을 다시 살펴보겠습니다.</p>
+        
+        <pre><code>#include &lt;stdio.h&gt;
+
+int main(void)
+{
+    printf("To C, or not to C: that is the question.\n");
+    return 0;
+}</code></pre>
+
+        <p><code class="inline-code">main</code> 바로 앞의 <code class="inline-code">int</code>라는 단어는 <code class="inline-code">main</code> 함수가 정수(integer) 값을 반환함을 나타냅니다. 괄호 안의 <code class="inline-code">void</code>라는 단어는 <code class="inline-code">main</code>에 인수(argument)가 없음을 나타냅니다.</p>
+        
+        <p>다음 명령문은 두 가지 효과가 있습니다. <code class="inline-code">main</code> 함수를 종료시키고(따라서 프로그램을 종료함), <code class="inline-code">main</code> 함수가 0의 값을 반환함을 나타냅니다. <code class="inline-code">main</code>의 반환 값에 대해서는 나중 장에서 더 자세히 다룰 것입니다. 지금은 항상 <code class="inline-code">main</code>이 0을 반환하도록 할 것입니다. 이는 정상적인 프로그램 종료를 나타냅니다.</p>
+        
+        <p><code class="inline-code">main</code> 함수의 끝에 <code class="inline-code">return</code> 문이 없더라도 프로그램은 여전히 종료됩니다. 그러나 많은 컴파일러는 경고 메시지를 생성할 것입니다. (함수가 정수를 반환해야 하는데 반환하지 않았기 때문입니다.)</p>
+
+        <h3>Statements (명령문)</h3>
+        <p><strong>명령문(Statement)</strong>은 프로그램이 실행될 때 실행되는 명령입니다. 명령문은 나중에(주로 5장과 6장에서) 자세히 살펴볼 것입니다. <code class="inline-code">pun.c</code> 프로그램은 두 종류의 명령문만 사용합니다. 하나는 <code class="inline-code">return</code> 문이고, 다른 하나는 함수 호출(function call)입니다. 함수에게 할당된 작업을 수행하도록 요청하는 것을 함수 <strong>호출(calling)</strong>이라고 합니다. 예를 들어 <code class="inline-code">pun.c</code> 프로그램은 <code class="inline-code">printf</code> 함수를 호출하여 화면에 문자열을 표시합니다.</p>
+        
+        <pre><code>printf("To C, or not to C: that is the question.\n");</code></pre>
+        
+        <p>C는 각 명령문이 세미콜론(<code class="inline-code">;</code>)으로 끝나야 합니다. (좋은 규칙에는 항상 예외가 있듯이, 나중에 보게 될 복합문(compound statement)은 예외입니다.) 세미콜론은 컴파일러에게 명령문이 어디서 끝나는지 보여줍니다. 명령문은 여러 줄에 걸쳐 계속될 수 있기 때문에 끝나는 위치가 항상 명확하지는 않습니다. 반면에 지시어는 보통 한 줄 길이이며 세미콜론으로 끝나지 않습니다.</p>
+
+        <h3>Printing Strings (문자열 출력)</h3>
+        <p><code class="inline-code">printf</code>는 3장에서 살펴볼 강력한 함수입니다. 지금까지 우리는 <code class="inline-code">printf</code>를 사용하여 큰따옴표로 둘러싸인 일련의 문자인 <strong>문자열 리터럴(string literal)</strong>을 표시했습니다. <code class="inline-code">printf</code>가 문자열 리터럴을 표시할 때 따옴표는 표시하지 않습니다.</p>
+        
+        <p><code class="inline-code">printf</code>는 출력이 끝났을 때 자동으로 다음 출력 줄로 이동하지 않습니다. <code class="inline-code">printf</code>에게 한 줄 앞으로 이동하라고 지시하려면 인쇄할 문자열에 <code class="inline-code">\n</code>(<strong>개행 문자(new-line character)</strong>)을 포함해야 합니다. 개행 문자를 쓰면 현재 출력 줄이 종료되고, 이후 출력은 다음 줄로 이동합니다. 이 점을 설명하기 위해 다음 명령문을 두 개의 <code class="inline-code">printf</code> 호출로 바꾸면 어떤 효과가 있는지 살펴보겠습니다.</p>
+        
+        <pre><code>printf("To C, or not to C: ");
+printf("that is the question.\n");</code></pre>
+        
+        <p>첫 번째 <code class="inline-code">printf</code> 호출은 <code class="inline-code">To C, or not to C: </code>를 씁니다. 두 번째 호출은 <code class="inline-code">that is the question.</code>을 쓰고 다음 줄로 이동합니다. 최종 결과는 원래의 <code class="inline-code">printf</code>와 같으며, 사용자는 차이를 느낄 수 없습니다.</p>
+        
+        <p>개행 문자는 문자열 리터럴에 두 번 이상 나타날 수 있습니다. 다음 메시지를 표시하려면</p>
+        <pre><code>Brevity is the soul of wit.
+-- Shakespeare</code></pre>
+        <p>다음과 같이 작성할 수 있습니다.</p>
+        <pre><code>printf("Brevity is the soul of wit.\n-- Shakespeare\n");</code></pre>
+
+        <!-- ========================================== -->
+        <!-- SVG 다이어그램: main 함수의 구조 -->
+        <!-- ========================================== -->
+        <div class="svg-container">
+            <!-- SVG는 웹에서 벡터 이미지를 그리는 언어입니다. viewBox를 통해 모바일에서도 비율이 유지됩니다. -->
+            <svg viewBox="0 0 600 250" xmlns="http://www.w3.org/2000/svg">
+                <!-- 1. Directives 영역 -->
+                <rect x="50" y="20" width="500" height="40" rx="8" fill="#e8f4fd" stroke="#3498db" stroke-width="2"/>
+                <text x="300" y="45" font-size="18" text-anchor="middle" fill="#2980b9" font-weight="bold">Directives (지시어) - 예: #include &lt;stdio.h&gt;</text>
+                
+                <!-- 2. main 함수 선언부 -->
+                <rect x="50" y="80" width="500" height="40" rx="8" fill="#fff3cd" stroke="#f1c40f" stroke-width="2"/>
+                <text x="300" y="105" font-size="18" text-anchor="middle" fill="#f39c12" font-weight="bold">int main(void) - 함수 선언부</text>
+                
+                <!-- 3. 중괄호 시작 -->
+                <text x="60" y="150" font-size="24" fill="#2c3e50" font-weight="bold">{</text>
+                
+                <!-- 4. Statements 영역 -->
+                <rect x="100" y="140" width="400" height="40" rx="8" fill="#e8f8f5" stroke="#1abc9c" stroke-width="2"/>
+                <text x="300" y="165" font-size="18" text-anchor="middle" fill="#16a085" font-weight="bold">Statements (명령문) - 예: printf(...);</text>
+                
+                <!-- 5. 중괄호 끝 -->
+                <text x="60" y="210" font-size="24" fill="#2c3e50" font-weight="bold">}</text>
+                
+                <!-- 화살표 (프로그램의 흐름) -->
+                <defs>
+                    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                        <path d="M0,0 L0,6 L9,3 z" fill="#7f8c8d" />
+                    </marker>
+                </defs>
+                <line x1="300" y1="60" x2="300" y2="80" stroke="#7f8c8d" stroke-width="3" marker-end="url(#arrow)"/>
+                <line x1="300" y1="120" x2="300" y2="140" stroke="#7f8c8d" stroke-width="3" marker-end="url(#arrow)"/>
+            </svg>
+            <p style="font-size: 0.9em; color: #7f8c8d; margin-top: 10px;">▲ C 프로그램의 기본 구조 (Directives → main 함수 → Statements)</p>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- Section 2.2 요약 및 문제 -->
+        <!-- ========================================== -->
+        <div class="summary-box">
+            <h3>📝 Section 2.2 Summary (써머리)</h3>
+            <ul>
+                <li>C 프로그램의 기본 형태는 <strong>지시어(Directives)</strong>, <strong>main 함수</strong>, 그리고 <strong>명령문(Statements)</strong>으로 구성됩니다.</li>
+                <li>지시어는 <code class="inline-code">#</code>으로 시작하며, 전처리기가 처리합니다. (<code class="inline-code">#include &lt;stdio.h&gt;</code>는 표준 입출력 라이브러리를 포함시킵니다.)</li>
+                <li><code class="inline-code">main</code>은 프로그램의 시작점이며, <code class="inline-code">int</code>를 반환하고 <code class="inline-code">void</code> 인수를 받습니다. <code class="inline-code">return 0;</code>은 정상 종료를 의미합니다.</li>
+                <li>명령문은 세미콜론(<code class="inline-code">;</code>)으로 끝나며, <code class="inline-code">printf</code>는 문자열 리터럴을 출력하는 함수입니다.</li>
+                <li><code class="inline-code">\n</code>은 개행 문자로, 출력 위치를 다음 줄로 이동시킵니다.</li>
+            </ul>
+        </div>
+
+        <div class="exercise-box">
+            <h3>✍️ Section 2.2 Exercises (문제)</h3>
+            <ol>
+                <li>C 프로그램에서 지시어(Directive)는 어떤 문자로 시작하며, 누가 처리하나요?</li>
+                <li><code class="inline-code">main</code> 함수 앞에 있는 <code class="inline-code">int</code>와 괄호 안의 <code class="inline-code">void</code>는 각각 무엇을 의미하나요?</li>
+                <li>다음 중 C 프로그램에서 명령문(Statement)의 끝을 나타내는 기호는 무엇인가요?
+                    <br>(a) 콜론(:)
+                    <br>(b) 세미콜론(;)
+                    <br>(c) 마침표(.)
+                </li>
+                <li><code class="inline-code">printf</code> 함수에서 <code class="inline-code">\n</code>의 역할은 무엇이며, <code class="inline-code">printf</code>가 자동으로 줄바꿈을 해주지 않는 이유는 무엇일까요?</li>
+            </ol>
+        </div>
+
+    </div>
+</body>
+</html>
