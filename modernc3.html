@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<!-- ↑ 이 문서는 HTML5 형식으로 작성되었음을 브라우저에 알려줍니다. -->
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <!-- 모바일(아이폰 등) 최적화를 위한 메타 태그 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 2.5 - 2.6: Input & Constants</title>
+
+    <style>
+        /* =========================================================
+           매트릭스 테마 CSS (검정 배경, 네온 초록 글씨)
+           ========================================================= */
+        body {
+            font-family: 'Consolas', 'Courier New', 'Fira Code', monospace;
+            line-height: 1.7;
+            color: #00ff41; /* 네온 초록색 글씨 */
+            background-color: #000000; /* 완전 검정 배경 */
+            margin: 0;
+            padding: 0;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 15px;
+            background-color: #0a0a0a;
+            border-left: 1px solid #003300;
+            border-right: 1px solid #003300;
+        }
+
+        @media (min-width: 600px) {
+            .container {
+                margin: 40px auto;
+                padding: 40px;
+                border: 1px solid #00ff41;
+                border-radius: 10px;
+                box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+            }
+        }
+
+        /* 제목 스타일 */
+        h1, h2, h3 {
+            color: #00ff41;
+            text-shadow: 0 0 8px rgba(0, 255, 65, 0.8);
+            font-weight: bold;
+        }
+        h1 {
+            text-align: center;
+            border-bottom: 2px dashed #00ff41;
+            padding-bottom: 10px;
+            font-size: 1.5em;
+        }
+        h2 {
+            margin-top: 40px;
+            border-left: 4px solid #00ff41;
+            padding-left: 10px;
+            font-size: 1.3em;
+        }
+        h3 {
+            margin-top: 30px;
+            font-size: 1.1em;
+            color: #aaffaa;
+        }
+
+        /* 코드 블록 스타일 */
+        pre {
+            background-color: #050505;
+            border: 1px solid #005511;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto; /* 모바일 가로 스크롤 */
+            color: #00ff41;
+            font-size: 14px;
+        }
+        
+        /* 인라인 코드 */
+        .inline-code {
+            background-color: #111;
+            color: #00ff41;
+            border: 1px solid #003300;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 0.95em;
+            word-break: break-all;
+        }
+
+        /* =========================================================
+           ★★★ 형광펜 효과 (하이라이트) ★★★
+           ========================================================= */
+        .highlight {
+            background-color: rgba(0, 255, 65, 0.2); /* 반투명한 네온 초록 배경 */
+            color: #ffffff; /* 글씨는 하얗게 만들어 대비를 줌 */
+            padding: 2px 4px;
+            border-radius: 3px;
+            border-bottom: 2px solid #00ff41; /* 밑줄 강조 */
+            text-shadow: 0 0 5px #00ff41; /* 글씨 주변에 빛 번짐 */
+            font-weight: bold;
+        }
+
+        /* 설명 박스 */
+        .info-box {
+            background-color: #001a00;
+            border: 1px solid #00ff41;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .warning-box {
+            background-color: #1a1a00;
+            border: 1px solid #ffff00;
+            color: #ffff00;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .warning-box strong { color: #ffff00; text-shadow: 0 0 5px #ffff00; }
+
+        /* SVG 컨테이너 */
+        .svg-container {
+            text-align: center;
+            margin: 30px 0;
+            padding: 10px;
+            border: 1px dashed #005511;
+        }
+        .svg-container svg {
+            width: 100%;
+            height: auto;
+            max-width: 600px;
+        }
+
+        /* 요약 및 문제 박스 */
+        .summary-box {
+            background-color: #001a00;
+            border: 1px solid #00ff41;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 40px;
+        }
+        .exercise-box {
+            background-color: #0a0a0a;
+            border: 1px solid #00ff41;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .exercise-box ol { padding-left: 20px; }
+        .exercise-box li { margin-bottom: 15px; }
+
+        /* 하이라이트 총정리 박스 (마지막 전용) */
+        .highlight-summary-box {
+            background-color: #002200;
+            border: 2px solid #00ff41;
+            padding: 25px;
+            border-radius: 8px;
+            margin-top: 50px;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.4);
+        }
+        .highlight-summary-box h2 {
+            border-left: none;
+            text-align: center;
+            border-bottom: 2px solid #00ff41;
+            padding-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Chapter 2: C Fundamentals</h1>
+
+        <!-- ========================================== -->
+        <!-- Section 2.5 시작 -->
+        <!-- ========================================== -->
+        <h2>2.5 Reading Input (입력 읽기)</h2>
+        
+        <p><code class="inline-code">dweight.c</code> 프로그램은 단 하나의 상자의 부피 무게만 계산하기 때문에 그다지 유용하지 않습니다. 프로그램을 개선하려면 사용자가 치수를 입력할 수 있도록 해야 합니다.</p>
+        
+        <p>입력을 얻기 위해 우리는 <code class="inline-code">printf</code>의 C 라이브러리 대응물인 <strong><code class="inline-code">scanf</code> 함수</strong>를 사용할 것입니다. <code class="inline-code">printf</code>의 f와 마찬가지로 <code class="inline-code">scanf</code>의 f도 "형식화된(formatted)"를 의미합니다. <code class="inline-code">scanf</code>와 <code class="inline-code">printf</code> 모두 입력 또는 출력 데이터의 모양을 지정하기 위해 형식 문자열(format string)을 사용해야 합니다. <code class="inline-code">printf</code>가 출력 데이터를 표시하는 방법을 알아야 하는 것처럼, <code class="inline-code">scanf</code>는 입력 데이터가 어떤 형태로 들어올지 알아야 합니다.</p>
+        
+        <p><code class="inline-code">int</code> 값을 읽으려면 다음과 같이 <code class="inline-code">scanf</code>를 사용합니다.</p>
+        
+        <pre><code>scanf("%d", &amp;i);    /* reads an integer; stores into i */</code></pre>
+        
+        <p><code class="inline-code">"%d"</code> 문자열은 <code class="inline-code">scanf</code>에게 정수를 나타내는 입력을 읽으라고 지시합니다. <code class="inline-code">i</code>는 <code class="inline-code">scanf</code>가 입력을 저장하기를 원하는 <code class="inline-code">int</code> 변수입니다. <span class="highlight"><code class="inline-code">&amp;</code> 기호는 이 시점에서 설명하기 어렵습니다. 지금은 <code class="inline-code">scanf</code>를 사용할 때 보통(항상은 아니지만) 필요하다는 점만 알아두겠습니다.</span></p>
+        
+        <p><code class="inline-code">float</code> 값을 읽으려면 약간 다른 <code class="inline-code">scanf</code> 호출이 필요합니다.</p>
+        
+        <pre><code>scanf("%f", &amp;x);    /* reads a float value; stores into x */</code></pre>
+        
+        <p><code class="inline-code">%f</code>는 <code class="inline-code">float</code> 타입의 변수에서만 작동하므로 <code class="inline-code">x</code>가 <code class="inline-code">float</code> 변수라고 가정합니다. <code class="inline-code">"%f"</code> 문자열은 <code class="inline-code">scanf</code>에게 <code class="inline-code">float</code> 형식(숫자에 소수점이 포함될 수 있지만 반드시 그럴 필요는 없음)으로 입력 값을 찾도록 지시합니다.</p>
+
+        <h3>PROGRAM: Computing the Dimensional Weight of a Box (Revisited) (상자의 부피 무게 계산하기 - 재방문)</h3>
+        <p>다음은 사용자가 치수를 입력하는 부피 무게 프로그램의 개선된 버전입니다. <span class="highlight">각 <code class="inline-code">scanf</code> 호출 바로 앞에 <code class="inline-code">printf</code> 호출이 온다는 점에 주목하세요. 이렇게 하면 사용자는 언제 입력을 입력해야 하고 어떤 입력을 입력해야 하는지 알 수 있습니다.</span></p>
+
+        <pre><code>dweight2.c
+
+/* Computes the dimensional weight of a box
+   from input provided by the user */
+
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+    int height, length, width, volume, weight;
+
+    printf("Enter height of box: ");
+    scanf("%d", &amp;height);
+    printf("Enter length of box: ");
+    scanf("%d", &amp;length);
+    printf("Enter width of box: ");
+    scanf("%d", &amp;width);
+    volume = height * length * width;
+    weight = (volume + 165) / 166;
+
+    printf("Volume (cubic inches): %d\n", volume);
+    printf("Dimensional weight (pounds): %d\n", weight);
+
+    return 0;
+}</code></pre>
+        
+        <p>프로그램의 출력은 다음과 같은 모양을 가집니다. (사용자가 입력한 내용은 밑줄이 그어져 있습니다.)</p>
+        
+        <pre><code>Enter height of box: <u>8</u>
+Enter length of box: <u>12</u>
+Enter width of box: <u>10</u>
+Volume (cubic inches): 960
+Dimensional weight (pounds): 6</code></pre>
+        
+        <p><span class="highlight">사용자에게 입력을 요청하는 메시지(prompt)는 보통 개행 문자(<code class="inline-code">\n</code>)로 끝나지 않아야 합니다. 왜냐하면 사용자가 프롬프트 자체와 같은 줄에서 입력을 입력하기를 원하기 때문입니다.</span> 사용자가 Enter 키를 누르면 커서가 자동으로 다음 줄로 이동합니다. 프로그램이 현재 줄을 종료하기 위해 개행 문자를 표시할 필요가 없습니다.</p>
+        
+        <p><code class="inline-code">dweight2.c</code> 프로그램은 한 가지 문제점을 가지고 있습니다. <span class="highlight">사용자가 숫자가 아닌 입력을 입력하면 올바르게 작동하지 않습니다.</span> 3.2절에서 이 문제를 더 자세히 다룹니다.</p>
+
+        <h3>PROGRAM: Converting from Fahrenheit to Celsius (화씨에서 섭씨로 변환)</h3>
+        <p>다음 프로그램은 사용자에게 화씨 온도를 입력하라는 메시지를 표시한 다음, 그에 상응하는 섭씨 온도를 출력합니다. 프로그램의 출력은 다음과 같은 모양을 가집니다. (평소와 같이 사용자가 입력한 내용은 밑줄이 그어져 있습니다.)</p>
+        
+        <pre><code>Enter Fahrenheit temperature: <u>212</u>
+Celsius equivalent: 100.0</code></pre>
+        
+        <p>이 프로그램은 정수가 아닌 온도를 허용합니다. 그렇기 때문에 섭씨 온도가 100 대신 100.0으로 표시됩니다. 먼저 전체 프로그램을 살펴본 다음 어떻게 구성되었는지 살펴보겠습니다.</p>
+
+        <pre><code>celsius.c
+
+/* Converts a Fahrenheit temperature to Celsius */
+
+#include &lt;stdio.h&gt;
+
+#define FREEZING_PT 32.0f
+#define SCALE_FACTOR (5.0f / 9.0f)
+
+int main(void)
+{
+    float fahrenheit, celsius;
+
+    printf("Enter Fahrenheit temperature: ");
+    scanf("%f", &amp;fahrenheit);
+    celsius = (fahrenheit - FREEZING_PT) * SCALE_FACTOR;
+    printf("Celsius equivalent: %.1f\n", celsius);
+
+    return 0;
+}</code></pre>
+
+        <!-- ========================================== -->
+        <!-- Section 2.6 시작 -->
+        <!-- ========================================== -->
+        <h2>2.6 Defining Names for Constants (상수 이름 정의)</h2>
+        
+        <p>프로그램에 상수가 포함되어 있을 때, 종종 상수에 이름을 부여하는 것이 좋습니다. <code class="inline-code">dweight.c</code>와 <code class="inline-code">dweight2.c</code> 프로그램은 166이라는 상수에 의존하는데, 그 의미가 나중에 프로그램을 읽는 사람에게 전혀 명확하지 않을 수 있습니다. <strong>매크로 정의(macro definition)</strong>라는 기능을 사용하여 이 상수의 이름을 지정할 수 있습니다.</p>
+        
+        <pre><code>#define INCHES_PER_POUND 166</code></pre>
+        
+        <p><code class="inline-code">#include</code>와 마찬가지로 <code class="inline-code">#define</code>은 전처리 지시어이므로 줄 끝에 세미콜론이 없습니다.</p>
+        
+        <p><span class="highlight">프로그램이 컴파일될 때 전처리기는 매크로를 나타내는 값으로 각각의 매크로를 대체합니다.</span> 예를 들어, 다음 명령문은</p>
+        
+        <pre><code>weight = (volume + INCHES_PER_POUND - 1) / INCHES_PER_POUND;</code></pre>
+        
+        <p>다음과 같이 바뀔 것입니다.</p>
+
+        <pre><code>weight = (volume + 166 - 1) / 166;</code></pre>
+        
+        <p>처음부터 후자의 명령문을 작성한 것과 같은 효과를 줍니다.</p>
+        
+        <p>매크로의 값은 수식이 될 수 있습니다.</p>
+        
+        <pre><code>#define RECIPROCAL_OF_PI (1.0f / 3.14159f)</code></pre>
+        
+        <p>연산자를 포함하는 경우 수식을 괄호로 묶어야 합니다.</p>
+        
+        <p><span class="highlight">매크로 이름에는 대문자만 사용했습니다. 이것은 대부분의 C 프로그래머가 따르는 관례일 뿐 언어의 요구 사항은 아닙니다.</span> (하지만 C 프로그래머들은 수십 년 동안 이렇게 해왔습니다. 여러분이 처음으로 이탈하고 싶지는 않을 것입니다.)</p>
+        
+        <p>이 프로그램에서 <code class="inline-code">celsius.c</code>는 <code class="inline-code">FREEZING_PT</code>와 <code class="inline-code">SCALE_FACTOR</code> 매크로를 정의합니다. <span class="highlight"><code class="inline-code">SCALE_FACTOR</code>를 <code class="inline-code">(5 / 9)</code> 대신 <code class="inline-code">(5.0f / 9.0f)</code>로 정의하는 것이 중요합니다. 왜냐하면 C는 두 정수를 나눌 때 결과를 잘라내기(truncate) 때문입니다. <code class="inline-code">(5 / 9)</code>의 값은 0이 되어 우리가 원하는 값이 아니게 됩니다.</span></p>
+        
+        <p><code class="inline-code">printf</code> 호출은 섭씨 온도를 씁니다.</p>
+        
+        <pre><code>printf("Celsius equivalent: %.1f\n", celsius);</code></pre>
+        
+        <p><span class="highlight">섭씨를 소수점 이하 한 자리로 표시하기 위해 <code class="inline-code">% .1f</code>를 사용한 것에 주목하세요.</span></p>
+
+        <!-- ========================================== -->
+        <!-- Section 2.5 - 2.6 요약 및 문제 -->
+        <!-- ========================================== -->
+        <div class="summary-box">
+            <h3>📝 Section 2.5 - 2.6 Summary (써머리)</h3>
+            <ul>
+                <li><code class="inline-code">scanf</code> 함수는 사용자로부터 입력을 받을 때 사용하며, 입력받을 변수의 <strong>주소(<code class="inline-code">&amp;</code>)</strong>를 전달해야 합니다.</li>
+                <li>입력 프롬프트를 출력할 때는 사용자가 같은 줄에 입력할 수 있도록 <strong>개행 문자(<code class="inline-code">\n</code>)를 생략</strong>하는 것이 좋습니다.</li>
+                <li><code class="inline-code">#define</code>을 사용하여 상수에 의미 있는 이름(매크로)을 부여할 수 있으며, 전처리 단계에서 값으로 치환됩니다.</li>
+                <li>매크로 이름은 관례적으로 <strong>대문자</strong>를 사용하며, 수식이 들어갈 경우 <strong>괄호</strong>로 묶어야 안전합니다.</li>
+                <li><span class="highlight">정수끼리의 나눗셈은 소수점을 버리므로, 실수 결과를 얻으려면 <code class="inline-code">5.0f / 9.0f</code>처럼 실수형 상수를 사용해야 합니다.</span></li>
+            </ul>
+        </div>
+
+        <div class="exercise-box">
+            <h3>✍️ Section 2.5 - 2.6 Exercises (문제)</h3>
+            <ol>
+                <li><code class="inline-code">scanf("%d", &amp;i);</code>에서 <code class="inline-code">&amp;</code> 기호를 빼먹으면 어떤 일이 발생하나요?</li>
+                <li>사용자에게 입력을 요청하는 프롬프트(예: <code class="inline-code">printf("Enter a number: ");</code>)에 왜 <code class="inline-code">\n</code>을 붙이지 않는 것이 좋은가요?</li>
+                <li>다음 코드의 출력 결과는 무엇이며, 왜 그런 결과가 나오나요?
+                    <pre style="margin-top: 10px;"><code>#define RATIO (5 / 9)
+float result;
+result = 10 * RATIO;
+printf("%f\n", result);</code></pre>
+                </li>
+                <li>매크로 이름을 대문자로 작성하는 이유는 무엇인가요? (언어의 규칙인가요, 관례인가요?)</li>
+            </ol>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 🔥 하이라이트 총정리 (연계 정리) 🔥 -->
+        <!-- ========================================== -->
+        <div class="highlight-summary-box">
+            <h2>🔥 형광칠한 핵심 내용 총정리 (Highlights)</h2>
+            <p>지금까지 Section 2.5와 2.6에서 형광펜으로 강조한 가장 중요한 내용들을 한눈에 볼 수 있도록 연계하여 정리했습니다. 이 부분은 C 언어의 기초를 다지는 데 있어 반드시 기억해야 할 핵심입니다.</p>
+            
+            <ul>
+                <li style="margin-bottom: 15px;">
+                    <strong>1. 입력과 주소 연산자 (<code class="inline-code">&amp;</code>):</strong><br>
+                    <span class="highlight"><code class="inline-code">scanf</code>를 사용할 때 변수 앞에 <code class="inline-code">&amp;</code>를 붙이는 이유는 컴파일러에게 "이 변수가 저장된 메모리 주소"를 알려주기 위해서입니다.</span> 컴퓨터는 변수의 이름만으로는 값을 어디에 저장해야 할지 모르기 때문에 주소를 통해 접근해야 합니다. (이 개념은 나중에 배울 '포인터'의 기초가 됩니다.)
+                </li>
+                <li style="margin-bottom: 15px;">
+                    <strong>2. 입력 프롬프트와 개행 문자:</strong><br>
+                    <span class="highlight">입력 안내 문구를 출력할 때 <code class="inline-code">\n</code>을 붙이지 않아야 사용자가 안내 문구 바로 옆에 입력을 이어서 할 수 있습니다.</span> 만약 <code class="inline-code">\n</code>을 붙이면 커서가 다음 줄로 넘어가 사용자 경험이 나빠집니다.
+                </li>
+                <li style="margin-bottom: 15px;">
+                    <strong>3. 매크로(#define)의 역할과 대문자 관례:</strong><br>
+                    <span class="highlight"><code class="inline-code">#define</code>은 전처리기가 코드를 컴파일하기 전에 해당 이름을 값으로 '단순 치환'해 주는 역할을 합니다. 대문자를 사용하는 것은 언어의 강제 규칙이 아닌 C 프로그래머들의 오랜 약속(관례)으로, 일반 변수와 매크로를 시각적으로 구분해 줍니다.</span>
+                </li>
+                <li style="margin-bottom: 15px;">
+                    <strong>4. 정수 나눗셈의 함정 (가장 중요!):</strong><br>
+                    <span class="highlight">C 언어에서 정수(int)끼리 나누면 소수점 이하는 버려집니다. 따라서 <code class="inline-code">5 / 9</code>는 0이 됩니다. 실수 결과를 얻으려면 반드시 <code class="inline-code">5.0f / 9.0f</code>처럼 소수점이 있는 실수형 상수를 사용해야 합니다.</span> 이 실수를 방지하기 위해 매크로 정의 시에도 괄호와 실수형 접미사(f)를 확실히 붙여야 합니다.
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</body>
+</html>
