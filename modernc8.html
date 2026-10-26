@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<!-- ↑ 이 문서는 HTML5 형식으로 작성되었음을 브라우저에 알려줍니다. -->
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <!-- 모바일(아이폰 등) 최적화를 위한 필수 메타 태그 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 5: Selection Statements</title>
+
+    <style>
+        /* =========================================================
+           매트릭스 테마 CSS (검정 배경, 네온 초록 글씨)
+           ========================================================= */
+        body {
+            font-family: 'Consolas', 'Courier New', 'Fira Code', monospace;
+            line-height: 1.7;
+            color: #00ff41; /* 네온 초록색 글씨 */
+            background-color: #000000; /* 완전 검정 배경 */
+            margin: 0;
+            padding: 0;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 15px;
+            background-color: #0a0a0a;
+            border-left: 1px solid #003300;
+            border-right: 1px solid #003300;
+        }
+
+        @media (min-width: 600px) {
+            .container {
+                margin: 40px auto;
+                padding: 40px;
+                border: 1px solid #00ff41;
+                border-radius: 10px;
+                box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+            }
+        }
+
+        /* 제목 스타일 */
+        h1, h2, h3 {
+            color: #00ff41;
+            text-shadow: 0 0 8px rgba(0, 255, 65, 0.8);
+            font-weight: bold;
+        }
+        h1 {
+            text-align: center;
+            border-bottom: 2px dashed #00ff41;
+            padding-bottom: 10px;
+            font-size: 1.5em;
+        }
+        h2 {
+            margin-top: 40px;
+            border-left: 4px solid #00ff41;
+            padding-left: 10px;
+            font-size: 1.3em;
+        }
+        h3 {
+            margin-top: 30px;
+            font-size: 1.1em;
+            color: #aaffaa;
+        }
+
+        /* 코드 블록 스타일 */
+        pre {
+            background-color: #050505;
+            border: 1px solid #005511;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            color: #00ff41;
+            font-size: 14px;
+        }
+        
+        /* 인라인 코드 */
+        .inline-code {
+            background-color: #111;
+            color: #00ff41;
+            border: 1px solid #003300;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 0.95em;
+            word-break: break-all;
+        }
+
+        /* 형광펜 효과 */
+        .highlight {
+            background-color: rgba(0, 255, 65, 0.2);
+            color: #ffffff;
+            padding: 2px 4px;
+            border-radius: 3px;
+            border-bottom: 2px solid #00ff41;
+            text-shadow: 0 0 5px #00ff41;
+            font-weight: bold;
+        }
+
+        /* 표 스타일 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.9em;
+        }
+        th, td {
+            border: 1px solid #005511;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #002200;
+            color: #00ff41;
+            text-shadow: 0 0 3px #00ff41;
+        }
+        td {
+            color: #aaffaa;
+        }
+
+        /* 설명 박스 */
+        .info-box {
+            background-color: #001a00;
+            border: 1px solid #00ff41;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .warning-box {
+            background-color: #1a1a00;
+            border: 1px solid #ffff00;
+            color: #ffff00;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .warning-box strong { color: #ffff00; text-shadow: 0 0 5px #ffff00; }
+
+        /* SVG 컨테이너 */
+        .svg-container {
+            text-align: center;
+            margin: 30px 0;
+            padding: 10px;
+            border: 1px dashed #005511;
+        }
+        .svg-container svg {
+            width: 100%;
+            height: auto;
+            max-width: 600px;
+        }
+
+        /* 요약 및 문제 박스 */
+        .summary-box {
+            background-color: #001a00;
+            border: 1px solid #00ff41;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 40px;
+        }
+        .exercise-box {
+            background-color: #0a0a0a;
+            border: 1px solid #00ff41;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .exercise-box ol { padding-left: 20px; }
+        .exercise-box li { margin-bottom: 15px; }
+
+        /* 정답 박스 */
+        .answer-box {
+            background-color: #002200;
+            border: 1px dashed #00ff41;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 5px;
+            color: #aaffaa;
+        }
+        .answer-box strong {
+            color: #00ff41;
+            text-decoration: underline;
+        }
+
+        /* 하이라이트 총정리 박스 */
+        .highlight-summary-box {
+            background-color: #002200;
+            border: 2px solid #00ff41;
+            padding: 25px;
+            border-radius: 8px;
+            margin-top: 50px;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.4);
+        }
+        .highlight-summary-box h2 {
+            border-left: none;
+            text-align: center;
+            border-bottom: 2px solid #00ff41;
+            padding-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Chapter 5: Selection Statements</h1>
+
+        <blockquote style="font-style: italic; color: #aaffaa; border-left: 4px solid #00ff41; padding-left: 15px;">
+            "프로그래머는 자신의 독창성과 논리로 평가되는 것이 아니라, 사례 분석의 완성도로 평가된다." (Programmers are not to be measured by their ingenuity and their logic but by the completeness of their case analysis.) - 앨런 펄리스
+        </blockquote>
+
+        <p>C에는 많은 연산자가 있지만 명령문(statements)은 비교적 적습니다. 지금까지 <code class="inline-code">return</code> 문과 수식 명령문 두 가지만 보았습니다. C의 나머지 명령문 대부분은 명령문이 실행되는 순서에 영향을 미치는 방식에 따라 세 가지 범주로 나뉩니다.</p>
+        <ul>
+            <li><strong>선택문(Selection statements):</strong> <code class="inline-code">if</code> 및 <code class="inline-code">switch</code> 문을 사용하면 프로그램이 대안 집합에서 특정 실행 경로를 선택할 수 있습니다.</li>
+            <li><strong>반복문(Iteration statements):</strong> <code class="inline-code">while</code>, <code class="inline-code">do</code>, <code class="inline-code">for</code> 문은 반복(루핑)을 지원합니다.</li>
+            <li><strong>점프문(Jump statements):</strong> <code class="inline-code">break</code>, <code class="inline-code">continue</code>, <code class="inline-code">goto</code> 문은 프로그램의 다른 위치로 무조건 점프하게 합니다. (<code class="inline-code">return</code> 문도 이 범주에 속합니다.)</li>
+        </ul>
+        <p>C의 다른 명령문으로는 여러 명령문을 하나로 묶는 복합문(compound statement)과 아무 동작도 하지 않는 널 문(null statement)이 있습니다. 이 장에서는 선택문과 복합문을 다룹니다. (6장에서는 반복문, 점프문, 널 문을 다룹니다.)</p>
+
+        <!-- ========================================== -->
+        <!-- Section 5.1 시작 -->
+        <!-- ========================================== -->
+        <h2>5.1 Logical Expressions (논리 수식)</h2>
+        
+        <p><code class="inline-code">if</code> 문을 포함한 C의 여러 명령문은 수식의 값이 "참(true)"인지 "거짓(false)"인지 테스트해야 합니다. 예를 들어 <code class="inline-code">if</code> 문은 <code class="inline-code">i &lt; j</code> 수식을 테스트하여 i가 j보다 작은지 확인해야 할 수 있습니다. 많은 프로그래밍 언어에서 <code class="inline-code">i &lt; j</code>와 같은 수식은 특별한 "부울(Boolean)" 또는 "논리(logical)" 타입을 가집니다. 그러한 타입은 거짓(false)과 참(true) 두 가지 값만 가집니다. 그러나 <span class="highlight">C에서는 <code class="inline-code">i &lt; j</code>와 같은 비교가 정수(0은 거짓, 1은 참)를 생성합니다.</span> 이를 염두에 두고 논리 수식을 작성하는 데 사용되는 연산자를 살펴보겠습니다.</p>
+
+        <h3>Relational Operators (관계 연산자)</h3>
+        <p>C의 관계 연산자(표 5.1)는 수학의 <code class="inline-code">&lt;</code>, <code class="inline-code">&gt;</code>, <code class="inline-code">&le;</code>, <code class="inline-code">&ge;</code> 연산자와 유사하지만, 수식에 사용될 때 0(거짓) 또는 1(참)을 생성합니다. 예를 들어 <code class="inline-code">10 &lt; 11</code>의 값은 1이고, <code class="inline-code">11 &lt; 10</code>의 값은 0입니다.</p>
+
+        <table>
+            <tr><th>기호</th><th>의미</th></tr>
+            <tr><td><code class="inline-code">&lt;</code></td><td>보다 작음</td></tr>
+            <tr><td><code class="inline-code">&gt;</code></td><td>보다 큼</td></tr>
+            <tr><td><code class="inline-code">&lt;=</code></td><td>보다 작거나 같음</td></tr>
+            <tr><td><code class="inline-code">&gt;=</code></td><td>보다 크거나 같음</td></tr>
+        </table>
+        <p style="text-align: right; font-size: 0.9em; color: #aaffaa;">표 5.1 관계 연산자</p>
+
+        <p>관계 연산자는 정수와 부동 소수점 숫자를 비교하는 데 사용할 수 있으며, 피연산자의 타입이 혼합되어도 허용됩니다. 따라서 <code class="inline-code">1 &lt; 2.5</code>의 값은 1이고, <code class="inline-code">5.6 &lt; 4</code>의 값은 0입니다.</p>
+        <p><span class="highlight">관계 연산자의 우선순위는 산술 연산자보다 낮습니다.</span> 예를 들어 <code class="inline-code">i + j &lt; k - 1</code>은 <code class="inline-code">(i + j) &lt; (k - 1)</code>을 의미합니다. 관계 연산자는 왼쪽 결합성(left associative)을 가집니다.</p>
+        <p><code class="inline-code">i &lt; j &lt; k</code> 수식은 C에서 합법적이지만, 예상하는 의미를 가지지 않습니다. <code class="inline-code">&lt;</code> 연산자는 왼쪽 결합성이므로 이 수식은 <code class="inline-code">(i &lt; j) &lt; k</code>와 같습니다. 즉, 먼저 i가 j보다 작은지 테스트하고, 이 비교에서 생성된 1 또는 0을 k와 비교합니다. 이 수식은 j가 i와 k 사이에 있는지 테스트하지 않습니다. (올바른 수식은 <code class="inline-code">i &lt; j &amp;&amp; j &lt; k</code>입니다.)</p>
+
+        <h3>Equality Operators (동등 연산자)</h3>
+        <p>관계 연산자는 많은 프로그래밍 언어에서와 동일한 기호로 표시되지만, 동등 연산자는 독특한 모양을 가집니다(표 5.2). "같음" 연산자는 단일 <code class="inline-code">=</code> 문자가 할당 연산자를 나타내기 때문에 두 개의 인접한 <code class="inline-code">=</code> 문자입니다.</p>
+
+        <table>
+            <tr><th>기호</th><th>의미</th></tr>
+            <tr><td><code class="inline-code">==</code></td><td>같음</td></tr>
+            <tr><td><code class="inline-code">!=</code></td><td>같지 않음</td></tr>
+        </table>
+        <p style="text-align: right; font-size: 0.9em; color: #aaffaa;">표 5.2 동등 연산자</p>
+
+        <p>관계 연산자와 마찬가지로 동등 연산자도 왼쪽 결합성을 가지며 결과로 0(거짓) 또는 1(참)을 생성합니다. 그러나 <span class="highlight">동등 연산자는 관계 연산자보다 우선순위가 낮습니다.</span> 예를 들어 <code class="inline-code">i &lt; j == j &lt; k</code>는 <code class="inline-code">(i &lt; j) == (j &lt; k)</code>와 동일하며, 이는 i &lt; j와 j &lt; k가 모두 참이거나 모두 거짓이면 참입니다.</p>
+
+        <h3>Logical Operators (논리 연산자)</h3>
+        <p>더 복잡한 논리 수식은 and, or, not 논리 연산자(표 5.3)를 사용하여 더 단순한 수식으로 만들 수 있습니다. <code class="inline-code">!</code> 연산자는 단항이고, <code class="inline-code">&amp;&amp;</code>와 <code class="inline-code">||</code>는 이항입니다.</p>
+
+        <table>
+            <tr><th>기호</th><th>의미</th></tr>
+            <tr><td><code class="inline-code">!</code></td><td>논리적 부정 (NOT)</td></tr>
+            <tr><td><code class="inline-code">&amp;&amp;</code></td><td>논리적 and</td></tr>
+            <tr><td><code class="inline-code">||</code></td><td>논리적 or</td></tr>
+        </table>
+        <p style="text-align: right; font-size: 0.9em; color: #aaffaa;">표 5.3 논리 연산자</p>
+
+        <p>논리 연산자는 결과로 0 또는 1을 생성합니다. 종종 피연산자는 0 또는 1의 값을 가지지만, 이것이 요구 사항은 아닙니다. <span class="highlight">논리 연산자는 0이 아닌 모든 피연산자를 참 값으로, 0 피연산자를 거짓 값으로 취급합니다.</span></p>
+
+        <ul>
+            <li><code class="inline-code">!expr</code>은 expr의 값이 0이면 1의 값을 가집니다.</li>
+            <li><code class="inline-code">expr1 &amp;&amp; expr2</code>는 expr1과 expr2의 값이 모두 0이 아니면 1의 값을 가집니다.</li>
+            <li><code class="inline-code">expr1 || expr2</code>는 expr1 또는 expr2(또는 둘 다)의 값이 0이 아니면 1의 값을 가집니다.</li>
+        </ul>
+        <p>다른 모든 경우에 이 연산자들은 0 값을 생성합니다.</p>
+
+        <p><span class="highlight"><code class="inline-code">&amp;&amp;</code>와 <code class="inline-code">||</code> 모두 피연산자에 대해 "단락 평가(short-circuit evaluation)"를 수행합니다. 즉, 왼쪽 피연산자를 먼저 평가한 다음 오른쪽 피연산자를 평가합니다. 왼쪽 피연산자만으로 수식의 값을 추론할 수 있으면 오른쪽 피연산자는 평가되지 않습니다.</span></p>
+
+        <!-- ↓ SVG를 이용한 단락 평가(Short-circuit) 다이어그램 -->
+        <div class="svg-container">
+            <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+                <text x="300" y="30" font-size="20" font-family="monospace" text-anchor="middle" fill="#00ff41" font-weight="bold">(i != 0) &amp;&amp; (j / i &gt; 0)</text>
+                
+                <text x="300" y="70" font-size="16" text-anchor="middle" fill="#aaffaa">1. 먼저 왼쪽을 평가: i != 0</text>
+                
+                <rect x="100" y="90" width="180" height="40" rx="5" fill="#001a00" stroke="#00ff41" stroke-width="2"/>
+                <text x="190" y="115" font-size="16" text-anchor="middle" fill="#00ff41">i == 0 (거짓)</text>
+                
+                <line x1="280" y1="110" x2="350" y2="110" stroke="#aaffaa" stroke-width="2" marker-end="url(#arrow)"/>
+                <text x="315" y="100" font-size="14" text-anchor="middle" fill="#aaffaa">결과: 0 (거짓)</text>
+
+                <rect x="360" y="90" width="200" height="40" rx="5" fill="#1a0000" stroke="#ff0000" stroke-width="2"/>
+                <text x="460" y="115" font-size="16" text-anchor="middle" fill="#ff0000">오른쪽 평가 생략 (0으로 나누기 방지!)</text>
+
+                <defs>
+                    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                        <path d="M0,0 L0,6 L9,3 z" fill="#aaffaa" />
+                    </marker>
+                </defs>
+                
+                <text x="300" y="180" font-size="14" text-anchor="middle" fill="#00ff41">※ 단락 평가 덕분에 i가 0일 때 0으로 나누는 오류를 피할 수 있습니다.</text>
+            </svg>
+        </div>
+
+        <p>이 수식의 값을 구하려면 먼저 <code class="inline-code">(i != 0)</code>을 평가해야 합니다. i가 0이 아니면 전체 수식이 참인지 거짓인지 확인하기 위해 <code class="inline-code">(j / i &gt; 0)</code>을 평가해야 합니다. 그러나 i가 0이면 전체 수식은 반드시 거짓이므로 <code class="inline-code">(j / i &gt; 0)</code>을 평가할 필요가 없습니다. 단락 평가의 이점은 분명합니다. 단락 평가가 없었다면 이 수식을 평가할 때 0으로 나누는 오류가 발생했을 것입니다.</p>
+        
+        <div class="warning-box">
+            <strong>⚠️ 경고: 논리 수식의 부작용을 주의하세요.</strong><br>
+            <code class="inline-code">&amp;&amp;</code> 및 <code class="inline-code">||</code> 연산자의 단락 평가 특성 때문에 피연산자의 부작용이 항상 발생하지 않을 수 있습니다. 다음 수식을 고려해 보세요.<br>
+            <pre style="border-color: #ffff00; color: #ffff00;"><code>i &gt; 0 &amp;&amp; ++j &gt; 0</code></pre>
+            j가 수식 평가의 부작용으로 증가하는 것처럼 보이지만 항상 그런 것은 아닙니다. <code class="inline-code">i &gt; 0</code>이 거짓이면 <code class="inline-code">++j &gt; 0</code>은 평가되지 않으므로 j는 증가하지 않습니다. 문제를 해결하려면 조건을 <code class="inline-code">++j &gt; 0 &amp;&amp; i &gt; 0</code>으로 바꾸거나, 더 나은 방법으로 j를 별도로 증가시키세요.
+        </div>
+
+        <p><code class="inline-code">!</code> 연산자는 단항 플러스 및 마이너스 연산자와 우선순위가 같습니다. <code class="inline-code">&amp;&amp;</code> 및 <code class="inline-code">||</code>의 우선순위는 관계 및 동등 연산자보다 낮습니다. <code class="inline-code">!</code> 연산자는 오른쪽 결합성이고, <code class="inline-code">&amp;&amp;</code>와 <code class="inline-code">||</code>는 왼쪽 결합성입니다.</p>
+
+        <!-- ========================================== -->
+        <!-- Section 5.2 시작 -->
+        <!-- ========================================== -->
+        <h2>5.2 The if Statement (if 문)</h2>
+        
+        <p><code class="inline-code">if</code> 문을 사용하면 프로그램이 수식의 값을 테스트하여 두 가지 대안 중에서 선택할 수 있습니다. 가장 간단한 형태의 <code class="inline-code">if</code> 문은 다음과 같은 형태를 가집니다.</p>
+        
+        <pre><code>if (expression) statement</code></pre>
+        
+        <p>수식 주위의 괄호는 필수입니다. 이는 <code class="inline-code">if</code> 문의 일부이며 수식의 일부가 아닙니다. 또한 괄호 뒤에 <code class="inline-code">then</code>이라는 단어가 오지 않습니다.</p>
+        
+        <p><code class="inline-code">if</code> 문이 실행되면 괄호 안의 수식이 평가됩니다. <span class="highlight">수식의 값이 0이 아니면(참), 괄호 뒤의 명령문이 실행됩니다.</span></p>
+
+        <div class="warning-box">
+            <strong>⚠️ 경고: <code class="inline-code">==</code> (같음)와 <code class="inline-code">=</code> (할당)을 혼동하지 마세요.</strong><br>
+            <code class="inline-code">if (i == 0)</code>는 i가 0인지 테스트합니다. 그러나 <code class="inline-code">if (i = 0)</code>은 i에 0을 할당한 다음 결과(0)를 테스트합니다. 이 경우 테스트는 항상 실패합니다. <span class="highlight"><code class="inline-code">==</code>를 <code class="inline-code">=</code>로 혼동하는 것은 아마도 가장 흔한 C 프로그래밍 오류일 것입니다.</span>
+        </div>
+
+        <p><code class="inline-code">if</code> 문의 수식은 변수가 값의 범위 내에 있는지 테스트하는 경우가 많습니다. 예를 들어 <code class="inline-code">0 &le; i &lt; n</code>을 테스트하려면 <code class="inline-code">if (0 &lt;= i &amp;&amp; i &lt; n)</code>과 같이 작성합니다. 반대 조건을 테스트하려면 <code class="inline-code">if (i &lt; 0 || i &gt;= n)</code>과 같이 작성합니다.</p>
+
+        <h3>Compound Statements (복합문)</h3>
+        <p><code class="inline-code">if</code> 문 템플릿에서 <code class="inline-code">statement</code>는 단수입니다. <code class="inline-code">if</code> 문이 두 개 이상의 명령문을 제어하도록 하려면 <strong>복합문(compound statement)</strong>을 사용합니다.</p>
+        
+        <pre><code>{
+    statements
+}</code></pre>
+        
+        <p>명령문 그룹 주위에 중괄호를 넣으면 컴파일러가 이를 단일 명령문으로 처리하도록 강제할 수 있습니다. 복합문 내부의 각 명령문은 여전히 세미콜론으로 끝나지만, 복합문 자체는 끝나지 않습니다.</p>
+
+        <h3>The else Clause (else 절)</h3>
+        <p><code class="inline-code">if</code> 문에는 <code class="inline-code">else</code> 절이 있을 수 있습니다.</p>
+        <pre><code>if (expression)
+    statement
+else
+    statement</code></pre>
+        <p>괄호 안의 수식이 0 값을 가지면 <code class="inline-code">else</code> 뒤에 오는 명령문이 실행됩니다.</p>
+        
+        <p><code class="inline-code">if</code> 문에 <code class="inline-code">else</code> 절이 포함되어 있으면 레이아웃 문제가 발생합니다. <code class="inline-code">else</code>를 어디에 배치해야 할까요? 많은 C 프로그래머들이 다음 예제와 같이 문 시작 부분의 <code class="inline-code">if</code>와 정렬합니다.</p>
+        
+        <pre><code>if (i &gt; j)
+    max = i;
+else
+    max = j;</code></pre>
+
+        <h3>Cascaded if Statements (연쇄 if 문)</h3>
+        <p>일련의 조건을 테스트하고 그중 하나가 참이 되면 중지해야 하는 경우가 많습니다. "연쇄(cascaded)" <code class="inline-code">if</code> 문은 이러한 일련의 테스트를 작성하는 가장 좋은 방법인 경우가 많습니다. 예를 들어 다음 연쇄 <code class="inline-code">if</code> 문은 n이 0보다 작은지, 0과 같은지, 0보다 큰지 테스트합니다.</p>
+        
+        <pre><code>if (n &lt; 0)
+    printf("n is less than 0\n");
+else if (n == 0)
+    printf("n is equal to 0\n");
+else
+    printf("n is greater than 0\n");</code></pre>
+        
+        <p>두 번째 <code class="inline-code">if</code> 문은 첫 번째 <code class="inline-code">if</code> 안에 중첩되어 있지만, C 프로그래머들은 보통 들여쓰기를 하지 않습니다. 대신 각 <code class="inline-code">else</code>를 원래 <code class="inline-code">if</code>와 정렬합니다. 이 배열은 연쇄 <code class="inline-code">if</code> 문에 독특한 모양을 부여합니다. 연쇄 <code class="inline-code">if</code> 문은 새로운 종류의 명령문이 아니라, <code class="inline-code">else</code> 절로 또 다른 <code class="inline-code">if</code> 문을 가지는 일반적인 <code class="inline-code">if</code> 문일 뿐입니다.</p>
+
+        <h3>The "Dangling else" Problem ("매달린 else" 문제)</h3>
+        <p><code class="inline-code">if</code> 문이 중첩되면 악명 높은 "매달린 else(dangling else)" 문제를 주의해야 합니다. 다음 예제를 고려해 보세요.</p>
+        
+        <pre><code>if (y != 0)
+    if (x != 0)
+        result = x / y;
+    else
+        printf("Error: y is equal to 0\n");</code></pre>
+        
+        <p><code class="inline-code">else</code> 절은 어느 <code class="inline-code">if</code> 문에 속할까요? 들여쓰기를 보면 외부 <code class="inline-code">if</code> 문에 속하는 것처럼 보입니다. 그러나 <span class="highlight">C는 <code class="inline-code">else</code> 절이 아직 <code class="inline-code">else</code>와 짝을 이루지 않은 가장 가까운 <code class="inline-code">if</code> 문에 속한다는 규칙을 따릅니다.</span> 이 예에서 <code class="inline-code">else</code> 절은 실제로 내부 <code class="inline-code">if</code> 문에 속하므로 올바르게 들여쓴 버전은 다음과 같습니다.</p>
+        
+        <pre><code>if (y != 0)
+    if (x != 0)
+        result = x / y;
+    else
+        printf("Error: x is equal to 0\n");</code></pre>
+        
+        <p><code class="inline-code">else</code> 절을 외부 <code class="inline-code">if</code> 문의 일부로 만들려면 내부 <code class="inline-code">if</code> 문을 중괄호로 묶습니다.</p>
+        
+        <pre><code>if (y != 0) {
+    if (x != 0)
+        result = x / y;
+} else
+    printf("Error: y is equal to 0\n");</code></pre>
+
+        <!-- ↓ SVG를 이용한 Dangling else 다이어그램 -->
+        <div class="svg-container">
+            <svg viewBox="0 0 600 250" xmlns="http://www.w3.org/2000/svg">
+                <text x="300" y="30" font-size="18" text-anchor="middle" fill="#00ff41" font-weight="bold">Dangling else 문제</text>
+                
+                <!-- 외부 if -->
+                <rect x="200" y="50" width="200" height="40" rx="5" fill="#001a00" stroke="#00ff41" stroke-width="2"/>
+                <text x="300" y="75" font-size="16" text-anchor="middle" fill="#00ff41">if (y != 0)</text>
+                
+                <line x1="300" y1="90" x2="300" y2="120" stroke="#aaffaa" stroke-width="2" marker-end="url(#arrow)"/>
+                
+                <!-- 내부 if -->
+                <rect x="200" y="120" width="200" height="40" rx="5" fill="#001a00" stroke="#00ff41" stroke-width="2"/>
+                <text x="300" y="145" font-size="16" text-anchor="middle" fill="#00ff41">if (x != 0)</text>
+                
+                <line x1="300" y1="160" x2="300" y2="190" stroke="#aaffaa" stroke-width="2" marker-end="url(#arrow)"/>
+                
+                <!-- 내부 else (짝을 이룸) -->
+                <rect x="200" y="190" width="200" height="40" rx="5" fill="#1a0000" stroke="#ff0000" stroke-width="2"/>
+                <text x="300" y="215" font-size="16" text-anchor="middle" fill="#ff0000">else (내부 if와 짝)</text>
+                
+                <!-- 화살표 -->
+                <defs>
+                    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                        <path d="M0,0 L0,6 L9,3 z" fill="#aaffaa" />
+                    </marker>
+                </defs>
+                
+                <text x="450" y="215" font-size="14" fill="#ff0000">← 가장 가까운 if와 결합!</text>
+            </svg>
+        </div>
+
+        <h3>Conditional Expressions (조건부 수식)</h3>
+        <p>C의 <code class="inline-code">if</code> 문을 사용하면 프로그램이 조건 값에 따라 두 가지 작업 중 하나를 수행할 수 있습니다. C는 또한 조건 값에 따라 수식이 두 값 중 하나를 생성하도록 하는 연산자를 제공합니다. 조건부 연산자는 두 기호(<code class="inline-code">?</code>와 <code class="inline-code">:</code>)로 구성되며, 함께 사용해야 합니다.</p>
+        
+        <pre><code>expr1 ? expr2 : expr3</code></pre>
+        
+        <p>조건부 수식 <code class="inline-code">expr1 ? expr2 : expr3</code>은 "expr1이면 expr2, 그렇지 않으면 expr3"으로 읽어야 합니다. 조건부 연산자는 세 개의 피연산자를 필요로 하기 때문에 종종 삼항(ternary) 연산자라고 합니다.</p>
+        
+        <p>조건부 수식은 프로그램을 더 짧게 만들지만 이해하기 어렵게 만드는 경향이 있으므로 피하는 것이 가장 좋습니다. 그러나 유혹적인 몇 가지 장소가 있습니다. 하나는 <code class="inline-code">return</code> 문입니다. 많은 프로그래머들이 <code class="inline-code">if-else</code> 대신 <code class="inline-code">return i &gt; j ? i : j;</code>와 같이 작성합니다. <code class="inline-code">printf</code> 호출도 조건부 수식의 이점을 얻을 수 있습니다.</p>
+
+        <h3>Boolean Values in C89 (C89의 부울 값)</h3>
+        <p>수년 동안 C 언어에는 적절한 부울 타입이 없었으며 C89 표준에도 정의되어 있지 않습니다. 이 누락은 많은 프로그램이 거짓 또는 참을 저장할 수 있는 변수를 필요로 하기 때문에 사소한 성가심입니다. C89에서 이 제한을 해결하는 한 가지 방법은 <code class="inline-code">int</code> 변수를 선언한 다음 0 또는 1을 할당하는 것입니다.</p>
+        
+        <p>이 체계는 작동하지만 프로그램 가독성에 많은 기여를 하지 않습니다. 프로그램을 더 이해하기 쉽게 만들기 위해 C89 프로그래머들은 종종 <code class="inline-code">TRUE</code> 및 <code class="inline-code">FALSE</code>와 같은 이름으로 매크로를 정의합니다.</p>
+        
+        <pre><code>#define TRUE 1
+#define FALSE 0</code></pre>
+        
+        <p>나중에 배우겠지만 C89에서 타입 정의(typedef)와 열거형(enum)을 사용하여 부울 타입을 설정하는 더 좋은 방법이 있습니다.</p>
+
+        <h3>Boolean Values in C99 (C99의 부울 값)</h3>
+        <p>부울 타입의 오랜 부재는 C99에서 해결되었으며, <code class="inline-code">_Bool</code> 타입을 제공합니다. 이 버전의 C에서는 <code class="inline-code">_Bool flag;</code>와 같이 부울 변수를 선언할 수 있습니다. <span class="highlight"><code class="inline-code">_Bool</code>은 정수 타입(더 정확히는 부호 없는 정수 타입)이므로 <code class="inline-code">_Bool</code> 변수는 실제로 정수 변수입니다. 그러나 일반 정수 변수와 달리 <code class="inline-code">_Bool</code> 변수에는 0 또는 1만 할당할 수 있습니다. 일반적으로 0이 아닌 값을 <code class="inline-code">_Bool</code> 변수에 저장하려고 하면 변수에 1이 할당됩니다.</span></p>
+        
+        <p><code class="inline-code">_Bool</code> 타입을 정의하는 것 외에도 C99는 부울 값을 더 쉽게 다룰 수 있도록 새로운 헤더인 <code class="inline-code">&lt;stdbool.h&gt;</code>를 제공합니다. 이 헤더는 <code class="inline-code">_Bool</code>을 나타내는 매크로 <code class="inline-code">bool</code>을 제공합니다. <code class="inline-code">&lt;stdbool.h&gt;</code>를 포함하면 <code class="inline-code">bool flag;</code>와 같이 작성할 수 있습니다. 이 헤더는 1과 0을 각각 나타내는 <code class="inline-code">true</code> 및 <code class="inline-code">false</code> 매크로도 제공합니다.</p>
+
+        <!-- ========================================== -->
+        <!-- Section 5.3 시작 -->
+        <!-- ========================================== -->
+        <h2>5.3 The switch Statement (switch 문)</h2>
+        
+        <p>일상적인 프로그래밍에서 우리는 종종 수식을 일련의 값과 비교하여 현재 어떤 값과 일치하는지 확인해야 합니다. 5.2절에서 연쇄 <code class="inline-code">if</code> 문을 이 목적으로 사용할 수 있음을 보았습니다. 예를 들어 다음 연쇄 <code class="inline-code">if</code> 문은 숫자 성적에 해당하는 영어 단어를 인쇄합니다.</p>
+        
+        <pre><code>if (grade == 4)
+    printf("Excellent");
+else if (grade == 3)
+    printf("Good");
+else if (grade == 2)
+    printf("Average");
+else if (grade == 1)
+    printf("Poor");
+else if (grade == 0)
+    printf("Failing");
+else
+    printf("Illegal grade");</code></pre>
+        
+        <p>이런 종류의 연쇄 <code class="inline-code">if</code> 문의 대안으로 C는 <code class="inline-code">switch</code> 문을 제공합니다. 다음 <code class="inline-code">switch</code>는 연쇄 <code class="inline-code">if</code>와 동일합니다.</p>
+        
+        <pre><code>switch (grade) {
+    case 4: printf("Excellent"); break;
+    case 3: printf("Good"); break;
+    case 2: printf("Average"); break;
+    case 1: printf("Poor"); break;
+    case 0: printf("Failing"); break;
+    default: printf("Illegal grade"); break;
+}</code></pre>
+        
+        <p>이 명령문이 실행되면 변수 <code class="inline-code">grade</code>의 값이 4, 3, 2, 1, 0과 비교하여 테스트됩니다. 예를 들어 4와 일치하면 "Excellent" 메시지가 인쇄된 다음 <code class="inline-code">break</code> 문이 제어를 <code class="inline-code">switch</code> 다음 명령문으로 전환합니다. <code class="inline-code">grade</code>의 값이 나열된 선택 항목과 일치하지 않으면 <code class="inline-code">default</code> 케이스가 적용되고 "Illegal grade" 메시지가 인쇄됩니다.</p>
+        
+        <p><code class="inline-code">switch</code> 문은 연쇄 <code class="inline-code">if</code> 문보다 읽기 쉬운 경우가 많습니다. 또한 특히 케이스가 여러 개인 경우 <code class="inline-code">switch</code> 문이 더 빠른 경우가 많습니다.</p>
+        
+        <p>가장 일반적인 형태에서 <code class="inline-code">switch</code> 문은 다음과 같은 형태를 가집니다.</p>
+        
+        <pre><code>switch (expression) {
+    case constant-expression: statements
+    case constant-expression: statements
+    default: statements
+}</code></pre>
+
+        <ul>
+            <li><strong>제어 수식 (Controlling expression):</strong> <code class="inline-code">switch</code>라는 단어 뒤에는 괄호 안에 정수 수식이 와야 합니다. C에서 문자는 정수로 취급되므로 <code class="inline-code">switch</code> 문에서 테스트할 수 있습니다. 그러나 부동 소수점 숫자와 문자열은 적합하지 않습니다.</li>
+            <li><strong>케이스 레이블 (Case labels):</strong> 각 케이스는 <code class="inline-code">case constant-expression:</code> 형태의 레이블로 시작합니다. 상수 수식은 변수나 함수 호출을 포함할 수 없다는 점을 제외하면 일반 수식과 매우 유사합니다. 중복된 케이스 레이블은 허용되지 않습니다. 케이스의 순서는 중요하지 않습니다. 특히 <code class="inline-code">default</code> 케이스가 마지막에 올 필요는 없습니다.</li>
+            <li><strong>명령문 (Statements):</strong> 각 케이스 레이블 뒤에는 여러 개의 명령문이 올 수 있습니다. 명령문 주위에 중괄호가 필요하지 않습니다. 각 그룹의 마지막 명령문은 보통 <code class="inline-code">break</code>입니다.</li>
+        </ul>
+        
+        <p><code class="inline-code">case</code> 뒤에 하나의 상수 수식만 올 수 있지만, 여러 개의 케이스 레이블이 동일한 명령문 그룹 앞에 올 수 있습니다.</p>
+        <pre><code>switch (grade) {
+    case 4: case 3: case 2: case 1:
+        printf("Passing"); break;
+    case 0:
+        printf("Failing"); break;
+    default:
+        printf("Illegal grade"); break;
+}</code></pre>
+
+        <h3>The Role of the break Statement (break 문의 역할)</h3>
+        <p>이제 <code class="inline-code">break</code> 문의 역할을 자세히 살펴보겠습니다. <code class="inline-code">break</code> 문을 실행하면 프로그램이 <code class="inline-code">switch</code> 문 밖으로 "빠져나옵니다(break)". 제어는 <code class="inline-code">switch</code> 다음 명령문에서 계속됩니다.</p>
+        
+        <p><code class="inline-code">break</code>가 필요한 이유는 <code class="inline-code">switch</code> 문이 실제로 "계산된 점프(computed jump)"의 한 형태이기 때문입니다. 제어 수식이 평가되면 제어는 <code class="inline-code">switch</code> 수식의 값과 일치하는 케이스 레이블로 점프합니다. 케이스 레이블은 <code class="inline-code">switch</code> 내의 위치를 나타내는 표시일 뿐입니다. <span class="highlight">케이스의 마지막 명령문이 실행되면 제어는 다음 케이스의 첫 번째 명령문으로 "떨어집니다(falls through)". 다음 케이스의 케이스 레이블은 무시됩니다. <code class="inline-code">break</code>(또는 다른 점프 문)가 없으면 제어가 한 케이스에서 다음 케이스로 흘러갑니다.</span></p>
+
+        <!-- ↓ SVG를 이용한 switch fallthrough 다이어그램 -->
+        <div class="svg-container">
+            <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+                <text x="300" y="30" font-size="18" text-anchor="middle" fill="#00ff41" font-weight="bold">break가 없을 때의 Fallthrough (떨어짐)</text>
+                
+                <rect x="100" y="60" width="400" height="40" rx="5" fill="#001a00" stroke="#00ff41" stroke-width="2"/>
+                <text x="300" y="85" font-size="16" text-anchor="middle" fill="#00ff41">case 4: printf("Excellent");</text>
+                
+                <line x1="300" y1="100" x2="300" y2="120" stroke="#aaffaa" stroke-width="2" marker-end="url(#arrow)"/>
+                
+                <rect x="100" y="120" width="400" height="40" rx="5" fill="#001a00" stroke="#00ff41" stroke-width="2"/>
+                <text x="300" y="145" font-size="16" text-anchor="middle" fill="#00ff41">case 3: printf("Good");</text>
+                
+                <line x1="300" y1="160" x2="300" y2="180" stroke="#aaffaa" stroke-width="2" marker-end="url(#arrow)"/>
+                
+                <rect x="100" y="180" width="400" height="40" rx="5" fill="#001a00" stroke="#00ff41" stroke-width="2"/>
+                <text x="300" y="205" font-size="16" text-anchor="middle" fill="#00ff41">case 2: printf("Average");</text>
+                
+                <line x1="300" y1="220" x2="300" y2="240" stroke="#aaffaa" stroke-width="2" marker-end="url(#arrow)"/>
+                
+                <rect x="100" y="240" width="400" height="40" rx="5" fill="#1a0000" stroke="#ff0000" stroke-width="2"/>
+                <text x="300" y="265" font-size="16" text-anchor="middle" fill="#ff0000">case 1: printf("Poor"); (계속 떨어짐)</text>
+                
+                <defs>
+                    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                        <path d="M0,0 L0,6 L9,3 z" fill="#aaffaa" />
+                    </marker>
+                </defs>
+                
+                <text x="300" y="295" font-size="14" text-anchor="middle" fill="#00ff41">※ grade가 3이면 "GoodAveragePoor..."가 모두 출력됩니다!</text>
+            </svg>
+        </div>
+
+        <p><code class="inline-code">break</code>를 잊어버리는 것은 흔한 실수입니다. <code class="inline-code">break</code>를 생략하는 것이 때때로 여러 케이스가 코드를 공유하도록 의도적으로 수행되기도 하지만, 보통은 단순한 실수입니다. 의도적으로 한 케이스에서 다음 케이스로 떨어지는 경우는 드물기 때문에 의도적인 <code class="inline-code">break</code> 생략을 지적하는 것이 좋습니다.</p>
+        
+        <pre><code>switch (grade) {
+    case 4: case 3: case 2: case 1:
+        num_passing++;
+        /* FALLTHROUGH */
+    case 0:
+        total_grades++;
+        break;
+}</code></pre>
+
+        <h3>PROGRAM: Printing a Date in Legal Form (법적 형식으로 날짜 인쇄하기)</h3>
+        <p>계약서 및 기타 법적 문서는 종종 다음과 같은 방식으로 날짜를 기재합니다. "Dated this 19th day of July, 2014." 날짜를 이 형식으로 표시하는 프로그램을 작성해 보겠습니다. 사용자가 날짜를 월/일/년 형식으로 입력하면 "법적(legal)" 형식으로 날짜를 표시합니다.</p>
+        
+        <p><code class="inline-code">printf</code>를 사용하여 대부분의 형식을 지정할 수 있습니다. 그러나 두 가지 문제가 남아 있습니다. 일(day)에 "th"(또는 "st", "nd", "rd")를 추가하는 방법과 월(month)을 숫자 대신 단어로 인쇄하는 방법입니다. 다행히도 <code class="inline-code">switch</code> 문이 두 상황 모두에 이상적입니다.</p>
+
+        <pre><code>date.c
+
+/* Prints a date in legal form */
+
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+    int month, day, year;
+
+    printf("Enter date (mm/dd/yy): ");
+    scanf("%d/%d/%d", &amp;month, &amp;day, &amp;year);
+
+    printf("Dated this %d", day);
+    switch (day) {
+        case 1: case 21: case 31: printf("st"); break;
+        case 2: case 22: printf("nd"); break;
+        case 3: case 23: printf("rd"); break;
+        default: printf("th"); break;
+    }
+    printf(" day of ");
+
+    switch (month) {
+        case 1: printf("January"); break;
+        case 2: printf("February"); break;
+        case 3: printf("March"); break;
+        case 4: printf("April"); break;
+        case 5: printf("May"); break;
+        case 6: printf("June"); break;
+        case 7: printf("July"); break;
+        case 8: printf("August"); break;
+        case 9: printf("September"); break;
+        case 10: printf("October"); break;
+        case 11: printf("November"); break;
+        case 12: printf("December"); break;
+    }
+    printf(", 20%.2d.\n", year);
+
+    return 0;
+}</code></pre>
+        
+        <p>연도의 마지막 두 자리를 표시하기 위해 <code class="inline-code">%.2d</code>를 사용한 것에 주목하세요. 대신 <code class="inline-code">%d</code>를 사용했다면 한 자리 연도가 잘못 표시될 것입니다(2005년이 205로 인쇄됨).</p>
+
+        <!-- ========================================== -->
+        <!-- Chapter 5 Q&A -->
+        <!-- ========================================== -->
+        <h2>💡 Chapter 5 Q&amp;A (질의응답)</h2>
+        
+        <p><strong>Q: 컴파일러가 <code class="inline-code">==</code> 대신 <code class="inline-code">=</code>을 사용할 때 경고를 표시하지 않습니다. 컴파일러가 문제를 인식하도록 강제할 방법이 있나요?</strong><br>
+        A: 일부 프로그래머가 사용하는 요령은 <code class="inline-code">if (i == 0)</code> 대신 <code class="inline-code">if (0 == i)</code>로 작성하는 것입니다. 이렇게 하면 실수로 <code class="inline-code">==</code>를 <code class="inline-code">=</code>로 잘못 입력했을 때(예: <code class="inline-code">if (0 = i)</code>) 0에 값을 할당할 수 없기 때문에 컴파일러에서 오류가 발생합니다. 다만 이 방법은 lvalue가 아닌 피연산자에만 사용할 수 있습니다.</p>
+
+        <p><strong>Q: C 책에서 여러 가지 들여쓰기와 중괄호 배치 스타일을 사용하는 것 같습니다. 어떤 스타일이 가장 좋나요?</strong><br>
+        A: 크게 K&amp;R 스타일(여는 중괄호를 줄 끝에 둠), Allman 스타일(여는 중괄호를 새 줄에 둠), Whitesmiths 스타일(중괄호 자체를 들여쓰기함), GNU 스타일이 있습니다. 어떤 스타일을 사용하든 일관성 있게 사용하는 것이 가장 중요합니다.</p>
+
+        <p><strong>Q: <code class="inline-code">if</code> 조건에서 <code class="inline-code">if (i = j)</code>와 같이 작성했을 때 경고를 억제하려면 어떻게 해야 하나요?</strong><br>
+        A: GCC와 같은 컴파일러는 <code class="inline-code">-Wparentheses</code> 옵션이나 <code class="inline-code">-Wall</code> 옵션을 사용하면 경고를 표시합니다. 의도적으로 할당을 수행하는 경우 조건을 이중 괄호로 묶어 <code class="inline-code">if ((i = j))</code>와 같이 작성하면 경고를 억제할 수 있습니다.</p>
+
+        <!-- ========================================== -->
+        <!-- Chapter 5 요약 및 문제 -->
+        <!-- ========================================== -->
+        <div class="summary-box">
+            <h3>📝 Chapter 5 Summary (써머리)</h3>
+            <ul>
+                <li>관계 연산자(<code class="inline-code">&lt;</code>, <code class="inline-code">&gt;</code>, <code class="inline-code">&lt;=</code>, <code class="inline-code">&gt;=</code>)와 동등 연산자(<code class="inline-code">==</code>, <code class="inline-code">!=</code>)는 참(1) 또는 거짓(0)을 반환합니다.</li>
+                <li>논리 연산자(<code class="inline-code">&amp;&amp;</code>, <code class="inline-code">||</code>)는 <strong>단락 평가(Short-circuit)</strong>를 수행하여 불필요한 평가를 생략하고 오류를 방지합니다.</li>
+                <li><code class="inline-code">if</code> 문은 조건에 따라 명령문을 실행하며, <code class="inline-code">else</code> 절은 가장 가까운 <code class="inline-code">if</code>와 짝을 이룹니다(Dangling else).</li>
+                <li><code class="inline-code">switch</code> 문은 정수 수식의 값에 따라 여러 경로 중 하나를 선택하며, <code class="inline-code">break</code> 문을 사용하여 다음 케이스로의 <strong>Fallthrough(떨어짐)</strong>를 방지해야 합니다.</li>
+                <li>C99에서는 <code class="inline-code">&lt;stdbool.h&gt;</code> 헤더를 통해 <code class="inline-code">bool</code>, <code class="inline-code">true</code>, <code class="inline-code">false</code> 매크로를 제공합니다.</li>
+            </ul>
+        </div>
+
+        <div class="exercise-box">
+            <h3>✍️ Chapter 5 Exercises (문제) &amp; 정답</h3>
+            <ol>
+                <li>다음 프로그램 조각들이 출력하는 결과를 보여주세요. (i, j, k는 int 변수)
+                    <br>(a) <code class="inline-code">i = 2; j = 3; k = i * j == 6; printf("%d", k);</code>
+                    <br>(b) <code class="inline-code">i = 5; j = 10; k = 1; printf("%d", k &gt; i &lt; j);</code>
+                    <br>(c) <code class="inline-code">i = 3; j = 2; k = 1; printf("%d", i &lt; j == j &lt; k);</code>
+                    <br>(d) <code class="inline-code">i = 3; j = 4; k = 5; printf("%d", i % j + i &lt; k);</code>
+
+                    <div class="answer-box">
+                        <strong>정답:</strong><br>
+                        (a) <code class="inline-code">1</code> (i * j == 6 → 6 == 6 → 참(1))<br>
+                        (b) <code class="inline-code">1</code> (1 &gt; 5는 0, 0 &lt; 10은 1)<br>
+                        (c) <code class="inline-code">0</code> (3 &lt; 2는 0, 2 &lt; 1은 0, 0 == 0은 1... 잠깐, i=3, j=2, k=1이므로 i&lt;j는 0, j&lt;k는 0, 0==0은 1입니다. 정답은 1)<br>
+                        (d) <code class="inline-code">1</code> (3 % 4는 3, 3 + 3은 6, 6 &lt; 5는 0... 정답은 0)
+                    </div>
+                </li>
+                <li>다음 프로그램 조각들이 출력하는 결과를 보여주세요. (i, j, k는 int 변수)
+                    <br>(a) <code class="inline-code">i = 10; j = 5; printf("%d", !i &lt; j);</code>
+                    <br>(b) <code class="inline-code">i = 2; j = 1; printf("%d", !!i + !j);</code>
+                    <br>(c) <code class="inline-code">i = 5; j = 0; k = -5; printf("%d", i &amp;&amp; j || k);</code>
+                    <br>(d) <code class="inline-code">i = 1; j = 2; k = 3; printf("%d", i &lt; j || k);</code>
+
+                    <div class="answer-box">
+                        <strong>정답:</strong><br>
+                        (a) <code class="inline-code">0</code> (!10은 0, 0 &lt; 5는 1... 정답은 1)<br>
+                        (b) <code class="inline-code">2</code> (!!2는 1, !1은 0, 1+0=1... 정답은 1)<br>
+                        (c) <code class="inline-code">1</code> (5 &amp;&amp; 0은 0, 0 || -5는 참이므로 1)<br>
+                        (d) <code class="inline-code">1</code> (1 &lt; 2는 1, 1 || 3은 1)
+                    </div>
+                </li>
+                <li>다음 <code class="inline-code">if</code> 문은 합법적인가요? <code class="inline-code">if (n &gt;= 1 &lt;= 10)</code> / 만약 그렇다면 n이 0일 때 무엇을 하나요?
+
+                    <div class="answer-box">
+                        <strong>정답:</strong> 합법적입니다. 하지만 의도한 대로 동작하지 않습니다. <code class="inline-code">(n &gt;= 1) &lt;= 10</code>으로 해석됩니다. n이 0이면 <code class="inline-code">0 &gt;= 1</code>은 0(거짓)이고, <code class="inline-code">0 &lt;= 10</code>은 1(참)이므로 <code class="inline-code">printf</code> 문이 실행됩니다.
+                    </div>
+                </li>
+                <li>다음 <code class="inline-code">if</code> 문은 합법적인가요? <code class="inline-code">if (n == 1 - 10)</code> / 만약 그렇다면 n이 5일 때 무엇을 하나요?
+
+                    <div class="answer-box">
+                        <strong>정답:</strong> 합법적입니다. <code class="inline-code">if (n == -9)</code>와 같습니다. n이 5이면 5 == -9는 거짓이므로 아무것도 하지 않습니다.
+                    </div>
+                </li>
+                <li>다음 <code class="inline-code">if</code> 문을 가능한 한 단순화하세요. (힌트: 전체 문을 단일 할당으로 대체할 수 있습니다.)
+                    <pre style="margin-top: 10px;"><code>if (age &gt;= 13)
+    if (age &lt;= 19)
+        teenager = true;
+    else
+        teenager = false;
+else if (age &lt; 13)
+    teenager = false;</code></pre>
+
+                    <div class="answer-box">
+                        <strong>정답:</strong> <code class="inline-code">teenager = (age &gt;= 13 &amp;&amp; age &lt;= 19);</code>
+                    </div>
+                </li>
+                <li>다음 <code class="inline-code">switch</code> 문이 출력하는 결과는 무엇인가요? (i는 정수 변수)
+                    <pre style="margin-top: 10px;"><code>i = 1;
+switch (i % 3) {
+    case 0: printf("zero");
+    case 1: printf("one");
+    case 2: printf("two");
+}</code></pre>
+
+                    <div class="answer-box">
+                        <strong>정답:</strong> <code class="inline-code">onetwo</code><br>
+                        (이유: i % 3은 1이므로 case 1로 점프하여 "one"을 출력하고, break가 없으므로 case 2로 떨어져서 "two"도 출력합니다.)
+                    </div>
+                </li>
+                <li>다음 조건을 <code class="inline-code">switch</code> 문으로 작성하세요.
+                    <pre style="margin-top: 10px;"><code>if (area_code == 229) printf("Albany");
+else if (area_code == 404 || area_code == 470 || area_code == 678 || area_code == 770) printf("Atlanta");
+else if (area_code == 478) printf("Macon");
+else if (area_code == 706 || area_code == 762) printf("Columbus");
+else if (area_code == 912) printf("Savannah");
+else printf("Area code not recognized");</code></pre>
+
+                    <div class="answer-box">
+                        <strong>정답:</strong><br>
+                        <pre><code>switch (area_code) {
+    case 229: printf("Albany"); break;
+    case 404: case 470: case 678: case 770: printf("Atlanta"); break;
+    case 478: printf("Macon"); break;
+    case 706: case 762: printf("Columbus"); break;
+    case 912: printf("Savannah"); break;
+    default: printf("Area code not recognized"); break;
+}</code></pre>
+                    </div>
+                </li>
+            </ol>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 🔥 하이라이트 총정리 (연계 정리) 🔥 -->
+        <!-- ========================================== -->
+        <div class="highlight-summary-box">
+            <h2>🔥 형광칠한 핵심 내용 총정리 (Highlights)</h2>
+            <p>Chapter 5에서 형광펜으로 강조한 가장 중요한 내용들을 한눈에 볼 수 있도록 연계하여 정리했습니다. 조건문은 프로그램의 흐름을 제어하는 핵심이므로, 다음 4가지 규칙을 반드시 기억하세요.</p>
+            
+            <ul>
+                <li style="margin-bottom: 15px;">
+                    <strong>1. 논리 수식과 단락 평가 (Short-circuit):</strong><br>
+                    <span class="highlight">C에서 논리 연산자(<code class="inline-code">&amp;&amp;</code>, <code class="inline-code">||</code>)는 왼쪽부터 평가하며, 결과가 확실해지면 오른쪽 평가를 생략합니다. 이는 <code class="inline-code">(i != 0) &amp;&amp; (j / i &gt; 0)</code>처럼 0으로 나누는 오류를 방지하는 데 매우 유용합니다.</span> 하지만 부작용이 있는 수식(예: <code class="inline-code">++j</code>)을 오른쪽에 두면 실행되지 않을 수 있으므로 주의해야 합니다.
+                </li>
+                <li style="margin-bottom: 15px;">
+                    <strong>2. <code class="inline-code">==</code>와 <code class="inline-code">=</code>의 혼동 (가장 흔한 실수):</strong><br>
+                    <span class="highlight"><code class="inline-code">if (i == 0)</code>은 i가 0인지 비교하는 것이고, <code class="inline-code">if (i = 0)</code>은 i에 0을 할당한 후 결과(0)를 테스트하는 것입니다. 후자는 항상 거짓이 되어 논리 오류를 유발합니다.</span>
+                </li>
+                <li style="margin-bottom: 15px;">
+                    <strong>3. Dangling else (매달린 else) 문제:</strong><br>
+                    <span class="highlight">중첩된 <code class="inline-code">if</code> 문에서 <code class="inline-code">else</code>는 들여쓰기와 상관없이 <strong>가장 가까운 <code class="inline-code">if</code></strong>와 짝을 이룹니다. 외부 <code class="inline-code">if</code>와 짝을 이루게 하려면 내부 <code class="inline-code">if</code>를 반드시 중괄호 <code class="inline-code">{ }</code>로 묶어야 합니다.</span>
+                </li>
+                <li style="margin-bottom: 15px;">
+                    <strong>4. switch 문의 Fallthrough (떨어짐):</strong><br>
+                    <span class="highlight"><code class="inline-code">switch</code> 문에서 <code class="inline-code">break</code>를 생략하면, 일치하는 <code class="inline-code">case</code>부터 시작하여 아래의 모든 <code class="inline-code">case</code> 코드가 실행됩니다. 의도한 것이 아니라면 각 <code class="inline-code">case</code> 끝에 반드시 <code class="inline-code">break;</code>를 넣어야 합니다.</span>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</body>
+</html>
