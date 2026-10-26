@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<!-- ↑ 이 문서는 HTML5 형식으로 작성되었음을 브라우저에 알려줍니다. -->
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <!-- 모바일(아이폰 17 프로 맥스 등) 최적화를 위한 필수 메타 태그 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 4: Expressions</title>
+
+    <style>
+        /* =========================================================
+           매트릭스 테마 CSS (검정 배경, 네온 초록 글씨)
+           ========================================================= */
+        body {
+            font-family: 'Consolas', 'Courier New', 'Fira Code', monospace;
+            line-height: 1.7;
+            color: #00ff41; /* 네온 초록색 글씨 */
+            background-color: #000000; /* 완전 검정 배경 */
+            margin: 0;
+            padding: 0;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 15px;
+            background-color: #0a0a0a;
+            border-left: 1px solid #003300;
+            border-right: 1px solid #003300;
+        }
+
+        @media (min-width: 600px) {
+            .container {
+                margin: 40px auto;
+                padding: 40px;
+                border: 1px solid #00ff41;
+                border-radius: 10px;
+                box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+            }
+        }
+
+        /* 제목 스타일 */
+        h1, h2, h3 {
+            color: #00ff41;
+            text-shadow: 0 0 8px rgba(0, 255, 65, 0.8);
+            font-weight: bold;
+        }
+        h1 {
+            text-align: center;
+            border-bottom: 2px dashed #00ff41;
+            padding-bottom: 10px;
+            font-size: 1.5em;
+        }
+        h2 {
+            margin-top: 40px;
+            border-left: 4px solid #00ff41;
+            padding-left: 10px;
+            font-size: 1.3em;
+        }
+        h3 {
+            margin-top: 30px;
+            font-size: 1.1em;
+            color: #aaffaa;
+        }
+
+        /* 코드 블록 스타일 */
+        pre {
+            background-color: #050505;
+            border: 1px solid #005511;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto; /* 모바일 가로 스크롤 */
+            color: #00ff41;
+            font-size: 14px;
+        }
+        
+        /* 인라인 코드 */
+        .inline-code {
+            background-color: #111;
+            color: #00ff41;
+            border: 1px solid #003300;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 0.95em;
+            word-break: break-all;
+        }
+
+        /* 형광펜 효과 */
+        .highlight {
+            background-color: rgba(0, 255, 65, 0.2);
+            color: #ffffff;
+            padding: 2px 4px;
+            border-radius: 3px;
+            border-bottom: 2px solid #00ff41;
+            text-shadow: 0 0 5px #00ff41;
+            font-weight: bold;
+        }
+
+        /* 설명 박스 */
+        .info-box {
+            background-color: #001a00;
+            border: 1px solid #00ff41;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .warning-box {
+            background-color: #1a1a00;
+            border: 1px solid #ffff00;
+            color: #ffff00;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .warning-box strong { color: #ffff00; text-shadow: 0 0 5px #ffff00; }
+
+        /* SVG 컨테이너 */
+        .svg-container {
+            text-align: center;
+            margin: 30px 0;
+            padding: 10px;
+            border: 1px dashed #005511;
+        }
+        .svg-container svg {
+            width: 100%;
+            height: auto;
+            max-width: 600px;
+        }
+
+        /* 요약 및 문제 박스 */
+        .summary-box {
+            background-color: #001a00;
+            border: 1px solid #00ff41;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 40px;
+        }
+        .exercise-box {
+            background-color: #0a0a0a;
+            border: 1px solid #00ff41;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .exercise-box ol { padding-left: 20px; }
+        .exercise-box li { margin-bottom: 15px; }
+
+        /* 정답 박스 */
+        .answer-box {
+            background-color: #002200;
+            border: 1px dashed #00ff41;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 5px;
+            color: #aaffaa;
+        }
+        .answer-box strong {
+            color: #00ff41;
+            text-decoration: underline;
+        }
+
+        /* 하이라이트 총정리 박스 */
+        .highlight-summary-box {
+            background-color: #002200;
+            border: 2px solid #00ff41;
+            padding: 25px;
+            border-radius: 8px;
+            margin-top: 50px;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.4);
+        }
+        .highlight-summary-box h2 {
+            border-left: none;
+            text-align: center;
+            border-bottom: 2px solid #00ff41;
+            padding-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Chapter 4: Expressions</h1>
+
+        <blockquote style="font-style: italic; color: #aaffaa; border-left: 4px solid #00ff41; padding-left: 15px;">
+            "손 계산기를 사용한다고 해서 컴퓨팅을 배우는 것은 아니지만, 산술을 잊어버릴 수는 있다." (One does not learn computing by using a hand calculator, but one can forget arithmetic.) - 앨런 펄리스
+        </blockquote>
+
+        <p>C의 두드러진 특징 중 하나는 명령문(statements)보다는 값을 계산하는 방법을 보여주는 수식(expressions)에 중점을 둔다는 것입니다. 가장 단순한 수식은 변수와 상수입니다. 변수는 프로그램이 실행될 때 계산될 값을 나타내고, 상수는 변하지 않는 값을 나타냅니다. 더 복잡한 수식은 연산자(operators)를 피연산자(operands)에 적용합니다. <code class="inline-code">a + (b * c)</code> 수식에서 <code class="inline-code">+</code> 연산자는 피연산자 <code class="inline-code">a</code>와 <code class="inline-code">(b * c)</code>에 적용되며, 둘 다 그 자체로 수식입니다.</p>
+        
+        <p>연산자는 수식을 만드는 기본 도구이며, C는 유난히 풍부한 연산자 컬렉션을 제공합니다. 이 장에서는 C의 가장 기본적인 연산자인 산술 연산자(4.1절), 할당 연산자(4.2절), 증가 및 감소 연산자(4.3절)를 다룹니다. 4.1절에서는 연산자 우선순위와 결합성(associativity)에 대해서도 설명합니다. 4.4절에서는 C 수식이 어떻게 평가되는지 설명하고, 마지막으로 4.5절에서는 수식 명령문(expression statement)을 소개합니다.</p>
+
+        <!-- ========================================== -->
+        <!-- Section 4.1 시작 -->
+        <!-- ========================================== -->
+        <h2>4.1 Arithmetic Operators (산술 연산자)</h2>
+        
+        <p>덧셈, 뺄셈, 곱셈, 나눗셈을 수행하는 산술 연산자는 C를 포함한 많은 프로그래밍 언어의 주력입니다. 표 4.1은 C의 산술 연산자를 보여줍니다.</p>
+
+        <table style="width:100%; border-collapse: collapse; margin: 20px 0; text-align:center;">
+            <tr style="border-bottom: 1px solid #005511;">
+                <th style="padding:10px; color:#00ff41;">단항 (Unary)</th>
+                <th style="padding:10px; color:#00ff41;">이항 (Binary)</th>
+            </tr>
+            <tr>
+                <td style="padding:10px;">+ 단항 플러스<br>- 단항 마이너스</td>
+                <td style="padding:10px;">+ 덧셈, - 뺄셈<br>* 곱셈, / 나눗셈, % 나머지</td>
+            </tr>
+        </table>
+
+        <p>덧셈과 곱셈 연산자는 두 개의 피연산자를 필요로 하기 때문에 <strong>이항(binary)</strong> 연산자라고 합니다. 단항 연산자는 하나의 피연산자를 필요로 합니다.</p>
+        
+        <pre><code>i = +1;    /* used as a unary operator */
+i = -i;    /* used as a unary operator */</code></pre>
+        
+        <p>단항 <code class="inline-code">+</code> 연산자는 아무것도 하지 않습니다. 실제로 K&R C에는 존재하지도 않았습니다. 주로 숫자 상수가 양수임을 강조하는 데 사용됩니다.</p>
+        
+        <p>이항 연산자는 아마 익숙할 것입니다. 모르는 유일한 연산자는 <code class="inline-code">%</code> 나머지 연산자일 것입니다. <span class="highlight"><code class="inline-code">i % j</code>의 값은 i를 j로 나눈 나머지입니다.</span> 예를 들어, <code class="inline-code">10 % 3</code>의 값은 1이고, <code class="inline-code">12 % 4</code>의 값은 0입니다.</p>
+        
+        <p>표 4.1의 이항 연산자 중 <code class="inline-code">%</code>를 제외한 나머지는 정수 또는 부동 소수점 피연산자를 허용하며 혼합도 허용합니다. <code class="inline-code">int</code>와 <code class="inline-code">float</code> 피연산자가 혼합되면 결과는 <code class="inline-code">float</code> 타입을 가집니다. 따라서 <code class="inline-code">9 + 2.5f</code>는 11.5의 값을 가지고, <code class="inline-code">6.7f / 2</code>는 3.35의 값을 가집니다.</p>
+        
+        <p><code class="inline-code">/</code> 및 <code class="inline-code">%</code> 연산자는 특별한 주의가 필요합니다.</p>
+        <ul>
+            <li><span class="highlight"><code class="inline-code">/</code> 연산자는 놀라운 결과를 생성할 수 있습니다. 두 피연산자가 모두 정수일 때 <code class="inline-code">/</code> 연산자는 소수 부분을 버리고 결과를 "잘라냅니다(truncates)". 따라서 <code class="inline-code">1 / 2</code>의 값은 0.5가 아니라 0입니다.</span></li>
+            <li><span class="highlight"><code class="inline-code">%</code> 연산자는 정수 피연산자를 필요로 합니다. 피연산자 중 하나라도 정수가 아니면 프로그램이 컴파일되지 않습니다.</span></li>
+            <li>0을 <code class="inline-code">/</code> 또는 <code class="inline-code">%</code>의 오른쪽 피연산자로 사용하면 정의되지 않은 동작(undefined behavior)이 발생합니다.</li>
+            <li>음수 피연산자와 함께 <code class="inline-code">/</code> 및 <code class="inline-code">%</code>를 사용할 때의 결과를 설명하는 것은 까다롭습니다. <span class="highlight">C89 표준은 피연산자 중 하나라도 음수이면 나눗셈 결과가 올림 또는 내림될 수 있다고 명시합니다. (예: <code class="inline-code">-9 / 7</code>은 -1 또는 -2). C99에서는 나눗셈 결과가 항상 0 방향으로 잘리고(따라서 <code class="inline-code">-9 / 7</code>은 -1), <code class="inline-code">i % j</code>의 값은 i와 같은 부호를 가집니다(따라서 <code class="inline-code">-9 % 7</code>은 -2).</span></li>
+        </ul>
+
+        <div class="info-box">
+            <strong>구현 정의 동작 (Implementation-Defined Behavior)</strong><br>
+            <p>"구현 정의(implementation-defined)"라는 용어는 C 표준이 의도적으로 언어의 일부를 명시하지 않고, 특정 플랫폼에서 프로그램을 컴파일, 링크 및 실행하는 데 필요한 소프트웨어인 "구현(implementation)"이 세부 사항을 채우도록 한다는 것을 의미합니다. C89에서 음수 피연산자에 대한 <code class="inline-code">/</code> 및 <code class="inline-code">%</code> 연산자의 동작이 구현 정의 동작의 한 예입니다.</p>
+            <p>일부 CPU는 -9를 7로 나눌 때 -1을 산출하고 다른 CPU는 -2를 산출합니다. C89 표준은 단순히 이러한 현실을 반영합니다. <span class="highlight">구현 정의 동작에 의존하는 프로그램을 작성하는 것은 피하는 것이 가장 좋습니다. 불가피한 경우 매뉴얼을 주의 깊게 확인하세요. C 표준은 구현 정의 동작이 문서화되도록 요구합니다.</span></p>
+        </div>
+
+        <h3>Operator Precedence and Associativity (연산자 우선순위와 결합성)</h3>
+        <p>수식에 둘 이상의 연산자가 포함된 경우 해석이 즉시 명확하지 않을 수 있습니다. 예를 들어, <code class="inline-code">i + j * k</code>는 "i와 j를 더한 다음 결과에 k를 곱하라"는 의미일까요, 아니면 "j와 k를 곱한 다음 i를 더하라"는 의미일까요? 이 문제에 대한 한 가지 해결책은 괄호를 추가하여 <code class="inline-code">(i + j) * k</code> 또는 <code class="inline-code">i + (j * k)</code>로 작성하는 것입니다. 일반적으로 C는 모든 수식에서 그룹화를 위해 괄호를 사용할 수 있도록 허용합니다.</p>
+        
+        <p>그러나 괄호를 사용하지 않으면 어떻게 될까요? 컴파일러는 <code class="inline-code">i + j * k</code>를 <code class="inline-code">(i + j) * k</code>로 해석할까요, 아니면 <code class="inline-code">i + (j * k)</code>로 해석할까요? 많은 다른 언어와 마찬가지로 C는 이 잠재적인 모호성을 해결하기 위해 <strong>연산자 우선순위(operator precedence)</strong> 규칙을 사용합니다. 산술 연산자는 다음과 같은 상대적 우선순위를 가집니다.</p>
+        
+        <ul>
+            <li><strong>가장 높음:</strong> <code class="inline-code">+</code> <code class="inline-code">-</code> (단항)</li>
+            <li><strong>중간:</strong> <code class="inline-code">*</code> <code class="inline-code">/</code> <code class="inline-code">%</code></li>
+            <li><strong>가장 낮음:</strong> <code class="inline-code">+</code> <code class="inline-code">-</code> (이항)</li>
+        </ul>
+        
+        <p>같은 줄에 나열된 연산자(예: <code class="inline-code">+</code> 및 <code class="inline-code">-</code>)는 우선순위가 같습니다. 수식에 같은 수준의 우선순위를 가진 두 개 이상의 연산자가 나타나면 <strong>결합성(associativity)</strong>이 작용합니다. <span class="highlight">이항 산술 연산자(<code class="inline-code">*</code>, <code class="inline-code">/</code>, <code class="inline-code">%</code>, <code class="inline-code">+</code>, <code class="inline-code">-</code>)는 모두 왼쪽 결합성(left associative)을 가집니다. 즉, 왼쪽에서 오른쪽으로 그룹화됩니다.</span> 반면에 단항 산술 연산자(<code class="inline-code">+</code>, <code class="inline-code">-</code>)는 오른쪽 결합성(right associative)을 가집니다.</p>
+
+        <!-- ↓ SVG를 이용한 연산자 우선순위 다이어그램 -->
+        <div class="svg-container">
+            <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+                <text x="300" y="30" font-size="20" font-family="monospace" text-anchor="middle" fill="#00ff41" font-weight="bold">i + j * k</text>
+                
+                <!-- 화살표 아래로 -->
+                <line x1="300" y1="40" x2="300" y2="70" stroke="#aaffaa" stroke-width="2" marker-end="url(#arrow)"/>
+                
+                <!-- 우선순위 설명 박스 -->
+                <rect x="150" y="80" width="300" height="40" rx="5" fill="#001a00" stroke="#00ff41" stroke-width="2"/>
+                <text x="300" y="105" font-size="16" font-family="monospace" text-anchor="middle" fill="#00ff41">곱셈(*)이 덧셈(+)보다 우선순위가 높음</text>
+                
+                <line x1="300" y1="120" x2="300" y2="150" stroke="#aaffaa" stroke-width="2" marker-end="url(#arrow)"/>
+                
+                <rect x="150" y="160" width="300" height="40" rx="5" fill="#001a00" stroke="#00ff41" stroke-width="2"/>
+                <text x="300" y="185" font-size="16" font-family="monospace" text-anchor="middle" fill="#00ff41">결과: i + (j * k)</text>
+                
+                <defs>
+                    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                        <path d="M0,0 L0,6 L9,3 z" fill="#aaffaa" />
+                    </marker>
+                </defs>
+            </svg>
+        </div>
+
+        <p>우선순위 및 결합성 규칙은 많은 언어에서 중요하지만, 특히 C에서 중요합니다. 그러나 C에는 연산자가 너무 많아서(거의 50개!) 대부분의 프로그래머가 우선순위와 결합성 규칙을 외우려고 하지 않습니다. 대신 의심스러울 때 연산자 표를 참조하거나 괄호를 충분히 사용합니다.</p>
+
+        <h3>PROGRAM: Computing a UPC Check Digit (UPC 체크 디지트 계산하기)</h3>
+        <p>수년 동안 미국과 캐나다 상점에서 판매되는 상품 제조업체들은 각 제품에 바코드를 부착했습니다. 범용 상품 코드(Universal Product Code, UPC)로 알려진 이 코드는 제조업체와 제품을 모두 식별합니다. 각 바코드는 12자리 숫자를 나타냅니다.</p>
+        
+        <p>다음은 체크 디지트를 계산하는 한 가지 방법입니다.</p>
+        <ol>
+            <li>첫 번째, 세 번째, 다섯 번째, 일곱 번째, 아홉 번째, 열한 번째 숫자를 더합니다.</li>
+            <li>두 번째, 네 번째, 여섯 번째, 여덟 번째, 열 번째 숫자를 더합니다.</li>
+            <li>첫 번째 합계에 3을 곱하고 두 번째 합계에 더합니다.</li>
+            <li>총합에서 1을 뺍니다.</li>
+            <li>조정된 총합을 10으로 나눈 나머지를 계산합니다.</li>
+            <li>9에서 나머지를 뺍니다.</li>
+        </ol>
+
+        <p>임의의 UPC에 대한 체크 디지트를 계산하는 프로그램을 작성해 보겠습니다. 사용자에게 UPC의 처음 11자리를 입력하라는 메시지를 표시한 다음, 해당하는 체크 디지트를 표시할 것입니다. 혼동을 피하기 위해 사용자에게 숫자를 세 부분으로 입력하도록 요청할 것입니다.</p>
+
+        <pre><code>upc.c
+
+/* Computes a Universal Product Code check digit */
+
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+    int d, i1, i2, i3, i4, i5, j1, j2, j3, j4, j5, first_sum, second_sum, total;
+
+    printf("Enter the first (single) digit: ");
+    scanf("%1d", &amp;d);
+    printf("Enter first group of five digits: ");
+    scanf("%1d%1d%1d%1d%1d", &amp;i1, &amp;i2, &amp;i3, &amp;i4, &amp;i5);
+    printf("Enter second group of five digits: ");
+    scanf("%1d%1d%1d%1d%1d", &amp;j1, &amp;j2, &amp;j3, &amp;j4, &amp;j5);
+
+    first_sum = d + i2 + i4 + j1 + j3 + j5;
+    second_sum = i1 + i3 + i5 + j2 + j4;
+    total = 3 * first_sum + second_sum;
+
+    printf("Check digit: %d\n", 9 - ((total - 1) % 10));
+
+    return 0;
+}</code></pre>
+        
+        <p>수식 <code class="inline-code">9 - ((total - 1) % 10)</code>은 <code class="inline-code">9 - (total - 1) % 10</code>으로 작성할 수도 있지만, 추가 괄호 세트가 이해하기 더 쉽게 만듭니다.</p>
+
+        <!-- ========================================== -->
+        <!-- Section 4.2 시작 -->
+        <!-- ========================================== -->
+        <h2>4.2 Assignment Operators (할당 연산자)</h2>
+        
+        <p>수식의 값이 계산되면 나중에 사용하기 위해 변수에 저장해야 하는 경우가 많습니다. C의 <code class="inline-code">=</code>(단순 할당) 연산자가 이 목적으로 사용됩니다. 변수에 이미 저장된 값을 업데이트하기 위해 C는 다양한 복합 할당 연산자를 제공합니다.</p>
+
+        <h3>Simple Assignment (단순 할당)</h3>
+        <p>할당 <code class="inline-code">v = e</code>의 효과는 수식 <code class="inline-code">e</code>를 평가하고 그 값을 <code class="inline-code">v</code>에 복사하는 것입니다. <code class="inline-code">v</code>와 <code class="inline-code">e</code>의 타입이 다르면 할당이 이루어질 때 <code class="inline-code">e</code>의 값이 <code class="inline-code">v</code>의 타입으로 변환됩니다.</p>
+        
+        <p><span class="highlight">많은 프로그래밍 언어에서 할당은 명령문(statement)이지만, C에서 할당은 <code class="inline-code">+</code>와 마찬가지로 연산자(operator)입니다. 즉, 할당 행위는 두 숫자를 더하는 것처럼 결과를 생성합니다.</span> 할당 <code class="inline-code">v = e</code>의 값은 할당 후 <code class="inline-code">v</code>의 값입니다. 따라서 <code class="inline-code">i = 72.99f</code>의 값은 72입니다(72.99가 아님).</p>
+
+        <h3>Side Effects (부작용)</h3>
+        <p>수학의 연산자는 피연산자를 수정하지 않기 때문에 우리는 보통 연산자가 피연산자를 수정할 것이라고 기대하지 않습니다. <code class="inline-code">i + j</code>를 작성해도 i나 j는 수정되지 않습니다. 단순히 i와 j를 더한 결과를 계산할 뿐입니다.</p>
+        
+        <p>대부분의 C 연산자는 피연산자를 수정하지 않지만 일부는 수정합니다. <span class="highlight">우리는 이러한 연산자가 단순히 값을 계산하는 것 이상의 일을 하기 때문에 "부작용(side effects)"을 가진다고 말합니다.</span> 단순 할당 연산자는 우리가 본 첫 번째 부작용 연산자입니다. 왼쪽 피연산자를 수정합니다. 수식 <code class="inline-code">i = 0</code>을 평가하면 결과 0이 생성되고, 부작용으로 i에 0이 할당됩니다.</p>
+        
+        <p>할당이 연산자이기 때문에 여러 할당을 함께 연결할 수 있습니다.</p>
+        <pre><code>i = j = k = 0;</code></pre>
+        <p><code class="inline-code">=</code> 연산자는 오른쪽 결합성(right associative)이므로 이 할당은 <code class="inline-code">i = (j = (k = 0));</code>와 동일합니다. 그 결과 먼저 k에 0이 할당되고, 그 다음 j, 마지막으로 i에 할당됩니다.</p>
+        
+        <p>타입 변환의 결과로 연결된 할당에서 예상치 못한 결과를 주의하세요.</p>
+        <pre><code>int i;
+float f;
+
+f = i = 33.3f;</code></pre>
+        <p>i에는 33이 할당되고, f에는 33.0이 할당됩니다(생각했던 33.3이 아님).</p>
+
+        <h3>Lvalues (좌측값)</h3>
+        <p>대부분의 C 연산자는 피연산자가 변수, 상수 또는 다른 연산자를 포함하는 수식이 되도록 허용합니다. <span class="highlight">그러나 할당 연산자는 왼쪽 피연산자로 <strong>lvalue</strong>를 요구합니다. lvalue("L-값"으로 발음)는 상수나 계산 결과가 아닌, 컴퓨터 메모리에 저장된 객체를 나타냅니다.</span> 변수는 lvalue이고, <code class="inline-code">10</code> 또는 <code class="inline-code">2 * i</code>와 같은 수식은 lvalue가 아닙니다.</p>
+        
+        <p>할당 연산자는 왼쪽 피연산자로 lvalue를 요구하므로, 할당 수식의 왼쪽에 다른 종류의 수식을 넣는 것은 불법입니다.</p>
+        <pre><code>12 = i;    /*** WRONG ***/
+i + j = 0; /*** WRONG ***/
+-i = j;    /*** WRONG ***/</code></pre>
+
+        <h3>Compound Assignment (복합 할당)</h3>
+        <p>변수의 이전 값을 사용하여 새 값을 계산하는 할당은 C 프로그램에서 흔히 볼 수 있습니다. 예를 들어 다음 명령문은 i에 저장된 값에 2를 더합니다.</p>
+        <pre><code>i = i + 2;</code></pre>
+        <p>C의 복합 할당 연산자를 사용하면 이 명령문과 이와 유사한 명령문을 단축할 수 있습니다. <code class="inline-code">+=</code> 연산자를 사용하면 다음과 같이 간단히 작성할 수 있습니다.</p>
+        <pre><code>i += 2;    /* same as i = i + 2; */</code></pre>
+        
+        <p>다음을 포함하여 9개의 다른 복합 할당 연산자가 있습니다.</p>
+        <pre><code>-=  *=  /=  %=</code></pre>
+        
+        <p>모든 복합 할당 연산자는 거의 같은 방식으로 작동합니다.</p>
+        <ul>
+            <li><code class="inline-code">v += e</code>는 v에 e를 더하고 결과를 v에 저장합니다.</li>
+            <li><code class="inline-code">v -= e</code>는 v에서 e를 빼고 결과를 v에 저장합니다.</li>
+            <li><code class="inline-code">v *= e</code>는 v에 e를 곱하고 결과를 v에 저장합니다.</li>
+            <li><code class="inline-code">v /= e</code>는 v를 e로 나누고 결과를 v에 저장합니다.</li>
+            <li><code class="inline-code">v %= e</code>는 v를 e로 나눈 나머지를 계산하고 결과를 v에 저장합니다.</li>
+        </ul>
+        
+        <p><code class="inline-code">v += e</code>가 <code class="inline-code">v = v + e</code>와 "동등(equivalent)"하다고 말하지 않도록 주의하세요. 한 가지 문제는 연산자 우선순위입니다. <code class="inline-code">i *= j + k</code>는 <code class="inline-code">i = i * j + k</code>와 같지 않습니다. 또한 <code class="inline-code">v</code> 자체에 부작용이 있는 경우 <code class="inline-code">v += e</code>가 <code class="inline-code">v = v + e</code>와 다른 매우 드문 경우도 있습니다.</p>
+        
+        <p>복합 할당 연산자를 사용할 때 연산자를 구성하는 두 문자를 바꾸지 않도록 주의하세요. 문자를 바꾸면 컴파일러가 허용하지만 의도한 의미가 없는 수식이 생성될 수 있습니다. 예를 들어 <code class="inline-code">i += j</code>를 작성하려고 했지만 대신 <code class="inline-code">i = +j</code>를 입력했다면 프로그램은 여전히 컴파일됩니다. 안타깝게도 후자의 수식은 <code class="inline-code">i = (+j)</code>와 동일하며, 이는 단순히 j의 값을 i에 복사합니다.</p>
+
+        <!-- ========================================== -->
+        <!-- Section 4.3 시작 -->
+        <!-- ========================================== -->
+        <h2>4.3 Increment and Decrement Operators (증가 및 감소 연산자)</h2>
+        
+        <p>변수에 대한 가장 일반적인 두 가지 작업은 "증가(incrementing)"(1 더하기)와 "감소(decrementing)"(1 빼기)입니다. 물론 다음과 같이 작성하여 이러한 작업을 수행할 수 있지만</p>
+        <pre><code>i = i + 1;
+i = i - 1;</code></pre>
+        <p>복합 할당 연산자를 사용하면 이러한 명령문을 약간 압축할 수 있습니다.</p>
+        <pre><code>i += 1;
+i -= 1;</code></pre>
+        <p>하지만 C는 <code class="inline-code">++</code>(증가) 및 <code class="inline-code">--</code>(감소) 연산자를 사용하여 증가 및 감소를 훨씬 더 단축할 수 있도록 허용합니다.</p>
+        
+        <p>언뜻 보기에 증가 및 감소 연산자는 매우 단순해 보입니다. <code class="inline-code">++</code>는 피연산자에 1을 더하고, <code class="inline-code">--</code>는 1을 뺍니다. 안타깝게도 이 단순함은 오해의 소지가 있습니다. <span class="highlight">증가 및 감소 연산자는 사용하기 까다로울 수 있습니다. 한 가지 복잡한 점은 <code class="inline-code">++</code>와 <code class="inline-code">--</code>가 전위(prefix) 연산자(예: <code class="inline-code">++i</code>, <code class="inline-code">--i</code>) 또는 후위(postfix) 연산자(예: <code class="inline-code">i++</code>, <code class="inline-code">i--</code>)로 사용될 수 있다는 것입니다. 프로그램의 정확성은 올바른 버전을 선택하는 데 달려 있을 수 있습니다.</span></p>
+        
+        <p>또 다른 복잡한 점은 할당 연산자와 마찬가지로 <code class="inline-code">++</code>와 <code class="inline-code">--</code>에 부작용이 있다는 것입니다. 피연산자의 값을 수정합니다. 수식 <code class="inline-code">++i</code>("전위 증가")를 평가하면 <code class="inline-code">i + 1</code>이 산출되고 부작용으로 i가 증가합니다. 수식 <code class="inline-code">i++</code>("후위 증가")를 평가하면 결과 i가 생성되지만 나중에 i가 증가합니다.</p>
+
+        <!-- ↓ SVG를 이용한 전위/후위 증가 연산자 다이어그램 -->
+        <div class="svg-container">
+            <svg viewBox="0 0 600 250" xmlns="http://www.w3.org/2000/svg">
+                <!-- 전위 연산자 (++i) -->
+                <rect x="50" y="50" width="200" height="150" rx="10" fill="#001a00" stroke="#00ff41" stroke-width="2"/>
+                <text x="150" y="80" font-size="20" font-family="monospace" text-anchor="middle" fill="#00ff41" font-weight="bold">++i (전위)</text>
+                
+                <text x="150" y="120" font-size="16" text-anchor="middle" fill="#aaffaa">1. i를 먼저 1 증가시킴</text>
+                <text x="150" y="150" font-size="16" text-anchor="middle" fill="#aaffaa">2. 증가된 값을 사용함</text>
+                
+                <!-- 후위 연산자 (i++) -->
+                <rect x="350" y="50" width="200" height="150" rx="10" fill="#001a00" stroke="#00ff41" stroke-width="2"/>
+                <text x="450" y="80" font-size="20" font-family="monospace" text-anchor="middle" fill="#00ff41" font-weight="bold">i++ (후위)</text>
+                
+                <text x="450" y="120" font-size="16" text-anchor="middle" fill="#aaffaa">1. 원래 값을 먼저 사용함</text>
+                <text x="450" y="150" font-size="16" text-anchor="middle" fill="#aaffaa">2. 그 다음 i를 1 증가시킴</text>
+                
+                <!-- 하단 설명 -->
+                <text x="300" y="230" font-size="16" text-anchor="middle" fill="#00ff41">예: i=1일 때, j = ++i는 j=2, i=2 / j = i++는 j=1, i=2</text>
+            </svg>
+        </div>
+
+        <p>다음 예제를 고려해 보세요. 첫 번째 <code class="inline-code">printf</code>는 증가하기 전의 i의 원래 값을 보여주고, 두 번째 <code class="inline-code">printf</code>는 새로운 값을 보여줍니다.</p>
+        <pre><code>i = 1;
+printf("i is %d\n", ++i);    /* prints "i is 2" */
+printf("i is %d\n", i);      /* prints "i is 2" */
+
+i = 1;
+printf("i is %d\n", i++);    /* prints "i is 1" */
+printf("i is %d\n", i);      /* prints "i is 2" */</code></pre>
+        
+        <p>이 예제에서 알 수 있듯이 <code class="inline-code">++i</code>는 "즉시 i를 증가시키라"는 의미이고, <code class="inline-code">i++</code>는 "지금은 i의 이전 값을 사용하되 나중에 i를 증가시키라"는 의미입니다. 얼마나 나중에일까요? C 표준은 정확한 시간을 명시하지 않지만, 다음 명령문이 실행되기 전에 i가 증가할 것이라고 안전하게 가정할 수 있습니다.</p>
+        
+        <p><code class="inline-code">--</code> 연산자는 비슷한 속성을 가집니다. <span class="highlight">같은 수식에서 <code class="inline-code">++</code> 또는 <code class="inline-code">--</code>가 두 번 이상 사용되면 결과를 이해하기 어려운 경우가 많습니다.</span></p>
+
+        <!-- ========================================== -->
+        <!-- Section 4.4 시작 -->
+        <!-- ========================================== -->
+        <h2>4.4 Expression Evaluation (수식 평가)</h2>
+        
+        <p>표 4.2는 지금까지 살펴본 연산자를 요약한 것입니다. 첫 번째 열은 우선순위, 마지막 열은 결합성을 보여줍니다.</p>
+        
+        <p>연산자 우선순위 및 결합성 규칙을 사용하면 모든 C 수식을 하위 수식으로 분해할 수 있습니다. 즉, 수식이 완전히 괄호로 묶인 경우 괄호가 어디에 있어야 하는지 고유하게 결정할 수 있습니다. <span class="highlight">역설적이게도 이러한 규칙이 항상 수식의 값을 결정할 수 있는 것은 아닙니다. 수식의 값은 하위 수식이 평가되는 순서에 따라 달라질 수 있기 때문입니다.</span></p>
+        
+        <p><span class="highlight">C는 하위 수식이 평가되는 순서를 정의하지 않습니다(논리적 and, 논리적 or, 조건부 및 쉼표 연산자와 관련된 하위 수식은 예외). 따라서 <code class="inline-code">(a + b) * (c - d)</code> 수식에서 <code class="inline-code">(a + b)</code>가 <code class="inline-code">(c - d)</code>보다 먼저 평가될지 알 수 없습니다.</span></p>
+        
+        <p>대부분의 수식은 하위 수식이 평가되는 순서에 관계없이 동일한 값을 가집니다. 그러나 하위 수식이 피연산자 중 하나를 수정하는 경우에는 그렇지 않을 수 있습니다. 다음 예제를 고려해 보세요.</p>
+        <pre><code>a = 5;
+c = (b = a + 2) - (a = 1);</code></pre>
+        <p><span class="highlight">이 두 번째 명령문을 실행하는 효과는 정의되지 않습니다(undefined). C 표준은 어떤 일이 일어날지 명시하지 않습니다.</span> 대부분의 컴파일러에서 c의 값은 6 또는 2가 됩니다. 하위 수식 <code class="inline-code">(b = a + 2)</code>가 먼저 평가되면 b에 7이 할당되고 c에 6이 할당됩니다. 그러나 <code class="inline-code">(a = 1)</code>이 먼저 평가되면 b에 3이 할당되고 c에 2가 할당됩니다.</p>
+        
+        <p><span class="highlight">변수의 값을 액세스하고 동시에 수식의 다른 곳에서 변수를 수정하는 수식을 작성하지 마세요.</span> <code class="inline-code">(b = a + 2) - (a = 1)</code> 수식은 a의 값에 액세스하고(a + 2를 계산하기 위해) a의 값도 수정합니다(1을 할당하여). 일부 컴파일러는 이러한 수식을 만나면 "operation on 'a' may be undefined"와 같은 경고 메시지를 생성할 수 있습니다.</p>
+        
+        <p>문제를 방지하려면 하위 수식에서 할당 연산자를 사용하지 않는 것이 좋습니다. 대신 일련의 개별 할당을 사용하세요. 위의 명령문은 다음과 같이 다시 작성할 수 있으며, 이렇게 하면 c의 값은 항상 6이 됩니다.</p>
+        <pre><code>b = a + 2;
+c = b - 1;</code></pre>
+        
+        <p>할당 연산자 외에도 피연산자를 수정하는 유일한 연산자는 증가 및 감소입니다. 이러한 연산자를 사용할 때 수식이 특정 평가 순서에 의존하지 않도록 주의하세요.</p>
+
+        <h3>Undefined Behavior (정의되지 않은 동작)</h3>
+        <p>C 표준에 따르면 <code class="inline-code">c = (b = a + 2) - (a = 1);</code> 및 <code class="inline-code">j = i * i++;</code>와 같은 명령문은 구현 정의 동작과 다른 <strong>정의되지 않은 동작(undefined behavior)</strong>을 유발합니다. <span class="highlight">프로그램이 정의되지 않은 동작의 영역에 들어가면 모든 예측이 빗나갑니다. 프로그램은 다른 컴파일러로 컴파일될 때 다르게 동작할 수 있습니다. 컴파일되지 않을 수도 있고, 컴파일되더라도 실행되지 않을 수 있으며, 실행되더라도 충돌하거나, 비정상적으로 동작하거나, 의미 없는 결과를 생성할 수 있습니다. 즉, 정의되지 않은 동작은 흑사병처럼 피해야 합니다.</span></p>
+
+        <!-- ========================================== -->
+        <!-- Section 4.5 시작 -->
+        <!-- ========================================== -->
+        <h2>4.5 Expression Statements (수식 명령문)</h2>
+        
+        <p>C에는 어떤 수식이든 명령문으로 사용할 수 있다는 특이한 규칙이 있습니다. <span class="highlight">즉, 모든 수식은 타입이나 계산 내용에 관계없이 세미콜론을 추가하여 명령문으로 바꿀 수 있습니다.</span> 예를 들어 수식 <code class="inline-code">++i</code>를 명령문으로 바꿀 수 있습니다.</p>
+        <pre><code>++i;</code></pre>
+        <p>이 명령문이 실행되면 i가 먼저 증가한 다음 새 i 값이 페치됩니다(마치 둘러싸는 수식에 사용될 것처럼). 그러나 <code class="inline-code">++i</code>가 더 큰 수식의 일부가 아니기 때문에 그 값은 버려지고 다음 명령문이 실행됩니다. (물론 i의 변경 사항은 영구적입니다.)</p>
+        
+        <p>값이 버려지기 때문에 수식에 부작용이 없는 한 수식을 명령문으로 사용하는 것은 의미가 없습니다.</p>
+        <ul>
+            <li><code class="inline-code">i = 1;</code> : i에 1이 저장된 다음 새 i 값이 페치되지만 사용되지는 않습니다.</li>
+            <li><code class="inline-code">i--;</code> : i의 값이 페치되지만 사용되지 않습니다. 그러나 이후에 i가 감소합니다.</li>
+            <li><code class="inline-code">i * j - 1;</code> : i * j - 1 수식의 값이 계산된 다음 버려집니다. i와 j가 변경되지 않기 때문에 이 명령문은 효과가 없으며 따라서 목적이 없습니다.</li>
+        </ul>
+        
+        <p>손가락이 미끄러지면 쉽게 "아무것도 하지 않는(do-nothing)" 수식 명령문을 만들 수 있습니다. 예를 들어 <code class="inline-code">i = j;</code>를 입력하는 대신 실수로 <code class="inline-code">i + j;</code>를 입력할 수 있습니다. (<code class="inline-code">=</code>와 <code class="inline-code">+</code> 문자가 보통 같은 키에 있기 때문에 이런 종류의 오류는 생각보다 흔합니다.) 일부 컴파일러는 의미 없는 수식 명령문을 감지할 수 있으며, "statement with no effect"와 같은 경고를 받게 됩니다.</p>
+
+        <!-- ========================================== -->
+        <!-- Chapter 4 요약 및 문제 -->
+        <!-- ========================================== -->
+        <div class="summary-box">
+            <h3>📝 Chapter 4 Summary (써머리)</h3>
+            <ul>
+                <li>C의 산술 연산자(<code class="inline-code">+</code>, <code class="inline-code">-</code>, <code class="inline-code">*</code>, <code class="inline-code">/</code>, <code class="inline-code">%</code>)는 우선순위와 결합성 규칙을 따릅니다.</li>
+                <li><strong>정수 나눗셈(<code class="inline-code">/</code>)</strong>은 소수점을 버리고, <strong>나머지 연산자(<code class="inline-code">%</code>)</strong>는 정수에만 사용할 수 있습니다.</li>
+                <li>할당 연산자(<code class="inline-code">=</code>)는 결과를 반환하는 '연산자'이며, 부작용(Side effect)을 가집니다. Lvalue(변수 등)에만 할당할 수 있습니다.</li>
+                <li>증가/감소 연산자(<code class="inline-code">++</code>, <code class="inline-code">--</code>)는 전위(<code class="inline-code">++i</code>)와 후위(<code class="inline-code">i++</code>)에 따라 동작이 다릅니다.</li>
+                <li><strong>평가 순서</strong>가 정의되지 않았으므로, 한 수식 안에서 변수를 수정하면서 동시에 액세스하는 것은 <strong>정의되지 않은 동작(Undefined Behavior)</strong>을 유발합니다.</li>
+            </ul>
+        </div>
+
+        <div class="exercise-box">
+            <h3>✍️ Chapter 4 Exercises (문제) &amp; 정답</h3>
+            <ol>
+                <li>다음 프로그램 조각의 출력을 보여주세요. (i, j, k는 int 변수)
+                    <br>(a) <code class="inline-code">i = 5; j = 3; printf("%d %d", i / j, i % j);</code>
+                    <br>(b) <code class="inline-code">i = 2; j = 3; printf("%d", (i + 10) % j);</code>
+                    <br>(c) <code class="inline-code">i = 7; j = 8; k = 9; printf("%d", (i + 10) % k / j);</code>
+                    
+                    <div class="answer-box">
+                        <strong>정답:</strong><br>
+                        (a) <code class="inline-code">1 2</code> (5/3은 1, 5%3은 2)<br>
+                        (b) <code class="inline-code">0</code> (12 % 3은 0)<br>
+                        (c) <code class="inline-code">1</code> (17 % 9는 8, 8 / 8은 1)
+                    </div>
+                </li>
+                <li>i와 j가 양의 정수일 때, <code class="inline-code">(-i) / j</code>는 항상 <code class="inline-code">-(i / j)</code>와 같은 값을 가질까요? 그 이유를 설명하세요.
+
+                    <div class="answer-box">
+                        <strong>정답:</strong> 항상 그렇지는 않습니다. <br>
+                        예를 들어 i=5, j=2일 때 <code class="inline-code">(-5) / 2</code>는 -2 (C99 기준)이고, <code class="inline-code">-(5 / 2)</code>는 -(2) = -2로 같습니다. <br>
+                        하지만 i=1, j=2일 때 <code class="inline-code">(-1) / 2</code>는 0 (0 방향으로 잘림)이고, <code class="inline-code">-(1 / 2)</code>는 -(0) = 0으로 같습니다. <br>
+                        (※ C89에서는 음수 나눗셈 결과가 구현에 따라 달라질 수 있어 다를 수 있습니다.)
+                    </div>
+                </li>
+                <li>다음 수식의 값을 C89 기준으로 구하세요. (여러 값이 가능한 경우 모두 제시)
+                    <br>(a) <code class="inline-code">8 / 5</code>
+                    <br>(b) <code class="inline-code">-8 / 5</code>
+                    <br>(c) <code class="inline-code">8 / -5</code>
+                    <br>(d) <code class="inline-code">-8 / -5</code>
+
+                    <div class="answer-box">
+                        <strong>정답 (C89 기준):</strong><br>
+                        (a) 1<br>
+                        (b) -1 또는 -2 (구현 정의)<br>
+                        (c) -1 또는 -2 (구현 정의)<br>
+                        (d) 1 또는 2 (구현 정의)<br>
+                        <br>
+                        <strong>참고 (C99 기준):</strong> 모두 0 방향으로 잘리므로 (a) 1, (b) -1, (c) -1, (d) 1입니다.
+                    </div>
+                </li>
+                <li>다음 프로그램 조각의 출력을 보여주세요. (i, j는 int 변수)
+                    <br>(a) <code class="inline-code">i = 6; j = i += i; printf("%d %d", i, j);</code>
+                    <br>(b) <code class="inline-code">i = 5; j = (i -= 2) + 1; printf("%d %d", i, j);</code>
+                    <br>(c) <code class="inline-code">i = 7; j = 6 + (i = 2.5); printf("%d %d", i, j);</code>
+
+                    <div class="answer-box">
+                        <strong>정답:</strong><br>
+                        (a) <code class="inline-code">12 12</code> (i += i는 i = 6 + 6 = 12, j에 12 할당)<br>
+                        (b) <code class="inline-code">3 4</code> (i -= 2는 i = 5 - 2 = 3, j = 3 + 1 = 4)<br>
+                        (c) <code class="inline-code">2 8</code> (i = 2.5는 i에 2를 할당하고 2를 반환, j = 6 + 2 = 8)
+                    </div>
+                </li>
+                <li>다음 프로그램 조각의 출력을 보여주세요. (i, j, k는 int 변수)
+                    <br>(a) <code class="inline-code">i = 1; printf("%d", i++ - 1); printf("%d", i);</code>
+                    <br>(b) <code class="inline-code">i = 10; j = 5; printf("%d", i++ - ++j); printf("%d %d", i, j);</code>
+                    <br>(c) <code class="inline-code">i = 7; j = 8; printf("%d", i++ - --j); printf("%d %d", i, j);</code>
+                    <br>(d) <code class="inline-code">i = 3; j = 4; k = 5; printf("%d", i++ - j++ + --k); printf("%d %d %d", i, j, k);</code>
+
+                    <div class="answer-box">
+                        <strong>정답:</strong><br>
+                        (a) <code class="inline-code">02</code> (i++ - 1은 1-1=0, 이후 i는 2)<br>
+                        (b) <code class="inline-code">411 6</code> (i++ - ++j는 10 - 6 = 4, 이후 i는 11, j는 6)<br>
+                        (c) <code class="inline-code">08 7</code> (i++ - --j는 7 - 7 = 0, 이후 i는 8, j는 7)<br>
+                        (d) <code class="inline-code">34 5 4</code> (i++ - j++ + --k는 3 - 4 + 4 = 3, 이후 i=4, j=5, k=4)
+                    </div>
+                </li>
+                <li>다음 중 <code class="inline-code">++i</code>와 <code class="inline-code">i++</code> 중 <code class="inline-code">(i += 1)</code>과 정확히 동일한 것은 무엇이며, 그 이유는 무엇인가요?
+
+                    <div class="answer-box">
+                        <strong>정답:</strong> <code class="inline-code">++i</code>입니다.<br>
+                        이유: <code class="inline-code">(i += 1)</code>은 i를 1 증가시킨 후, 증가된 새로운 값을 수식의 결과로 반환합니다. <code class="inline-code">++i</code>도 동일하게 증가된 후의 값을 반환합니다. 반면 <code class="inline-code">i++</code>은 증가시키기 전의 원래 값을 반환하므로 다릅니다.
+                    </div>
+                </li>
+            </ol>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 🔥 하이라이트 총정리 (연계 정리) 🔥 -->
+        <!-- ========================================== -->
+        <div class="highlight-summary-box">
+            <h2>🔥 형광칠한 핵심 내용 총정리 (Highlights)</h2>
+            <p>Chapter 4에서 형광펜으로 강조한 가장 중요한 내용들을 한눈에 볼 수 있도록 연계하여 정리했습니다. 이 부분은 C 언어의 수식과 연산자를 완벽하게 이해하는 데 있어 가장 핵심적인 규칙입니다.</p>
+            
+            <ul>
+                <li style="margin-bottom: 15px;">
+                    <strong>1. 정수 나눗셈과 나머지 연산자의 함정:</strong><br>
+                    <span class="highlight">C에서 정수끼리 나누면(<code class="inline-code">/</code>) 소수점 이하가 완전히 버려집니다(Truncation). 또한 나머지 연산자(<code class="inline-code">%</code>)는 오직 정수형에만 사용할 수 있습니다. 음수에 대한 나눗셈/나머지 결과는 C89과 C99에서 다르게 동작할 수 있으므로 주의해야 합니다.</span>
+                </li>
+                <li style="margin-bottom: 15px;">
+                    <strong>2. 할당 연산자와 Lvalue:</strong><br>
+                    <span class="highlight">할당 연산자(<code class="inline-code">=</code>)는 값을 반환하는 '연산자'이며, 왼쪽에는 반드시 메모리 공간을 가진 변수(Lvalue)가 와야 합니다. <code class="inline-code">12 = i;</code>와 같이 상수에 할당하는 것은 불법입니다.</span>
+                </li>
+                <li style="margin-bottom: 15px;">
+                    <strong>3. 전위(++i)와 후위(i++)의 차이:</strong><br>
+                    <span class="highlight"><code class="inline-code">++i</code>는 값을 먼저 1 증가시킨 후 사용하고, <code class="inline-code">i++</code>은 현재 값을 먼저 사용한 후 나중에 1 증가시킵니다. 이 차이는 단독 명령문으로 쓸 때는 같지만, 다른 수식과 함께 쓰일 때 결과를 완전히 바꿔놓습니다.</span>
+                </li>
+                <li style="margin-bottom: 15px;">
+                    <strong>4. 정의되지 않은 동작 (Undefined Behavior) - 가장 위험!:</strong><br>
+                    <span class="highlight">C는 하위 수식이 평가되는 순서를 보장하지 않습니다. 따라서 <code class="inline-code">c = (b = a + 2) - (a = 1);</code>처럼 하나의 수식 안에서 변수를 수정하면서 동시에 읽어 들이는 행위는 '정의되지 않은 동작'을 유발하여 프로그램이 오작동하거나 충돌할 수 있습니다. 절대 이렇게 작성하지 마세요!</span>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</body>
+</html>
