@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<!-- ↑ 이 문서는 HTML5 형식으로 작성되었음을 브라우저에 알려줍니다. -->
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <!-- 모바일(아이폰 등) 최적화를 위한 필수 메타 태그 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 7: Basic Types</title>
+
+    <style>
+        /* =========================================================
+           매트릭스 테마 CSS (검정 배경, 네온 초록 글씨)
+           ========================================================= */
+        body {
+            font-family: 'Consolas', 'Courier New', 'Fira Code', monospace;
+            line-height: 1.7;
+            color: #00ff41; /* 네온 초록색 글씨 */
+            background-color: #000000; /* 완전 검정 배경 */
+            margin: 0;
+            padding: 0;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 15px;
+            background-color: #0a0a0a;
+            border-left: 1px solid #003300;
+            border-right: 1px solid #003300;
+        }
+
+        @media (min-width: 600px) {
+            .container {
+                margin: 40px auto;
+                padding: 40px;
+                border: 1px solid #00ff41;
+                border-radius: 10px;
+                box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+            }
+        }
+
+        /* 제목 스타일 */
+        h1, h2, h3 {
+            color: #00ff41;
+            text-shadow: 0 0 8px rgba(0, 255, 65, 0.8);
+            font-weight: bold;
+        }
+        h1 {
+            text-align: center;
+            border-bottom: 2px dashed #00ff41;
+            padding-bottom: 10px;
+            font-size: 1.5em;
+        }
+        h2 {
+            margin-top: 40px;
+            border-left: 4px solid #00ff41;
+            padding-left: 10px;
+            font-size: 1.3em;
+        }
+        h3 {
+            margin-top: 30px;
+            font-size: 1.1em;
+            color: #aaffaa;
+        }
+
+        /* 코드 블록 스타일 */
+        pre {
+            background-color: #050505;
+            border: 1px solid #005511;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto; /* 모바일 가로 스크롤 */
+            color: #00ff41;
+            font-size: 14px;
+        }
+        
+        /* 인라인 코드 */
+        .inline-code {
+            background-color: #111;
+            color: #00ff41;
+            border: 1px solid #003300;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 0.95em;
+            word-break: break-all;
+        }
+
+        /* 형광펜 효과 */
+        .highlight {
+            background-color: rgba(0, 255, 65, 0.2);
+            color: #ffffff;
+            padding: 2px 4px;
+            border-radius: 3px;
+            border-bottom: 2px solid #00ff41;
+            text-shadow: 0 0 5px #00ff41;
+            font-weight: bold;
+        }
+
+        /* 표 스타일 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.85em;
+            display: block;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        th, td {
+            border: 1px solid #005511;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #002200;
+            color: #00ff41;
+            text-shadow: 0 0 3px #00ff41;
+        }
+        td {
+            color: #aaffaa;
+        }
+
+        /* 설명 박스 */
+        .info-box {
+            background-color: #001a00;
+            border: 1px solid #00ff41;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .warning-box {
+            background-color: #1a1a00;
+            border: 1px solid #ffff00;
+            color: #ffff00;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .warning-box strong { color: #ffff00; text-shadow: 0 0 5px #ffff00; }
+
+        /* SVG 컨테이너 */
+        .svg-container {
+            text-align: center;
+            margin: 30px 0;
+            padding: 10px;
+            border: 1px dashed #005511;
+        }
+        .svg-container svg {
+            width: 100%;
+            height: auto;
+            max-width: 600px;
+        }
+
+        /* 요약 및 문제 박스 */
+        .summary-box {
+            background-color: #001a00;
+            border: 1px solid #00ff41;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 40px;
+        }
+        .exercise-box {
+            background-color: #0a0a0a;
+            border: 1px solid #00ff41;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .exercise-box ol { padding-left: 20px; }
+        .exercise-box li { margin-bottom: 15px; }
+
+        /* 정답 박스 */
+        .answer-box {
+            background-color: #002200;
+            border: 1px dashed #00ff41;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 5px;
+            color: #aaffaa;
+        }
+        .answer-box strong {
+            color: #00ff41;
+            text-decoration: underline;
+        }
+
+        /* 하이라이트 총정리 박스 */
+        .highlight-summary-box {
+            background-color: #002200;
+            border: 2px solid #00ff41;
+            padding: 25px;
+            border-radius: 8px;
+            margin-top: 50px;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.4);
+        }
+        .highlight-summary-box h2 {
+            border-left: none;
+            text-align: center;
+            border-bottom: 2px solid #00ff41;
+            padding-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Chapter 7: Basic Types</h1>
+
+        <blockquote style="font-style: italic; color: #aaffaa; border-left: 4px solid #00ff41; padding-left: 15px;">
+            "오해하지 마세요: 컴퓨터는 숫자를 처리하는 것이 아니라 기호를 처리합니다. 우리는 활동을 산술화할 수 있는 범위만큼만 이해(하고 통제)를 측정합니다." - 앨런 펄리스
+        </blockquote>
+
+        <p>지금까지 우리는 C의 기본(내장) 타입 중 <code class="inline-code">int</code>와 <code class="inline-code">float</code> 두 가지만 사용했습니다. (C99의 기본 타입인 <code class="inline-code">_Bool</code>도 보았습니다.) 이 장에서는 나머지 기본 타입을 설명하고 타입 전반에 관한 중요한 문제를 논의합니다. 7.1절에서는 긴 정수(long), 짧은 정수(short), 부호 없는 정수(unsigned)를 포함한 정수 타입의 전체 범위를 보여줍니다. 7.2절에서는 <code class="inline-code">float</code>보다 더 넓은 범위의 값과 더 높은 정밀도를 제공하는 <code class="inline-code">double</code> 및 <code class="inline-code">long double</code> 타입을 소개합니다. 7.3절에서는 문자 데이터로 작업하는 데 필요한 <code class="inline-code">char</code> 타입을 다룹니다. 7.4절에서는 한 타입의 값을 다른 타입의 동등한 값으로 변환하는 까다로운 주제를 다룹니다. 7.5절에서는 <code class="inline-code">typedef</code>를 사용하여 새로운 타입 이름을 정의하는 방법을 보여줍니다. 마지막으로 7.6절에서는 타입에 필요한 저장 공간의 양을 측정하는 <code class="inline-code">sizeof</code> 연산자를 설명합니다.</p>
+
+        <!-- ========================================== -->
+        <!-- Section 7.1 시작 -->
+        <!-- ========================================== -->
+        <h2>7.1 Integer Types (정수 타입)</h2>
+        
+        <p>C는 근본적으로 다른 두 가지 종류의 숫자 타입을 지원합니다: 정수 타입(integer types)과 부동 타입(floating types)입니다. 정수 타입의 값은 정수(whole numbers)이고, 부동 타입의 값은 소수 부분을 가질 수 있습니다. 정수 타입은 다시 부호 있는(signed) 정수와 부호 없는(unsigned) 정수의 두 범주로 나뉩니다.</p>
+
+        <h3>Signed and Unsigned Integers (부호 있는 정수와 부호 없는 정수)</h3>
+        <p>부호 있는 정수(signed integer)의 가장 왼쪽 비트(부호 비트, sign bit)는 숫자가 양수이거나 0이면 0이고, 음수이면 1입니다. 따라서 가장 큰 16비트 정수는 이진수 <code class="inline-code">0111111111111111</code>로 표현되며, 이는 32,767(<code class="inline-code">2^15 - 1</code>)의 값을 가집니다. 가장 큰 32비트 정수는 <code class="inline-code">01111111111111111111111111111111</code>이며, 이는 2,147,483,647(<code class="inline-code">2^31 - 1</code>)의 값을 가집니다. 부호 비트가 없는(가장 왼쪽 비트가 숫자의 크기의 일부로 간주되는) 정수는 부호 없는(unsigned) 정수라고 합니다. 가장 큰 16비트 부호 없는 정수는 65,535(<code class="inline-code">2^16 - 1</code>)이고, 가장 큰 32비트 부호 없는 정수는 4,294,967,295(<code class="inline-code">2^32 - 1</code>)입니다.</p>
+        
+        <p><span class="highlight">기본적으로 C에서 정수 변수는 부호가 있습니다(signed). 가장 왼쪽 비트는 부호를 위해 예약되어 있습니다. 변수에 부호 비트가 없음을 컴파일러에 알리려면 <code class="inline-code">unsigned</code>로 선언합니다. 부호 없는 숫자는 주로 시스템 프로그래밍과 저수준의 기계 종속적인 응용 프로그램에 유용합니다.</span> 20장에서 부호 없는 숫자의 일반적인 응용 프로그램에 대해 논의할 것입니다. 그때까지는 일반적으로 부호 없는 숫자를 피할 것입니다.</p>
+        
+        <p>C의 정수 타입은 다양한 크기로 제공됩니다. <code class="inline-code">int</code> 타입은 보통 32비트이지만 구형 CPU에서는 16비트일 수 있습니다. 일부 프로그램은 <code class="inline-code">int</code> 형태로 저장하기에는 너무 큰 숫자를 필요로 하므로 C는 긴 정수(long integers)도 제공합니다. 때로는 컴파일러에게 일반보다 적은 공간에 숫자를 저장하도록 지시하여 메모리를 절약해야 할 수도 있습니다. 이러한 숫자를 짧은 정수(short integer)라고 합니다.</p>
+        
+        <p>우리의 요구를 정확히 충족하는 정수 타입을 구성하기 위해 변수가 long 또는 short, signed 또는 unsigned임을 지정할 수 있습니다. 지정자를 결합할 수도 있습니다(예: <code class="inline-code">long unsigned int</code>). 그러나 실제로 서로 다른 타입을 생성하는 것은 다음 여섯 가지 조합뿐입니다.</p>
+        
+        <ul>
+            <li><code class="inline-code">short int</code></li>
+            <li><code class="inline-code">unsigned short int</code></li>
+            <li><code class="inline-code">int</code></li>
+            <li><code class="inline-code">unsigned int</code></li>
+            <li><code class="inline-code">long int</code></li>
+            <li><code class="inline-code">unsigned long int</code></li>
+        </ul>
+        
+        <p>다른 조합은 이 여섯 가지 타입 중 하나의 동의어입니다(예: 정수는 항상 달리 지정하지 않는 한 부호가 있으므로 <code class="inline-code">long signed int</code>는 <code class="inline-code">long int</code>와 같습니다). 덧붙여, 지정자의 순서는 중요하지 않습니다. <code class="inline-code">unsigned short int</code>는 <code class="inline-code">short unsigned int</code>와 같습니다.</p>
+
+        <p>C를 사용하면 <code class="inline-code">int</code>라는 단어를 삭제하여 정수 타입의 이름을 축약할 수 있습니다. 예를 들어 <code class="inline-code">unsigned short int</code>는 <code class="inline-code">unsigned short</code>로 축약될 수 있고, <code class="inline-code">long int</code>는 단순히 <code class="inline-code">long</code>으로 축약될 수 있습니다. <code class="inline-code">int</code>를 생략하는 것은 C 프로그래머들 사이에서 널리 퍼진 관행이며, 일부 최신 C 기반 언어(Java 포함)는 실제로 프로그래머에게 <code class="inline-code">short int</code> 또는 <code class="inline-code">long int</code> 대신 <code class="inline-code">short</code> 또는 <code class="inline-code">long</code>을 작성하도록 요구합니다.</p>
+
+        <p>각 정수 타입이 나타내는 값의 범위는 기계마다 다릅니다. 그러나 모든 컴파일러가 따라야 하는 몇 가지 규칙이 있습니다. 첫째, C 표준은 <code class="inline-code">short int</code>, <code class="inline-code">int</code>, <code class="inline-code">long int</code> 각각이 특정 최소 범위의 값을 포함하도록 요구합니다. 둘째, 표준은 <code class="inline-code">int</code>가 <code class="inline-code">short int</code>보다 짧지 않고, <code class="inline-code">long int</code>가 <code class="inline-code">int</code>보다 짧지 않도록 요구합니다. 그러나 <code class="inline-code">short int</code>가 <code class="inline-code">int</code>와 동일한 범위의 값을 나타내는 것도 가능하며, <code class="inline-code">int</code>가 <code class="inline-code">long int</code>와 동일한 범위를 가질 수도 있습니다.</p>
+
+        <!-- 표 7.1, 7.2, 7.3 -->
+        <p>표 7.1은 16비트 기계에서 정수 타입의 일반적인 값 범위를 보여줍니다. <code class="inline-code">short int</code>와 <code class="inline-code">int</code>의 범위가 동일하다는 점에 유의하세요.</p>
+        
+        <table>
+            <tr><th>타입</th><th>가장 작은 값</th><th>가장 큰 값</th></tr>
+            <tr><td>short int</td><td>-32,768</td><td>32,767</td></tr>
+            <tr><td>unsigned short int</td><td>0</td><td>65,535</td></tr>
+            <tr><td>int</td><td>-32,768</td><td>32,767</td></tr>
+            <tr><td>unsigned int</td><td>0</td><td>65,535</td></tr>
+            <tr><td>long int</td><td>-2,147,483,648</td><td>2,147,483,647</td></tr>
+            <tr><td>unsigned long int</td><td>0</td><td>4,294,967,295</td></tr>
+        </table>
+        <p style="text-align: right; font-size: 0.9em; color: #aaffaa;">표 7.1 16비트 기계의 정수 타입 범위</p>
+
+        <p>표 7.2는 32비트 기계에서의 일반적인 범위를 보여줍니다. 여기서는 <code class="inline-code">int</code>와 <code class="inline-code">long int</code>의 범위가 동일합니다.</p>
+        
+        <table>
+            <tr><th>타입</th><th>가장 작은 값</th><th>가장 큰 값</th></tr>
+            <tr><td>short int</td><td>-32,768</td><td>32,767</td></tr>
+            <tr><td>unsigned short int</td><td>0</td><td>65,535</td></tr>
+            <tr><td>int</td><td>-2,147,483,648</td><td>2,147,483,647</td></tr>
+            <tr><td>unsigned int</td><td>0</td><td>4,294,967,295</td></tr>
+            <tr><td>long int</td><td>-2,147,483,648</td><td>2,147,483,647</td></tr>
+            <tr><td>unsigned long int</td><td>0</td><td>4,294,967,295</td></tr>
+        </table>
+        <p style="text-align: right; font-size: 0.9em; color: #aaffaa;">표 7.2 32비트 기계의 정수 타입 범위</p>
+
+        <p>최근에는 64비트 CPU가 더 보편화되었습니다. 표 7.3은 64비트 기계(특히 UNIX 환경)에서의 일반적인 범위를 보여줍니다.</p>
+        
+        <table>
+            <tr><th>타입</th><th>가장 작은 값</th><th>가장 큰 값</th></tr>
+            <tr><td>short int</td><td>-32,768</td><td>32,767</td></tr>
+            <tr><td>unsigned short int</td><td>0</td><td>65,535</td></tr>
+            <tr><td>int</td><td>-2,147,483,648</td><td>2,147,483,647</td></tr>
+            <tr><td>unsigned int</td><td>0</td><td>4,294,967,295</td></tr>
+            <tr><td>long int</td><td>-9,223,372,036,854,775,808</td><td>9,223,372,036,854,775,807</td></tr>
+            <tr><td>unsigned long int</td><td>0</td><td>18,446,744,073,709,551,615</td></tr>
+        </table>
+        <p style="text-align: right; font-size: 0.9em; color: #aaffaa;">표 7.3 64비트 기계의 정수 타입 범위</p>
+
+        <h3>Integer Types in C99 (C99의 정수 타입)</h3>
+        <p>C99는 매우 큰 정수에 대한 증가하는 요구와 64비트 산술을 지원하는 최신 프로세서의 능력 때문에 두 가지 추가 표준 정수 타입인 <code class="inline-code">long long int</code>와 <code class="inline-code">unsigned long long int</code>를 제공합니다. 두 long long 타입은 최소 64비트 너비여야 하므로, <code class="inline-code">long long int</code> 값의 범위는 일반적으로 <code class="inline-code">-2^63</code> ~ <code class="inline-code">2^63 - 1</code>이고, <code class="inline-code">unsigned long long int</code>의 범위는 보통 0 ~ <code class="inline-code">2^64 - 1</code>입니다.</p>
+        
+        <p>C99에서 <code class="inline-code">short int</code>, <code class="inline-code">int</code>, <code class="inline-code">long int</code>, <code class="inline-code">long long int</code> 타입(그리고 <code class="inline-code">signed char</code> 타입)은 표준 부호 있는 정수 타입(standard signed integer types)이라고 합니다. <code class="inline-code">unsigned short int</code>, <code class="inline-code">unsigned int</code>, <code class="inline-code">unsigned long int</code>, <code class="inline-code">unsigned long long int</code> 타입(그리고 <code class="inline-code">unsigned char</code> 타입과 <code class="inline-code">_Bool</code> 타입)은 표준 부호 없는 정수 타입(standard unsigned integer types)이라고 합니다.</p>
+        
+        <p>표준 정수 타입 외에도 C99 표준은 구현 정의 확장 정수 타입(implementation-defined extended integer types)을 허용합니다. 예를 들어 컴파일러는 부호 있는 128비트 정수 타입과 부호 없는 128비트 정수 타입을 제공할 수 있습니다.</p>
+
+        <h3>Integer Constants (정수 상수)</h3>
+        <p>이제 상수, 즉 읽거나 쓰거나 계산된 숫자가 아니라 프로그램 텍스트에 나타나는 숫자로 관심을 돌려보겠습니다. C를 사용하면 정수 상수를 10진수(10진법), 8진수(8진법) 또는 16진수(16진법)로 작성할 수 있습니다.</p>
+        
+        <p><strong>8진수 및 16진수(Octal and Hexadecimal Numbers):</strong><br>
+        8진수는 0부터 7까지의 숫자만 사용하여 작성됩니다. 8진수의 각 위치는 8의 거듭제곱을 나타냅니다. 따라서 8진수 237은 10진수 <code class="inline-code">2*8^2 + 3*8^1 + 7*8^0 = 128 + 24 + 7 = 159</code>를 나타냅니다.</p>
+        
+        <p>16진수(hex)는 0부터 9까지의 숫자와 10부터 15까지를 나타내는 A부터 F까지의 문자를 사용하여 작성됩니다. 16진수의 각 위치는 16의 거듭제곱을 나타냅니다. 16진수 1AF는 10진수 값 <code class="inline-code">1*16^2 + 10*16^1 + 15*16^0 = 256 + 160 + 15 = 431</code>을 가집니다.</p>
+        
+        <ul>
+            <li><strong>10진수 상수</strong>는 0에서 9 사이의 숫자를 포함하지만 0으로 시작해서는 안 됩니다. (예: 15, 255, 32767)</li>
+            <li><strong>8진수 상수</strong>는 0에서 7 사이의 숫자만 포함하며 0으로 시작해야 합니다. (예: 017, 0377, 077777)</li>
+            <li><strong>16진수 상수</strong>는 0에서 9 사이의 숫자와 a에서 f 사이의 문자를 포함하며 항상 0x로 시작합니다. (예: 0xf, 0xff, 0x7fff)</li>
+        </ul>
+        
+        <p>16진수 상수의 문자는 대문자 또는 소문자일 수 있습니다. 8진수와 16진수는 숫자를 작성하는 대체 방법일 뿐이며 숫자가 실제로 저장되는 방식에는 영향을 미치지 않습니다. (정수는 표현하는 데 사용한 표기법에 관계없이 항상 이진수로 저장됩니다.)</p>
+        
+        <p><span class="highlight">10진수 정수 상수의 타입은 일반적으로 <code class="inline-code">int</code>입니다. 그러나 상수 값이 <code class="inline-code">int</code>로 저장하기에 너무 크면 상수는 <code class="inline-code">long int</code> 타입을 가집니다.</span> 8진수나 16진수 상수의 타입을 결정하는 규칙은 약간 다릅니다. 컴파일러는 상수를 표현할 수 있는 타입을 찾을 때까지 <code class="inline-code">int</code>, <code class="inline-code">unsigned int</code>, <code class="inline-code">long int</code>, <code class="inline-code">unsigned long int</code> 타입을 살펴봅니다.</p>
+        
+        <p>컴파일러가 상수를 긴 정수로 처리하도록 강제하려면 상수 뒤에 문자 L(또는 l)을 붙입니다. 상수가 부호 없음을 나타내려면 상수 뒤에 문자 U(또는 u)를 붙입니다. L과 U를 함께 사용하여 상수가 long이면서 unsigned임을 나타낼 수 있습니다.</p>
+
+        <h3>Integer Constants in C99 (C99의 정수 상수)</h3>
+        <p>C99에서 LL 또는 ll로 끝나는 정수 상수는 <code class="inline-code">long long int</code> 타입을 가집니다. LL 또는 ll 앞이나 뒤에 문자 U(또는 u)를 추가하면 <code class="inline-code">unsigned long long int</code> 타입의 상수를 나타냅니다. C99에서 접미사가 없는 10진수 상수의 타입은 해당 상수 값을 나타낼 수 있는 <code class="inline-code">int</code>, <code class="inline-code">long int</code>, <code class="inline-code">long long int</code> 타입 중 "가장 작은" 타입입니다.</p>
+
+        <h3>Integer Overflow (정수 오버플로)</h3>
+        <p>정수에 대해 산술 연산을 수행할 때 결과가 너무 커서 표현할 수 없을 가능성이 있습니다. <span class="highlight">산술 연산의 결과가 <code class="inline-code">int</code>로 표현할 수 없을 때(너무 많은 비트가 필요하기 때문에) 오버플로(overflow)가 발생했다고 합니다. 부호 있는 정수에 대한 연산 중 오버플로가 발생하면 프로그램의 동작은 정의되지 않습니다(undefined).</span> 대부분의 경우 연산 결과가 잘못될 뿐이지만 프로그램이 충돌하거나 다른 바람직하지 않은 동작을 보일 수도 있습니다. <span class="highlight">부호 없는 정수에 대한 연산 중 오버플로가 발생하면 결과는 정의됩니다. 즉, 올바른 답에 <code class="inline-code">2^n</code>을 나눈 나머지(모듈로)를 얻습니다.</span></p>
+
+        <h3>Reading and Writing Integers (정수 읽기 및 쓰기)</h3>
+        <p>프로그램이 <code class="inline-code">int</code> 변수 오버플로로 인해 작동하지 않는다고 가정해 봅시다. 가장 먼저 떠오르는 생각은 변수 타입을 <code class="inline-code">int</code>에서 <code class="inline-code">long int</code>로 변경하는 것입니다. 그러나 변경 사항이 프로그램의 나머지 부분에 어떤 영향을 미칠지 확인해야 합니다. 특히 <code class="inline-code">printf</code>나 <code class="inline-code">scanf</code> 호출에서 변수가 사용되는지 확인해야 합니다. <code class="inline-code">%d</code> 변환은 <code class="inline-code">int</code> 타입에만 작동하므로 형식 문자열을 변경해야 합니다.</p>
+        
+        <p>부호 없는(unsigned), 짧은(short), 긴(long) 정수를 읽고 쓰려면 몇 가지 새로운 변환 지정 사양이 필요합니다.</p>
+        <ul>
+            <li><strong>부호 없는 정수(unsigned):</strong> 변환 지정 사양에서 d 대신 u, o 또는 x를 사용합니다. u는 10진수, o는 8진수, x는 16진수를 나타냅니다. (예: <code class="inline-code">%u</code>, <code class="inline-code">%o</code>, <code class="inline-code">%x</code>)</li>
+            <li><strong>짧은 정수(short):</strong> d, o, u 또는 x 앞에 문자 h를 붙입니다. (예: <code class="inline-code">%hd</code>)</li>
+            <li><strong>긴 정수(long):</strong> d, o, u 또는 x 앞에 문자 l("one"이 아닌 "ell")을 붙입니다. (예: <code class="inline-code">%ld</code>)</li>
+            <li><strong>long long 정수(C99):</strong> d, o, u 또는 x 앞에 문자 ll을 붙입니다. (예: <code class="inline-code">%lld</code>)</li>
+        </ul>
+
+        <h3>PROGRAM: Summing a Series of Numbers (Revisited) (일련의 숫자 합계 계산하기 - 재방문)</h3>
+        <p>6.1절에서 사용자가 입력한 일련의 정수의 합계를 계산하는 프로그램을 작성했습니다. 이 프로그램의 한 가지 문제는 합계(또는 입력 숫자 중 하나)가 <code class="inline-code">int</code> 변수에 허용되는 최대값을 초과할 수 있다는 것입니다.</p>
+        
+        <p>이 문제를 해결하기 위해 변수를 long으로 변경해 보겠습니다.</p>
+
+        <pre><code>sum2.c
+
+/* Sums a series of numbers (using long variables) */
+
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+    long n, sum = 0;
+
+    printf("This program sums a series of integers.\n");
+    printf("Enter integers (0 to terminate): ");
+
+    scanf("%ld", &amp;n);
+    while (n != 0) {
+        sum += n;
+        scanf("%ld", &amp;n);
+    }
+    printf("The sum is: %ld\n", sum);
+
+    return 0;
+}</code></pre>
+        <p>변경 사항은 매우 간단했습니다. n과 sum을 <code class="inline-code">int</code> 대신 <code class="inline-code">long</code> 변수로 선언한 다음, <code class="inline-code">scanf</code> 및 <code class="inline-code">printf</code>의 변환 지정 사양을 <code class="inline-code">%d</code> 대신 <code class="inline-code">%ld</code>로 변경했습니다.</p>
+
+        <!-- ========================================== -->
+        <!-- Section 7.2 시작 -->
+        <!-- ========================================== -->
+        <h2>7.2 Floating Types (부동 타입)</h2>
+        
+        <p>정수 타입이 모든 응용 프로그램에 적합한 것은 아닙니다. 때로는 소수점 뒤에 숫자가 있는 숫자나 매우 크거나 작은 숫자를 저장할 수 있는 변수가 필요합니다. 이러한 숫자는 부동 소수점 형식(floating-point format)으로 저장됩니다(소수점이 "떠다니기(floats)" 때문에 그렇게 불립니다). C는 서로 다른 부동 소수점 형식에 해당하는 세 가지 부동 타입을 제공합니다.</p>
+        
+        <ul>
+            <li><strong><code class="inline-code">float</code>:</strong> 단정밀도(single-precision) 부동 소수점</li>
+            <li><strong><code class="inline-code">double</code>:</strong> 배정밀도(double-precision) 부동 소수점</li>
+            <li><strong><code class="inline-code">long double</code>:</strong> 확장 정밀도(extended-precision) 부동 소수점</li>
+        </ul>
+        
+        <p><code class="inline-code">float</code>는 정밀도가 중요하지 않은 경우(예: 온도를 소수점 한 자리까지 계산)에 적합합니다. <code class="inline-code">double</code>은 더 높은 정밀도를 제공하며 대부분의 프로그램에 충분합니다. 궁극의 정밀도를 제공하는 <code class="inline-code">long double</code>은 거의 사용되지 않습니다.</p>
+
+        <h3>The IEEE Floating-Point Standard (IEEE 부동 소수점 표준)</h3>
+        <p>IEEE 표준 754는 전기전자공학자협회(Institute of Electrical and Electronics Engineers)에서 개발한 부동 소수점 숫자에 대한 두 가지 기본 형식인 단정밀도(32비트)와 배정밀도(64비트)를 제공합니다. <span class="highlight">숫자는 과학적 표기법의 한 형태로 저장되며, 각 숫자는 부호(sign), 지수(exponent), 그리고 소수(fraction)의 세 부분을 가집니다. 지수에 예약된 비트 수는 숫자가 얼마나 크거나 작을 수 있는지를 결정하고, 소수의 비트 수는 정밀도를 결정합니다.</span> 단정밀도 형식에서 지수는 8비트이고 소수는 23비트를 차지합니다. 결과적으로 단정밀도 숫자의 최대값은 약 <code class="inline-code">3.40 × 10^38</code>이고 정밀도는 약 6자리 10진수입니다.</p>
+        
+        <p>IEEE 표준은 또한 단일 확장 정밀도(single extended precision)와 이중 확장 정밀도(double extended precision)라는 두 가지 다른 형식을 설명합니다. 표준은 이러한 형식의 비트 수를 지정하지 않지만 단일 확장 타입은 최소 43비트, 이중 확장 타입은 최소 79비트를 차지하도록 요구합니다.</p>
+        
+        <p>표 7.4는 IEEE 표준에 따라 구현될 때 부동 타입의 특성을 보여줍니다. (<code class="inline-code">long double</code> 타입은 기계마다 길이가 다르므로 표에 표시되지 않습니다. 가장 일반적인 크기는 80비트와 128비트입니다.)</p>
+
+        <table>
+            <tr><th>타입</th><th>가장 작은 양수 값</th><th>가장 큰 값</th><th>정밀도</th></tr>
+            <tr><td>float</td><td>1.17549 × 10^-38</td><td>3.40282 × 10^38</td><td>6자리</td></tr>
+            <tr><td>double</td><td>2.22507 × 10^-308</td><td>1.79769 × 10^308</td><td>15자리</td></tr>
+        </table>
+        <p style="text-align: right; font-size: 0.9em; color: #aaffaa;">표 7.4 IEEE 표준에 따른 부동 타입의 특성</p>
+
+        <p>IEEE 표준을 따르지 않는 컴퓨터에서는 표 7.4가 유효하지 않습니다. 실제로 일부 컴퓨터에서는 <code class="inline-code">float</code>가 <code class="inline-code">double</code>과 동일한 값 집합을 가질 수도 있고, <code class="inline-code">double</code>이 <code class="inline-code">long double</code>과 동일한 값을 가질 수도 있습니다. 부동 타입의 특성을 정의하는 매크로는 <code class="inline-code">&lt;float.h&gt;</code> 헤더에서 찾을 수 있습니다.</p>
+
+        <h3>Floating Constants (부동 소수점 상수)</h3>
+        <p>부동 소수점 상수는 다양한 방식으로 작성할 수 있습니다. 예를 들어, 다음 상수들은 모두 숫자 57.0을 작성하는 유효한 방법입니다.</p>
+        <pre><code>57.0  57.  57.0e0  57E0  5.7e1  5.7e+1  .57e2  570.e-1</code></pre>
+        
+        <p>부동 소수점 상수는 소수점 및/또는 지수를 포함해야 합니다. 지수는 숫자에 곱할 10의 거듭제곱을 나타냅니다. 지수가 있는 경우 문자 E(또는 e)가 앞에 와야 합니다. 선택적 + 또는 - 부호가 E(또는 e) 뒤에 올 수 있습니다.</p>
+        
+        <p><span class="highlight">기본적으로 부동 소수점 상수는 배정밀도 숫자로 저장됩니다. 즉, C 컴파일러가 프로그램에서 상수 57.0을 발견하면 숫자가 double 변수와 동일한 형식으로 메모리에 저장되도록 배열합니다. 이 규칙은 double 값이 필요할 때 자동으로 float로 변환되기 때문에 일반적으로 문제를 일으키지 않습니다.</span></p>
+        
+        <p>때로는 컴파일러가 부동 소수점 상수를 float 또는 long double 형식으로 저장하도록 강제해야 할 수도 있습니다. 단정밀도만을 원한다는 것을 나타내려면 상수 끝에 문자 F(또는 f)를 붙입니다(예: 57.0F). 상수를 long double 형식으로 저장해야 함을 나타내려면 끝에 문자 L(또는 l)을 붙입니다(57.0L).</p>
+
+        <h3>Reading and Writing Floating-Point Numbers (부동 소수점 숫자 읽기 및 쓰기)</h3>
+        <p>이미 논의한 바와 같이 변환 지정 사양 <code class="inline-code">%e</code>, <code class="inline-code">%f</code>, <code class="inline-code">%g</code>는 단정밀도 부동 소수점 숫자를 읽고 쓰는 데 사용됩니다. <code class="inline-code">double</code> 및 <code class="inline-code">long double</code> 타입의 값에는 약간 다른 변환이 필요합니다.</p>
+        
+        <ul>
+            <li><strong><code class="inline-code">double</code> 값 읽기:</strong> e, f 또는 g 앞에 문자 l을 붙입니다. (예: <code class="inline-code">scanf("%lf", &amp;d);</code>) <span class="highlight">참고: scanf 형식 문자열에서만 l을 사용하고, printf 문자열에서는 사용하지 마세요. printf 형식 문자열에서는 e, f, g 변환을 사용하여 float 또는 double 값을 쓸 수 있습니다.</span></li>
+            <li><strong><code class="inline-code">long double</code> 값 읽기/쓰기:</strong> e, f 또는 g 앞에 문자 L을 붙입니다. (예: <code class="inline-code">scanf("%Lf", &amp;ld);</code> <code class="inline-code">printf("%Lf", ld);</code>)</li>
+        </ul>
+
+        <!-- ========================================== -->
+        <!-- Section 7.3 시작 -->
+        <!-- ========================================== -->
+        <h2>7.3 Character Types (문자 타입)</h2>
+        
+        <p>남아 있는 유일한 기본 타입은 <code class="inline-code">char</code>, 즉 문자 타입입니다. <code class="inline-code">char</code> 타입의 값은 서로 다른 컴퓨터가 서로 다른 기본 문자 세트를 가질 수 있기 때문에 컴퓨터마다 다를 수 있습니다.</p>
+
+        <h3>Character Sets (문자 세트)</h3>
+        <p>오늘날 가장 인기 있는 문자 세트는 ASCII(American Standard Code for Information Interchange)로, 128개의 문자를 나타낼 수 있는 7비트 코드입니다. ASCII에서 숫자 0부터 9는 코드 0110000~0111001로 표현되고, 대문자 A부터 Z는 1000001~1011010으로 표현됩니다. ASCII는 종종 서유럽 및 많은 아프리카 언어에 필요한 문자를 제공하는 256자 코드인 Latin-1로 확장됩니다.</p>
+        
+        <p><code class="inline-code">char</code> 타입의 변수에는 단일 문자를 할당할 수 있습니다.</p>
+        <pre><code>char ch;
+ch = 'a';  /* lower-case a */
+ch = 'A';  /* upper-case A */
+ch = '0';  /* zero */
+ch = ' ';  /* space */</code></pre>
+        <p>문자 상수는 큰따옴표가 아닌 작은따옴표로 묶입니다.</p>
+
+        <h3>Operations on Characters (문자에 대한 연산)</h3>
+        <p>한 가지 사실 때문에 C에서 문자로 작업하는 것은 간단합니다. <span class="highlight">C는 문자를 작은 정수로 취급합니다.</span> 결국 문자는 이진수로 인코딩되며, 이러한 이진 코드를 정수로 보는 것은 그리 많은 상상력을 필요로 하지 않습니다. 예를 들어 ASCII에서 문자 코드는 0000000에서 1111111까지이며, 이를 0에서 127까지의 정수로 생각할 수 있습니다. 문자 'a'는 97, 'A'는 65, '0'은 48, ' '는 32의 값을 가집니다. C에서 문자와 정수 사이의 연결은 너무 강해서 문자 상수는 실제로 <code class="inline-code">char</code> 타입이 아닌 <code class="inline-code">int</code> 타입을 가집니다.</p>
+        
+        <p>문자가 계산에 나타나면 C는 단순히 정수 값을 사용합니다. 다음 예를 고려해 보세요(ASCII 문자 세트 가정).</p>
+        <pre><code>char ch;
+int i;
+
+i = 'a';        /* i is now 97 */
+ch = 65;        /* ch is now 'A' */
+ch = ch + 1;    /* ch is now 'B' */
+ch++;           /* ch is now 'C' */</code></pre>
+        
+        <p>문자는 숫자처럼 비교할 수 있습니다. 다음 <code class="inline-code">if</code> 문은 <code class="inline-code">ch</code>에 소문자가 포함되어 있는지 확인하고, 포함되어 있으면 <code class="inline-code">ch</code>를 대문자로 변환합니다.</p>
+        <pre><code>if ('a' &lt;= ch &amp;&amp; ch &lt;= 'z')
+    ch = ch - 'a' + 'A';</code></pre>
+        <p><code class="inline-code">'a' &lt;= ch</code>와 같은 비교는 관련된 문자의 정수 값을 사용하여 수행됩니다. 이러한 값은 사용 중인 문자 세트에 따라 다르므로 <code class="inline-code">&lt;</code>, <code class="inline-code">&lt;=</code>, <code class="inline-code">&gt;</code>, <code class="inline-code">&gt;=</code>를 사용하여 문자를 비교하는 프로그램은 이식성이 없을 수 있습니다.</p>
+
+        <h3>Signed and Unsigned Characters (부호 있는 문자와 부호 없는 문자)</h3>
+        <p>C는 문자를 정수로 사용할 수 있도록 하기 때문에 <code class="inline-code">char</code> 타입이 정수 타입처럼 부호 있는 버전과 부호 없는 버전으로 존재한다는 것은 놀라운 일이 아닙니다. 부호 있는 문자는 일반적으로 -128에서 127 사이의 값을 가지며, 부호 없는 문자는 0에서 255 사이의 값을 가집니다.</p>
+        
+        <p><span class="highlight">C 표준은 일반 <code class="inline-code">char</code>가 부호 있는 타입인지 부호 없는 타입인지 지정하지 않습니다. 일부 컴파일러는 부호 있는 타입으로 취급하고 다른 컴파일러는 부호 없는 타입으로 취급합니다.</span> 대부분의 경우 <code class="inline-code">char</code>가 부호가 있는지 없는지는 중요하지 않습니다. 그러나 때때로, 특히 문자 변수를 사용하여 작은 정수를 저장하는 경우에는 중요합니다. 이러한 이유로 C는 <code class="inline-code">char</code>를 수정하기 위해 <code class="inline-code">signed</code> 및 <code class="inline-code">unsigned</code>라는 단어의 사용을 허용합니다.</p>
+        <pre><code>signed char sch;
+unsigned char uch;</code></pre>
+        <p><strong>이식성 팁:</strong> <code class="inline-code">char</code>가 기본적으로 부호가 있거나 없다고 가정하지 마세요. 중요한 경우 <code class="inline-code">char</code> 대신 <code class="inline-code">signed char</code> 또는 <code class="inline-code">unsigned char</code>를 사용하세요.</p>
+
+        <h3>Arithmetic Types (산술 타입)</h3>
+        <p>정수 타입과 부동 타입을 총칭하여 산술 타입(arithmetic types)이라고 합니다. 다음은 C89의 산술 타입 요약입니다.</p>
+        <ul>
+            <li><strong>정수 타입(Integral types):</strong> <code class="inline-code">char</code>, 부호 있는 정수 타입(<code class="inline-code">signed char</code>, <code class="inline-code">short int</code>, <code class="inline-code">int</code>, <code class="inline-code">long int</code>), 부호 없는 정수 타입(<code class="inline-code">unsigned char</code>, <code class="inline-code">unsigned short int</code>, <code class="inline-code">unsigned int</code>, <code class="inline-code">unsigned long int</code>), 열거형 타입</li>
+            <li><strong>부동 타입(Floating types):</strong> <code class="inline-code">float</code>, <code class="inline-code">double</code>, <code class="inline-code">long double</code></li>
+        </ul>
+        <p>C99는 더 복잡한 계층 구조를 가집니다. (정수 타입, 부동 타입, 복소수 타입 등 추가)</p>
+
+        <h3>Escape Sequences (이스케이프 시퀀스)</h3>
+        <p>문자 상수는 보통 작은따옴표로 묶인 하나의 문자입니다. 그러나 줄 바꿈 문자를 포함한 특정 특수 문자는 보이지 않거나(비인쇄) 키보드에서 입력할 수 없기 때문에 이런 방식으로 작성할 수 없습니다. 기본 문자 세트의 모든 문자를 프로그램이 처리할 수 있도록 C는 이스케이프 시퀀스(escape sequence)라는 특수 표기법을 제공합니다.</p>
+        
+        <p>표 7.5는 완전한 문자 이스케이프 세트를 제공합니다.</p>
+        <table>
+            <tr><th>이름</th><th>이스케이프 시퀀스</th></tr>
+            <tr><td>경고(벨)</td><td><code class="inline-code">\a</code></td></tr>
+            <tr><td>백스페이스</td><td><code class="inline-code">\b</code></td></tr>
+            <tr><td>폼 피드</td><td><code class="inline-code">\f</code></td></tr>
+            <tr><td>새 줄</td><td><code class="inline-code">\n</code></td></tr>
+            <tr><td>캐리지 리턴</td><td><code class="inline-code">\r</code></td></tr>
+            <tr><td>수평 탭</td><td><code class="inline-code">\t</code></td></tr>
+            <tr><td>수직 탭</td><td><code class="inline-code">\v</code></td></tr>
+            <tr><td>역슬래시</td><td><code class="inline-code">\\</code></td></tr>
+            <tr><td>물음표</td><td><code class="inline-code">\?</code></td></tr>
+            <tr><td>작은따옴표</td><td><code class="inline-code">\'</code></td></tr>
+            <tr><td>큰따옴표</td><td><code class="inline-code">\"</code></td></tr>
+        </table>
+        <p style="text-align: right; font-size: 0.9em; color: #aaffaa;">표 7.5 문자 이스케이프</p>
+
+        <p>문자 이스케이프는 모든 비인쇄 ASCII 문자를 포함하지 않으며 기본 128 ASCII 문자 이외의 문자를 나타내는 데는 쓸모가 없습니다. <strong>숫자 이스케이프(numeric escapes)</strong>는 이 문제에 대한 해결책입니다.</p>
+        <ul>
+            <li><strong>8진수 이스케이프 시퀀스:</strong> <code class="inline-code">\</code> 뒤에 최대 3자리의 8진수가 옵니다. (예: <code class="inline-code">\33</code> 또는 <code class="inline-code">\033</code>)</li>
+            <li><strong>16진수 이스케이프 시퀀스:</strong> <code class="inline-code">\x</code> 뒤에 16진수가 옵니다. (예: <code class="inline-code">\x1b</code> 또는 <code class="inline-code">\x1B</code>)</li>
+        </ul>
+
+        <h3>Character-Handling Functions (문자 처리 함수)</h3>
+        <p>이전에 소문자를 대문자로 변환하는 <code class="inline-code">if</code> 문을 작성하는 방법을 보았습니다. 이것은 최선의 방법이 아닙니다. 더 빠르고 이식성이 뛰어난 방법은 C의 <code class="inline-code">toupper</code> 라이브러리 함수를 호출하는 것입니다.</p>
+        <pre><code>ch = toupper(ch);    /* converts ch to upper case */</code></pre>
+        <p><code class="inline-code">toupper</code>가 호출되면 인수(이 경우 <code class="inline-code">ch</code>)가 소문자인지 확인합니다. 그렇다면 해당하는 대문자를 반환합니다. 그렇지 않으면 <code class="inline-code">toupper</code>는 인수의 값을 반환합니다. <code class="inline-code">toupper</code>를 호출하는 프로그램은 상단에 <code class="inline-code">#include &lt;ctype.h&gt;</code> 지시어가 있어야 합니다.</p>
+
+        <h3>Reading and Writing Characters using scanf and printf (scanf와 printf를 사용하여 문자 읽기 및 쓰기)</h3>
+        <p><code class="inline-code">%c</code> 변환 지정 사양을 사용하면 <code class="inline-code">scanf</code>와 <code class="inline-code">printf</code>가 단일 문자를 읽고 쓸 수 있습니다.</p>
+        <pre><code>char ch;
+scanf("%c", &amp;ch);    /* reads a single character */
+printf("%c", ch);    /* writes a single character */</code></pre>
+        <p><span class="highlight"><code class="inline-code">scanf</code>는 문자를 읽기 전에 공백 문자를 건너뛰지 않습니다. 읽지 않은 다음 문자가 공백이면 <code class="inline-code">scanf</code>가 반환된 후 변수 <code class="inline-code">ch</code>에 공백이 포함됩니다. <code class="inline-code">scanf</code>가 문자를 읽기 전에 공백을 건너뛰도록 하려면 형식 문자열에서 <code class="inline-code">%c</code> 바로 앞에 공백을 넣으세요.</span></p>
+        <pre><code>scanf(" %c", &amp;ch);    /* skips white space, then reads ch */</code></pre>
+
+        <h3>Reading and Writing Characters using getchar and putchar (getchar와 putchar를 사용하여 문자 읽기 및 쓰기)</h3>
+        <p>C는 단일 문자를 읽고 쓰는 다른 방법을 제공합니다. 특히 <code class="inline-code">scanf</code>와 <code class="inline-code">printf</code>를 호출하는 대신 <code class="inline-code">getchar</code> 및 <code class="inline-code">putchar</code> 함수를 사용할 수 있습니다. <code class="inline-code">putchar</code>는 단일 문자를 씁니다. <code class="inline-code">getchar</code>가 호출될 때마다 하나의 문자를 읽고 반환합니다. 이 문자를 저장하려면 변수에 저장하기 위해 할당을 사용해야 합니다.</p>
+        
+        <pre><code>ch = getchar();    /* reads a character and stores it in ch */</code></pre>
+        <p><code class="inline-code">getchar</code>는 실제로 <code class="inline-code">char</code> 값이 아닌 <code class="inline-code">int</code> 값을 반환합니다. 결과적으로 <code class="inline-code">getchar</code>가 읽은 문자를 저장하는 데 사용될 변수는 <code class="inline-code">char</code> 대신 <code class="inline-code">int</code> 타입을 가지는 것이 드문 일이 아닙니다. <code class="inline-code">scanf</code>와 마찬가지로 <code class="inline-code">getchar</code>는 읽을 때 공백 문자를 건너뛰지 않습니다.</p>
+        
+        <p><code class="inline-code">scanf</code>와 <code class="inline-code">printf</code> 대신 <code class="inline-code">getchar</code>와 <code class="inline-code">putchar</code>를 사용하면 프로그램이 실행될 때 시간을 절약할 수 있습니다. <code class="inline-code">getchar</code>와 <code class="inline-code">putchar</code>는 두 가지 이유로 빠릅니다. 첫째, 다양한 형식으로 여러 종류의 데이터를 읽고 쓰도록 설계된 <code class="inline-code">scanf</code>와 <code class="inline-code">printf</code>보다 훨씬 간단합니다. 둘째, <code class="inline-code">getchar</code>와 <code class="inline-code">putchar</code>는 추가 속도를 위해 매크로로 구현되는 경우가 많습니다.</p>
+
+        <!-- ========================================== -->
+        <!-- Section 7.4 시작 -->
+        <!-- ========================================== -->
+        <h2>7.4 Type Conversion (타입 변환)</h2>
+        
+        <p>컴퓨터는 산술 연산을 수행할 때 일반적으로 피연산자가 동일한 크기(동일한 비트 수)여야 하고 동일한 방식으로 저장되어야 합니다. 16비트 정수와 32비트 정수를 직접 더할 수는 없습니다. 반면 C는 기본 타입을 수식에서 혼합할 수 있도록 허용합니다. 정수, 부동 소수점 숫자, 심지어 문자까지 단일 수식에서 결합할 수 있습니다. 그런 다음 C 컴파일러는 하드웨어가 수식을 평가할 수 있도록 일부 피연산자를 다른 타입으로 변환하는 명령어를 생성해야 할 수 있습니다.</p>
+        
+        <p>컴파일러가 프로그래머의 개입 없이 자동으로 이러한 변환을 처리하기 때문에 <strong>암시적 변환(implicit conversions)</strong>이라고 합니다. C는 또한 프로그래머가 캐스트 연산자를 사용하여 <strong>명시적 변환(explicit conversions)</strong>을 수행할 수 있도록 합니다.</p>
+
+        <h3>The Usual Arithmetic Conversions (일반적인 산술 변환)</h3>
+        <p>일반적인 산술 변환은 산술, 관계 및 동등 연산자를 포함한 대부분의 이항 연산자의 피연산자에 적용됩니다. 일반적인 산술 변환의 기본 전략은 두 값을 모두 안전하게 수용할 수 있는 "가장 좁은(narrowest)" 타입으로 피연산자를 변환하는 것입니다. (대략적으로 말하면, 한 타입이 다른 타입보다 저장하는 데 바이트가 적게 필요하면 더 좁습니다.)</p>
+        
+        <p>일반적인 산술 변환을 수행하는 규칙은 두 가지 경우로 나눌 수 있습니다.</p>
+        <ul>
+            <li><strong>피연산자 중 하나의 타입이 부동 타입인 경우:</strong> 더 좁은 타입의 피연산자를 더 넓은 부동 타입(<code class="inline-code">long double</code> > <code class="inline-code">double</code> > <code class="inline-code">float</code>)으로 승격(promotion)합니다.</li>
+            <li><strong>피연산자 타입이 부동 타입이 아닌 경우:</strong> 먼저 두 피연산자에 정수 승격(integral promotion)을 수행합니다(문자나 짧은 정수가 <code class="inline-code">int</code>로 변환됨). 그런 다음 더 좁은 타입의 피연산자를 더 넓은 정수 타입(<code class="inline-code">unsigned long int</code> > <code class="inline-code">long int</code> > <code class="inline-code">unsigned int</code> > <code class="inline-code">int</code>)으로 승격합니다.</li>
+        </ul>
+        
+        <div class="warning-box">
+            <strong>⚠️ 경고: 부호 있는 피연산자와 부호 없는 피연산자가 결합되면 부호 있는 피연산자가 부호 없는 값으로 변환됩니다.</strong><br>
+            변환에는 <code class="inline-code">n + 1</code>의 배수를 더하거나 빼는 것이 포함되며, 여기서 n은 부호 없는 타입의 가장 큰 표현 가능한 값입니다. 이 규칙은 모호한 프로그래밍 오류를 유발할 수 있습니다. 예를 들어, <code class="inline-code">int</code> 변수 i의 값이 -10이고 <code class="inline-code">unsigned int</code> 변수 u의 값이 10이라고 가정해 봅시다. <code class="inline-code">&lt;</code> 연산자를 사용하여 i와 u를 비교하면 결과가 1(참)일 것으로 예상할 수 있습니다. 그러나 비교 전에 i가 <code class="inline-code">unsigned int</code>로 변환됩니다. 음수는 부호 없는 정수로 표현할 수 없기 때문에 변환된 값은 -10이 아닙니다. 대신 값 4,294,967,296이 추가되어 변환된 값이 4,294,967,286이 됩니다. 따라서 <code class="inline-code">i &lt; u</code> 비교는 0을 생성합니다. <span class="highlight">이러한 함정 때문에 부호 없는 정수를 가능한 한 적게 사용하고, 특히 부호 있는 정수와 혼합하지 않는 것이 가장 좋습니다.</span>
+        </div>
+
+        <h3>Conversion During Assignment (할당 중 변환)</h3>
+        <p>일반적인 산술 변환은 할당에 적용되지 않습니다. 대신 C는 할당 오른쪽의 수식이 왼쪽 변수의 타입으로 변환되는 간단한 규칙을 따릅니다. 변수 타입이 수식만큼 "넓으면" 문제 없이 작동합니다. 그러나 부동 소수점 숫자를 정수 변수에 할당하면 숫자의 소수 부분이 삭제됩니다. 또한 값이 변수 타입의 범위를 벗어나면 더 좁은 타입의 변수에 값을 할당하면 의미 없는 결과(또는 그 이상)가 발생합니다. 컴파일러나 `lint`와 같은 도구에서 경고를 표시할 수 있습니다.</p>
+
+        <h3>Implicit Conversions in C99 (C99의 암시적 변환)</h3>
+        <p>C99의 암시적 변환 규칙은 주로 C99에 추가 타입(<code class="inline-code">_Bool</code>, long long 타입, 확장 정수 타입, 복소수 타입)이 있기 때문에 C89의 규칙과 다소 다릅니다. (복잡한 규칙은 생략하고 핵심만 설명) 모든 산술 타입은 <code class="inline-code">_Bool</code> 타입으로 변환될 수 있습니다. 변환 결과는 원래 값이 0이면 0이고, 그렇지 않으면 1입니다.</p>
+
+        <h3>Casting (캐스팅)</h3>
+        <p>C의 암묵적 변환이 편리하지만 때로는 타입 변환을 더 세밀하게 제어해야 합니다. 이를 위해 C는 캐스트(cast)를 제공합니다. 캐스트 수식은 <code class="inline-code">(type-name) expression</code> 형태를 가집니다.</p>
+        
+        <p>다음 예제는 캐스트 수식을 사용하여 <code class="inline-code">float</code> 값의 소수 부분을 계산하는 방법을 보여줍니다.</p>
+        <pre><code>float f, frac_part;
+frac_part = f - (int) f;</code></pre>
+        <p>캐스트 수식 <code class="inline-code">(int) f</code>는 f의 값을 <code class="inline-code">int</code> 타입으로 변환한 결과를 나타냅니다. 캐스트는 때때로 오버플로를 피하기 위해 필요합니다. (예: <code class="inline-code">i = (long) j * j;</code>에서 j * j가 int 범위를 넘어설 때)</p>
+
+        <!-- ========================================== -->
+        <!-- Section 7.5 시작 -->
+        <!-- ========================================== -->
+        <h2>7.5 Type Definitions (타입 정의)</h2>
+        
+        <p>5.2절에서 부울 타입으로 사용할 수 있는 매크로를 만들기 위해 <code class="inline-code">#define</code> 지시어를 사용했습니다. 그러나 타입 정의(type definition)라는 기능을 사용하여 부울 타입을 설정하는 더 좋은 방법이 있습니다.</p>
+        
+        <pre><code>typedef int Bool;</code></pre>
+        
+        <p>정의되는 타입의 이름이 마지막에 온다는 점에 유의하세요. <code class="inline-code">typedef</code>를 사용하여 <code class="inline-code">Bool</code>을 정의하면 컴파일러가 인식하는 타입 이름 목록에 <code class="inline-code">Bool</code>이 추가됩니다.</p>
+
+        <h3>Advantages of Type Definitions (타입 정의의 장점)</h3>
+        <p>타입 정의는 프로그램을 더 이해하기 쉽게 만들 수 있습니다. 예를 들어 <code class="inline-code">cash_in</code>과 <code class="inline-code">cash_out</code> 변수가 달러 금액을 저장하는 데 사용된다고 가정해 봅시다. <code class="inline-code">Dollars</code>를 <code class="inline-code">typedef float Dollars;</code>로 선언하고 <code class="inline-code">Dollars cash_in, cash_out;</code>으로 작성하는 것이 단순히 <code class="inline-code">float cash_in, cash_out;</code>으로 작성하는 것보다 더 유익합니다. 또한 나중에 <code class="inline-code">Dollars</code>를 <code class="inline-code">double</code>로 정의하기로 결정하더라도 타입 정의만 변경하면 되므로 프로그램을 더 쉽게 수정할 수 있습니다.</p>
+
+        <h3>Type Definitions and Portability (타입 정의와 이식성)</h3>
+        <p>타입 정의는 이식성 있는 프로그램을 작성하기 위한 중요한 도구입니다. 프로그램을 한 컴퓨터에서 다른 컴퓨터로 옮길 때의 문제 중 하나는 타입이 기계마다 다른 범위를 가질 수 있다는 것입니다. <strong>이식성 팁:</strong> <span class="highlight">더 큰 이식성을 위해 <code class="inline-code">typedef</code>를 사용하여 정수 타입에 대한 새로운 이름을 정의하는 것을 고려하세요.</span> 예를 들어 0~50,000 범위의 값을 저장해야 하는 경우 <code class="inline-code">int</code> 대신 <code class="inline-code">long</code>을 사용할 수 있지만 <code class="inline-code">int</code>가 더 빠르고 공간을 적게 차지할 수 있습니다. <code class="inline-code">typedef int Quantity;</code>로 정의한 다음 다른 기계로 옮길 때 <code class="inline-code">typedef long Quantity;</code>로 변경할 수 있습니다.</p>
+
+        <!-- ========================================== -->
+        <!-- Section 7.6 시작 -->
+        <!-- ========================================== -->
+        <h2>7.6 The sizeof Operator (sizeof 연산자)</h2>
+        
+        <p><code class="inline-code">sizeof</code> 연산자를 사용하면 프로그램이 특정 타입의 값을 저장하는 데 필요한 메모리 양을 결정할 수 있습니다. <code class="inline-code">sizeof expression</code> 또는 <code class="inline-code">sizeof (type-name)</code> 수식의 값은 <code class="inline-code">type-name</code>에 속하는 값을 저장하는 데 필요한 바이트 수를 나타내는 부호 없는 정수입니다.</p>
+        
+        <p><span class="highlight"><code class="inline-code">sizeof (char)</code>는 항상 1이지만 다른 타입의 크기는 다를 수 있습니다. 32비트 기계에서 <code class="inline-code">sizeof (int)</code>는 일반적으로 4입니다.</span> <code class="inline-code">sizeof</code>는 컴파일러 자체가 일반적으로 <code class="inline-code">sizeof</code> 수식의 값을 결정할 수 있기 때문에 다소 특이한 연산자입니다. <code class="inline-code">sizeof</code>는 상수, 변수 및 일반 수식에 적용할 수 있습니다.</p>
+
+        <!-- ========================================== -->
+        <!-- Chapter 7 Q&A -->
+        <!-- ========================================== -->
+        <h2>💡 Chapter 7 Q&amp;A (질의응답)</h2>
+        
+        <p><strong>Q: 7.1절에서 <code class="inline-code">%o</code>와 <code class="inline-code">%x</code>가 부호 없는 정수를 8진수와 16진수로 쓰는 데 사용된다고 했습니다. 일반 (부호 있는) 정수를 8진수나 16진수로 쓰려면 어떻게 해야 하나요?</strong><br>
+        A: 값이 음수가 아닌 한 <code class="inline-code">%o</code> 및 <code class="inline-code">%x</code>를 사용하여 부호 있는 정수를 인쇄할 수 있습니다. printf는 부호 있는 정수를 부호 없는 것처럼 취급합니다. 부호 비트가 0이면 문제가 없습니다. 부호 비트가 1이면 printf는 예상치 못하게 큰 숫자를 인쇄합니다. 음수를 8진수나 16진수로 인쇄하는 직접적인 방법은 없습니다.</p>
+
+        <p><strong>Q: 부동 소수점 상수가 <code class="inline-code">float</code> 형식이 아닌 <code class="inline-code">double</code> 형식으로 저장되는 이유는 무엇인가요?</strong><br>
+        A: 역사적인 이유로 C는 <code class="inline-code">double</code> 타입을 선호합니다. <code class="inline-code">float</code>은 2등 시민으로 취급됩니다. C는 원래 모든 부동 소수점 산술이 배정밀도로 수행되도록 요구했습니다. (C89와 C99에는 그러한 요구 사항이 없습니다.)</p>
+
+        <p><strong>Q: <code class="inline-code">double</code> 값을 읽을 때는 <code class="inline-code">%lf</code>를 사용하고 인쇄할 때는 <code class="inline-code">%f</code>를 사용하는 이유는 무엇인가요?</strong><br>
+        A: scanf와 printf는 가변 길이 인수 목록을 가진 함수입니다. 이러한 함수가 호출되면 컴파일러는 float 인수가 자동으로 double 타입으로 변환되도록 합니다. 결과적으로 printf는 float와 double 인수를 구별할 수 없습니다. 이것이 printf 호출에서 %f가 float와 double 인수 모두에 작동하는 이유입니다. 반면 scanf는 변수에 대한 포인터를 전달받습니다. %f는 scanf에게 float 값을 저장하도록 지시하고 %lf는 double 값을 저장하도록 지시합니다. 여기서 float와 double의 구별은 매우 중요합니다. 잘못된 변환 사양이 주어지면 scanf는 아마도 잘못된 바이트 수를 저장할 것입니다.</p>
+
+        <p><strong>Q: <code class="inline-code">char</code>를 어떻게 발음해야 하나요?</strong><br>
+        A: 보편적으로 받아들여지는 발음은 없습니다. 어떤 사람들은 "character"의 첫 음절처럼 발음하고, 다른 사람들은 "char"(숯을 굽다)처럼 발음합니다.</p>
+
+        <p><strong>Q: 문자 변수가 부호 있는지 없는지가 언제 중요한가요?</strong><br>
+        A: 변수에 7비트 문자만 저장한다면 부호 비트가 0이기 때문에 중요하지 않습니다. 그러나 8비트 문자를 저장할 계획이라면 변수가 <code class="inline-code">unsigned char</code> 타입이기를 원할 것입니다.</p>
+
+        <p><strong>Q: 새로운 줄 문자가 어떻게 ASCII 라인 피드 문자일 수 있나요? 사용자가 Enter 키를 누르면 프로그램이 이를 캐리지 리턴 문자 또는 캐리지 리턴과 라인 피드로 읽지 않나요?</strong><br>
+        A: 아닙니다. C의 UNIX 유산의 일부로서 항상 줄의 끝을 단일 라인 피드 문자로 간주합니다. C 라이브러리는 사용자의 키 누름을 라인 피드 문자로 변환하는 작업을 처리합니다.</p>
+
+        <p><strong>Q: <code class="inline-code">getchar</code>가 더 빠르다면 왜 개별 문자를 읽기 위해 <code class="inline-code">scanf</code>를 사용하려 할까요?</strong><br>
+        A: <code class="inline-code">getchar</code>만큼 빠르지는 않지만 <code class="inline-code">scanf</code> 함수가 더 유연합니다. <code class="inline-code">" %c"</code> 형식 문자열은 scanf가 다음 입력 문자를 읽도록 하고, <code class="inline-code">" %c"</code>는 다음 비공백 문자를 읽도록 합니다. 또한 scanf는 다른 종류의 데이터와 섞여 있는 문자를 읽는 데 능숙합니다.</p>
+
+        <!-- ========================================== -->
+        <!-- Chapter 7 요약 및 문제 -->
+        <!-- ========================================== -->
+        <div class="summary-box">
+            <h3>📝 Chapter 7 Summary (써머리)</h3>
+            <ul>
+                <li>C의 정수 타입은 크기(<code class="inline-code">short</code>, <code class="inline-code">int</code>, <code class="inline-code">long</code>, <code class="inline-code">long long</code>)와 부호(<code class="inline-code">signed</code>, <code class="inline-code">unsigned</code>)에 따라 다양합니다.</li>
+                <li>부동 타입(<code class="inline-code">float</code>, <code class="inline-code">double</code>, <code class="inline-code">long double</code>)은 소수점을 포함하는 숫자를 표현하며, IEEE 754 표준을 주로 따릅니다.</li>
+                <li><code class="inline-code">char</code> 타입은 문자를 저장하며, 내부적으로는 작은 정수로 취급됩니다. 부호 있는/없는 문자를 명시할 수 있습니다.</li>
+                <li>타입 변환(자동/명시적)은 데이터 손실이나 오버플로를 방지하기 위해 주의해야 합니다.</li>
+                <li><code class="inline-code">typedef</code>를 사용하면 타입에 의미 있는 이름을 부여하여 가독성과 이식성을 높일 수 있습니다.</li>
+                <li><code class="inline-code">sizeof</code> 연산자는 특정 타입이 메모리에서 차지하는 바이트 크기를 알려줍니다.</li>
+            </ul>
+        </div>
+
+        <div class="exercise-box">
+            <h3>✍️ Chapter 7 Exercises (문제) &amp; 정답</h3>
+            <ol>
+                <li>다음 정수 상수들의 10진수 값을 구하세요.
+                    <br>(a) <code class="inline-code">077</code>
+                    <br>(b) <code class="inline-code">0x77</code>
+                    <br>(c) <code class="inline-code">0XABC</code>
+                    <div class="answer-box">
+                        <strong>정답:</strong><br>
+                        (a) 8진수 77 = 7*8 + 7 = 63<br>
+                        (b) 16진수 77 = 7*16 + 7 = 119<br>
+                        (c) 16진수 ABC = 10*16^2 + 11*16 + 12 = 2560 + 176 + 12 = 2748
+                    </div>
+                </li>
+                <li>다음 중 C에서 유효하지 않은 상수는 무엇이며, 왜 그런가요?
+                    <br>(a) <code class="inline-code">010E2</code>
+                    <br>(b) <code class="inline-code">32.1E+5</code>
+                    <br>(c) <code class="inline-code">0790</code>
+                    <br>(d) <code class="inline-code">100_000</code>
+                    <br>(e) <code class="inline-code">3.978e-2</code>
+                    <div class="answer-box">
+                        <strong>정답:</strong><br>
+                        (c)와 (d)가 유효하지 않습니다.<br>
+                        (c) <code class="inline-code">0790</code>: 0으로 시작하므로 8진수인데, 8진수에는 8과 9가 올 수 없습니다.<br>
+                        (d) <code class="inline-code">100_000</code>: 숫자에 밑줄(_)을 포함할 수 없습니다. (C++14나 Java 등에서는 가능하지만 C는 안 됩니다.)
+                    </div>
+                </li>
+                <li>다음 중 C에서 유효하지 않은 타입은 무엇인가요?
+                    <br>(a) <code class="inline-code">short unsigned int</code>
+                    <br>(b) <code class="inline-code">short float</code>
+                    <br>(c) <code class="inline-code">long double</code>
+                    <br>(d) <code class="inline-code">unsigned long</code>
+                    <div class="answer-box">
+                        <strong>정답:</strong> (b) <code class="inline-code">short float</code><br>
+                        (이유: C에는 short float 타입이 존재하지 않습니다.)
+                    </div>
+                </li>
+                <li><code class="inline-code">char</code> 타입의 변수 <code class="inline-code">c</code>가 있을 때, 다음 중 불법인 문장은 무엇인가요?
+                    <br>(a) <code class="inline-code">i += c;</code> (i는 int형)
+                    <br>(b) <code class="inline-code">c = 2 * c - 1;</code>
+                    <br>(c) <code class="inline-code">putchar(c);</code>
+                    <br>(d) <code class="inline-code">printf(c);</code>
+                    <div class="answer-box">
+                        <strong>정답:</strong> (d)<br>
+                        (이유: printf의 첫 번째 인자는 문자열(char *)이어야 합니다. c는 char이므로 오류가 발생합니다.)
+                    </div>
+                </li>
+                <li>다음 중 C에서 가장 작은 정수 타입부터 큰 순서로 올바르게 나열된 것은 무엇인가요? (일반적인 32비트 환경 기준)
+                    <br>(a) <code class="inline-code">char &lt; short &lt; int &lt; long</code>
+                    <br>(b) <code class="inline-code">char &lt; int &lt; short &lt; long</code>
+                    <br>(c) <code class="inline-code">short &lt; char &lt; int &lt; long</code>
+                    <div class="answer-box">
+                        <strong>정답:</strong> (a)<br>
+                        (일반적으로 char(1바이트) < short(2바이트) ≤ int(4바이트) ≤ long(4 또는 8바이트) 순서입니다.)
+                    </div>
+                </li>
+                <li>다음 수식들의 타입과 값을 구하세요. (단, <code class="inline-code">c</code>는 char형으로 '1'의 값을, <code class="inline-code">s</code>는 short형으로 2의 값을, <code class="inline-code">i</code>는 int형으로 -3의 값을 가짐)
+                    <br>(a) <code class="inline-code">c * i</code>
+                    <br>(b) <code class="inline-code">s + m</code> (단, m은 long형으로 5의 값)
+                    <br>(c) <code class="inline-code">f / c</code> (단, f는 float형으로 6.5의 값)
+                    <div class="answer-box">
+                        <strong>정답:</strong><br>
+                        (a) 타입: <code class="inline-code">int</code>, 값: 49 * -3 = -147 (문자 '1'의 ASCII 코드는 49)<br>
+                        (b) 타입: <code class="inline-code">long</code>, 값: 2 + 5 = 7<br>
+                        (c) 타입: <code class="inline-code">float</code>, 값: 6.5 / 49 ≈ 0.132653
+                    </div>
+                </li>
+            </ol>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 🔥 하이라이트 총정리 (연계 정리) 🔥 -->
+        <!-- ========================================== -->
+        <div class="highlight-summary-box">
+            <h2>🔥 형광칠한 핵심 내용 총정리 (Highlights)</h2>
+            <p>Chapter 7에서 형광펜으로 강조한 가장 중요한 내용들을 한눈에 볼 수 있도록 연계하여 정리했습니다. 이 부분은 C 언어의 데이터 타입과 메모리 구조를 이해하는 데 있어 가장 핵심적인 규칙입니다.</p>
+            
+            <ul>
+                <li style="margin-bottom: 15px;">
+                    <strong>1. 정수 타입의 부호와 오버플로:</strong><br>
+                    <span class="highlight">기본적으로 정수는 부호가 있습니다(signed). 부호 없는 정수(unsigned)를 사용할 때는 범위와 오버플로 동작(모듈로 연산)이 다르다는 점을 명심해야 합니다. 특히 부호 있는 정수 오버플로는 '정의되지 않은 동작'을 유발하므로 주의해야 합니다.</span>
+                </li>
+                <li style="margin-bottom: 15px;">
+                    <strong>2. 실수 타입의 정밀도와 저장 방식:</strong><br>
+                    <span class="highlight"><code class="inline-code">float</code>는 6자리, <code class="inline-code">double</code>은 15자리의 정밀도를 가집니다. 실수 상수는 기본적으로 <code class="inline-code">double</code>로 저장되며, <code class="inline-code">float</code>로 저장하려면 상수 뒤에 <code class="inline-code">f</code>를 붙여야 합니다. 또한 <code class="inline-code">scanf</code>로 <code class="inline-code">double</code>을 읽을 때는 <code class="inline-code">%lf</code>를 사용하고 <code class="inline-code">printf</code>로 쓸 때는 <code class="inline-code">%f</code>를 사용하는 이유(가변 인자 승격)를 기억하세요.</span>
+                </li>
+                <li style="margin-bottom: 15px;">
+                    <strong>3. <code class="inline-code">char</code> 타입의 이중성:</strong><br>
+                    <span class="highlight">C에서 <code class="inline-code">char</code>는 문자를 나타내지만, 내부적으로는 작은 정수(ASCII 코드)로 취급됩니다. 따라서 산술 연산이 가능합니다. 또한 <code class="inline-code">char</code>가 기본적으로 부호가 있는지 없는지는 컴파일러마다 다르므로, 8비트 문자를 다룰 때는 <code class="inline-code">unsigned char</code>를 명시하는 것이 안전합니다.</span>
+                </li>
+                <li style="margin-bottom: 15px;">
+                    <strong>4. 타입 변환 시 주의점 (부호 있는 정수 vs 부호 없는 정수):</strong><br>
+                    <span class="highlight">부호 있는 정수와 부호 없는 정수를 함께 연산하면, 부호 있는 정수가 부호 없는 정수로 변환됩니다. 이때 음수는 매우 큰 양수로 해석되어 예상치 못한 논리 오류를 유발할 수 있습니다. 가능하면 부호 없는 정수를 피하거나, 명시적으로 캐스팅(casting)하여 의도를 명확히 해야 합니다.</span>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</body>
+</html>
